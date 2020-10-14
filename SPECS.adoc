@@ -1,0 +1,153 @@
+= AsciiDoctor Document Specification
+Shulhan <ms@kilabit.info>
+6 June 2020
+:toc:
+
+This document contains grammar of asciidoc document markup language based on
+https://asciidoctor.org/docs/user-manual[Asciidoctor User Manual].
+
+
+==  Document header
+
+Document header consist of title and optional authors, a revision, and zero or
+more metadata.
+The document metadata can be in any order, before or after title, but the
+author and revision MUST be after title and in order.
+
+----
+DOC_HEADER     = *(DOC_ATTRIBUTE / COMMENTS)
+                 "=" SP DOC_TITLE LF
+                 (*DOC_ATTRIBUTE)
+                 DOC_AUTHORS LF
+                 (*DOC_ATTRIBUTE)
+                 DOC_REVISION LF
+                 (*DOC_ATTRIBUTE)
+
+DOC_TITLE     = 1*ADOC_WORD
+
+DOC_AUTHORS   = MAILBOX *(";" MAILBOX)
+
+  MAILBOX     = STRING [ "<" EMAIL ">" ]
+
+  EMAIL       = WORD "@" WORD "." 1*8ALPHA
+              ; simplified syntax of email format.
+
+DOC_REVISION     = DOC_REV_VERSION [ "," DOC_REV_DATE ]
+
+DOC_REV_VERSION  = "v" 1*DIGIT "." 1*DIGIT "." 1*DIGIT
+
+DOC_REV_DATE     = 1*2DIGIT 3*ALPHA 4*DIGIT
+----
+
+There are also metadata which affect how the document rendered,
+
+----
+DOC_ATTRIBUTE  = ":" DOC_ATTR_KEY ":" *STRING LF
+
+DOC_ATTR_KEY   = ( "toc" / "sectanchors" / "sectlinks"
+               /   "imagesdir" / "data-uri" / *META_KEY ) LF
+
+META_KEY_CHAR  = (A..Z | a..z | 0..9 | '_')
+
+META_KEY       = 1META_KEY_CHAR *(META_KEY_CHAR | '-')
+----
+
+HTML format for section header,
+
+----
+<div id="header">
+  <h1>{ADOC_WORD}</h1>
+  <div class="details">
+    <span id="author" class="author">{DOC_AUTHORS}</span>
+    <br>
+    <span id="revnumber">{DOC_REV_VERSION} , </span>
+    <span id="revdate">{DOC_REV_DATE} </span>
+  </div>
+</div>
+----
+
+
+==  Document preamble
+
+Any content after document title and before the new section is considered as
+document preamble and its rendered inside the "content", not "header".
+
+HTML format,
+
+----
+<div id="content">
+  <div id="preamble">
+    <div class="sectionbody">
+      {DOC_PREAMBLE}
+    </div>
+  </div>
+  ...
+</div>
+----
+
+
+== Sections
+
+Sections or headers group one or more paragraphs or blocks.
+Each section is started with '=' character or '#' (markdown).
+There are six levels or sections that are allowed in asciidoc, any more than
+that will be considered as paragraph.
+
+----
+SECTION          = [BlockRef]
+                   2*6(EQUAL/HASH) 1*WSP ADOC_LINE LF
+----
+
+HTML format,
+
+HTML class for section is `sectN`, where N is the level, which is equal to
+number of '=' minus 1.
+
+----
+<div class="sectN">
+  <hN>{ADOC_WORD}</hN>
+  <div class="sectionbody">
+    ...
+  </div>
+</div>
+----
+
+==  Comments
+
+----
+COMMENT_SINGLE = "//" LINE
+
+COMMENT_BLOCK  = "////" LF
+                 *LINE
+                 "////" LF
+
+COMMENTS = *(COMMENT_SINGLE / COMMENT_BLOCK)
+----
+
+==  Video
+
+----
+BLOCK_VIDEO = "video::" (URL / WORD) "[" ( "youtube" / "vimeo" ) *(BLOCK_ATTR) "]"
+----
+
+
+==  Audio
+
+----
+BLOCK_AUDIO = "audio::" (URL / WORD) "["
+              ( "options" "=" DQUOTE *AUDIO_ATTR_OPTIONS DQUOTE )
+            "]"
+
+AUDIO_ATTR_OPTIONS = "autoplay" | "loop" | "controls" | "nocontrols"
+----
+
+
+==  Block attributes
+
+----
+BLOCK_ATTRS = BLOCK_ATTR *("," BLOCK_ATTR)
+
+BLOCK_ATTR  = WORD "=" (DQUOTE) WORD (DQUOTE)
+----
+
+

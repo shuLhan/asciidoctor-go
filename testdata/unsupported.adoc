@@ -1,0 +1,49 @@
+= Unsupported syntax
+
+==  Quote
+
+===  Markdown quote
+
+> I hold
+> -- Thomas Jefferson, Papers of Thomas Jefferson: Volume 11
+
+> I
+> hold
+
+>Without space
+> -- Thomas Jefferson, Papers of Thomas Jefferson: Volume 11
+
+
+> Without space on author
+>-- Thomas Jefferson, Papers of Thomas Jefferson: Volume 11
+
+> > What's new?
+>
+> I've got Markdown in my AsciiDoc!
+>
+> > Like what?
+>
+> * Blockquotes
+> * Headings
+> * Fenced code blocks
+>
+> > Is there more?
+>
+> Yep. AsciiDoc and Markdown share a lot of common syntax already.
+
+>> Two right arrows without space.
+
+>   with tab
+> followed without tab
+
+>   with tab
+followed without left arrow
+
+>   with tab and author
+>   -- Thomas
+
+> followed immediately
+without left arrow
+-- Thomas
+
+

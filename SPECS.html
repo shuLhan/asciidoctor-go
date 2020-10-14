@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="theme-color" content="#375EAB" />
+
+		<title>AsciiDoctor Document Specification</title>
+
+		<style>
+		
+body {
+	margin: 0;
+	font-family: Arial, sans-serif;
+	background-color: #fff;
+	line-height: 1.3;
+	text-align: center;
+	color: #222;
+}
+pre,
+code {
+	font-family: Menlo, monospace;
+	font-size: 0.875rem;
+}
+pre {
+	line-height: 1.4;
+	overflow-x: auto;
+	background: #efefef;
+	padding: 0.625rem;
+	border-radius: 0.3125rem;
+}
+a {
+	color: #007d9c;
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+}
+
+p,
+li {
+	max-width: 50rem;
+	word-wrap: break-word;
+}
+li p {
+	margin: 2px;
+}
+p,
+pre,
+ul,
+ol {
+	margin: 1.25rem;
+}
+
+h1,
+h2,
+h3,
+h4 {
+	margin: 1.25rem 0 1.25rem;
+	padding: 0;
+	color: #007d9c;
+	font-weight: bold;
+}
+h1 {
+	font-size: 1.75rem;
+	line-height: 1;
+}
+h1 .text-muted {
+	color: #777;
+}
+h2 {
+	clear: right;
+	font-size: 1.25rem;
+	background: #e0ebf5;
+	padding: 0.5rem;
+	line-height: 1.25;
+	font-weight: normal;
+	overflow: auto;
+	overflow-wrap: break-word;
+}
+h2 a {
+	font-weight: bold;
+}
+h3 {
+	font-size: 1.25rem;
+	line-height: 1.25;
+	overflow: auto;
+	overflow-wrap: break-word;
+}
+h3,
+h4 {
+	margin: 1.25rem 0.3125rem;
+}
+h4 {
+	font-size: 1rem;
+}
+
+h2 > span,
+h3 > span {
+	float: right;
+	margin: 0 25px 0 0;
+	font-weight: normal;
+	color: #5279c7;
+}
+
+dl {
+	margin: 1.25rem;
+}
+dd {
+	margin: 0 0 0 1.25rem;
+}
+dl,
+dd {
+	font-size: 0.875rem;
+}
+
+/**
+ * Custom classes for pages
+ */
+
+.topbar {
+	background: #e0ebf5;
+	height: 4rem;
+	overflow: hidden;
+}
+
+.topbar .top-heading,
+.topbar .menu {
+	padding: 1.313rem 0;
+	font-size: 1.25rem;
+	font-weight: normal;
+}
+.topbar .top-heading {
+	float: left;
+}
+.topbar .top-heading a {
+	color: #222;
+	text-decoration: none;
+}
+
+.top-heading .header-logo {
+	height: 2rem;
+	width: 5.125rem;
+}
+
+.topbar .menu {
+	float: right;
+}
+.topbar .menu a {
+	margin: 0.625rem 0.125rem;
+	padding: 0.625rem;
+	color: white;
+	background: #007d9c;
+	border: 0.0625rem solid #007d9c;
+	border-radius: 5px;
+}
+.topbar .menu form {
+	display: inline-block;
+}
+
+.page {
+	width: 100%;
+}
+
+.page > .container,
+.topbar > .container,
+.footer > .container {
+	margin-left: auto;
+	margin-right: auto;
+	padding: 0 1.25rem;
+	max-width: 59.38rem;
+}
+
+.page > .container {
+	text-align: left;
+}
+
+.container .meta {
+	font-style: italic;
+	margin: 1.25rem;
+}
+
+.footer {
+	text-align: center;
+	color: #666;
+	font-size: 0.875rem;
+	margin: 2.5rem 0;
+}
+
+/** Custom classes for asciidoc */
+#toctitle {
+	display: none;
+}
+#toc li {
+	list-style: none;
+}
+#toc ul .sectlevel1 {
+	padding: 0px;
+	margin: 4px;
+}
+#toc ul .sectlevel2 {
+	margin: 4px;
+}
+
+@media screen and (max-width: 992px) {
+	#toc {
+		all: unset;
+	}
+}
+
+		</style>
+	</head>
+	<body>
+		<div class="topbar">
+			<div class="container">
+				<div class="top-heading">
+					<a href="/">ciigo</a>
+				</div>
+				<div class="menu">
+					<form class="item" action="/_internal/search">
+						<input type="text" name="q" placeholder="Search" />
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<div class="page">
+			<div class="container">
+				<h1>AsciiDoctor Document Specification</h1>
+				<div class="meta">
+					Shulhan
+				</div>
+				<div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_document_header">Document header</a></li>
+<li><a href="#_document_preamble">Document preamble</a></li>
+<li><a href="#_sections">Sections</a></li>
+<li><a href="#_comments">Comments</a></li>
+<li><a href="#_video">Video</a></li>
+<li><a href="#_audio">Audio</a></li>
+<li><a href="#_block_attributes">Block attributes</a></li>
+</ul>
+</div>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This document contains grammar of asciidoc document markup language based on
+<a href="https://asciidoctor.org/docs/user-manual">Asciidoctor User Manual</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_document_header">Document header</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Document header consist of title and optional authors, a revision, and zero or
+more metadata.
+The document metadata can be in any order, before or after title, but the
+author and revision MUST be after title and in order.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>DOC_HEADER     = *(DOC_ATTRIBUTE / COMMENTS)
+                 "=" SP DOC_TITLE LF
+                 (*DOC_ATTRIBUTE)
+                 DOC_AUTHORS LF
+                 (*DOC_ATTRIBUTE)
+                 DOC_REVISION LF
+                 (*DOC_ATTRIBUTE)
+
+DOC_TITLE     = 1*ADOC_WORD
+
+DOC_AUTHORS   = MAILBOX *(";" MAILBOX)
+
+  MAILBOX     = STRING [ "&lt;" EMAIL "&gt;" ]
+
+  EMAIL       = WORD "@" WORD "." 1*8ALPHA
+              ; simplified syntax of email format.
+
+DOC_REVISION     = DOC_REV_VERSION [ "," DOC_REV_DATE ]
+
+DOC_REV_VERSION  = "v" 1*DIGIT "." 1*DIGIT "." 1*DIGIT
+
+DOC_REV_DATE     = 1*2DIGIT 3*ALPHA 4*DIGIT</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>There are also metadata which affect how the document rendered,</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>DOC_ATTRIBUTE  = ":" DOC_ATTR_KEY ":" *STRING LF
+
+DOC_ATTR_KEY   = ( "toc" / "sectanchors" / "sectlinks"
+               /   "imagesdir" / "data-uri" / *META_KEY ) LF
+
+META_KEY_CHAR  = (A..Z | a..z | 0..9 | '_')
+
+META_KEY       = 1META_KEY_CHAR *(META_KEY_CHAR | '-')</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>HTML format for section header,</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>&lt;div id="header"&gt;
+  &lt;h1&gt;{ADOC_WORD}&lt;/h1&gt;
+  &lt;div class="details"&gt;
+    &lt;span id="author" class="author"&gt;{DOC_AUTHORS}&lt;/span&gt;
+    &lt;br&gt;
+    &lt;span id="revnumber"&gt;{DOC_REV_VERSION} , &lt;/span&gt;
+    &lt;span id="revdate"&gt;{DOC_REV_DATE} &lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_document_preamble">Document preamble</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Any content after document title and before the new section is considered as
+document preamble and its rendered inside the "content", not "header".</p>
+</div>
+<div class="paragraph">
+<p>HTML format,</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>&lt;div id="content"&gt;
+  &lt;div id="preamble"&gt;
+    &lt;div class="sectionbody"&gt;
+      {DOC_PREAMBLE}
+    &lt;/div&gt;
+  &lt;/div&gt;
+  ...
+&lt;/div&gt;</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_sections">Sections</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Sections or headers group one or more paragraphs or blocks.
+Each section is started with '=' character or '#' (markdown).
+There are six levels or sections that are allowed in asciidoc, any more than
+that will be considered as paragraph.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>SECTION          = [BlockRef]
+                   2*6(EQUAL/HASH) 1*WSP ADOC_LINE LF</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>HTML format,</p>
+</div>
+<div class="paragraph">
+<p>HTML class for section is <code>sectN</code>, where N is the level, which is equal to
+number of '=' minus 1.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>&lt;div class="sectN"&gt;
+  &lt;hN&gt;{ADOC_WORD}&lt;/hN&gt;
+  &lt;div class="sectionbody"&gt;
+    ...
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_comments">Comments</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre>COMMENT_SINGLE = "//" LINE
+
+COMMENT_BLOCK  = "////" LF
+                 *LINE
+                 "////" LF
+
+COMMENTS = *(COMMENT_SINGLE / COMMENT_BLOCK)</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_video">Video</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre>BLOCK_VIDEO = "video::" (URL / WORD) "[" ( "youtube" / "vimeo" ) *(BLOCK_ATTR) "]"</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_audio">Audio</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre>BLOCK_AUDIO = "audio::" (URL / WORD) "["
+              ( "options" "=" DQUOTE *AUDIO_ATTR_OPTIONS DQUOTE )
+            "]"
+
+AUDIO_ATTR_OPTIONS = "autoplay" | "loop" | "controls" | "nocontrols"</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_block_attributes">Block attributes</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre>BLOCK_ATTRS = BLOCK_ATTR *("," BLOCK_ATTR)
+
+BLOCK_ATTR  = WORD "=" (DQUOTE) WORD (DQUOTE)</pre>
+</div>
+</div>
+</div>
+</div>
+
+			</div>
+			
+		</div>
+		
+
+		<div class="footer">
+			Powered by <a
+				href="https://github.com/shuLhan/ciigo"
+			>
+				ciigo
+			</a>
+		</div>
+	</body>
+</html>

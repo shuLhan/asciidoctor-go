@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="theme-color" content="#375EAB" />
+
+		<title>Unsupported syntax</title>
+
+		<style>
+		
+body {
+	margin: 0;
+	font-family: Arial, sans-serif;
+	background-color: #fff;
+	line-height: 1.3;
+	text-align: center;
+	color: #222;
+}
+pre,
+code {
+	font-family: Menlo, monospace;
+	font-size: 0.875rem;
+}
+pre {
+	line-height: 1.4;
+	overflow-x: auto;
+	background: #efefef;
+	padding: 0.625rem;
+	border-radius: 0.3125rem;
+}
+a {
+	color: #007d9c;
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+}
+
+p,
+li {
+	max-width: 50rem;
+	word-wrap: break-word;
+}
+li p {
+	margin: 2px;
+}
+p,
+pre,
+ul,
+ol {
+	margin: 1.25rem;
+}
+
+h1,
+h2,
+h3,
+h4 {
+	margin: 1.25rem 0 1.25rem;
+	padding: 0;
+	color: #007d9c;
+	font-weight: bold;
+}
+h1 {
+	font-size: 1.75rem;
+	line-height: 1;
+}
+h1 .text-muted {
+	color: #777;
+}
+h2 {
+	clear: right;
+	font-size: 1.25rem;
+	background: #e0ebf5;
+	padding: 0.5rem;
+	line-height: 1.25;
+	font-weight: normal;
+	overflow: auto;
+	overflow-wrap: break-word;
+}
+h2 a {
+	font-weight: bold;
+}
+h3 {
+	font-size: 1.25rem;
+	line-height: 1.25;
+	overflow: auto;
+	overflow-wrap: break-word;
+}
+h3,
+h4 {
+	margin: 1.25rem 0.3125rem;
+}
+h4 {
+	font-size: 1rem;
+}
+
+h2 > span,
+h3 > span {
+	float: right;
+	margin: 0 25px 0 0;
+	font-weight: normal;
+	color: #5279c7;
+}
+
+dl {
+	margin: 1.25rem;
+}
+dd {
+	margin: 0 0 0 1.25rem;
+}
+dl,
+dd {
+	font-size: 0.875rem;
+}
+
+/**
+ * Custom classes for pages
+ */
+
+.topbar {
+	background: #e0ebf5;
+	height: 4rem;
+	overflow: hidden;
+}
+
+.topbar .top-heading,
+.topbar .menu {
+	padding: 1.313rem 0;
+	font-size: 1.25rem;
+	font-weight: normal;
+}
+.topbar .top-heading {
+	float: left;
+}
+.topbar .top-heading a {
+	color: #222;
+	text-decoration: none;
+}
+
+.top-heading .header-logo {
+	height: 2rem;
+	width: 5.125rem;
+}
+
+.topbar .menu {
+	float: right;
+}
+.topbar .menu a {
+	margin: 0.625rem 0.125rem;
+	padding: 0.625rem;
+	color: white;
+	background: #007d9c;
+	border: 0.0625rem solid #007d9c;
+	border-radius: 5px;
+}
+.topbar .menu form {
+	display: inline-block;
+}
+
+.page {
+	width: 100%;
+}
+
+.page > .container,
+.topbar > .container,
+.footer > .container {
+	margin-left: auto;
+	margin-right: auto;
+	padding: 0 1.25rem;
+	max-width: 59.38rem;
+}
+
+.page > .container {
+	text-align: left;
+}
+
+.container .meta {
+	font-style: italic;
+	margin: 1.25rem;
+}
+
+.footer {
+	text-align: center;
+	color: #666;
+	font-size: 0.875rem;
+	margin: 2.5rem 0;
+}
+
+/** Custom classes for asciidoc */
+#toctitle {
+	display: none;
+}
+#toc li {
+	list-style: none;
+}
+#toc ul .sectlevel1 {
+	padding: 0px;
+	margin: 4px;
+}
+#toc ul .sectlevel2 {
+	margin: 4px;
+}
+
+@media screen and (max-width: 992px) {
+	#toc {
+		all: unset;
+	}
+}
+
+		</style>
+	</head>
+	<body>
+		<div class="topbar">
+			<div class="container">
+				<div class="top-heading">
+					<a href="/">ciigo</a>
+				</div>
+				<div class="menu">
+					<form class="item" action="/_internal/search">
+						<input type="text" name="q" placeholder="Search" />
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<div class="page">
+			<div class="container">
+				<h1>Unsupported syntax</h1>
+				<div class="meta">
+					
+				</div>
+				<div class="sect1">
+<h2 id="_quote">Quote</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_markdown_quote">Markdown quote</h3>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>I hold</p>
+</div>
+</blockquote>
+<div class="attribution">
+&#8212; Thomas Jefferson, Papers of Thomas Jefferson: Volume 11
+</div>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>I
+hold</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>&gt;Without space
+&gt; -- Thomas Jefferson, Papers of Thomas Jefferson: Volume 11</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Without space on author
+&gt;-- Thomas Jefferson, Papers of Thomas Jefferson: Volume 11</p>
+</div>
+</blockquote>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>What&#8217;s new?
+&gt;
+I&#8217;ve got Markdown in my AsciiDoc!
+&gt;
+&gt; Like what?
+&gt;
+* Blockquotes
+* Headings
+* Fenced code blocks
+&gt;
+&gt; Is there more?
+&gt;
+Yep. AsciiDoc and Markdown share a lot of common syntax already.</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>&gt;&gt; Two right arrows without space.</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>  with tab
+followed without tab</p>
+</div>
+</blockquote>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>  with tab
+followed without left arrow</p>
+</div>
+</blockquote>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>  with tab and author
+  -- Thomas</p>
+</div>
+</blockquote>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>followed immediately
+without left arrow</p>
+</div>
+</blockquote>
+<div class="attribution">
+&#8212; Thomas
+</div>
+</div>
+</div>
+</div>
+</div>
+
+			</div>
+			
+		</div>
+		
+
+		<div class="footer">
+			Powered by <a
+				href="https://github.com/shuLhan/ciigo"
+			>
+				ciigo
+			</a>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,658 @@
+= _Example `Document` **title**_
+:metadata key: value
+Author A, Author B
+:unclosed metadata:
+v1.1.1, 18 July 2020
+
+This is preamble.
+:other metadata:
+----
+a
+----
+:another metadata : ?
+
+==Section must have space
+
+  == Indented section
+
+  :indented-meta:
+
+== Comment
+
+//comment without WSP
+
+////
+block
+comment
+////
+
+////
+////
+
+  ////
+  Indented block comment
+  ////
+
+:another metadata : ?
+
+== Paragraph
+
+.A Title
+Paragraph with title
+
+A paragraph followed by title,
+.This is title
+
+A paragraph followed by attribute,
+:isthis: attribute
+
+A paragraph followed by literal line,
+ this is literal line.
+
+A paragraph followed by list,
+. This is a ordered list item
+
+A paragraph followed by comment.
+// comment.
+This is next line in paragraph.
+
+A paragraph followed by "+",
++
+This is next line in paragraph.
+
+A paragraph followed by listing block
+----
+Listing.
+----
+This is next line in paragraph.
+
+A paragraph followed by section
+== This is section name
+This is next line in paragraph.
+
+A paragraph followed by literal named
+[literal]
+This is literal
+
+
+==  Text formatting
+
+Multiple _text
+"`formatting`" in *single
+paragraph*_.
+
+_Inline https://kilabit.info[*link*] inside italic_.
+
+_Italic without^end^.
+
+"`A double quote without end.
+
+_A double quote "`inside_ italic`".
+
+_A `monospace between_ italic`.
+
+
+*bold _italic `mono end-bold* end-italic_ end-mono`.
+
+*bold _italic `mono end-bold* end-italic_ end-mono.
+
+A bold with * space *, with single non alnum *=*. 
+
+"` A double quote with space `".
+
+== Blocks
+
+=== Title
+
+.TODO list
+* Learn the AsciiDoc syntax
+* Install Asciidoctor
+* Write my document
+
+== Literal block
+
+ A literal paragraph followed by non-space line:
+non-space line.
+
+[literal]
+A literal named.
+
+[literal] x
+A literal named and trailing characters.
+
+....
+With 4 dots.
+....
+
+// WARNING:
+//.... Trailing
+//Literal block with trailing.
+//....
+
+== Ordered Lists
+
+. abc
+def
+. ghi
+ jkl
+
+. Previous line is empty
++
+This is a paragraph inside list item.
++
+This is the second paragraph.
+
+. Can list have literal paragraph?
++
+ This is literal paragraph.
++
+This is normal paragraph.
++
+. Next line is block
+----
+This break the list.
+----
+. This start new list
+
+A new paragraph.
+
+. List item followed by [literal]
+[literal]
+literal.
+. Second list item
+
+List that not in order
+
+... List jumped from three dots,
+. To one dot
+
+.... To four dots
+... And back to three again
+
+.. Can sub-list have title?
+.Title
+.. Second level
+
+. Multiple continuation
++
++
+. Second item
+
+How many dots?
+
+. How
+.. Deep
+... Can
+.... We
+..... Go
+...... ?
+....... Seven
+........ Eight
+......... Nine
+.......... Ten
+
+. List followed by section
+= New section
+. List and comment.
+// Comment
+This line separated by comment.
+
+  . List indented with space
+    .. Sub 2.1
+    .. Sub 2.2
+  . List indented with space
+
+
+
+== Unordered Lists
+
+* abc
+def
+* ghi
+ jkl
+
+* Previous line is empty
++
+This is a paragraph inside list item.
++
+This is the second paragraph.
+
+* Can list have literal paragraph?
++
+ This is literal paragraph.
++
+This is normal paragraph.
++
+* Next line is block
+----
+This break the list.
+----
+* This start new list
+
+A new paragraph.
+
+* List item followed by [literal]
+[literal]
+literal.
+* Second list item
+
+List that not in order
+
+*** List jumped from three asterisk,
+* To one asterisk
+
+**** To four asterisk
+*** And back to three again
+
+** Can sub-list have title?
+.Title
+** Second level
+
+* Multiple continuation
++
++
+* Second item
+
+How deep?
+
+* How
+** Deep
+*** Can
+**** We
+***** Go
+****** ?
+******* Seven
+******** Eight
+********* Nine
+********** Ten
+
+* List followed by section
+= New section
+* List and comment.
+// Comment
+This line separated by comment.
+
+  * List indented with space
+    ** Sub 2.1
+    ** Sub 2.2
+  * List indented with space
+
+==  Mixed list
+
+. Orderer 1
+* Unordered 1
+* Unordered 2
+. Orderer 1
+
+.. Ordered L2
+* Unordered L1
+** Unordered L2
+* Unordered L1
+. Ordered L1
+* Unordered L1
+** Unordered L2
+* Unordered L1
+.. Ordered L2
+
+==  Description list
+
+CPU:: The brain of the computer.
+Hard drive:: Permanent storage for operating system and/or user files.
+
+===  With [horizontal]
+
+[horizontal]
+CPU:: The brain of the computer.
+Hard drive:: Permanent storage for operating system and/or user files.
+
+=== With title
+
+.A title
+CPU:: The brain of the computer.
+Hard drive:: Permanent storage for operating system and/or user files.
+
+=== Indented with space
+
+  CPU:: The brain of the computer.
+  Hard drive:: Permanent storage for operating system and/or user files.
+
+=== With "+"
+
+CPU::
++
+The brain of the computer.
+Hard drive::
+Permanent storage for operating system and/or
++
+user files.
+
+=== Mixed with list
+
+Dairy::
+* Milk
+* Eggs
+Bakery::
+* Bread
+Produce::
+* Bananas
+
+=== Spread
+
+Dairy::
+
+  * Milk
+  * Eggs
+
+Bakery::
+
+  * Bread
+
+Produce::
+
+* Bananas
+
+===  Mixed with ordered and unordered list
+
+Operating Systems::
+  Linux:::
+    . Fedora
+      * Desktop
+    . Ubuntu
+      * Desktop
+      * Server
+  BSD:::
+    . FreeBSD
+    . NetBSD
+
+Cloud Providers::
+  PaaS:::
+    . OpenShift
+    . CloudBees
+  IaaS:::
+    . Amazon EC2
+    . Rackspace
+
+
+== Question and Answers
+
+[qanda]
+What is Asciidoctor?::
+  An implementation of the AsciiDoc processor in Ruby.
+What is the answer to the Ultimate Question?:: 42
+
+A new paragraph.
+
+
+==  Horizontal rules
+
+'''
+
+A paragraph followed by horizontal rule,
+---
+- - -
+***
+* * *
+
+With leading spaces,
+
+ '''
+	---
+
+== Page break
+
+Before page break.
+
+<<<
+
+After page break.
+
+
+== Block images
+
+image::sunset.jpg[]
+
+image::sunset.jpg[
+This is become paragraph.
+
+image::sunset.jpg]
+
+image::sunset.jpg[1,abc,def]
+image::sunset.jpg[1,abc,def,ghi]
+
+image::notexist.jpg[]
+
+image::https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg[Tux,250,350]
+
+image::sunset.png[Tiger1,100,100,float="right",align="center"]
+
+image::sunset.png[Tiger2,100,100,float="righx"]
+
+image::sunset.png[Tiger3,100,100,floax="right"]
+
+image::sunset.png[Tiger4,100,100,role="right"]
+
+image::sunset.png[Tiger5,100,100,role="righx"]
+
+image::sunset.png[Tiger6,100,100,role="right left"]
+
+[.right.text-center]
+image::sunset.png[Tiger7,100,100]
+
+[.righx.center]
+image::sunset.png[Tiger8,100,100]
+
+===  Float group
+
+[.float-group]
+--
+[.left]
+.Image A
+image::a.png[A,240,180]
+
+[.left]
+.Image B
+image::b.png[B,240,180]
+--
+
+Text below images.
+
+== Block open
+
+.Section inside
+--
+== Section
+--
+
+
+==  Video
+
+.Video without options
+video::video_file.mp4[poster="sunset.jpg",width=640,height=320, start=60, end=140]
+
+.Video with nocontrols, nofullscreen
+video::video_file.mp4[poster="sunset.jpg",width=640,height=320, start=60, end=140, options="autoplay, loop, modest, nocontrols, nofullscreen"]
+
+.Youtube default options
+video::rPQoq7ThGAU[youtube,width=640,height=320, start=60, end=140,lang=fr]
+
+.Youtube
+video::rPQoq7ThGAU[youtube,width=640,height=320, start=60, end=140,options="autoplay, loop, modest, nocontrols, nofullscreen",theme=light,lang=fr]
+
+.Youtube attribute at the end
+video::rPQoq7ThGAU[width=640,height=320, start=60, end=140,lang=fr,youtube]
+
+.Vimeo
+video::67480300[vimeo, width=640,height=320, start=60, end=140,options="autoplay, loop, modest, nocontrols, nofullscreen",theme=light,lang=fr]
+
+
+==  Audio
+
+audio::ocean_waves.mp3[options="autoplay,loop"]
+
+
+==  Admonition
+
+===  Line admonition
+
+Admonition between a paragraph.
+WARNING: Wolpertingers are known to nest in server racks.
+Enter at your own risk.
+
+WARNING: Wolpertingers are known to nest in server racks.
+Enter at your own risk.
++
+Is this inside admonition too?
+
+NOTE:	With tab.
+
+TIP:  With multiple spaces.
+
+Can admonition added inside list,
+
+* List 1
++
+IMPORTANT: inside list
++
+* List 2
+
+CAUTION: admonition followed by list
+* List item
+
+=== Style admonition
+
+[IMPORTANT]
+.Feeding the Werewolves
+====
+While werewolves are hardy community members, keep in mind the following dietary concerns:
+
+. They are allergic to cinnamon.
+. More than two glasses of orange juice in 24 hours makes them howl in harmony with alarms and sirens.
+. Celery makes them sad.
+====
+
+[TIP]
+Admonition with paragraph.
+
+Is this included in TIP?
+
+[NOTE]
+. With
+. list
+
+[CAUTION]
+--
+  This is open block.
+--
+
+[WARNING]
+  Literal paragraph with admonition.
+
+===  Icons
+
+:icons: font
+
+WARNING: Wolpertingers are known to nest in server racks.
+Enter at your own risk.
+
+
+==  Sidebar
+
+.AsciiDoc history
+****
+AsciiDoc was first released in Nov 2002 by Stuart Rackham.
+It was designed from the start to be a shorthand syntax
+for producing professional documents like DocBook and LaTeX.
+****
+
+.Sidebar with list
+****
+. List
+. Item
+****
+
+
+==  Example
+
+.Sample document
+====
+Here's a sample AsciiDoc document:
+
+[listing]
+....
+= Title of Document
+Doc Writer
+:toc:
+
+This guide provides...
+....
+
+The document header is useful, but not required.
+====
+
+
+==  Quote
+
+[quote, attribution, citation title and information]
+Quote or excerpt text
+
+.After landing the cloaked Klingon bird of prey in Golden Gate park:
+[quote, Captain James T. Kirk, Star Trek IV: The Voyage Home]
+Everybody remember where we parked.
+
+[quote, Monty Python and the Holy Grail]
+____
+Dennis: Come and see the violence inherent in the system. Help! Help! I'm being repressed!
+
+King Arthur: Bloody peasant!
+
+Dennis: Oh, what a giveaway! Did you hear that? Did you hear that, eh? That's what I'm on about! Did you see him repressing me? You saw him, Didn't you?
+____
+
+===  Quoted paragraph
+
+"I hold it that a little rebellion now and then is a good thing,
+and as necessary in the political world as storms in the physical."
+-- Thomas Jefferson, Papers of Thomas Jefferson: Volume 11
+
+"I hold it that a little rebellion now and then is a good thing,
+and as necessary in the political world as storms in the physical."
+
+"I hold"
+--Author
+
+"Author with tab"
+--  Author
+
+"I hold
+----
+Block
+----
+it that"
+-- Thomas Jefferson, Papers of Thomas Jefferson: Volume 11
+
+* List item 1
++
+"a quote"
+-- Thomas Jefferson, Papers of Thomas Jefferson: Volume 11
+
+* List item 2
+
+
+==  Verse
+
+[verse, Carl Sandburg, two lines from the poem Fog]
+The fog comes
+on little cat feet.
+
+[verse, Carl Sandburg, Fog]
+____
+The fog comes
+on little cat feet.
+
+It sits looking
+over harbor and city
+on silent haunches
+and then moves on.
+____
+
+END OF THE TEST.

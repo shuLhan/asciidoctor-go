@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.10">
+<meta name="author" content="Author A, Author B">
+<title>Example Document title</title>
+<style>
+
+</style>
+</head>
+<body class="article">
+<div id="header">
+<h1><em>Example <code>Document</code> <strong>title</strong></em></h1>
+<div class="details">
+<span id="author" class="author">Author A, Author B</span><br>
+<span id="revnumber">version 1.1.1,</span>
+<span id="revdate">18 July 2020</span>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This is preamble.
+:other metadata:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>a</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>==Section must have space</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>== Indented section</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>:indented-meta:</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_comment">Comment</h2>
+<div class="sectionbody">
+<div class="literalblock">
+<div class="content">
+<pre>////
+Indented block comment
+////</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_paragraph">Paragraph</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<div class="title">A Title</div>
+<p>Paragraph with title</p>
+</div>
+<div class="paragraph">
+<p>A paragraph followed by title,
+.This is title</p>
+</div>
+<div class="paragraph">
+<p>A paragraph followed by attribute,
+:isthis: attribute</p>
+</div>
+<div class="paragraph">
+<p>A paragraph followed by literal line,
+ this is literal line.</p>
+</div>
+<div class="paragraph">
+<p>A paragraph followed by list,
+. This is a ordered list item</p>
+</div>
+<div class="paragraph">
+<p>A paragraph followed by comment.
+This is next line in paragraph.</p>
+</div>
+<div class="paragraph">
+<p>A paragraph followed by "+",</p>
+</div>
+<div class="paragraph">
+<p>+
+This is next line in paragraph.</p>
+</div>
+<div class="paragraph">
+<p>A paragraph followed by listing block</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>Listing.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is next line in paragraph.</p>
+</div>
+<div class="paragraph">
+<p>A paragraph followed by section
+== This is section name
+This is next line in paragraph.</p>
+</div>
+<div class="paragraph">
+<p>A paragraph followed by literal named</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>This is literal</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_text_formatting">Text formatting</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Multiple <em>text
+&#8220;formatting&#8221; in *single
+paragraph*</em>.</p>
+</div>
+<div class="paragraph">
+<p><em>Inline <a href="https://kilabit.info"><strong>link</strong></a> inside italic</em>.</p>
+</div>
+<div class="paragraph">
+<p>_Italic without<sup>end</sup>.</p>
+</div>
+<div class="paragraph">
+<p>"`A double quote without end.</p>
+</div>
+<div class="paragraph">
+<p><em>A double quote &#8220;inside</em> italic&#8221;.</p>
+</div>
+<div class="paragraph">
+<p><em>A <code>monospace between</em> italic</code>.</p>
+</div>
+<div class="paragraph">
+<p><strong>bold <em>italic <code>mono end-bold</strong> end-italic</em> end-mono</code>.</p>
+</div>
+<div class="paragraph">
+<p><strong>bold <em>italic `mono end-bold</strong> end-italic</em> end-mono.</p>
+</div>
+<div class="paragraph">
+<p>A bold with * space <strong>, with single non alnum *=</strong>.</p>
+</div>
+<div class="paragraph">
+<p>"` A double quote with space `".</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_blocks">Blocks</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_title">Title</h3>
+<div class="ulist">
+<div class="title">TODO list</div>
+<ul>
+<li>
+<p>Learn the AsciiDoc syntax</p>
+</li>
+<li>
+<p>Install Asciidoctor</p>
+</li>
+<li>
+<p>Write my document</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_literal_block">Literal block</h2>
+<div class="sectionbody">
+<div class="literalblock">
+<div class="content">
+<pre> A literal paragraph followed by non-space line:
+non-space line.</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>A literal named.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>[literal] x
+A literal named and trailing characters.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>With 4 dots.</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_ordered_lists">Ordered Lists</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>abc
+def</p>
+</li>
+<li>
+<p>ghi
+jkl</p>
+</li>
+<li>
+<p>Previous line is empty</p>
+<div class="paragraph">
+<p>This is a paragraph inside list item.</p>
+</div>
+<div class="paragraph">
+<p>This is the second paragraph.</p>
+</div>
+</li>
+<li>
+<p>Can list have literal paragraph?</p>
+<div class="literalblock">
+<div class="content">
+<pre>This is literal paragraph.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is normal paragraph.</p>
+</div>
+</li>
+<li>
+<p>Next line is block</p>
+</li>
+</ol>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>This break the list.</pre>
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>This start new list</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>A new paragraph.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>List item followed by [literal]</p>
+<div class="literalblock">
+<div class="content">
+<pre>literal.</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Second list item</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>List that not in order</p>
+</div>
+<div class="olist lowerroman">
+<ol class="lowerroman" type="i">
+<li>
+<p>List jumped from three dots,</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>To one dot</p>
+<div class="olist upperalpha">
+<ol class="upperalpha" type="A">
+<li>
+<p>To four dots</p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>And back to three again</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Can sub-list have title?
+.Title</p>
+</li>
+<li>
+<p>Second level</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Multiple continuation</p>
+</li>
+<li>
+<p>Second item</p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>How many dots?</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>How</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Deep</p>
+<div class="olist lowerroman">
+<ol class="lowerroman" type="i">
+<li>
+<p>Can</p>
+<div class="olist upperalpha">
+<ol class="upperalpha" type="A">
+<li>
+<p>We</p>
+<div class="olist upperroman">
+<ol class="upperroman" type="I">
+<li>
+<p>Go</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>?</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Seven</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Eight</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Nine</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Ten</p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>List followed by section
+= New section</p>
+</li>
+<li>
+<p>List and comment.
+This line separated by comment.</p>
+</li>
+<li>
+<p>List indented with space</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Sub 2.1</p>
+</li>
+<li>
+<p>Sub 2.2</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>List indented with space</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_unordered_lists">Unordered Lists</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>abc
+def</p>
+</li>
+<li>
+<p>ghi
+jkl</p>
+</li>
+<li>
+<p>Previous line is empty</p>
+<div class="paragraph">
+<p>This is a paragraph inside list item.</p>
+</div>
+<div class="paragraph">
+<p>This is the second paragraph.</p>
+</div>
+</li>
+<li>
+<p>Can list have literal paragraph?</p>
+<div class="literalblock">
+<div class="content">
+<pre>This is literal paragraph.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is normal paragraph.</p>
+</div>
+</li>
+<li>
+<p>Next line is block</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>This break the list.</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>This start new list</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>A new paragraph.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>List item followed by [literal]</p>
+<div class="literalblock">
+<div class="content">
+<pre>literal.</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Second list item</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>List that not in order</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>List jumped from three asterisk,</p>
+<div class="ulist">
+<ul>
+<li>
+<p>To one asterisk</p>
+<div class="ulist">
+<ul>
+<li>
+<p>To four asterisk</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>And back to three again</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Can sub-list have title?
+.Title</p>
+</li>
+<li>
+<p>Second level</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Multiple continuation</p>
+</li>
+<li>
+<p>Second item</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>How deep?</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>How</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Deep</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Can</p>
+<div class="ulist">
+<ul>
+<li>
+<p>We</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Go</p>
+<div class="ulist">
+<ul>
+<li>
+<p>?</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Seven</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Eight</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Nine</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Ten</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>List followed by section
+= New section</p>
+</li>
+<li>
+<p>List and comment.
+This line separated by comment.</p>
+</li>
+<li>
+<p>List indented with space</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Sub 2.1</p>
+</li>
+<li>
+<p>Sub 2.2</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>List indented with space</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_mixed_list">Mixed list</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Orderer 1</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Unordered 1</p>
+</li>
+<li>
+<p>Unordered 2</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Orderer 1</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Ordered L2</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Unordered L1</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Unordered L2</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Unordered L1</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Ordered L1</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Unordered L1</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Unordered L2</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Unordered L1</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Ordered L2</p>
+</li>
+</ol>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_description_list">Description list</h2>
+<div class="sectionbody">
+<div class="dlist">
+<dl>
+<dt class="hdlist1">CPU</dt>
+<dd>
+<p>The brain of the computer.</p>
+</dd>
+<dt class="hdlist1">Hard drive</dt>
+<dd>
+<p>Permanent storage for operating system and/or user files.</p>
+</dd>
+</dl>
+</div>
+<div class="sect2">
+<h3 id="_with_horizontal">With [horizontal]</h3>
+<div class="hdlist">
+<table>
+<tr>
+<td class="hdlist1">
+CPU
+</td>
+<td class="hdlist2">
+<p>The brain of the computer.</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Hard drive
+</td>
+<td class="hdlist2">
+<p>Permanent storage for operating system and/or user files.</p>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_with_title">With title</h3>
+<div class="dlist">
+<div class="title">A title</div>
+<dl>
+<dt class="hdlist1">CPU</dt>
+<dd>
+<p>The brain of the computer.</p>
+</dd>
+<dt class="hdlist1">Hard drive</dt>
+<dd>
+<p>Permanent storage for operating system and/or user files.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_indented_with_space">Indented with space</h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">CPU</dt>
+<dd>
+<p>The brain of the computer.</p>
+</dd>
+<dt class="hdlist1">Hard drive</dt>
+<dd>
+<p>Permanent storage for operating system and/or user files.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_with">With "+"</h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">CPU</dt>
+<dd>
+<div class="paragraph">
+<p>The brain of the computer.</p>
+</div>
+</dd>
+<dt class="hdlist1">Hard drive</dt>
+<dd>
+<p>Permanent storage for operating system and/or</p>
+<div class="paragraph">
+<p>user files.</p>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_mixed_with_list">Mixed with list</h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Dairy</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Milk</p>
+</li>
+<li>
+<p>Eggs</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">Bakery</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Bread</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">Produce</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Bananas</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_spread">Spread</h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Dairy</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Milk</p>
+</li>
+<li>
+<p>Eggs</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">Bakery</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Bread</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">Produce</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Bananas</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_mixed_with_ordered_and_unordered_list">Mixed with ordered and unordered list</h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Operating Systems</dt>
+<dd>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Linux</dt>
+<dd>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Fedora</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Desktop</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Ubuntu</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Desktop</p>
+</li>
+<li>
+<p>Server</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+</dd>
+<dt class="hdlist1">BSD</dt>
+<dd>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>FreeBSD</p>
+</li>
+<li>
+<p>NetBSD</p>
+</li>
+</ol>
+</div>
+</dd>
+</dl>
+</div>
+</dd>
+<dt class="hdlist1">Cloud Providers</dt>
+<dd>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">PaaS</dt>
+<dd>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>OpenShift</p>
+</li>
+<li>
+<p>CloudBees</p>
+</li>
+</ol>
+</div>
+</dd>
+<dt class="hdlist1">IaaS</dt>
+<dd>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Amazon EC2</p>
+</li>
+<li>
+<p>Rackspace</p>
+</li>
+</ol>
+</div>
+</dd>
+</dl>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_question_and_answers">Question and Answers</h2>
+<div class="sectionbody">
+<div class="qlist qanda">
+<ol>
+<li>
+<p><em>What is Asciidoctor?</em></p>
+<p>An implementation of the AsciiDoc processor in Ruby.</p>
+</li>
+<li>
+<p><em>What is the answer to the Ultimate Question?</em></p>
+<p>42</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>A new paragraph.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_horizontal_rules">Horizontal rules</h2>
+<div class="sectionbody">
+<hr>
+<div class="paragraph">
+<p>A paragraph followed by horizontal rule,
+---
+- - -
+<strong>*</strong>
+* * *</p>
+</div>
+<div class="paragraph">
+<p>With leading spaces,</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>'''
+---</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_page_break">Page break</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Before page break.</p>
+</div>
+<div style="page-break-after: always;"></div>
+<div class="paragraph">
+<p>After page break.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_block_images">Block images</h2>
+<div class="sectionbody">
+<div class="imageblock">
+<div class="content">
+<img src="sunset.jpg" alt="sunset">
+</div>
+</div>
+<div class="paragraph">
+<p>image::sunset.jpg[
+This is become paragraph.</p>
+</div>
+<div class="paragraph">
+<p>image::sunset.jpg]</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="sunset.jpg" alt="1" width="abc" height="def">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="sunset.jpg" alt="1" width="abc" height="def">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="notexist.jpg" alt="notexist">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg" alt="Tux" width="250" height="350">
+</div>
+</div>
+<div class="imageblock right text-center">
+<div class="content">
+<img src="sunset.png" alt="Tiger1" width="100" height="100">
+</div>
+</div>
+<div class="imageblock righx">
+<div class="content">
+<img src="sunset.png" alt="Tiger2" width="100" height="100">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="sunset.png" alt="Tiger3" width="100" height="100">
+</div>
+</div>
+<div class="imageblock right">
+<div class="content">
+<img src="sunset.png" alt="Tiger4" width="100" height="100">
+</div>
+</div>
+<div class="imageblock righx">
+<div class="content">
+<img src="sunset.png" alt="Tiger5" width="100" height="100">
+</div>
+</div>
+<div class="imageblock right left">
+<div class="content">
+<img src="sunset.png" alt="Tiger6" width="100" height="100">
+</div>
+</div>
+<div class="imageblock right text-center">
+<div class="content">
+<img src="sunset.png" alt="Tiger7" width="100" height="100">
+</div>
+</div>
+<div class="imageblock righx center">
+<div class="content">
+<img src="sunset.png" alt="Tiger8" width="100" height="100">
+</div>
+</div>
+<div class="sect2">
+<h3 id="_float_group">Float group</h3>
+<div class="openblock float-group">
+<div class="content">
+<div class="imageblock left">
+<div class="content">
+<img src="a.png" alt="A" width="240" height="180">
+</div>
+<div class="title">Figure 1. Image A</div>
+</div>
+<div class="imageblock left">
+<div class="content">
+<img src="b.png" alt="B" width="240" height="180">
+</div>
+<div class="title">Figure 2. Image B</div>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Text below images.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_block_open">Block open</h2>
+<div class="sectionbody">
+<div class="openblock">
+<div class="title">Section inside</div>
+<div class="content">
+<div class="paragraph">
+<p>== Section</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_video">Video</h2>
+<div class="sectionbody">
+<div class="videoblock">
+<div class="title">Video without options</div>
+<div class="content">
+<video src="video_file.mp4#t=60,140" width="640" height="320" poster="sunset.jpg" controls>
+Your browser does not support the video tag.
+</video>
+</div>
+</div>
+<div class="videoblock">
+<div class="title">Video with nocontrols, nofullscreen</div>
+<div class="content">
+<video src="video_file.mp4#t=60,140" width="640" height="320" poster="sunset.jpg" autoplay loop>
+Your browser does not support the video tag.
+</video>
+</div>
+</div>
+<div class="videoblock">
+<div class="title">Youtube default options</div>
+<div class="content">
+<iframe width="640" height="320" src="https://www.youtube.com/embed/rPQoq7ThGAU?rel=0&amp;start=60&amp;end=140&amp;hl=fr" frameborder="0" allowfullscreen></iframe>
+</div>
+</div>
+<div class="videoblock">
+<div class="title">Youtube</div>
+<div class="content">
+<iframe width="640" height="320" src="https://www.youtube.com/embed/rPQoq7ThGAU?rel=0&amp;start=60&amp;end=140&amp;autoplay=1&amp;loop=1&amp;controls=0&amp;playlist=rPQoq7ThGAU&amp;fs=0&amp;modestbranding=1&amp;theme=light&amp;hl=fr" frameborder="0"></iframe>
+</div>
+</div>
+<div class="videoblock">
+<div class="title">Youtube attribute at the end</div>
+<div class="content">
+<video src="rPQoq7ThGAU#t=60,140" width="640" height="320" controls>
+Your browser does not support the video tag.
+</video>
+</div>
+</div>
+<div class="videoblock">
+<div class="title">Vimeo</div>
+<div class="content">
+<iframe width="640" height="320" src="https://player.vimeo.com/video/67480300?autoplay=1&amp;loop=1#at=60" frameborder="0"></iframe>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_audio">Audio</h2>
+<div class="sectionbody">
+<div class="audioblock">
+<div class="content">
+<audio src="ocean_waves.mp3" autoplay controls loop>
+Your browser does not support the audio tag.
+</audio>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_admonition">Admonition</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_line_admonition">Line admonition</h3>
+<div class="paragraph">
+<p>Admonition between a paragraph.
+WARNING: Wolpertingers are known to nest in server racks.
+Enter at your own risk.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+Wolpertingers are known to nest in server racks.
+Enter at your own risk.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>+
+Is this inside admonition too?</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+With tab.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+With multiple spaces.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Can admonition added inside list,</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>List 1</p>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Important</div>
+</td>
+<td class="content">
+inside list
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>List 2</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Caution</div>
+</td>
+<td class="content">
+admonition followed by list
+* List item
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_style_admonition">Style admonition</h3>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Important</div>
+</td>
+<td class="content">
+<div class="title">Feeding the Werewolves</div>
+<div class="paragraph">
+<p>While werewolves are hardy community members, keep in mind the following dietary concerns:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>They are allergic to cinnamon.</p>
+</li>
+<li>
+<p>More than two glasses of orange juice in 24 hours makes them howl in harmony with alarms and sirens.</p>
+</li>
+<li>
+<p>Celery makes them sad.</p>
+</li>
+</ol>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+Admonition with paragraph.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Is this included in TIP?</p>
+</div>
+<div class="olist NOTE">
+<ol class="NOTE">
+<li>
+<p>With</p>
+</li>
+<li>
+<p>list</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Caution</div>
+</td>
+<td class="content">
+<div class="literalblock">
+<div class="content">
+<pre>This is open block.</pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+  Literal paragraph with admonition.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_icons">Icons</h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Wolpertingers are known to nest in server racks.
+Enter at your own risk.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_sidebar">Sidebar</h2>
+<div class="sectionbody">
+<div class="sidebarblock">
+<div class="content">
+<div class="title">AsciiDoc history</div>
+<div class="paragraph">
+<p>AsciiDoc was first released in Nov 2002 by Stuart Rackham.
+It was designed from the start to be a shorthand syntax
+for producing professional documents like DocBook and LaTeX.</p>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Sidebar with list</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>List</p>
+</li>
+<li>
+<p>Item</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_example">Example</h2>
+<div class="sectionbody">
+<div class="exampleblock">
+<div class="title">Example 1. Sample document</div>
+<div class="content">
+<div class="paragraph">
+<p>Here&#8217;s a sample AsciiDoc document:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>= Title of Document
+Doc Writer
+:toc:
+
+This guide provides...</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The document header is useful, but not required.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_quote">Quote</h2>
+<div class="sectionbody">
+<div class="quoteblock">
+<blockquote>
+Quote or excerpt text
+</blockquote>
+<div class="attribution">
+&#8212; attribution<br>
+<cite>citation title and information</cite>
+</div>
+</div>
+<div class="quoteblock">
+<div class="title">After landing the cloaked Klingon bird of prey in Golden Gate park:</div>
+<blockquote>
+Everybody remember where we parked.
+</blockquote>
+<div class="attribution">
+&#8212; Captain James T. Kirk<br>
+<cite>Star Trek IV: The Voyage Home</cite>
+</div>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Dennis: Come and see the violence inherent in the system. Help! Help! I&#8217;m being repressed!</p>
+</div>
+<div class="paragraph">
+<p>King Arthur: Bloody peasant!</p>
+</div>
+<div class="paragraph">
+<p>Dennis: Oh, what a giveaway! Did you hear that? Did you hear that, eh? That&#8217;s what I&#8217;m on about! Did you see him repressing me? You saw him, Didn&#8217;t you?</p>
+</div>
+</blockquote>
+<div class="attribution">
+&#8212; Monty Python and the Holy Grail
+</div>
+</div>
+<div class="sect2">
+<h3 id="_quoted_paragraph">Quoted paragraph</h3>
+<div class="quoteblock">
+<blockquote>
+I hold it that a little rebellion now and then is a good thing,
+and as necessary in the political world as storms in the physical.
+</blockquote>
+<div class="attribution">
+&#8212; Thomas Jefferson<br>
+<cite>Papers of Thomas Jefferson: Volume 11</cite>
+</div>
+</div>
+<div class="paragraph">
+<p>"I hold it that a little rebellion now and then is a good thing,
+and as necessary in the political world as storms in the physical."</p>
+</div>
+<div class="paragraph">
+<p>"I hold"
+--Author</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+Author with tab
+</blockquote>
+<div class="attribution">
+&#8212;  Author
+</div>
+</div>
+<div class="paragraph">
+<p>"I hold</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>Block</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>it that"&#8201;&#8212;&#8201;Thomas Jefferson, Papers of Thomas Jefferson: Volume 11</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>List item 1</p>
+<div class="quoteblock">
+<blockquote>
+a quote
+</blockquote>
+<div class="attribution">
+&#8212; Thomas Jefferson<br>
+<cite>Papers of Thomas Jefferson: Volume 11</cite>
+</div>
+</div>
+</li>
+<li>
+<p>List item 2</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_verse">Verse</h2>
+<div class="sectionbody">
+<div class="verseblock">
+<pre class="content">The fog comes
+on little cat feet.</pre>
+<div class="attribution">
+&#8212; Carl Sandburg<br>
+<cite>two lines from the poem Fog</cite>
+</div>
+</div>
+<div class="verseblock">
+<pre class="content">The fog comes
+on little cat feet.
+
+It sits looking
+over harbor and city
+on silent haunches
+and then moves on.</pre>
+<div class="attribution">
+&#8212; Carl Sandburg<br>
+<cite>Fog</cite>
+</div>
+</div>
+<div class="paragraph">
+<p>END OF THE TEST.</p>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 1.1.1<br>
+Last updated 2020-10-15 04:01:08 +0700
+</div>
+</div>
+</body>
+</html>
