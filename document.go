@@ -143,10 +143,10 @@ func (doc *Document) consumeLinesUntil(node *adocNode, term int, terms []int) (
 			}
 		}
 		if node.kind == nodeKindParagraph && len(spaces) > 0 {
-			node.raw.WriteByte(' ')
+			node.WriteByte(' ')
 		}
-		node.raw.WriteString(line)
-		node.raw.WriteByte('\n')
+		node.WriteString(line)
+		node.WriteByte('\n')
 	}
 	return line, c
 }
@@ -254,8 +254,8 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 				continue
 			}
 			node.kind = nodeKindParagraph
-			node.raw.WriteString(line)
-			node.raw.WriteByte('\n')
+			node.WriteString(line)
+			node.WriteByte('\n')
 			line, _ = doc.consumeLinesUntil(
 				node,
 				lineKindEmpty,
@@ -291,8 +291,8 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 
 		case lineKindText, lineKindListContinue:
 			node.kind = nodeKindParagraph
-			node.raw.WriteString(line)
-			node.raw.WriteByte('\n')
+			node.WriteString(line)
+			node.WriteByte('\n')
 			line, _ = doc.consumeLinesUntil(
 				node,
 				lineKindEmpty,
@@ -336,8 +336,8 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 			nodeKindSectionL5:
 			if term == nodeKindBlockOpen {
 				node.kind = nodeKindParagraph
-				node.raw.WriteString(line)
-				node.raw.WriteByte('\n')
+				node.WriteString(line)
+				node.WriteByte('\n')
 				line, _ = doc.consumeLinesUntil(
 					node,
 					lineKindEmpty,
@@ -354,7 +354,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 			}
 
 			node.kind = doc.kind
-			node.raw.WriteString(
+			node.WriteString(
 				// BUG: "= =a" could become "a", it should be "=a"
 				strings.TrimLeft(line, "= \t"),
 			)
@@ -376,8 +376,8 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 		case nodeKindLiteralParagraph:
 			if node.IsStyleAdmonition() {
 				node.kind = nodeKindParagraph
-				node.raw.WriteString(spaces + line)
-				node.raw.WriteByte('\n')
+				node.WriteString(spaces + line)
+				node.WriteByte('\n')
 				line, _ = doc.consumeLinesUntil(
 					node,
 					lineKindEmpty,
@@ -390,8 +390,8 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 					})
 			} else {
 				node.kind = doc.kind
-				node.raw.WriteString(line)
-				node.raw.WriteByte('\n')
+				node.WriteString(line)
+				node.WriteByte('\n')
 				line, _ = doc.consumeLinesUntil(
 					node,
 					lineKindEmpty,
@@ -451,8 +451,8 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 				line = ""
 			} else {
 				node.kind = nodeKindParagraph
-				node.raw.WriteString("image::" + line)
-				node.raw.WriteByte('\n')
+				node.WriteString("image::" + line)
+				node.WriteByte('\n')
 				line, _ = doc.consumeLinesUntil(
 					node,
 					lineKindEmpty,
@@ -504,8 +504,8 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 				line = ""
 			} else {
 				node.kind = nodeKindParagraph
-				node.raw.WriteString("video::" + line)
-				node.raw.WriteByte('\n')
+				node.WriteString("video::" + line)
+				node.WriteByte('\n')
 				line, _ = doc.consumeLinesUntil(
 					node,
 					lineKindEmpty,
@@ -527,8 +527,8 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 				line = ""
 			} else {
 				node.kind = nodeKindParagraph
-				node.raw.WriteString("audio::" + line)
-				node.raw.WriteByte('\n')
+				node.WriteString("audio::" + line)
+				node.WriteByte('\n')
 				line, _ = doc.consumeLinesUntil(
 					node,
 					lineKindEmpty,
@@ -610,8 +610,8 @@ func (doc *Document) parseHeader() (spaces, line string, c rune) {
 			doc.header = &adocNode{
 				kind: nodeKindDocHeader,
 			}
-			doc.header.raw.WriteString(strings.TrimSpace(line[2:]))
-			doc.Title = doc.header.raw.String()
+			doc.header.WriteString(strings.TrimSpace(line[2:]))
+			doc.Title = string(doc.header.raw)
 			state = stateAuthor
 		case stateAuthor:
 			doc.Author = line
@@ -708,8 +708,8 @@ func (doc *Document) parseListBlock() (node *adocNode, line string, c rune) {
 			node = &adocNode{
 				kind: doc.kind,
 			}
-			node.raw.WriteString(strings.TrimLeft(line, " \t"))
-			node.raw.WriteByte('\n')
+			node.WriteString(strings.TrimLeft(line, " \t"))
+			node.WriteByte('\n')
 			line, c = doc.consumeLinesUntil(
 				node,
 				lineKindEmpty,
@@ -724,8 +724,8 @@ func (doc *Document) parseListBlock() (node *adocNode, line string, c rune) {
 			node = &adocNode{
 				kind: nodeKindParagraph,
 			}
-			node.raw.WriteString(line)
-			node.raw.WriteByte('\n')
+			node.WriteString(line)
+			node.WriteByte('\n')
 			line, c = doc.consumeLinesUntil(node,
 				lineKindEmpty,
 				[]int{
@@ -878,8 +878,8 @@ func (doc *Document) parseListDescription(parent, node *adocNode, line string) (
 			}
 		}
 
-		listItem.raw.WriteString(strings.TrimSpace(line))
-		listItem.raw.WriteByte('\n')
+		listItem.WriteString(strings.TrimSpace(line))
+		listItem.WriteByte('\n')
 		line = ""
 	}
 	return line, c
@@ -1048,8 +1048,8 @@ func (doc *Document) parseListOrdered(parent *adocNode, title, line string) (
 			}
 		}
 
-		listItem.raw.WriteString(strings.TrimSpace(line))
-		listItem.raw.WriteByte('\n')
+		listItem.WriteString(strings.TrimSpace(line))
+		listItem.WriteByte('\n')
 		line = ""
 	}
 
@@ -1216,8 +1216,8 @@ func (doc *Document) parseListUnordered(parent, node *adocNode, line string) (
 			}
 		}
 
-		listItem.raw.WriteString(strings.TrimSpace(line))
-		listItem.raw.WriteByte('\n')
+		listItem.WriteString(strings.TrimSpace(line))
+		listItem.WriteByte('\n')
 		line = ""
 	}
 

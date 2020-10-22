@@ -19,8 +19,8 @@ import (
 //
 type adocNode struct {
 	kind     int
-	level    int          // The number of dot for ordered list, or star '*' for unordered list.
-	raw      bytes.Buffer // unparsed content of node.
+	level    int    // The number of dot for ordered list, or star '*' for unordered list.
+	raw      []byte // unparsed content of node.
 	rawLabel bytes.Buffer
 	rawTitle string
 	style    int64
@@ -44,7 +44,8 @@ func (node *adocNode) Classes() string {
 }
 
 func (node *adocNode) Content() string {
-	return strings.TrimRight(node.raw.String(), "\n")
+	node.raw = bytes.TrimRight(node.raw, "\n")
+	return string(node.raw)
 }
 
 func (node *adocNode) GenerateID(str string) string {
@@ -231,6 +232,18 @@ func (node *adocNode) Title() string {
 	return node.rawTitle
 }
 
+func (node *adocNode) Write(b []byte) {
+	node.raw = append(node.raw, b...)
+}
+
+func (node *adocNode) WriteByte(b byte) {
+	node.raw = append(node.raw, b)
+}
+
+func (node *adocNode) WriteString(s string) {
+	node.raw = append(node.raw, []byte(s)...)
+}
+
 //
 // addChild push the node "child" to the list of current node child.
 //
@@ -262,17 +275,15 @@ func (node *adocNode) applySubstitutions() {
 		node.rawTitle = htmlSubstituteSpecialChars(node.rawTitle)
 	}
 
-	content := node.raw.String()
-	content = strings.TrimRight(content, "\n")
-	content = htmlSubstituteSpecialChars(content)
-	node.raw.Reset()
+	node.raw = bytes.TrimRight(node.raw, "\n")
+	content := htmlSubstituteSpecialChars(string(node.raw))
 
 	switch node.kind {
 	case nodeKindBlockExample, nodeKindBlockExcerpts, nodeKindParagraph,
 		nodeKindBlockSidebar:
-		node.raw.WriteString(content)
+		node.raw = []byte(content)
 	default:
-		node.raw.WriteString(content)
+		node.raw = []byte(content)
 	}
 }
 
@@ -280,7 +291,7 @@ func (node *adocNode) debug(n int) {
 	for x := 0; x < n; x++ {
 		fmt.Printf("\t")
 	}
-	fmt.Printf("node: %3d %s\n", node.kind, node.raw.String())
+	fmt.Printf("node: %3d %s\n", node.kind, node.raw)
 	if node.child != nil {
 		node.child.debug(n + 1)
 	}
@@ -346,7 +357,7 @@ func (node *adocNode) parseImage(line string) bool {
 		return false
 	}
 	name := strings.TrimRight(line[:attrBegin], " \t")
-	node.raw.WriteString(name)
+	node.WriteString(name)
 
 	attrs := strings.Split(line[attrBegin+1:attrEnd], ",")
 	if node.Attrs == nil {
@@ -399,8 +410,8 @@ func (node *adocNode) parseLineAdmonition(line string) {
 	node.classes = append(node.classes, class)
 	node.rawLabel.WriteString(strings.Title(class))
 	line = strings.TrimSpace(line[sep+1:])
-	node.raw.WriteString(line)
-	node.raw.WriteByte('\n')
+	node.WriteString(line)
+	node.WriteByte('\n')
 }
 
 func (node *adocNode) parseListDescription(line string) {
@@ -436,7 +447,7 @@ func (node *adocNode) parseListDescription(line string) {
 	}
 	node.level -= 2
 	if len(line) > 0 {
-		node.raw.WriteString(line[x:])
+		node.WriteString(line[x:])
 	}
 }
 
@@ -457,8 +468,8 @@ func (node *adocNode) parseListOrdered(line string) {
 		}
 		break
 	}
-	node.raw.WriteString(line[x:])
-	node.raw.WriteByte('\n')
+	node.WriteString(line[x:])
+	node.WriteByte('\n')
 }
 
 func (node *adocNode) parseListUnordered(line string) {
@@ -478,8 +489,8 @@ func (node *adocNode) parseListUnordered(line string) {
 		}
 		break
 	}
-	node.raw.WriteString(line[x:])
-	node.raw.WriteByte('\n')
+	node.WriteString(line[x:])
+	node.WriteByte('\n')
 }
 
 func (node *adocNode) parseStyleClass(line string) {
@@ -556,9 +567,9 @@ func (node *adocNode) postParseParagraph(parent *adocNode) {
 		return
 	}
 
-	raw := bytes.TrimRight(node.raw.Bytes(), " \t\n")
+	node.raw = bytes.TrimRight(node.raw, " \t\n")
 
-	lines := bytes.Split(raw, []byte{'\n'})
+	lines := bytes.Split(node.raw, []byte{'\n'})
 	if len(lines) <= 1 {
 		return
 	}
@@ -567,9 +578,6 @@ func (node *adocNode) postParseParagraph(parent *adocNode) {
 	if ok {
 		return
 	}
-
-	node.raw.Reset()
-	node.raw.Write(raw)
 }
 
 func (node *adocNode) postParseParagraphAsQuote(lines [][]byte) bool {
@@ -595,21 +603,22 @@ func (node *adocNode) postParseParagraphAsQuote(lines [][]byte) bool {
 		return false
 	}
 
-	node.raw.Reset()
+	node.raw = node.raw[:0]
+
 	secondLastIdx := len(lines) - 2
 	for x, line := range lines[:len(lines)-1] {
 		if x == 0 {
 			if x == secondLastIdx {
-				node.raw.Write(line[1 : len(line)-1])
+				node.Write(line[1 : len(line)-1])
 			} else {
-				node.raw.Write(line[1:])
+				node.Write(line[1:])
 			}
 		} else if x == secondLastIdx {
-			node.raw.Write(line[:len(line)-1])
+			node.Write(line[:len(line)-1])
 		} else {
-			node.raw.Write(line)
+			node.Write(line)
 		}
-		node.raw.WriteByte('\n')
+		node.WriteByte('\n')
 	}
 
 	node.kind = nodeKindBlockExcerpts

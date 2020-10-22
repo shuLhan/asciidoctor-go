@@ -28,6 +28,6 @@ func TestAdocNode_parseListDescription(t *testing.T) {
 
 		test.Assert(t, "adocNode.Level", c.expLevel, node.level, true)
 		test.Assert(t, "adocNode.rawLabel", c.expRawTerm, node.rawLabel.String(), true)
-		test.Assert(t, "adocNode.raw", c.expRaw, node.raw.String(), true)
+		test.Assert(t, "adocNode.raw", c.expRaw, string(node.raw), true)
 	}
 }
