@@ -58,6 +58,18 @@ func (pi *parserInline) do() {
 			}
 			continue
 		}
+		if pi.c == '"' {
+			if pi.nextc == '`' {
+				ok := pi.parseQuoteDoubleBegin()
+				if ok {
+					continue
+				}
+			}
+			pi.current.WriteByte('"')
+			pi.x++
+			pi.prev = pi.c
+			continue
+		}
 		if pi.c == '*' {
 			if pi.nextc == '*' {
 				pi.parseFormatUnconstrained(
@@ -92,16 +104,65 @@ func (pi *parserInline) do() {
 					nodeKindTextMono,
 					styleTextMono,
 				)
+			} else if pi.nextc == '"' {
+				pi.parseQuoteDoubleEnd()
 			} else {
 				pi.parseFormat(nodeKindTextMono, styleTextMono)
 			}
 			continue
 		}
-
 		pi.current.WriteByte(pi.c)
 		pi.x++
 		pi.prev = pi.c
 	}
+}
+
+//
+// parseQuoteDoubleBegin check if the double quote curve ("`) is valid (does not
+// followed by space) and has an end (`")..
+//
+func (pi *parserInline) parseQuoteDoubleBegin() bool {
+	if pi.x+2 >= len(pi.content) {
+		return false
+	}
+	c := pi.content[pi.x+2]
+	if ascii.IsSpace(c) {
+		return false
+	}
+	raw := pi.content[pi.x+2:]
+	idx := bytes.LastIndex(raw, []byte("`\""))
+	if idx < 0 {
+		return false
+	}
+	if ascii.IsSpace(raw[idx-1]) {
+		return false
+	}
+	node := &adocNode{
+		kind: nodeKindSymbolQuoteDoubleBegin,
+	}
+	pi.current.addChild(node)
+	pi.current = node
+	pi.x += 2
+	pi.prev = 0
+	return true
+}
+
+func (pi *parserInline) parseQuoteDoubleEnd() bool {
+	if ascii.IsSpace(pi.prev) {
+		// This is not the end that we looking for.
+		pi.current.WriteString("`\"")
+		pi.x += 2
+		pi.prev = '"'
+		return false
+	}
+	node := &adocNode{
+		kind: nodeKindSymbolQuoteDoubleEnd,
+	}
+	pi.current.addChild(node)
+	pi.current = node
+	pi.x += 2
+	pi.prev = 0
+	return true
 }
 
 func (pi *parserInline) parseFormat(kind int, style int64) bool {

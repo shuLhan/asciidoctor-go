@@ -12,54 +12,58 @@ import (
 )
 
 const (
-	nodeKindUnknown               int = iota
-	nodeKindDocHeader                 // Wrapper.
-	nodeKindPreamble                  // Wrapper.
-	nodeKindDocContent                // Wrapper.
-	nodeKindSectionL1                 // Line started with "=="
-	nodeKindSectionL2                 // 5: Line started with "==="
-	nodeKindSectionL3                 // Line started with "===="
-	nodeKindSectionL4                 // Line started with "====="
-	nodeKindSectionL5                 // Line started with "======"
-	nodeKindParagraph                 // Wrapper.
-	nodeKindLiteralParagraph          // 10: Line start with space
-	nodeKindBlockAudio                // "audio::"
-	nodeKindBlockExample              // "===="
-	nodeKindBlockExcerpts             // "____"
-	nodeKindBlockImage                // "image::"
-	nodeKindBlockListingDelimiter     // Block start and end with "----"
-	nodeKindBlockLiteralNamed         // Block start with "[literal]", end with ""
-	nodeKindBlockLiteralDelimiter     // Block start and end with "...."
-	nodeKindBlockOpen                 // Block wrapped with "--"
-	nodeKindBlockSidebar              // "****"
-	nodeKindBlockVideo                // 20: "video::"
-	nodeKindListOrdered               // Wrapper.
-	nodeKindListOrderedItem           // Line start with ". "
-	nodeKindListUnordered             // Wrapper.
-	nodeKindListUnorderedItem         // Line start with "* "
-	nodeKindListDescription           // Wrapper.
-	nodeKindListDescriptionItem       // Line that has "::" + WSP
-	nodeKindPassthrough               // Text wrapped inside "+"
-	nodeKindPassthroughDouble         // Text wrapped inside "++"
-	nodeKindText                      //
-	nodeKindTextBold                  // 30: Text wrapped by "*"
-	nodeKindTextItalic                // Text wrapped by "_"
-	nodeKindTextMono                  // Text wrapped by "`"
-	nodeKindUnconstrainedBold         // Text wrapped by "**"
-	nodeKindUnconstrainedItalic       // Text wrapped by "__"
-	nodeKindUnconstrainedMono         // Text wrapped by "``"
-	lineKindAdmonition                // "LABEL: WSP"
-	lineKindAttribute                 // Line start with ":"
-	lineKindBlockComment              // Block start and end with "////"
-	lineKindBlockTitle                // Line start with ".<alnum>"
-	lineKindComment                   // Line start with "//"
-	lineKindEmpty                     // LF
-	lineKindHorizontalRule            // "'''", "---", "- - -", "***", "* * *"
-	lineKindListContinue              // A single "+" line
-	lineKindPageBreak                 // "<<<"
-	lineKindStyle                     // Line start with "["
-	lineKindStyleClass                // Custom style "[.x.y]"
-	lineKindText                      //
+	nodeKindUnknown                int = iota
+	nodeKindDocHeader                  // Wrapper.
+	nodeKindPreamble                   // Wrapper.
+	nodeKindDocContent                 // Wrapper.
+	nodeKindSectionL1                  // Line started with "=="
+	nodeKindSectionL2                  // 5: Line started with "==="
+	nodeKindSectionL3                  // Line started with "===="
+	nodeKindSectionL4                  // Line started with "====="
+	nodeKindSectionL5                  // Line started with "======"
+	nodeKindParagraph                  // Wrapper.
+	nodeKindLiteralParagraph           // 10: Line start with space
+	nodeKindBlockAudio                 // "audio::"
+	nodeKindBlockExample               // "===="
+	nodeKindBlockExcerpts              // "____"
+	nodeKindBlockImage                 // "image::"
+	nodeKindBlockListingDelimiter      // Block start and end with "----"
+	nodeKindBlockLiteralNamed          // Block start with "[literal]", end with ""
+	nodeKindBlockLiteralDelimiter      // Block start and end with "...."
+	nodeKindBlockOpen                  // Block wrapped with "--"
+	nodeKindBlockSidebar               // "****"
+	nodeKindBlockVideo                 // 20: "video::"
+	nodeKindListOrdered                // Wrapper.
+	nodeKindListOrderedItem            // Line start with ". "
+	nodeKindListUnordered              // Wrapper.
+	nodeKindListUnorderedItem          // Line start with "* "
+	nodeKindListDescription            // Wrapper.
+	nodeKindListDescriptionItem        // Line that has "::" + WSP
+	nodeKindPassthrough                // Text wrapped inside "+"
+	nodeKindPassthroughDouble          // Text wrapped inside "++"
+	nodeKindSymbolQuoteDoubleBegin     // The ("`)
+	nodeKindSymbolQuoteDoubleEnd       // 30: The (`")
+	nodeKindSymbolQuoteSingleBegin     // The ('`)
+	nodeKindSymbolQuoteSingleEnd       // The (`')
+	nodeKindText                       //
+	nodeKindTextBold                   // Text wrapped by "*"
+	nodeKindTextItalic                 // Text wrapped by "_"
+	nodeKindTextMono                   // Text wrapped by "`"
+	nodeKindUnconstrainedBold          // Text wrapped by "**"
+	nodeKindUnconstrainedItalic        // Text wrapped by "__"
+	nodeKindUnconstrainedMono          // Text wrapped by "``"
+	lineKindAdmonition                 // "LABEL: WSP"
+	lineKindAttribute                  // Line start with ":"
+	lineKindBlockComment               // Block start and end with "////"
+	lineKindBlockTitle                 // Line start with ".<alnum>"
+	lineKindComment                    // Line start with "//"
+	lineKindEmpty                      // LF
+	lineKindHorizontalRule             // "'''", "---", "- - -", "***", "* * *"
+	lineKindListContinue               // A single "+" line
+	lineKindPageBreak                  // "<<<"
+	lineKindStyle                      // Line start with "["
+	lineKindStyleClass                 // Custom style "[.x.y]"
+	lineKindText                       //
 )
 
 const (
@@ -127,6 +131,11 @@ const (
 	styleTextBold
 	styleTextItalic
 	styleTextMono
+)
+
+const (
+	symbolQuoteDoubleBegin = "&#8220;"
+	symbolQuoteDoubleEnd   = "&#8221;"
 )
 
 var adocStyles map[string]int64 = map[string]int64{

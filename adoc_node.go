@@ -751,6 +751,18 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		_, err = w.Write(node.raw)
 	case nodeKindPassthroughDouble:
 		_, err = w.Write(node.raw)
+	case nodeKindSymbolQuoteDoubleBegin:
+		_, err = w.Write([]byte(symbolQuoteDoubleBegin))
+		if err != nil {
+			return err
+		}
+		_, err = w.Write(node.raw)
+	case nodeKindSymbolQuoteDoubleEnd:
+		_, err = w.Write([]byte(symbolQuoteDoubleEnd))
+		if err != nil {
+			return err
+		}
+		_, err = w.Write(node.raw)
 	case nodeKindText:
 		_, err = w.Write(node.raw)
 	case nodeKindTextBold, nodeKindUnconstrainedBold:

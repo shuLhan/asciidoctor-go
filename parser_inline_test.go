@@ -84,6 +84,15 @@ func TestParserInline_do(t *testing.T) {
 	}, {
 		content: "*bold _italic `mono end-bold* end-italic_ end-mono.",
 		exp:     "<strong>bold <em>italic `mono end-bold</em></strong><em> end-italic</em> end-mono.",
+	}, {
+		content: "\"`A double quote without end.",
+		exp:     "\"`A double quote without end.",
+	}, {
+		content: "\"` A double quote around space `\"",
+		exp:     "\"` A double quote around space `\"",
+	}, {
+		content: "\"`A double quote`\"",
+		exp:     "&#8220;A double quote&#8221;",
 	}}
 
 	var buf bytes.Buffer
@@ -96,7 +105,8 @@ func TestParserInline_do(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		container.debug(0)
+		// container.debug(0)
+
 		got := buf.String()
 		test.Assert(t, c.content, c.exp, got, true)
 	}
