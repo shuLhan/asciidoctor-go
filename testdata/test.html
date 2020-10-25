@@ -120,8 +120,60 @@ This is next line in paragraph.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_text_formatting">Text formatting</h2>
+<h2 id="_unconstrained_text_formatting">Unconstrained text formatting</h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p><code>__A *B*__</code>: <em>A *B*</em></p>
+</div>
+<div class="paragraph">
+<p><code>__A `B`__</code>: <em>A `B`</em></p>
+</div>
+<div class="paragraph">
+<p>__A *B*_: <em>_A *B*</em></p>
+</div>
+<div class="paragraph">
+<p>__A *B*_ C: <em>_A *B*</em> C</p>
+</div>
+<div class="paragraph">
+<p>_A *B*__: <em>A *B*_</em></p>
+</div>
+<div class="paragraph">
+<p>__A _B_ C__: <em>A <em>B</em> C</em></p>
+</div>
+<div class="paragraph">
+<p>__A B_ C__: <em>A B_ C</em></p>
+</div>
+<div class="paragraph">
+<p><code>**A _B_**</code>: <strong>A <em>B</em></strong></p>
+</div>
+<div class="paragraph">
+<p>**A `B`**: <strong>A <code>B</code></strong></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_passthrough">Passthrough</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>+__A *B*__</code></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_constrained_text_formatting">Constrained text formatting</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>_A_B</code>: _A_B</p>
+</div>
+<div class="paragraph">
+<p><code>_A_ B</code>: <em>A</em> B</p>
+</div>
+<div class="paragraph">
+<p><code>_A _B</code>: _A _B</p>
+</div>
+<div class="paragraph">
+<p><strong>A <em>B <code>C</em> D</code> E</strong></p>
+</div>
 <div class="paragraph">
 <p>Multiple <em>text
 &#8220;formatting&#8221; in *single
@@ -1574,7 +1626,7 @@ and then moves on.</pre>
 <div id="footer">
 <div id="footer-text">
 Version 1.1.1<br>
-Last updated 2020-10-15 04:01:08 +0700
+Last updated 2020-10-25 01:04:36 +0700
 </div>
 </div>
 </body>

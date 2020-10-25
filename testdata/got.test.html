@@ -120,15 +120,67 @@ This is next line in paragraph.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_text_formatting">Text formatting</h2>
+<h2 id="_unconstrained_text_formatting">Unconstrained text formatting</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Multiple _text
-"`formatting`" in *single
-paragraph*_.</p>
+<p><code>__A *B*__</code>: <em>A <strong>B</strong></em></p>
 </div>
 <div class="paragraph">
-<p>_Inline https://kilabit.info[*link*] inside italic_.</p>
+<p><code>__A `B`__</code>: <em>A <code>B</code></em></p>
+</div>
+<div class="paragraph">
+<p>__A *B*_: <em>_A <strong>B</strong></em></p>
+</div>
+<div class="paragraph">
+<p>__A *B*_ C: <em>_A <strong>B</strong></em> C</p>
+</div>
+<div class="paragraph">
+<p>_A *B*__: <em>A <strong>B</strong>_</em></p>
+</div>
+<div class="paragraph">
+<p>__A _B_ C__: <em>A <em>B</em> C</em></p>
+</div>
+<div class="paragraph">
+<p>__A B_ C__: <em>A B_ C</em></p>
+</div>
+<div class="paragraph">
+<p><code>**A _B_**</code>: <strong>A <em>B</em></strong></p>
+</div>
+<div class="paragraph">
+<p>**A `B`**: <strong>A <code>B</code></strong></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_passthrough">Passthrough</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>+__A *B*__</code></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_constrained_text_formatting">Constrained text formatting</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>_A_B</code>: _A_B</p>
+</div>
+<div class="paragraph">
+<p><code>_A_ B</code>: <em>A</em> B</p>
+</div>
+<div class="paragraph">
+<p><code>_A _B</code>: _A _B</p>
+</div>
+<div class="paragraph">
+<p><strong>A <em>B <code>C</code></em><code> D</code> E</strong></p>
+</div>
+<div class="paragraph">
+<p>Multiple <em>text
+"`formatting`" in <strong>single
+paragraph</strong></em>.</p>
+</div>
+<div class="paragraph">
+<p><em>Inline https://kilabit.info[*link*] inside italic</em>.</p>
 </div>
 <div class="paragraph">
 <p>_Italic without^end^.</p>
@@ -137,23 +189,19 @@ paragraph*_.</p>
 <p>"`A double quote without end.</p>
 </div>
 <div class="paragraph">
-<p>_A double quote "`inside_ italic`".</p>
+<p><em>A double quote "`inside</em> italic`".</p>
 </div>
 <div class="paragraph">
-<p>_A `monospace between_ italic`.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>_italic `mono end-bold* end-italic_ end-mono`.</p>
-</li>
-<li>
-<p>_italic `mono end-bold* end-italic_ end-mono.</p>
-</li>
-</ul>
+<p><em>A <code>monospace between</code></em><code> italic</code>.</p>
 </div>
 <div class="paragraph">
-<p>A bold with * space *, with single non alnum *=*. </p>
+<p><strong>bold <em>italic <code>mono end-bold</code></em></strong><em><code> end-italic</code></em><code> end-mono</code>.</p>
+</div>
+<div class="paragraph">
+<p><strong>bold <em>italic `mono end-bold</em></strong><em> end-italic</em> end-mono.</p>
+</div>
+<div class="paragraph">
+<p>A bold with * space <strong>, with single non alnum *=</strong>.</p>
 </div>
 <div class="paragraph">
 <p>"` A double quote with space `".</p>
@@ -1002,7 +1050,7 @@ Hard drive
 <p>A paragraph followed by horizontal rule,
 ---
 - - -
-***
+<strong>*</strong>
 * * *</p>
 </div>
 <div class="paragraph">
@@ -1038,10 +1086,12 @@ Hard drive
 </div>
 <div class="paragraph">
 <p>image::sunset.jpg[
-This is become paragraph.</p>
+This is become paragraph.
+</p>
 </div>
 <div class="paragraph">
-<p>image::sunset.jpg]</p>
+<p>image::sunset.jpg]
+</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -1134,7 +1184,8 @@ This is become paragraph.</p>
 <div class="title">Section inside</div>
 <div class="content">
 <div class="paragraph">
-<p>== Section</p>
+<p>== Section
+</p>
 </div>
 </div>
 </div>
@@ -1215,9 +1266,9 @@ Enter at your own risk.</p>
 <td class="icon">
 <div class="title">Warning</div>
 </td>
-<td class="content">
-Wolpertingers are known to nest in server racks.
+<td class="content">Wolpertingers are known to nest in server racks.
 Enter at your own risk.
+
 </td>
 </tr>
 </table>
@@ -1232,8 +1283,8 @@ Is this inside admonition too?</p>
 <td class="icon">
 <div class="title">Note</div>
 </td>
-<td class="content">
-With tab.
+<td class="content">With tab.
+
 </td>
 </tr>
 </table>
@@ -1244,8 +1295,8 @@ With tab.
 <td class="icon">
 <div class="title">Tip</div>
 </td>
-<td class="content">
-With multiple spaces.
+<td class="content">With multiple spaces.
+
 </td>
 </tr>
 </table>
@@ -1263,8 +1314,8 @@ With multiple spaces.
 <td class="icon">
 <div class="title">Important</div>
 </td>
-<td class="content">
-inside list
+<td class="content">inside list
+
 </td>
 </tr>
 </table>
@@ -1281,9 +1332,9 @@ inside list
 <td class="icon">
 <div class="title">Caution</div>
 </td>
-<td class="content">
-admonition followed by list
+<td class="content">admonition followed by list
 * List item
+
 </td>
 </tr>
 </table>
@@ -1325,8 +1376,7 @@ admonition followed by list
 <td class="icon">
 <div class="title">Tip</div>
 </td>
-<td class="content">
-Admonition with paragraph.
+<td class="content">Admonition with paragraph.
 </td>
 </tr>
 </table>
@@ -1366,8 +1416,8 @@ Admonition with paragraph.
 <td class="icon">
 <div class="title">Warning</div>
 </td>
-<td class="content">
-  Literal paragraph with admonition.
+<td class="content">  Literal paragraph with admonition.
+
 </td>
 </tr>
 </table>
@@ -1381,9 +1431,9 @@ Admonition with paragraph.
 <td class="icon">
 <i class="fa icon-warning" title="Warning"></i>
 </td>
-<td class="content">
-Wolpertingers are known to nest in server racks.
+<td class="content">Wolpertingers are known to nest in server racks.
 Enter at your own risk.
+
 </td>
 </tr>
 </table>
@@ -1452,6 +1502,7 @@ This guide provides...</pre>
 <div class="quoteblock">
 <blockquote>
 Quote or excerpt text
+
 </blockquote>
 <div class="attribution">
 &#8212; attribution<br>
@@ -1462,6 +1513,7 @@ Quote or excerpt text
 <div class="title">After landing the cloaked Klingon bird of prey in Golden Gate park:</div>
 <blockquote>
 Everybody remember where we parked.
+
 </blockquote>
 <div class="attribution">
 &#8212; Captain James T. Kirk<br>
@@ -1472,13 +1524,16 @@ Everybody remember where we parked.
 <blockquote>
 
 <div class="paragraph">
-<p>Dennis: Come and see the violence inherent in the system. Help! Help! I'm being repressed!</p>
+<p>Dennis: Come and see the violence inherent in the system. Help! Help! I'm being repressed!
+</p>
 </div>
 <div class="paragraph">
-<p>King Arthur: Bloody peasant!</p>
+<p>King Arthur: Bloody peasant!
+</p>
 </div>
 <div class="paragraph">
-<p>Dennis: Oh, what a giveaway! Did you hear that? Did you hear that, eh? That's what I'm on about! Did you see him repressing me? You saw him, Didn't you?</p>
+<p>Dennis: Oh, what a giveaway! Did you hear that? Did you hear that, eh? That's what I'm on about! Did you see him repressing me? You saw him, Didn't you?
+</p>
 </div>
 </blockquote>
 <div class="attribution">
@@ -1491,6 +1546,7 @@ Everybody remember where we parked.
 <blockquote>
 I hold it that a little rebellion now and then is a good thing,
 and as necessary in the political world as storms in the physical.
+
 </blockquote>
 <div class="attribution">
 &#8212; Thomas Jefferson<br>
@@ -1508,6 +1564,7 @@ and as necessary in the political world as storms in the physical."</p>
 <div class="quoteblock">
 <blockquote>
 Author with tab
+
 </blockquote>
 <div class="attribution">
 &#8212; Author
@@ -1532,6 +1589,7 @@ Author with tab
 <div class="quoteblock">
 <blockquote>
 a quote
+
 </blockquote>
 <div class="attribution">
 &#8212; Thomas Jefferson<br>
@@ -1580,7 +1638,7 @@ and then moves on.</pre>
 <div id="footer">
 <div id="footer-text">
 Version 1.1.1<br>
-Last updated 2020-10-15 04:01:08 +0700
+Last updated 2020-10-25 01:04:36 +0700
 </div>
 </div>
 </body>

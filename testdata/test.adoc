@@ -75,7 +75,39 @@ A paragraph followed by literal named
 This is literal
 
 
-==  Text formatting
+==  Unconstrained text formatting
+
+`+__A *B*__+`: __A *B*__
+
+`+__A `B`__+`: __A `B`__
+
++__A *B*_+: __A *B*_
+
++__A *B*_ C+: __A *B*_ C
+
++_A *B*__+: _A *B*__
+
++__A _B_ C__+: __A _B_ C__
+
++__A B_ C__+: __A B_ C__
+
+`+**A _B_**+`: **A _B_**
+
++**A `B`**+: **A `B`**
+
+==  Passthrough
+
+`++__A *B*__+`
+
+==  Constrained text formatting
+
+`+_A_B+`: _A_B
+
+`+_A_ B+`: _A_ B
+
+`+_A _B+`: _A _B
+
+*A _B `C_ D` E*
 
 Multiple _text
 "`formatting`" in *single

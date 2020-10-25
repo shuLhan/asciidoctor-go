@@ -192,6 +192,10 @@ func (node *adocNode) GetVideoSource() string {
 	return u.String()
 }
 
+func (node *adocNode) HasStyle(s int64) bool {
+	return node.style&s > 0
+}
+
 func (node *adocNode) IsStyleAdmonition() bool {
 	return isStyleAdmonition(node.style)
 }
@@ -291,7 +295,7 @@ func (node *adocNode) debug(n int) {
 	for x := 0; x < n; x++ {
 		fmt.Printf("\t")
 	}
-	fmt.Printf("node: %3d %s\n", node.kind, node.raw)
+	fmt.Printf("node: {kind:%-3d style:%-3d raw:%s}\n", node.kind, node.style, node.raw)
 	if node.child != nil {
 		node.child.debug(n + 1)
 	}
@@ -402,6 +406,18 @@ func (node *adocNode) parseImage(line string) bool {
 		}
 	}
 	return true
+}
+
+func (node *adocNode) parseInlineMarkup() {
+	container := parseInlineMarkup(node.raw)
+	container.parent = node
+	container.next = node.child
+	if node.child != nil {
+		node.child.prev = container
+	}
+	node.child = container
+
+	node.raw = nil
 }
 
 func (node *adocNode) parseLineAdmonition(line string) {
@@ -667,7 +683,7 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		} else if node.IsStyleVerse() {
 			err = tmpl.ExecuteTemplate(w, "BEGIN_VERSE", node)
 		} else {
-			err = tmpl.ExecuteTemplate(w, "PARAGRAPH", node)
+			err = tmpl.ExecuteTemplate(w, "BEGIN_PARAGRAPH", node)
 		}
 	case nodeKindLiteralParagraph, nodeKindBlockLiteralNamed:
 		err = tmpl.ExecuteTemplate(w, "BLOCK_LITERAL", node)
@@ -731,6 +747,42 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		err = tmpl.ExecuteTemplate(w, "BLOCK_VIDEO", node)
 	case nodeKindBlockAudio:
 		err = tmpl.ExecuteTemplate(w, "BLOCK_AUDIO", node)
+	case nodeKindPassthrough:
+		_, err = w.Write(node.raw)
+	case nodeKindPassthroughDouble:
+		_, err = w.Write(node.raw)
+	case nodeKindText:
+		_, err = w.Write(node.raw)
+	case nodeKindTextBold, nodeKindUnconstrainedBold:
+		if node.HasStyle(styleTextBold) {
+			_, err = w.Write([]byte("<strong>"))
+		} else if len(node.raw) > 0 {
+			_, err = w.Write([]byte("*"))
+		}
+		if err != nil {
+			return err
+		}
+		_, err = w.Write(node.raw)
+	case nodeKindTextItalic, nodeKindUnconstrainedItalic:
+		if node.HasStyle(styleTextItalic) {
+			_, err = w.Write([]byte("<em>"))
+		} else if len(node.raw) > 0 {
+			_, err = w.Write([]byte("_"))
+		}
+		if err != nil {
+			return err
+		}
+		_, err = w.Write(node.raw)
+	case nodeKindTextMono, nodeKindUnconstrainedMono:
+		if node.HasStyle(styleTextMono) {
+			_, err = w.Write([]byte("<code>"))
+		} else if len(node.raw) > 0 {
+			_, err = w.Write([]byte("`"))
+		}
+		if err != nil {
+			return err
+		}
+		_, err = w.Write(node.raw)
 	}
 	if err != nil {
 		return err
@@ -757,6 +809,8 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 			err = tmpl.ExecuteTemplate(w, "END_QUOTE", node)
 		} else if node.IsStyleVerse() {
 			err = tmpl.ExecuteTemplate(w, "END_VERSE", node)
+		} else {
+			err = tmpl.ExecuteTemplate(w, "END_PARAGRAPH", node)
 		}
 	case nodeKindListOrderedItem, nodeKindListUnorderedItem:
 		err = tmpl.ExecuteTemplate(w, "END_LIST_ITEM", nil)
@@ -792,6 +846,18 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		}
 	case nodeKindBlockSidebar:
 		err = tmpl.ExecuteTemplate(w, "END_SIDEBAR", node)
+	case nodeKindTextBold, nodeKindUnconstrainedBold:
+		if node.HasStyle(styleTextBold) {
+			_, err = fmt.Fprintf(w, "</strong>")
+		}
+	case nodeKindTextItalic, nodeKindUnconstrainedItalic:
+		if node.HasStyle(styleTextItalic) {
+			_, err = fmt.Fprintf(w, "</em>")
+		}
+	case nodeKindTextMono, nodeKindUnconstrainedMono:
+		if node.HasStyle(styleTextMono) {
+			_, err = fmt.Fprintf(w, "</code>")
+		}
 	}
 	if err != nil {
 		return err

@@ -28,17 +28,26 @@ const (
 	nodeKindBlockExcerpts             // "____"
 	nodeKindBlockImage                // "image::"
 	nodeKindBlockListingDelimiter     // Block start and end with "----"
-	nodeKindBlockLiteralNamed         // 15: Block start with "[literal]", end with ""
+	nodeKindBlockLiteralNamed         // Block start with "[literal]", end with ""
 	nodeKindBlockLiteralDelimiter     // Block start and end with "...."
 	nodeKindBlockOpen                 // Block wrapped with "--"
 	nodeKindBlockSidebar              // "****"
-	nodeKindBlockVideo                // "video::"
+	nodeKindBlockVideo                // 20: "video::"
 	nodeKindListOrdered               // Wrapper.
 	nodeKindListOrderedItem           // Line start with ". "
 	nodeKindListUnordered             // Wrapper.
 	nodeKindListUnorderedItem         // Line start with "* "
 	nodeKindListDescription           // Wrapper.
 	nodeKindListDescriptionItem       // Line that has "::" + WSP
+	nodeKindPassthrough               // Text wrapped inside "+"
+	nodeKindPassthroughDouble         // Text wrapped inside "++"
+	nodeKindText                      //
+	nodeKindTextBold                  // 30: Text wrapped by "*"
+	nodeKindTextItalic                // Text wrapped by "_"
+	nodeKindTextMono                  // Text wrapped by "`"
+	nodeKindUnconstrainedBold         // Text wrapped by "**"
+	nodeKindUnconstrainedItalic       // Text wrapped by "__"
+	nodeKindUnconstrainedMono         // Text wrapped by "``"
 	lineKindAdmonition                // "LABEL: WSP"
 	lineKindAttribute                 // Line start with ":"
 	lineKindBlockComment              // Block start and end with "////"
@@ -115,6 +124,9 @@ const (
 	styleBlockListing
 	styleQuote
 	styleVerse
+	styleTextBold
+	styleTextItalic
+	styleTextMono
 )
 
 var adocStyles map[string]int64 = map[string]int64{
@@ -276,6 +288,12 @@ func parseBlockAttribute(in string) (out []string) {
 		}
 	}
 	return out
+}
+
+func parseInlineMarkup(content []byte) (container *adocNode) {
+	pi := newParserInline(content)
+	pi.do()
+	return pi.container
 }
 
 //
@@ -440,6 +458,8 @@ func whatKindOfLine(line string) (kind int, spaces, got string) {
 					kind = nodeKindListUnorderedItem
 					return kind, spaces, line
 				}
+				kind = lineKindText
+				return kind, spaces, line
 			}
 		}
 	} else if line == "+" {

@@ -266,6 +266,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 					nodeKindBlockLiteralNamed,
 					lineKindListContinue,
 				})
+			node.parseInlineMarkup()
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
@@ -304,6 +305,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 					lineKindListContinue,
 				})
 			node.postParseParagraph(parent)
+			node.parseInlineMarkup()
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
@@ -327,6 +329,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 					nodeKindBlockLiteralNamed,
 					lineKindListContinue,
 				})
+			node.parseInlineMarkup()
 			parent.addChild(node)
 			node = new(adocNode)
 			continue
@@ -348,6 +351,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 						nodeKindBlockLiteralNamed,
 						lineKindListContinue,
 					})
+				node.parseInlineMarkup()
 				parent.addChild(node)
 				node = new(adocNode)
 				continue
@@ -388,6 +392,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 						nodeKindBlockLiteralNamed,
 						lineKindListContinue,
 					})
+				node.parseInlineMarkup()
 			} else {
 				node.kind = doc.kind
 				node.WriteString(line)
@@ -463,6 +468,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 						nodeKindBlockLiteralNamed,
 						lineKindListContinue,
 					})
+				node.parseInlineMarkup()
 			}
 			parent.addChild(node)
 			node = &adocNode{}
@@ -516,6 +522,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 						nodeKindBlockLiteralNamed,
 						lineKindListContinue,
 					})
+				node.parseInlineMarkup()
 			}
 			parent.addChild(node)
 			node = new(adocNode)
@@ -539,6 +546,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 						nodeKindBlockLiteralNamed,
 						lineKindListContinue,
 					})
+				node.parseInlineMarkup()
 			}
 			parent.addChild(node)
 			node = new(adocNode)
@@ -689,6 +697,7 @@ func (doc *Document) parseListBlock() (node *adocNode, line string, c rune) {
 					nodeKindBlockLiteralNamed,
 					lineKindListContinue,
 				})
+			node.parseInlineMarkup()
 			break
 		}
 		if doc.kind == lineKindBlockComment {
@@ -735,6 +744,7 @@ func (doc *Document) parseListBlock() (node *adocNode, line string, c rune) {
 					nodeKindListDescriptionItem,
 				})
 			node.postParseParagraph(nil)
+			node.parseInlineMarkup()
 			break
 		}
 		if doc.kind == nodeKindBlockListingDelimiter {

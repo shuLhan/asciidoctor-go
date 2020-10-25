@@ -138,10 +138,12 @@ Last updated {{.LastUpdated}}
 	{{- end}}
 {{- end}}
 {{/*----------------------------------------------------------------------*/}}
-{{- define "PARAGRAPH"}}
+{{- define "BEGIN_PARAGRAPH"}}
 <div class="paragraph {{- .Classes}}">
 {{- template "BLOCK_TITLE" .}}
-<p>{{- .Content -}}</p>
+<p>
+{{- end}}
+{{- define "END_PARAGRAPH"}}</p>
 </div>
 {{- end}}
 {{/*----------------------------------------------------------------------*/}}
