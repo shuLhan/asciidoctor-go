@@ -335,7 +335,7 @@ Your browser does not support the audio tag.
 	{{- end}}
 </td>
 <td class="content">
-	{{- with $content := .Content}}
+{{ with $content := .Content }}
 {{$content}}
 	{{- end}}
 {{- end}}

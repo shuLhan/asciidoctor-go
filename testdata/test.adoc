@@ -99,6 +99,17 @@ This is literal
 
 `++__A *B*__+`
 
+
+==  Single quote
+
+'` A single quote without end.
+
+'` A single quote with space `'.
+
+'`A single quote`'.
+
+'`A single quote `'.
+
 ==  Constrained text formatting
 
 `+_A_B+`: _A_B

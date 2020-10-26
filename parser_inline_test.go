@@ -93,6 +93,15 @@ func TestParserInline_do(t *testing.T) {
 	}, {
 		content: "\"`A double quote`\"",
 		exp:     "&#8220;A double quote&#8221;",
+	}, {
+		content: "'`A single quote without end.",
+		exp:     "'`A single quote without end.",
+	}, {
+		content: "'` A single quote around space `'",
+		exp:     "'` A single quote around space &#8217;",
+	}, {
+		content: "\"`A single quote`\"",
+		exp:     "&#8220;A single quote&#8221;",
 	}}
 
 	var buf bytes.Buffer

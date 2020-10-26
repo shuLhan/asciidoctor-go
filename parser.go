@@ -136,6 +136,8 @@ const (
 const (
 	symbolQuoteDoubleBegin = "&#8220;"
 	symbolQuoteDoubleEnd   = "&#8221;"
+	symbolQuoteSingleBegin = "&#8216;"
+	symbolQuoteSingleEnd   = "&#8217;"
 )
 
 var adocStyles map[string]int64 = map[string]int64{

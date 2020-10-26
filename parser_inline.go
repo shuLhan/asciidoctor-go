@@ -29,7 +29,7 @@ func newParserInline(content []byte) (pi *parserInline) {
 		container: &adocNode{
 			kind: nodeKindText,
 		},
-		content: content,
+		content: bytes.TrimRight(content, "\n"),
 		state:   &parserInlineState{},
 	}
 	pi.current = pi.container
@@ -60,7 +60,8 @@ func (pi *parserInline) do() {
 		}
 		if pi.c == '"' {
 			if pi.nextc == '`' {
-				ok := pi.parseQuoteDoubleBegin()
+				ok := pi.parseQuoteBegin([]byte("`\""),
+					nodeKindSymbolQuoteDoubleBegin)
 				if ok {
 					continue
 				}
@@ -70,45 +71,76 @@ func (pi *parserInline) do() {
 			pi.prev = pi.c
 			continue
 		}
+		if pi.c == '\'' {
+			if pi.nextc == '`' {
+				ok := pi.parseQuoteBegin([]byte("`'"),
+					nodeKindSymbolQuoteSingleBegin)
+				if ok {
+					continue
+				}
+			}
+			pi.current.WriteByte('\'')
+			pi.x++
+			pi.prev = pi.c
+			continue
+		}
 		if pi.c == '*' {
 			if pi.nextc == '*' {
-				pi.parseFormatUnconstrained(
+				if pi.parseFormatUnconstrained(
 					[]byte("**"),
 					nodeKindUnconstrainedBold,
 					nodeKindTextBold,
-					styleTextBold,
-				)
-			} else {
-				pi.parseFormat(nodeKindTextBold, styleTextBold)
+					styleTextBold) {
+					continue
+				}
 			}
+			pi.parseFormat(nodeKindTextBold, styleTextBold)
 			continue
 		}
 		if pi.c == '_' {
 			if pi.nextc == '_' {
-				pi.parseFormatUnconstrained(
+				if pi.parseFormatUnconstrained(
 					[]byte("__"),
 					nodeKindUnconstrainedItalic,
 					nodeKindTextItalic,
-					styleTextItalic,
-				)
-			} else {
-				pi.parseFormat(nodeKindTextItalic, styleTextItalic)
+					styleTextItalic) {
+					continue
+				}
 			}
+			pi.parseFormat(nodeKindTextItalic, styleTextItalic)
 			continue
 		}
 		if pi.c == '`' {
+			var ok bool
 			if pi.nextc == '`' {
-				pi.parseFormatUnconstrained(
+				ok = pi.parseFormatUnconstrained(
 					[]byte("``"),
 					nodeKindUnconstrainedMono,
 					nodeKindTextMono,
-					styleTextMono,
-				)
-			} else if pi.nextc == '"' {
-				pi.parseQuoteDoubleEnd()
-			} else {
-				pi.parseFormat(nodeKindTextMono, styleTextMono)
+					styleTextMono)
+				if ok {
+					continue
+				}
 			}
+			if pi.nextc == '"' {
+				if pi.parseQuoteEnd([]byte("`\""),
+					nodeKindSymbolQuoteDoubleEnd) {
+					continue
+				}
+			}
+			if pi.nextc == '\'' {
+				if pi.parseQuoteEnd([]byte("`'"),
+					nodeKindSymbolQuoteSingleEnd) {
+					continue
+				}
+
+				// This is an aposthrope
+				pi.current.WriteString(symbolQuoteSingleEnd)
+				pi.x += 2
+				pi.prev = 0
+				continue
+			}
+			pi.parseFormat(nodeKindTextMono, styleTextMono)
 			continue
 		}
 		pi.current.WriteByte(pi.c)
@@ -118,10 +150,10 @@ func (pi *parserInline) do() {
 }
 
 //
-// parseQuoteDoubleBegin check if the double quote curve ("`) is valid (does not
+// parseQuoteBegin check if the double quote curve ("`) is valid (does not
 // followed by space) and has an end (`")..
 //
-func (pi *parserInline) parseQuoteDoubleBegin() bool {
+func (pi *parserInline) parseQuoteBegin(quoteEnd []byte, kind int) bool {
 	if pi.x+2 >= len(pi.content) {
 		return false
 	}
@@ -130,7 +162,7 @@ func (pi *parserInline) parseQuoteDoubleBegin() bool {
 		return false
 	}
 	raw := pi.content[pi.x+2:]
-	idx := bytes.LastIndex(raw, []byte("`\""))
+	idx := bytes.LastIndex(raw, quoteEnd)
 	if idx < 0 {
 		return false
 	}
@@ -138,7 +170,7 @@ func (pi *parserInline) parseQuoteDoubleBegin() bool {
 		return false
 	}
 	node := &adocNode{
-		kind: nodeKindSymbolQuoteDoubleBegin,
+		kind: kind,
 	}
 	pi.current.addChild(node)
 	pi.current = node
@@ -147,16 +179,13 @@ func (pi *parserInline) parseQuoteDoubleBegin() bool {
 	return true
 }
 
-func (pi *parserInline) parseQuoteDoubleEnd() bool {
+func (pi *parserInline) parseQuoteEnd(quoteEnd []byte, kind int) bool {
 	if ascii.IsSpace(pi.prev) {
 		// This is not the end that we looking for.
-		pi.current.WriteString("`\"")
-		pi.x += 2
-		pi.prev = '"'
 		return false
 	}
 	node := &adocNode{
-		kind: nodeKindSymbolQuoteDoubleEnd,
+		kind: kind,
 	}
 	pi.current.addChild(node)
 	pi.current = node
@@ -213,13 +242,13 @@ func (pi *parserInline) parseFormatUnconstrained(
 	kindUnconstrained int,
 	kind int,
 	style int64,
-) {
+) bool {
 	// Have we parsed the unconstrained format before?
 	if pi.state.has(kindUnconstrained) {
 		pi.terminate(kindUnconstrained, style)
 		pi.prev = 0
 		pi.x += 2
-		return
+		return true
 	}
 	// Have we parsed single format before?
 	if pi.state.has(kind) {
@@ -227,7 +256,7 @@ func (pi *parserInline) parseFormatUnconstrained(
 		pi.terminate(kind, style)
 		pi.prev = 0
 		pi.x += 2
-		return
+		return true
 	}
 
 	// Do we have the end format?
@@ -241,30 +270,10 @@ func (pi *parserInline) parseFormatUnconstrained(
 		pi.current = node
 		pi.prev = 0
 		pi.x += 2
-		return
+		return true
 	}
 
-	// Do we have the single end format?
-	idx := bytes.LastIndexByte(raw, pi.c)
-	if idx >= 0 {
-		if idx+1 >= len(raw) || isEndFormat(raw[idx+1]) {
-			node := &adocNode{
-				kind: kind,
-			}
-			pi.current.addChild(node)
-			pi.state.push(kind)
-			pi.current = node
-			pi.current.WriteByte(pi.c)
-			pi.prev = 0
-			pi.x += 2
-			return
-		}
-	}
-
-	// No 'cc' or 'c' termination found.
-	pi.current.Write(terms)
-	pi.x += 2
-	pi.prev = pi.c
+	return false
 }
 
 func (pi *parserInline) parsePassthroughDouble() bool {
