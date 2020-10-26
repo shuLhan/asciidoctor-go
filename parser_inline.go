@@ -58,7 +58,15 @@ func (pi *parserInline) do() {
 			}
 			continue
 		}
-		if pi.c == '"' {
+		if pi.c == '~' {
+			if pi.parseSubscript() {
+				continue
+			}
+		} else if pi.c == '^' {
+			if pi.parseSuperscript() {
+				continue
+			}
+		} else if pi.c == '"' {
 			if pi.nextc == '`' {
 				ok := pi.parseQuoteBegin([]byte("`\""),
 					nodeKindSymbolQuoteDoubleBegin)
@@ -66,12 +74,7 @@ func (pi *parserInline) do() {
 					continue
 				}
 			}
-			pi.current.WriteByte('"')
-			pi.x++
-			pi.prev = pi.c
-			continue
-		}
-		if pi.c == '\'' {
+		} else if pi.c == '\'' {
 			if pi.nextc == '`' {
 				ok := pi.parseQuoteBegin([]byte("`'"),
 					nodeKindSymbolQuoteSingleBegin)
@@ -79,12 +82,7 @@ func (pi *parserInline) do() {
 					continue
 				}
 			}
-			pi.current.WriteByte('\'')
-			pi.x++
-			pi.prev = pi.c
-			continue
-		}
-		if pi.c == '*' {
+		} else if pi.c == '*' {
 			if pi.nextc == '*' {
 				if pi.parseFormatUnconstrained(
 					[]byte("**"),
@@ -94,10 +92,10 @@ func (pi *parserInline) do() {
 					continue
 				}
 			}
-			pi.parseFormat(nodeKindTextBold, styleTextBold)
-			continue
-		}
-		if pi.c == '_' {
+			if pi.parseFormat(nodeKindTextBold, styleTextBold) {
+				continue
+			}
+		} else if pi.c == '_' {
 			if pi.nextc == '_' {
 				if pi.parseFormatUnconstrained(
 					[]byte("__"),
@@ -107,10 +105,10 @@ func (pi *parserInline) do() {
 					continue
 				}
 			}
-			pi.parseFormat(nodeKindTextItalic, styleTextItalic)
-			continue
-		}
-		if pi.c == '`' {
+			if pi.parseFormat(nodeKindTextItalic, styleTextItalic) {
+				continue
+			}
+		} else if pi.c == '`' {
 			var ok bool
 			if pi.nextc == '`' {
 				ok = pi.parseFormatUnconstrained(
@@ -140,8 +138,9 @@ func (pi *parserInline) do() {
 				pi.prev = 0
 				continue
 			}
-			pi.parseFormat(nodeKindTextMono, styleTextMono)
-			continue
+			if pi.parseFormat(nodeKindTextMono, styleTextMono) {
+				continue
+			}
 		}
 		pi.current.WriteByte(pi.c)
 		pi.x++
@@ -229,11 +228,6 @@ func (pi *parserInline) parseFormat(kind int, style int64) bool {
 			}
 		}
 	}
-
-	// No 'c' termination found.
-	pi.current.WriteByte(pi.c)
-	pi.x++
-	pi.prev = pi.c
 	return false
 }
 
@@ -334,6 +328,60 @@ func (pi *parserInline) parsePassthrough() bool {
 	pi.current.WriteByte(pi.c)
 	pi.prev = pi.c
 	pi.x++
+	return false
+}
+
+func (pi *parserInline) parseSubscript() bool {
+	raw := pi.content[pi.x+1:]
+	for x := 0; x < len(raw); x++ {
+		if raw[x] == pi.c {
+			node := &adocNode{
+				kind: nodeKindTextSubscript,
+				raw:  raw[:x],
+			}
+			pi.current.addChild(node)
+
+			node = &adocNode{
+				kind: nodeKindText,
+			}
+			pi.current.addChild(node)
+			pi.current = node
+
+			pi.x += x + 2
+			pi.prev = pi.c
+			return true
+		}
+		if ascii.IsSpace(raw[x]) {
+			break
+		}
+	}
+	return false
+}
+
+func (pi *parserInline) parseSuperscript() bool {
+	raw := pi.content[pi.x+1:]
+	for x := 0; x < len(raw); x++ {
+		if raw[x] == pi.c {
+			node := &adocNode{
+				kind: nodeKindTextSuperscript,
+				raw:  raw[:x],
+			}
+			pi.current.addChild(node)
+
+			node = &adocNode{
+				kind: nodeKindText,
+			}
+			pi.current.addChild(node)
+			pi.current = node
+
+			pi.x += x + 2
+			pi.prev = pi.c
+			return true
+		}
+		if ascii.IsSpace(raw[x]) {
+			break
+		}
+	}
 	return false
 }
 

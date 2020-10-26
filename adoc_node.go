@@ -780,7 +780,7 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 
 	case nodeKindText:
 		_, err = w.Write(node.raw)
-	case nodeKindTextBold, nodeKindUnconstrainedBold:
+	case nodeKindTextBold:
 		if node.HasStyle(styleTextBold) {
 			_, err = w.Write([]byte("<strong>"))
 		} else if len(node.raw) > 0 {
@@ -790,7 +790,18 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 			return err
 		}
 		_, err = w.Write(node.raw)
-	case nodeKindTextItalic, nodeKindUnconstrainedItalic:
+	case nodeKindUnconstrainedBold:
+		if node.HasStyle(styleTextBold) {
+			_, err = w.Write([]byte("<strong>"))
+		} else if len(node.raw) > 0 {
+			_, err = w.Write([]byte("**"))
+		}
+		if err != nil {
+			return err
+		}
+		_, err = w.Write(node.raw)
+
+	case nodeKindTextItalic:
 		if node.HasStyle(styleTextItalic) {
 			_, err = w.Write([]byte("<em>"))
 		} else if len(node.raw) > 0 {
@@ -800,7 +811,18 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 			return err
 		}
 		_, err = w.Write(node.raw)
-	case nodeKindTextMono, nodeKindUnconstrainedMono:
+	case nodeKindUnconstrainedItalic:
+		if node.HasStyle(styleTextItalic) {
+			_, err = w.Write([]byte("<em>"))
+		} else if len(node.raw) > 0 {
+			_, err = w.Write([]byte("__"))
+		}
+		if err != nil {
+			return err
+		}
+		_, err = w.Write(node.raw)
+
+	case nodeKindTextMono:
 		if node.HasStyle(styleTextMono) {
 			_, err = w.Write([]byte("<code>"))
 		} else if len(node.raw) > 0 {
@@ -810,6 +832,22 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 			return err
 		}
 		_, err = w.Write(node.raw)
+
+	case nodeKindUnconstrainedMono:
+		if node.HasStyle(styleTextMono) {
+			_, err = w.Write([]byte("<code>"))
+		} else if len(node.raw) > 0 {
+			_, err = w.Write([]byte("``"))
+		}
+		if err != nil {
+			return err
+		}
+		_, err = w.Write(node.raw)
+
+	case nodeKindTextSubscript:
+		_, err = fmt.Fprintf(w, "<sub>%s</sub>", node.raw)
+	case nodeKindTextSuperscript:
+		_, err = fmt.Fprintf(w, "<sup>%s</sup>", node.raw)
 	}
 	if err != nil {
 		return err

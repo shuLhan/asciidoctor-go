@@ -102,6 +102,24 @@ func TestParserInline_do(t *testing.T) {
 	}, {
 		content: "\"`A single quote`\"",
 		exp:     "&#8220;A single quote&#8221;",
+	}, {
+		content: "H~2~0",
+		exp:     "H<sub>2</sub>0",
+	}, {
+		content: "H~2 ~0",
+		exp:     "H~2 ~0",
+	}, {
+		content: "H~ 2~0",
+		exp:     "H~ 2~0",
+	}, {
+		content: "H^2^0",
+		exp:     "H<sup>2</sup>0",
+	}, {
+		content: "H^2 ^0",
+		exp:     "H^2 ^0",
+	}, {
+		content: "H^ 2^0",
+		exp:     "H^ 2^0",
 	}}
 
 	var buf bytes.Buffer

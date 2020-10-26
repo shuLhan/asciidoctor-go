@@ -110,6 +110,13 @@ This is literal
 
 '`A single quote `'.
 
+
+==  Subscript and superscript
+
+H~2~0 H~ 3 ~0 H~4 ~0 H ~ 5~0 H~6 7~0.
+
+__Sub~scri__pt~.
+
 ==  Constrained text formatting
 
 `+_A_B+`: _A_B
