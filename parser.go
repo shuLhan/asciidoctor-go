@@ -40,6 +40,7 @@ const (
 	nodeKindBlockLiteralNamed          // Block start with "[literal]", end with ""
 	nodeKindBlockLiteralDelimiter      // Block start and end with "...."
 	nodeKindBlockOpen                  // Block wrapped with "--"
+	nodeKindBlockPassthrough           // Block wrapped with "++++"
 	nodeKindBlockSidebar               // "****"
 	nodeKindBlockVideo                 // 20: "video::"
 	nodeKindListOrdered                // Wrapper.
@@ -386,6 +387,9 @@ func whatKindOfLine(line string) (kind int, spaces, got string) {
 	}
 	if line == "____" {
 		return nodeKindBlockExcerpts, spaces, line
+	}
+	if line == "++++" {
+		return nodeKindBlockPassthrough, spaces, line
 	}
 	if strings.HasPrefix(line, "image::") {
 		line = strings.TrimRight(line[7:], " \t")

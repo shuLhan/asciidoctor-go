@@ -739,6 +739,13 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		} else {
 			err = tmpl.ExecuteTemplate(w, "BEGIN_BLOCK_OPEN", node)
 		}
+	case nodeKindBlockPassthrough:
+		_, err = w.Write([]byte("\n"))
+		if err != nil {
+			return err
+		}
+		_, err = w.Write(node.raw)
+
 	case nodeKindBlockExcerpts:
 		if node.IsStyleVerse() {
 			err = tmpl.ExecuteTemplate(w, "BEGIN_VERSE", node)

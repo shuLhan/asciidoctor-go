@@ -5,6 +5,7 @@
 package asciidoctor
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -135,6 +136,7 @@ func (doc *Document) consumeLinesUntil(node *adocNode, term int, terms []int) (
 			continue
 		}
 		if doc.kind == term {
+			node.raw = bytes.TrimRight(node.raw, " \n")
 			return "", 0
 		}
 		for _, t := range terms {
@@ -142,7 +144,9 @@ func (doc *Document) consumeLinesUntil(node *adocNode, term int, terms []int) (
 				return line, c
 			}
 		}
-		if node.kind == nodeKindParagraph && len(spaces) > 0 {
+		if node.kind == nodeKindBlockPassthrough {
+			node.WriteString(spaces)
+		} else if node.kind == nodeKindParagraph && len(spaces) > 0 {
 			node.WriteByte(' ')
 		}
 		node.WriteString(line)
@@ -426,6 +430,13 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 			continue
 
 		case nodeKindBlockListingDelimiter:
+			node.kind = doc.kind
+			line, _ = doc.consumeLinesUntil(node, doc.kind, nil)
+			parent.addChild(node)
+			node = &adocNode{}
+			continue
+
+		case nodeKindBlockPassthrough:
 			node.kind = doc.kind
 			line, _ = doc.consumeLinesUntil(node, doc.kind, nil)
 			parent.addChild(node)

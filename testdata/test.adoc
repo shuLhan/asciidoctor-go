@@ -95,10 +95,6 @@ This is literal
 
 +**A `B`**+: **A `B`**
 
-==  Passthrough
-
-`++__A *B*__+`
-
 
 ==  Single quote
 
@@ -725,5 +721,19 @@ over harbor and city
 on silent haunches
 and then moves on.
 ____
+
+
+==  Passthrough
+
+`++__A *B*__+`
+
+===  Block passthrough
+
+++++
+<video poster="images/movie-reel.png">
+  <source src="videos/writing-zen.webm" type="video/webm">
+</video>
+++++
+
 
 END OF THE TEST.
