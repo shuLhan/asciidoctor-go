@@ -8,7 +8,6 @@ import (
 	"bytes"
 
 	"github.com/shuLhan/share/lib/ascii"
-	libbytes "github.com/shuLhan/share/lib/bytes"
 )
 
 //
@@ -22,6 +21,7 @@ type parserInline struct {
 	x              int
 	state          *parserInlineState
 	prev, c, nextc byte
+	isEscaped      bool
 }
 
 func newParserInline(content []byte) (pi *parserInline) {
@@ -37,36 +37,60 @@ func newParserInline(content []byte) (pi *parserInline) {
 	return pi
 }
 
-func (pi *parserInline) next() {
-	pi.c = pi.content[pi.x]
-	if pi.x+1 == len(pi.content) {
-		pi.nextc = 0
-	} else {
-		pi.nextc = pi.content[pi.x+1]
-	}
-}
-
 func (pi *parserInline) do() {
 	for pi.x < len(pi.content) {
-		pi.next()
+		pi.c = pi.content[pi.x]
+		if pi.x+1 == len(pi.content) {
+			pi.nextc = 0
+		} else {
+			pi.nextc = pi.content[pi.x+1]
+		}
 
-		if pi.c == '+' {
-			if pi.nextc == '+' {
-				pi.parsePassthroughDouble()
-			} else {
-				pi.parsePassthrough()
+		if pi.c == '\\' {
+			if pi.isEscaped {
+				pi.escape()
+				pi.prev = 0
+				continue
 			}
+			pi.isEscaped = true
+			pi.x++
+			pi.prev = pi.c
 			continue
 		}
-		if pi.c == '~' {
+		if pi.c == '+' {
+			if pi.isEscaped {
+				pi.escape()
+				continue
+			}
+			if pi.nextc == '+' {
+				if pi.parsePassthroughDouble() {
+					continue
+				}
+			}
+			if pi.parsePassthrough() {
+				continue
+			}
+		} else if pi.c == '~' {
+			if pi.isEscaped {
+				pi.escape()
+				continue
+			}
 			if pi.parseSubscript() {
 				continue
 			}
 		} else if pi.c == '^' {
+			if pi.isEscaped {
+				pi.escape()
+				continue
+			}
 			if pi.parseSuperscript() {
 				continue
 			}
 		} else if pi.c == '"' {
+			if pi.isEscaped {
+				pi.escape()
+				continue
+			}
 			if pi.nextc == '`' {
 				ok := pi.parseQuoteBegin([]byte("`\""),
 					nodeKindSymbolQuoteDoubleBegin)
@@ -75,6 +99,10 @@ func (pi *parserInline) do() {
 				}
 			}
 		} else if pi.c == '\'' {
+			if pi.isEscaped {
+				pi.escape()
+				continue
+			}
 			if pi.nextc == '`' {
 				ok := pi.parseQuoteBegin([]byte("`'"),
 					nodeKindSymbolQuoteSingleBegin)
@@ -83,6 +111,10 @@ func (pi *parserInline) do() {
 				}
 			}
 		} else if pi.c == '*' {
+			if pi.isEscaped {
+				pi.escape()
+				continue
+			}
 			if pi.nextc == '*' {
 				if pi.parseFormatUnconstrained(
 					[]byte("**"),
@@ -96,6 +128,10 @@ func (pi *parserInline) do() {
 				continue
 			}
 		} else if pi.c == '_' {
+			if pi.isEscaped {
+				pi.escape()
+				continue
+			}
 			if pi.nextc == '_' {
 				if pi.parseFormatUnconstrained(
 					[]byte("__"),
@@ -109,14 +145,16 @@ func (pi *parserInline) do() {
 				continue
 			}
 		} else if pi.c == '`' {
-			var ok bool
+			if pi.isEscaped {
+				pi.escape()
+				continue
+			}
 			if pi.nextc == '`' {
-				ok = pi.parseFormatUnconstrained(
+				if pi.parseFormatUnconstrained(
 					[]byte("``"),
 					nodeKindUnconstrainedMono,
 					nodeKindTextMono,
-					styleTextMono)
-				if ok {
+					styleTextMono) {
 					continue
 				}
 			}
@@ -148,9 +186,16 @@ func (pi *parserInline) do() {
 	}
 }
 
+func (pi *parserInline) escape() {
+	pi.isEscaped = false
+	pi.current.WriteByte(pi.c)
+	pi.x++
+	pi.prev = pi.c
+}
+
 //
 // parseQuoteBegin check if the double quote curve ("`) is valid (does not
-// followed by space) and has an end (`")..
+// followed by space) and has an end (`").
 //
 func (pi *parserInline) parseQuoteBegin(quoteEnd []byte, kind int) bool {
 	if pi.x+2 >= len(pi.content) {
@@ -165,7 +210,7 @@ func (pi *parserInline) parseQuoteBegin(quoteEnd []byte, kind int) bool {
 	if idx < 0 {
 		return false
 	}
-	if ascii.IsSpace(raw[idx-1]) {
+	if ascii.IsSpace(raw[idx-1]) || raw[idx-1] == '\\' {
 		return false
 	}
 	node := &adocNode{
@@ -194,8 +239,8 @@ func (pi *parserInline) parseQuoteEnd(quoteEnd []byte, kind int) bool {
 }
 
 func (pi *parserInline) parseFormat(kind int, style int64) bool {
-	// Do we have the begin format?
-	if isEndFormat(pi.nextc) {
+	// Do we have the beginning?
+	if isEndFormat(pi.prev, pi.nextc) {
 		if pi.state.has(kind) {
 			pi.terminate(kind, style)
 			pi.prev = 0
@@ -204,31 +249,45 @@ func (pi *parserInline) parseFormat(kind int, style int64) bool {
 		}
 	}
 
-	// Do we have the end format?
-	raw := pi.content[pi.x+1:]
-	idx := bytes.LastIndexByte(raw, pi.c)
-	if idx > 0 {
-		var end byte
-		if idx+1 < len(raw) {
-			end = raw[idx+1]
-		}
-		if isEndFormat(end) {
-			if isBeginFormat(pi.prev, pi.nextc) {
-				if !pi.state.has(kind) {
-					node := &adocNode{
-						kind: kind,
-					}
-					pi.current.addChild(node)
-					pi.state.push(kind)
-					pi.current = node
-					pi.prev = 0
-					pi.x++
-					return true
-				}
-			}
-		}
+	if !isBeginFormat(pi.prev, pi.nextc) {
+		return false
 	}
-	return false
+	if pi.state.has(kind) {
+		// if c is begin format but we also have unclosed parent
+		return false
+	}
+
+	raw := pi.content[pi.x+1:]
+	_, idx := indexByteUnescape(raw, pi.c)
+	var hasEnd bool
+	for idx >= 0 {
+		var prevc, nextc byte
+		if idx > 0 {
+			prevc = raw[idx-1]
+		}
+		if idx+1 < len(raw) {
+			nextc = raw[idx+1]
+		}
+		if isEndFormat(prevc, nextc) {
+			hasEnd = true
+			break
+		}
+		raw = raw[idx+1:]
+		_, idx = indexByteUnescape(raw, pi.c)
+	}
+	if !hasEnd {
+		return false
+	}
+
+	node := &adocNode{
+		kind: kind,
+	}
+	pi.current.addChild(node)
+	pi.state.push(kind)
+	pi.current = node
+	pi.prev = 0
+	pi.x++
+	return true
 }
 
 func (pi *parserInline) parseFormatUnconstrained(
@@ -270,15 +329,70 @@ func (pi *parserInline) parseFormatUnconstrained(
 	return false
 }
 
+func (pi *parserInline) parsePassthrough() bool {
+	if !isBeginFormat(pi.prev, pi.nextc) {
+		return false
+	}
+
+	var (
+		x             int
+		pass          []byte
+		prev, c, next byte
+		isEsc         bool
+		content       = pi.content[pi.x+1:]
+	)
+	for ; x < len(content); x++ {
+		c = content[x]
+		if x+1 < len(content) {
+			next = content[x+1]
+		}
+		if c == '\\' {
+			if isEsc {
+				pass = append(pass, '\\')
+				isEsc = false
+			} else {
+				isEsc = true
+			}
+			prev = c
+			continue
+		}
+		if c == '+' {
+			if isEsc {
+				pass = append(pass, '+')
+				isEsc = false
+				continue
+			}
+			if isEndFormat(prev, next) {
+				break
+			}
+		}
+		pass = append(pass, c)
+		prev = c
+	}
+	if x == len(content) {
+		return false
+	}
+
+	node := &adocNode{
+		kind: nodeKindPassthrough,
+		raw:  pass,
+	}
+	pi.current.addChild(node)
+	pi.current = node
+	pi.x += x + 2
+	pi.prev = 0
+	return true
+}
+
 func (pi *parserInline) parsePassthroughDouble() bool {
 	raw := pi.content[pi.x+2:]
 
 	// Check if we have "++" at the end.
-	idx := bytes.Index(raw, []byte("++"))
+	raw, idx := indexUnescape(raw, []byte("++"))
 	if idx >= 0 {
 		node := &adocNode{
 			kind: nodeKindPassthroughDouble,
-			raw:  libbytes.Copy(raw[:idx]),
+			raw:  raw,
 		}
 		pi.current.addChild(node)
 		pi.current = node
@@ -287,54 +401,19 @@ func (pi *parserInline) parsePassthroughDouble() bool {
 		return true
 	}
 
-	// Check if we have single '+'...
-	idx = bytes.IndexByte(raw, pi.c)
-	if idx >= 0 {
-		raw = pi.content[pi.x+1:]
-		idx++
-		node := &adocNode{
-			kind: nodeKindPassthrough,
-			raw:  libbytes.Copy(raw[:idx]),
-		}
-		pi.current.addChild(node)
-		pi.current = node
-		pi.x += idx + 2
-		pi.prev = 0
-		return true
-	}
-
-	// No '++' or '+' found as termination.
-	pi.current.WriteString("++")
-	pi.x += 2
-	return false
-}
-
-func (pi *parserInline) parsePassthrough() bool {
-	raw := pi.content[pi.x+1:]
-	idx := bytes.IndexByte(raw, pi.c)
-	if idx >= 0 {
-		node := &adocNode{
-			kind: nodeKindPassthrough,
-			raw:  libbytes.Copy(raw[:idx]),
-		}
-		pi.current.addChild(node)
-		pi.current = node
-		pi.x += idx + 2
-		pi.prev = 0
-		return true
-	}
-
-	// No '+' found as termination.
-	pi.current.WriteByte(pi.c)
-	pi.prev = pi.c
-	pi.x++
 	return false
 }
 
 func (pi *parserInline) parseSubscript() bool {
-	raw := pi.content[pi.x+1:]
+	var (
+		prev byte
+		raw  = pi.content[pi.x+1:]
+	)
 	for x := 0; x < len(raw); x++ {
 		if raw[x] == pi.c {
+			if prev == '\\' {
+				continue
+			}
 			node := &adocNode{
 				kind: nodeKindTextSubscript,
 				raw:  raw[:x],
@@ -354,14 +433,21 @@ func (pi *parserInline) parseSubscript() bool {
 		if ascii.IsSpace(raw[x]) {
 			break
 		}
+		prev = raw[x]
 	}
 	return false
 }
 
 func (pi *parserInline) parseSuperscript() bool {
-	raw := pi.content[pi.x+1:]
+	var (
+		prev byte
+		raw  = pi.content[pi.x+1:]
+	)
 	for x := 0; x < len(raw); x++ {
 		if raw[x] == pi.c {
+			if prev == '\\' {
+				continue
+			}
 			node := &adocNode{
 				kind: nodeKindTextSuperscript,
 				raw:  raw[:x],
@@ -381,6 +467,7 @@ func (pi *parserInline) parseSuperscript() bool {
 		if ascii.IsSpace(raw[x]) {
 			break
 		}
+		prev = raw[x]
 	}
 	return false
 }
@@ -426,6 +513,78 @@ func (pi *parserInline) terminate(kind int, style int64) {
 	pi.current = child
 }
 
+//
+// indexByteUnescape find the index of the first unescaped byte `c` on
+// slice of byte `in`.
+// It will return nil and -1 if no unescape byte `c` found.
+//
+func indexByteUnescape(in []byte, c byte) (out []byte, idx int) {
+	var (
+		isEsc bool
+	)
+	out = make([]byte, 0, len(in))
+	for x := 0; x < len(in); x++ {
+		if in[x] == '\\' {
+			if isEsc {
+				out = append(out, '\\')
+				isEsc = false
+			} else {
+				isEsc = true
+			}
+			continue
+		}
+		if in[x] == c {
+			if isEsc {
+				out = append(out, in[x])
+				isEsc = false
+				continue
+			}
+			return out, x
+		}
+		out = append(out, in[x])
+	}
+	return nil, -1
+}
+
+func indexUnescape(in []byte, token []byte) (out []byte, idx int) {
+	tokenLen := len(token)
+	if tokenLen > len(in) {
+		return nil, -1
+	}
+
+	var (
+		isEsc bool
+	)
+	out = make([]byte, 0, len(in))
+	for x := 0; x < len(in); x++ {
+		if in[x] == '\\' {
+			if isEsc {
+				out = append(out, '\\')
+				isEsc = false
+			} else {
+				isEsc = true
+			}
+			continue
+		}
+		if in[x] == token[0] {
+			if isEsc {
+				out = append(out, in[x])
+				isEsc = false
+				continue
+			}
+			tmp := in[x:]
+			if len(tmp) < tokenLen {
+				return nil, -1
+			}
+			if bytes.Equal(tmp[:tokenLen], token) {
+				return out, x
+			}
+		}
+		out = append(out, in[x])
+	}
+	return nil, -1
+}
+
 func isBeginFormat(prev, next byte) bool {
 	if prev == ':' || prev == ';' || ascii.IsAlnum(prev) {
 		return false
@@ -436,12 +595,9 @@ func isBeginFormat(prev, next byte) bool {
 	return true
 }
 
-func isEndFormat(next byte) bool {
-	if ascii.IsAlnum(next) {
+func isEndFormat(prev, next byte) bool {
+	if ascii.IsSpace(prev) || ascii.IsAlnum(next) {
 		return false
 	}
-	if next == 0 || next == ':' || next == '*' || next == '.' || next == '_' || ascii.IsSpace(next) {
-		return true
-	}
-	return false
+	return true
 }

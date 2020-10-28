@@ -6,6 +6,51 @@ Shulhan <ms@kilabit.info>
 This document contains grammar of asciidoc document markup language based on
 https://asciidoctor.org/docs/user-manual[Asciidoctor User Manual].
 
+==  About implementation
+
+We try to follow the document syntax rules, but there are some inconsistencies
+we found when the document parsed and rendered to HTML.
+For example, the current asciidoctor allow the following inline formatting,
+
+    _A `B_ C`
+
+to be rendered into the following HTML tree,
+
+    <em>A <code>B</em> C</code>
+
+This is of course rendered correctly when opened in web browser, but it seems
+break the tree.
+In the previous implementation, we able to break down it into the following
+tree,
+
+    <em>
+        <code>B</code>
+    </em>
+    <code>C</code>
+
+But its open many inline formatting permutations which make the code more
+complex than it should.
+
+This implementation use the strict asciidoctor syntax rules which we define in
+this document.
+
+
+==  Common grammar
+
+----
+DQUOTE    = %d34  ; "
+
+WORD      = 1*VCHAR           ; Sequence of visible character without
+                              ; white spaces.
+
+STRING    = WORD *(WSP WORD)  ; Sequence of word with spaces between them.
+
+LINE      = STRING LF         ; STRING that end with new line.
+
+TEXT      = 1*WORD *(LWSP WORD)     ; One or more WORD with spaces and/or
+                                    ; new line.
+----
+
 
 ==  Document header
 
@@ -25,7 +70,7 @@ DOC_HEADER     = *(DOC_ATTRIBUTE / COMMENTS)
 
 DOC_TITLE     = 1*ADOC_WORD
 
-DOC_AUTHORS   = MAILBOX *(";" MAILBOX)
+DOC_AUTHORS   = MAILBOX *( ";" MAILBOX )
 
   MAILBOX     = STRING [ "<" EMAIL ">" ]
 
@@ -85,6 +130,11 @@ HTML format,
 </div>
 ----
 
+== Block
+
+----
+BLOCK_REF   = "[#" REF_ID *["." RoleName] "]" LF
+----
 
 == Sections
 
@@ -94,7 +144,7 @@ There are six levels or sections that are allowed in asciidoc, any more than
 that will be considered as paragraph.
 
 ----
-SECTION          = [BlockRef]
+SECTION          = [BLOCK_REF]
                    2*6(EQUAL/HASH) 1*WSP ADOC_LINE LF
 ----
 
@@ -145,9 +195,85 @@ AUDIO_ATTR_OPTIONS = "autoplay" | "loop" | "controls" | "nocontrols"
 ==  Block attributes
 
 ----
-BLOCK_ATTRS = BLOCK_ATTR *("," BLOCK_ATTR)
+BLOCK_ATTRS = BLOCK_ATTR *( "," BLOCK_ATTR )
 
 BLOCK_ATTR  = WORD "=" (DQUOTE) WORD (DQUOTE)
 ----
 
 
+==  Inline formatting
+
+There are two types of inline formatting: constrained and unconstrained.
+The constrained formatting only applicable if the previous character of syntax
+begin with non-alphanumeric and end with characters other than alpha-numeric
+and underscore.
+
+----
+FORMAT_BEGIN = WSP / "!" / DQUOTE / "#" / "$" / "%" / "&" / "'" / "(" / ")"
+             / "*" / "+" / "," / "-" / "." / "/" /
+             / ":" / ";" / "<" / "=" / ">" / "?" / "@"
+             / "[" / "\" / "]" / "^" / "_" / "`"
+             / "{" / "|" / "}" / "~"
+
+FORMAT_END   = FORMAT_BEGIN
+----
+
+===  Unconstrained bold
+
+----
+TEXT_UNCONSTRAINED_BOLD = "**" TEXT "**"
+----
+
+===  Unconstrained italic
+
+----
+TEXT_UNCONSTRAINED_ITALIC = "__" TEXT "__"
+----
+
+===  Unconstrained mono
+
+----
+TEXT_UNCONSTRAINED_MONO = "``" TEXT "``"
+----
+
+===  Bold
+
+----
+TEXT_BOLD = FORMAT_BEGIN "*" TEXT "*" FORMAT_END
+----
+
+===  Italic
+
+----
+TEXT_ITALIC = FORMAT_BEGIN "_" TEXT "_" FORMAT_END
+----
+
+===  Monospace
+
+----
+TEXT_MONO = FORMAT_BEGIN "`" TEXT "`" FORMAT_END
+----
+
+===  Double quote curve
+
+----
+TEXT_QUOTE_DOUBLE = QUOTE "`" TEXT "`" QUOTE
+----
+
+===  Single quote curve
+
+----
+TEXT_QUOTE_SINGLE = "'`" TEXT "`'"
+----
+
+===  Subscript
+
+----
+TEXT_SUBSCRIPT = "~" WORD "~"
+----
+
+===  Superscript
+
+----
+TEXT_SUPERSCRIPT = "^" WORD "^"
+----

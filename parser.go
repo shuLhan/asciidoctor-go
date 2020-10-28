@@ -52,7 +52,7 @@ const (
 	nodeKindTextSubscript              // Word wrapped by '~'
 	nodeKindTextSuperscript            // Word wrapped by '^'
 	nodeKindUnconstrainedBold          // Text wrapped by "**"
-	nodeKindUnconstrainedItalic        // Text wrapped by "__"
+	nodeKindUnconstrainedItalic        // 40: Text wrapped by "__"
 	nodeKindUnconstrainedMono          // Text wrapped by "``"
 	lineKindAdmonition                 // "LABEL: WSP"
 	lineKindAttribute                  // Line start with ":"
