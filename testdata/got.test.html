@@ -211,7 +211,7 @@ This is next line in paragraph.</p>
 paragraph</strong></em>.</p>
 </div>
 <div class="paragraph">
-<p><em>Inline https://kilabit.info[<strong>link</strong>] inside italic</em>.</p>
+<p><em>Inline <a href="https://kilabit.info"><strong>link</strong></a> inside italic</em>.</p>
 </div>
 <div class="paragraph">
 <p>_Italic without<sup>end</sup>.</p>
@@ -1108,6 +1108,35 @@ Hard drive
 </div>
 </div>
 <div class="sect1">
+<h2 id="_urls">URLs</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="https://asciidoctor.org" class="bare">https://asciidoctor.org</a>.</p>
+</div>
+<div class="paragraph">
+<p><a href="https://asciidoctor.org" class="a b" target="_blank" rel="noopener">Asciidoctor</a>.</p>
+</div>
+<div class="paragraph">
+<p><a href="https://kilabit.info" target="_blank" rel="noopener">Kilabit</a>.</p>
+</div>
+<div class="paragraph">
+<p>https://example.org.</p>
+</div>
+<div class="paragraph">
+<p><a href="irc://irc.freenode.org/#fedora">Fedora IRC channel</a>.</p>
+</div>
+<div class="paragraph">
+<p><a href="mailto:ms@kilabit.info">mailto:ms@kilabit.info</a>.</p>
+</div>
+<div class="paragraph">
+<p><a href="mailto:ms@kilabit.info">Mail to me</a>.</p>
+</div>
+<div class="paragraph">
+<p>Relative file <a href="test.html">test.html</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="_block_images">Block images</h2>
 <div class="sectionbody">
 <div class="imageblock">
@@ -1661,7 +1690,7 @@ and then moves on.</pre>
 <div id="footer">
 <div id="footer-text">
 Version 1.1.1<br>
-Last updated 2020-10-28 03:11:50 +0700
+Last updated 2020-10-29 02:18:08 +0700
 </div>
 </div>
 </body>

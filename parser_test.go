@@ -37,6 +37,13 @@ func TestParseBlockAttribute(t *testing.T) {
 			"e",
 			"f=3",
 		},
+	}, {
+		in: `["A,B",w=_blank,role="a,b"]`,
+		exp: []string{
+			"A,B",
+			"w=_blank",
+			"role=a,b",
+		},
 	}}
 
 	for _, c := range cases {

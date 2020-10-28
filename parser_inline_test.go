@@ -389,3 +389,50 @@ func TestParserInline_parseSuperscript(t *testing.T) {
 		test.Assert(t, c.content, c.exp, got, true)
 	}
 }
+
+func TestParserInline_parseURL(t *testing.T) {
+	cases := []struct {
+		content string
+		exp     string
+	}{{
+		content: `https://asciidoctor.org.`,
+		exp:     `<a href="https://asciidoctor.org" class="bare">https://asciidoctor.org</a>.`,
+	}, {
+		content: `https://asciidoctor.org[Asciidoctor^,role="a,b"].`,
+		exp:     `<a href="https://asciidoctor.org" class="a b" target="_blank" rel="noopener">Asciidoctor</a>.`,
+	}, {
+		content: `\https://example.org.`,
+		exp:     `https://example.org.`,
+	}, {
+		content: `irc://irc.freenode.org/#fedora[Fedora IRC channel].`,
+		exp:     `<a href="irc://irc.freenode.org/#fedora">Fedora IRC channel</a>.`,
+	}, {
+		content: `mailto:ms@kilabit.info.`,
+		exp:     `<a href="mailto:ms@kilabit.info">mailto:ms@kilabit.info</a>.`,
+	}, {
+		content: `mailto:ms@kilabit.info[Mail to me].`,
+		exp:     `<a href="mailto:ms@kilabit.info">Mail to me</a>.`,
+	}, {
+		content: `Relative file link:test.html[test.html].`,
+		exp:     `Relative file <a href="test.html">test.html</a>.`,
+	}, {
+		content: `link:https://kilabit.info[Kilabit^].`,
+		exp:     `<a href="https://kilabit.info" target="_blank" rel="noopener">Kilabit</a>.`,
+	}}
+
+	var buf bytes.Buffer
+	for _, c := range cases {
+		buf.Reset()
+
+		container := parseInlineMarkup([]byte(c.content))
+		err := container.toHTML(_testDoc, _testTmpl, &buf)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		//container.debug(0)
+
+		got := buf.String()
+		test.Assert(t, c.content, c.exp, got, true)
+	}
+}

@@ -30,6 +30,9 @@ func (doc *Document) createHTMLTemplate() (tmpl *template.Template, err error) {
 		"toLower": func(s string) string {
 			return strings.ToLower(strings.TrimSpace(s))
 		},
+		"trimSpace": func(s string) string {
+			return strings.TrimSpace(s)
+		},
 	}).Parse(`
 {{- define "BEGIN" -}}
 <!DOCTYPE html>
@@ -414,7 +417,16 @@ Your browser does not support the audio tag.
 </div>
 {{- end}}
 {{/*----------------------------------------------------------------------*/}}
-
+{{- define "BEGIN_URL" -}}
+<a href="{{.URLTarget}}"
+	{{- with $classes := .Classes}} class="{{trimSpace $classes}}"{{end}}
+	{{- with $target := .Attrs.target}} target="{{$target}}"{{end}}
+	{{- with $rel := .Attrs.rel}} rel="{{$rel}}"{{end}}>{{.Content}}
+{{- end}}
+{{- define "END_URL" -}}
+</a>
+{{- end}}
+{{/*----------------------------------------------------------------------*/}}
 `)
 	return tmpl, err
 }

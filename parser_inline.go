@@ -6,6 +6,7 @@ package asciidoctor
 
 import (
 	"bytes"
+	"strings"
 
 	"github.com/shuLhan/share/lib/ascii"
 )
@@ -78,6 +79,9 @@ func (pi *parserInline) do() {
 		} else if pi.c == ':' {
 			if pi.isEscaped {
 				pi.escape()
+				continue
+			}
+			if pi.parseMacro() {
 				continue
 			}
 		} else if pi.c == '~' {
@@ -201,6 +205,18 @@ func (pi *parserInline) escape() {
 	pi.current.WriteByte(pi.c)
 	pi.x++
 	pi.prev = pi.c
+}
+
+func (pi *parserInline) getBackMacroName() (macroName string, lastc byte) {
+	raw := pi.current.raw
+	start := len(raw) - 1
+	for start > 0 {
+		if !ascii.IsAlpha(raw[start]) {
+			return string(raw[start+1:]), raw[start]
+		}
+		start--
+	}
+	return string(raw), 0
 }
 
 //
@@ -336,6 +352,34 @@ func (pi *parserInline) parseFormatUnconstrained(
 		return true
 	}
 
+	return false
+}
+
+func (pi *parserInline) parseMacro() bool {
+	name, lastc := pi.getBackMacroName()
+	if lastc == '\\' || len(name) == 0 {
+		return false
+	}
+
+	switch name {
+	case "":
+		return false
+	case macroFTP, macroHTTPS, macroHTTP, macroIRC, macroLink, macroMailto:
+		node := pi.parseURL(name)
+		if node == nil {
+			return false
+		}
+
+		pi.current.raw = pi.current.raw[:len(pi.current.raw)-len(name)]
+
+		pi.current.addChild(node)
+		node = &adocNode{
+			kind: nodeKindText,
+		}
+		pi.current.addChild(node)
+		pi.current = node
+		return true
+	}
 	return false
 }
 
@@ -499,6 +543,106 @@ func (pi *parserInline) parseSuperscript() bool {
 		prev = raw[x]
 	}
 	return false
+}
+
+//
+// parseURL parser the URL, an optional text, optional attribute for target,
+// and optional role.
+//
+// The current state of p.x is equal to ":".
+//
+func (pi *parserInline) parseURL(scheme string) (node *adocNode) {
+	var (
+		x   int
+		c   byte
+		uri []byte
+	)
+	if scheme != macroLink {
+		uri = []byte(scheme)
+		uri = append(uri, ':')
+	}
+
+	node = &adocNode{
+		kind:  nodeKindURL,
+		Attrs: make(map[string]string),
+	}
+
+	content := pi.content[pi.x+1:]
+	for ; x < len(content); x++ {
+		c = content[x]
+		if c == '[' || ascii.IsSpace(c) {
+			break
+		}
+		uri = append(uri, c)
+	}
+	if c != '[' {
+		if scheme == macroHTTP || scheme == macroHTTPS {
+			node.classes = append(node.classes, "bare")
+		}
+		if !ascii.IsSpace(c) {
+			uri = uri[:len(uri)-1]
+			pi.prev = 0
+			pi.x += x
+		} else {
+			pi.x += x + 1
+			pi.prev = c
+		}
+		node.raw = uri
+		node.value = string(uri)
+		return node
+	}
+	_, idx := indexByteUnescape(content[x:], ']')
+	if idx < 0 {
+		return nil
+	}
+
+	node.value = string(uri)
+	pi.x += x + idx + 2
+	pi.prev = 0
+
+	attr := string(content[x : x+idx+1])
+	attrs := parseBlockAttribute(attr)
+	if len(attrs) == 0 {
+		// empty "[]"
+		node.raw = uri
+		return node
+	}
+	if len(attrs) >= 1 {
+		text := attrs[0]
+		if text[len(text)-1] == '^' {
+			node.Attrs[attrNameTarget] = attrValueBlank
+			text = strings.TrimRight(text, "^")
+			node.Attrs[attrNameRel] = attrValueNoopener
+		}
+		child := parseInlineMarkup([]byte(text))
+		node.addChild(child)
+	}
+	if len(attrs) >= 2 {
+		attrTarget := strings.Split(attrs[1], "=")
+		if len(attrTarget) == 2 {
+			switch attrTarget[0] {
+			case attrNameWindow:
+				node.Attrs[attrNameTarget] = attrTarget[1]
+				if attrTarget[1] == attrValueBlank {
+					node.Attrs[attrNameRel] = attrValueNoopener
+				}
+			case attrNameRole:
+				classes := strings.Split(attrTarget[1], ",")
+				node.classes = append(node.classes, classes...)
+			}
+		}
+	}
+	if len(attrs) >= 3 {
+		attrRole := strings.Split(attrs[2], "=")
+		if len(attrRole) == 2 {
+			switch attrRole[0] {
+			case attrNameRole:
+				classes := strings.Split(attrRole[1], ",")
+				node.classes = append(node.classes, classes...)
+			}
+		}
+	}
+	return node
 }
 
 func (pi *parserInline) terminate(kind int, style int64) {

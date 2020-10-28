@@ -460,6 +460,24 @@ Before page break.
 After page break.
 
 
+== URLs
+
+https://asciidoctor.org.
+
+https://asciidoctor.org[Asciidoctor^,window=_blank,role="a,b"].
+
+link:https://kilabit.info[Kilabit^].
+
+\https://example.org.
+
+irc://irc.freenode.org/#fedora[Fedora IRC channel].
+
+mailto:ms@kilabit.info.
+
+mailto:ms@kilabit.info[Mail to me].
+
+Relative file link:test.html[test.html].
+
 == Block images
 
 image::sunset.jpg[]

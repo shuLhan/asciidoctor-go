@@ -12,6 +12,15 @@ import (
 )
 
 const (
+	macroFTP    = "ftp"
+	macroHTTP   = "http"
+	macroHTTPS  = "https"
+	macroIRC    = "irc"
+	macroLink   = "link"
+	macroMailto = "mailto"
+)
+
+const (
 	nodeKindUnknown                int = iota
 	nodeKindDocHeader                  // Wrapper.
 	nodeKindPreamble                   // Wrapper.
@@ -55,6 +64,7 @@ const (
 	nodeKindUnconstrainedBold          // 40: Text wrapped by "**"
 	nodeKindUnconstrainedItalic        // Text wrapped by "__"
 	nodeKindUnconstrainedMono          // Text wrapped by "``"
+	nodeKindURL                        // Anchor text.
 	lineKindAdmonition                 // "LABEL: WSP"
 	lineKindAttribute                  // Line start with ":"
 	lineKindBlockComment               // Block start and end with "////"
@@ -76,13 +86,22 @@ const (
 	attrNameLang        = "lang"
 	attrNameOptions     = "options"
 	attrNamePoster      = "poster"
+	attrNameRel         = "rel"
+	attrNameRole        = "role"
 	attrNameSrc         = "src"
 	attrNameStart       = "start"
+	attrNameTarget      = "target"
 	attrNameTheme       = "theme"
 	attrNameVimeo       = "vimeo"
 	attrNameWidth       = "width"
+	attrNameWindow      = "window"
 	attrNameYoutube     = "youtube"
 	attrNameYoutubeLang = "hl"
+)
+
+const (
+	attrValueBlank    = "_blank"
+	attrValueNoopener = "noopener"
 )
 
 const (
@@ -270,6 +289,12 @@ func parseBlockAttribute(in string) (out []string) {
 	for c != 0 {
 		tok, c = p.Token()
 		tok = strings.TrimSpace(tok)
+		if c == '"' && len(tok) == 0 {
+			tok, c = p.ReadEnclosed('"', '"')
+			tok = strings.TrimSpace(tok)
+			out = append(out, tok)
+			continue
+		}
 		if c == ',' || c == ']' {
 			if len(tok) > 0 {
 				out = append(out, tok)

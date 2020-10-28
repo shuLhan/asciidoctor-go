@@ -236,6 +236,10 @@ func (node *adocNode) Title() string {
 	return node.rawTitle
 }
 
+func (node *adocNode) URLTarget() string {
+	return node.value
+}
+
 func (node *adocNode) Write(b []byte) {
 	node.raw = append(node.raw, b...)
 }
@@ -846,6 +850,8 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		}
 		_, err = w.Write(node.raw)
 
+	case nodeKindURL:
+		err = tmpl.ExecuteTemplate(w, "BEGIN_URL", node)
 	case nodeKindTextSubscript:
 		_, err = fmt.Fprintf(w, "<sub>%s</sub>", node.raw)
 	case nodeKindTextSuperscript:
@@ -925,6 +931,8 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		if node.HasStyle(styleTextMono) {
 			_, err = fmt.Fprintf(w, "</code>")
 		}
+	case nodeKindURL:
+		err = tmpl.ExecuteTemplate(w, "END_URL", node)
 	}
 	if err != nil {
 		return err
