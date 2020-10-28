@@ -63,11 +63,21 @@ func (pi *parserInline) do() {
 				continue
 			}
 			if pi.nextc == '+' {
+				if pi.x+2 < len(pi.content) && pi.content[pi.x+2] == '+' {
+					if pi.parsePassthroughTriple() {
+						continue
+					}
+				}
 				if pi.parsePassthroughDouble() {
 					continue
 				}
 			}
 			if pi.parsePassthrough() {
+				continue
+			}
+		} else if pi.c == ':' {
+			if pi.isEscaped {
+				pi.escape()
 				continue
 			}
 		} else if pi.c == '~' {
@@ -401,6 +411,25 @@ func (pi *parserInline) parsePassthroughDouble() bool {
 		return true
 	}
 
+	return false
+}
+
+func (pi *parserInline) parsePassthroughTriple() bool {
+	raw := pi.content[pi.x+3:]
+
+	// Check if we have "+++" at the end.
+	raw, idx := indexUnescape(raw, []byte("+++"))
+	if idx >= 0 {
+		node := &adocNode{
+			kind: nodeKindPassthroughTriple,
+			raw:  raw,
+		}
+		pi.current.addChild(node)
+		pi.current = node
+		pi.x += idx + 6
+		pi.prev = 0
+		return true
+	}
 	return false
 }
 

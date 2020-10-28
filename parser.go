@@ -41,8 +41,9 @@ const (
 	nodeKindListDescriptionItem        // Line that has "::" + WSP
 	nodeKindPassthrough                // Text wrapped inside "+"
 	nodeKindPassthroughDouble          // Text wrapped inside "++"
-	nodeKindSymbolQuoteDoubleBegin     // The ("`)
-	nodeKindSymbolQuoteDoubleEnd       // 30: The (`")
+	nodeKindPassthroughTriple          // Text wrapped inside "+++"
+	nodeKindSymbolQuoteDoubleBegin     // 30: The ("`)
+	nodeKindSymbolQuoteDoubleEnd       // The (`")
 	nodeKindSymbolQuoteSingleBegin     // The ('`)
 	nodeKindSymbolQuoteSingleEnd       // The (`')
 	nodeKindText                       //
@@ -51,8 +52,8 @@ const (
 	nodeKindTextMono                   // Text wrapped by "`"
 	nodeKindTextSubscript              // Word wrapped by '~'
 	nodeKindTextSuperscript            // Word wrapped by '^'
-	nodeKindUnconstrainedBold          // Text wrapped by "**"
-	nodeKindUnconstrainedItalic        // 40: Text wrapped by "__"
+	nodeKindUnconstrainedBold          // 40: Text wrapped by "**"
+	nodeKindUnconstrainedItalic        // Text wrapped by "__"
 	nodeKindUnconstrainedMono          // Text wrapped by "``"
 	lineKindAdmonition                 // "LABEL: WSP"
 	lineKindAttribute                  // Line start with ":"

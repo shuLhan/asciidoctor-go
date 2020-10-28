@@ -751,6 +751,8 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		_, err = w.Write(node.raw)
 	case nodeKindPassthroughDouble:
 		_, err = w.Write(node.raw)
+	case nodeKindPassthroughTriple:
+		_, err = w.Write(node.raw)
 
 	case nodeKindSymbolQuoteDoubleBegin:
 		_, err = w.Write([]byte(symbolQuoteDoubleBegin))

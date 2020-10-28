@@ -277,3 +277,21 @@ TEXT_SUBSCRIPT = "~" WORD "~"
 ----
 TEXT_SUPERSCRIPT = "^" WORD "^"
 ----
+
+==  Passthrough
+
+----
+PASSTHROUGH = FORMAT_BEGIN "+" TEXT "+" FORMAT_END
+
+PASSTHROUGH_UNCONSTRAINED = "++" TEXT "++"
+----
+
+Passthrough macro,
+
+----
+PASSTHROUGH_MACRO  = "pass:" (PASS_MACRO_OPTIONS *("," PASS_MACRO_OPTIONS)) "[" TEXT "]"
+
+PASS_MACRO_OPTIONS = "c" / "q" / "a" / "r" / "m" / "p"
+
+PASSTHROUGH_TRIPLE = "+++" TEXT "+++"
+----

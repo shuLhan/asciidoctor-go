@@ -217,6 +217,56 @@ func TestParserInline_parsePassthroughDouble(t *testing.T) {
 	}
 }
 
+func TestParserInline_parsePassthroughTriple(t *testing.T) {
+	cases := []struct {
+		content string
+		exp     string
+	}{{
+		content: `+++__A *B*__+++`,
+		exp:     `__A *B*__`,
+	}, {
+		content: `+++__A *B*__++`,
+		exp:     `+__A *B*__`,
+	}, {
+		content: `\+++__A *B*__+++`,
+		exp:     `+__A *B*__+`,
+	}, {
+		content: `+\++__A *B*__+++`,
+		exp:     `+<em>A <strong>B</strong></em>+`,
+	}, {
+		content: `++\+__A *B*__+++`,
+		exp:     `+__A *B*__+`,
+	}, {
+		content: `+++__A *B*__\+++`,
+		exp:     `+__A *B*__+`,
+	}, {
+		content: `+++__A *B*__+\++`,
+		exp:     `__A *B*__++`,
+	}, {
+		content: `+++__A *B*__++\+`,
+		exp:     `+__A *B*__+`,
+	}, {
+		content: `+++ <u>A</u> +++`,
+		exp:     ` <u>A</u> `,
+	}}
+
+	var buf bytes.Buffer
+	for _, c := range cases {
+		buf.Reset()
+
+		container := parseInlineMarkup([]byte(c.content))
+		err := container.toHTML(_testDoc, _testTmpl, &buf)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// container.debug(0)
+
+		got := buf.String()
+		test.Assert(t, c.content, c.exp, got, true)
+	}
+}
+
 func TestParserInline_parseQuote(t *testing.T) {
 	cases := []struct {
 		content string
