@@ -511,7 +511,7 @@ func (node *adocNode) parseListUnordered(line string) {
 
 func (node *adocNode) parseSection() {
 	node.ID = generateID(string(node.raw))
-	node.level = node.kind - nodeKindSectionL1
+	node.level = (node.kind - nodeKindSectionL1) + 1
 
 	container := parseInlineMarkup(node.raw)
 	container.parent = node
@@ -698,7 +698,13 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		if err != nil {
 			return err
 		}
-		err = tmpl.ExecuteTemplate(w, "END_SECTION_L1_TITLE", node)
+		_, err = w.Write([]byte("</h2>"))
+		if err != nil {
+			return err
+		}
+		_, err = w.Write([]byte(`
+<div class="sectionbody">`))
+
 	case nodeKindSectionL2:
 		err = tmpl.ExecuteTemplate(w, "BEGIN_SECTION_L2", node)
 		if err != nil {
@@ -708,7 +714,7 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		if err != nil {
 			return err
 		}
-		err = tmpl.ExecuteTemplate(w, "END_SECTION_L2_TITLE", node)
+		_, err = w.Write([]byte("</h3>"))
 	case nodeKindSectionL3:
 		err = tmpl.ExecuteTemplate(w, "BEGIN_SECTION_L3", node)
 		if err != nil {
@@ -717,7 +723,7 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		if node.title != nil {
 			err = node.title.toHTML(doc, tmpl, w)
 		}
-		err = tmpl.ExecuteTemplate(w, "END_SECTION_L3_TITLE", node)
+		_, err = w.Write([]byte("</h4>"))
 	case nodeKindSectionL4:
 		err = tmpl.ExecuteTemplate(w, "BEGIN_SECTION_L4", node)
 		if err != nil {
@@ -726,7 +732,7 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		if node.title != nil {
 			err = node.title.toHTML(doc, tmpl, w)
 		}
-		err = tmpl.ExecuteTemplate(w, "END_SECTION_L4_TITLE", node)
+		_, err = w.Write([]byte("</h5>"))
 	case nodeKindSectionL5:
 		err = tmpl.ExecuteTemplate(w, "BEGIN_SECTION_L5", node)
 		if err != nil {
@@ -735,7 +741,7 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		if node.title != nil {
 			err = node.title.toHTML(doc, tmpl, w)
 		}
-		err = tmpl.ExecuteTemplate(w, "END_SECTION_L5_TITLE", node)
+		_, err = w.Write([]byte("</h6>"))
 	case nodeKindParagraph:
 		if node.IsStyleAdmonition() {
 			err = tmpl.ExecuteTemplate(w, "BEGIN_ADMONITION", node)
@@ -947,10 +953,13 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 			}
 		}
 		_, err = w.Write([]byte("\n</div>"))
+
 	case nodeKindSectionL1:
-		err = tmpl.ExecuteTemplate(w, "END_SECTION_L1", nil)
+		_, err = w.Write([]byte("\n</div>\n</div>"))
+
 	case nodeKindSectionL2, nodeKindSectionL3, nodeKindSectionL4, nodeKindSectionL5:
-		err = tmpl.ExecuteTemplate(w, "END_SECTION", nil)
+		_, err = w.Write([]byte("\n</div>"))
+
 	case nodeKindParagraph:
 		if node.IsStyleAdmonition() {
 			err = tmpl.ExecuteTemplate(w, "END_ADMONITION", node)

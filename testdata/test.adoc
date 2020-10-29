@@ -4,7 +4,7 @@ Author A, Author B
 :unclosed metadata:
 v1.1.1, 18 July 2020
 :toc:
-:toclevels: 4
+:toclevels: 3
 
 This is preamble.
 :other metadata:
@@ -24,6 +24,15 @@ a
 
 Test inline formatting on section title.
 
+== Level 1
+
+=== Level 2
+
+==== Level 3
+
+===== Level 4
+
+====== Level 5
 
 == Comment
 

@@ -108,11 +108,9 @@ Last updated {{.LastUpdated}}
 {{- define "BEGIN_TOC"}}
 <div id="toc" class="{{.TocClasses}}">
 <div id="toctitle">{{.TOCTitle}}</div>
-<ul class="sectlevel1">
 {{end}}
 
 {{- define "END_TOC" -}}
-</ul>
 </div>
 {{- end}}
 
@@ -121,54 +119,25 @@ Last updated {{.LastUpdated}}
 <h2 id="{{.ID}}">
 {{- end}}
 
-{{- define "END_SECTION_L1_TITLE" -}}
-</h2>
-<div class="sectionbody">
-{{- end -}}
-
-{{- define "END_SECTION_L1"}}
-</div>
-</div>
-{{- end}}
-
 {{- define "BEGIN_SECTION_L2"}}
 <div class="sect2">
 <h3 id="{{.ID}}">
 {{- end}}
 
-{{- define "END_SECTION_L2_TITLE" -}}
-</h3>
-{{- end -}}
-
 {{- define "BEGIN_SECTION_L3"}}
 <div class="sect3">
 <h4 id="{{.ID}}">
-<div class="sectionbody">
 {{- end}}
-
-{{- define "END_SECTION_L3_TITLE" -}}
-</h4>
-{{- end -}}
 
 {{- define "BEGIN_SECTION_L4"}}
 <div class="sect4">
 <h5 id="{{.ID}}">
-<div class="sectionbody">
 {{- end}}
-
-{{- define "END_SECTION_L4_TITLE" -}}
-</h5>
-{{- end -}}
 
 {{- define "BEGIN_SECTION_L5"}}
 <div class="sect5">
 <h6 id="{{.ID}}">
-<div class="sectionbody">
 {{- end}}
-
-{{- define "END_SECTION_L5_TITLE" -}}
-</h6>
-{{- end -}}
 
 {{- define "END_SECTION"}}
 </div>

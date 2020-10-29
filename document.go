@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/shuLhan/share/lib/ascii"
+	"github.com/shuLhan/share/lib/debug"
 	"github.com/shuLhan/share/lib/parser"
 )
 
@@ -256,7 +257,9 @@ func (doc *Document) line() (spaces, line string, c rune) {
 	doc.lineNum++
 	line, c = doc.p.Line()
 	doc.kind, spaces, line = whatKindOfLine(line)
-	fmt.Printf("line %3d: kind %3d: %s\n", doc.lineNum, doc.kind, line)
+	if debug.Value >= 1 {
+		fmt.Printf("line %3d: kind %3d: %s\n", doc.lineNum, doc.kind, line)
+	}
 	return spaces, line, c
 }
 
