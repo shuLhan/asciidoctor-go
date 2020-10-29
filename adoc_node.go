@@ -8,10 +8,10 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"net/url"
 	"strings"
 	"text/template"
-	"unicode"
 
 	"github.com/shuLhan/share/lib/ascii"
 )
@@ -20,6 +20,10 @@ import (
 // adocNode is the building block of asciidoc document.
 //
 type adocNode struct {
+	ID       string
+	Attrs    map[string]string
+	Opts     map[string]string
+	Text     string // The content of node without inline formatting.
 	kind     int
 	level    int    // The number of dot for ordered list, or star '*' for unordered list.
 	raw      []byte // unparsed content of node.
@@ -27,10 +31,12 @@ type adocNode struct {
 	rawTitle string
 	style    int64
 	classes  []string
-	Attrs    map[string]string
-	Opts     map[string]string
 	key      string
 	value    string
+
+	// title is the parsed rawTitle for section L1 or parsed raw for
+	// section L2-L5.
+	title *adocNode
 
 	parent *adocNode
 	child  *adocNode
@@ -48,21 +54,6 @@ func (node *adocNode) Classes() string {
 func (node *adocNode) Content() string {
 	node.raw = bytes.TrimRight(node.raw, "\n")
 	return string(node.raw)
-}
-
-func (node *adocNode) GenerateID(str string) string {
-	id := make([]rune, 0, len(str)+1)
-	id = append(id, '_')
-	for _, c := range strings.ToLower(str) {
-		if unicode.IsLetter(c) || unicode.IsDigit(c) {
-			id = append(id, c)
-		} else {
-			if id[len(id)-1] != '_' {
-				id = append(id, '_')
-			}
-		}
-	}
-	return strings.TrimRight(string(id), "_")
 }
 
 func (node *adocNode) GetListOrderedClass() string {
@@ -518,6 +509,22 @@ func (node *adocNode) parseListUnordered(line string) {
 	node.WriteByte('\n')
 }
 
+func (node *adocNode) parseSection() {
+	node.ID = generateID(string(node.raw))
+
+	container := parseInlineMarkup(node.raw)
+	container.parent = node
+	node.title = container
+	node.raw = nil
+
+	var text bytes.Buffer
+	err := container.toText(&text)
+	if err != nil {
+		log.Fatalf("parseSection: " + err.Error())
+	}
+	node.Text = text.String()
+}
+
 func (node *adocNode) parseStyleClass(line string) {
 	line = strings.Trim(line, "[]")
 	parts := strings.Split(line, ".")
@@ -676,14 +683,51 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		err = tmpl.ExecuteTemplate(w, "BEGIN_PREAMBLE", nil)
 	case nodeKindSectionL1:
 		err = tmpl.ExecuteTemplate(w, "BEGIN_SECTION_L1", node)
+		if err != nil {
+			return err
+		}
+		err = node.title.toHTML(doc, tmpl, w)
+		if err != nil {
+			return err
+		}
+		err = tmpl.ExecuteTemplate(w, "END_SECTION_L1_TITLE", node)
 	case nodeKindSectionL2:
 		err = tmpl.ExecuteTemplate(w, "BEGIN_SECTION_L2", node)
+		if err != nil {
+			return err
+		}
+		err = node.title.toHTML(doc, tmpl, w)
+		if err != nil {
+			return err
+		}
+		err = tmpl.ExecuteTemplate(w, "END_SECTION_L2_TITLE", node)
 	case nodeKindSectionL3:
 		err = tmpl.ExecuteTemplate(w, "BEGIN_SECTION_L3", node)
+		if err != nil {
+			return err
+		}
+		if node.title != nil {
+			err = node.title.toHTML(doc, tmpl, w)
+		}
+		err = tmpl.ExecuteTemplate(w, "END_SECTION_L3_TITLE", node)
 	case nodeKindSectionL4:
 		err = tmpl.ExecuteTemplate(w, "BEGIN_SECTION_L4", node)
+		if err != nil {
+			return err
+		}
+		if node.title != nil {
+			err = node.title.toHTML(doc, tmpl, w)
+		}
+		err = tmpl.ExecuteTemplate(w, "END_SECTION_L4_TITLE", node)
 	case nodeKindSectionL5:
 		err = tmpl.ExecuteTemplate(w, "BEGIN_SECTION_L5", node)
+		if err != nil {
+			return err
+		}
+		if node.title != nil {
+			err = node.title.toHTML(doc, tmpl, w)
+		}
+		err = tmpl.ExecuteTemplate(w, "END_SECTION_L5_TITLE", node)
 	case nodeKindParagraph:
 		if node.IsStyleAdmonition() {
 			err = tmpl.ExecuteTemplate(w, "BEGIN_ADMONITION", node)
@@ -959,5 +1003,120 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		}
 	}
 
+	return nil
+}
+
+func (node *adocNode) toText(w io.Writer) (err error) {
+	switch node.kind {
+	case nodeKindPassthrough:
+		_, err = w.Write(node.raw)
+	case nodeKindPassthroughDouble:
+		_, err = w.Write(node.raw)
+	case nodeKindPassthroughTriple:
+		_, err = w.Write(node.raw)
+
+	case nodeKindSymbolQuoteDoubleBegin:
+		_, err = w.Write([]byte(symbolQuoteDoubleBegin))
+		if err != nil {
+			return err
+		}
+		_, err = w.Write(node.raw)
+	case nodeKindSymbolQuoteDoubleEnd:
+		_, err = w.Write([]byte(symbolQuoteDoubleEnd))
+		if err != nil {
+			return err
+		}
+		_, err = w.Write(node.raw)
+
+	case nodeKindSymbolQuoteSingleBegin:
+		_, err = w.Write([]byte(symbolQuoteSingleBegin))
+		if err != nil {
+			return err
+		}
+		_, err = w.Write(node.raw)
+	case nodeKindSymbolQuoteSingleEnd:
+		_, err = w.Write([]byte(symbolQuoteSingleEnd))
+		if err != nil {
+			return err
+		}
+		_, err = w.Write(node.raw)
+
+	case nodeKindText:
+		_, err = w.Write(node.raw)
+	case nodeKindTextBold:
+		if !node.HasStyle(styleTextBold) {
+			_, err = w.Write([]byte("*"))
+			if err != nil {
+				return err
+			}
+		}
+		_, err = w.Write(node.raw)
+	case nodeKindUnconstrainedBold:
+		if !node.HasStyle(styleTextBold) {
+			_, err = w.Write([]byte("**"))
+			if err != nil {
+				return err
+			}
+		}
+		_, err = w.Write(node.raw)
+
+	case nodeKindTextItalic:
+		if !node.HasStyle(styleTextItalic) {
+			_, err = w.Write([]byte("_"))
+			if err != nil {
+				return err
+			}
+		}
+		_, err = w.Write(node.raw)
+	case nodeKindUnconstrainedItalic:
+		if !node.HasStyle(styleTextItalic) {
+			_, err = w.Write([]byte("__"))
+			if err != nil {
+				return err
+			}
+		}
+		_, err = w.Write(node.raw)
+
+	case nodeKindTextMono:
+		if !node.HasStyle(styleTextMono) {
+			_, err = w.Write([]byte("`"))
+			if err != nil {
+				return err
+			}
+		}
+		_, err = w.Write(node.raw)
+
+	case nodeKindUnconstrainedMono:
+		if !node.HasStyle(styleTextMono) {
+			_, err = w.Write([]byte("``"))
+			if err != nil {
+				return err
+			}
+		}
+		_, err = w.Write(node.raw)
+
+	case nodeKindURL:
+		_, err = w.Write(node.raw)
+	case nodeKindTextSubscript:
+		_, err = w.Write(node.raw)
+	case nodeKindTextSuperscript:
+		_, err = w.Write(node.raw)
+	}
+	if err != nil {
+		return err
+	}
+
+	if node.child != nil {
+		err = node.child.toText(w)
+		if err != nil {
+			return err
+		}
+	}
+	if node.next != nil {
+		err = node.next.toText(w)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }

@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -33,6 +34,7 @@ type Document struct {
 	attributes   map[string]string
 	lineNum      int
 
+	title   *adocNode
 	header  *adocNode
 	content *adocNode
 
@@ -75,6 +77,16 @@ func (doc *Document) Parse(content []byte) {
 	doc.p = parser.New(string(content), "\n")
 
 	_, _, _ = doc.parseHeader()
+
+	doc.title = parseInlineMarkup([]byte(doc.Title))
+
+	var text bytes.Buffer
+	err := doc.title.toText(&text)
+	if err != nil {
+		log.Fatalf("Parse: " + err.Error())
+	}
+	doc.Title = text.String()
+
 	parent := &adocNode{
 		kind: nodeKindPreamble,
 	}
@@ -97,6 +109,34 @@ func (doc *Document) ToHTML(w io.Writer) (err error) {
 	}
 
 	err = tmpl.ExecuteTemplate(w, "BEGIN_HEADER", doc)
+	if err != nil {
+		return err
+	}
+
+	err = tmpl.ExecuteTemplate(w, "BEGIN_TITLE", doc)
+	if err != nil {
+		return err
+	}
+	err = doc.title.toHTML(doc, tmpl, w)
+	if err != nil {
+		return err
+	}
+	err = tmpl.ExecuteTemplate(w, "END_TITLE", doc)
+	if err != nil {
+		return err
+	}
+
+	err = tmpl.ExecuteTemplate(w, "HEADER_DETAILS", doc)
+	if err != nil {
+		return err
+	}
+
+	err = tmpl.ExecuteTemplate(w, "END_HEADER", doc)
+	if err != nil {
+		return err
+	}
+
+	err = tmpl.ExecuteTemplate(w, "BEGIN_CONTENT", doc)
 	if err != nil {
 		return err
 	}
@@ -375,6 +415,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 					break
 				}
 			}
+			node.parseSection()
 			parent.addChild(node)
 			parent = node
 			node = new(adocNode)

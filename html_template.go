@@ -68,12 +68,17 @@ Last updated {{.LastUpdated}}
 </body>
 </html>
 {{- end}}
-{{/*----------------------------------------------------------------------*/}}
+
 {{- define "BEGIN_HEADER"}}
 <div id="header">
-	{{- if .Title}}
-<h1>{{.Title}}</h1>
-	{{- end}}
+{{- end}}
+
+{{- define "BEGIN_TITLE"}}
+<h1>
+{{- end}}
+{{- define "END_TITLE"}}</h1>{{end}}
+
+{{- define "HEADER_DETAILS"}}
 <div class="details">
 	{{- if .Author}}
 <span id="author" class="author">{{.Author}}</span><br>
@@ -85,10 +90,16 @@ Last updated {{.LastUpdated}}
 <span id="revdate">{{.RevDate}}</span>
 	{{- end}}
 </div>
+{{- end}}
+
+{{- define "END_HEADER"}}
 </div>
+{{- end}}
+
+{{- define "BEGIN_CONTENT"}}
 <div id="content">
 {{- end}}
-{{/*----------------------------------------------------------------------*/}}
+
 {{- define "BEGIN_PREAMBLE"}}
 <div id="preamble">
 <div class="sectionbody">
@@ -98,43 +109,65 @@ Last updated {{.LastUpdated}}
 </div>
 </div>
 {{- end}}
-{{/*----------------------------------------------------------------------*/}}
+
 {{- define "BEGIN_SECTION_L1"}}
 <div class="sect1">
-<h2 id="{{.GenerateID .Content}}">{{- .Content -}}</h2>
-<div class="sectionbody">
+<h2 id="{{.ID}}">
 {{- end}}
+
+{{- define "END_SECTION_L1_TITLE" -}}
+</h2>
+<div class="sectionbody">
+{{- end -}}
+
 {{- define "END_SECTION_L1"}}
 </div>
 </div>
 {{- end}}
-{{/*----------------------------------------------------------------------*/}}
+
 {{- define "BEGIN_SECTION_L2"}}
 <div class="sect2">
-<h3 id="{{.GenerateID .Content}}">{{- .Content -}}</h3>
+<h3 id="{{.ID}}">
 {{- end}}
+
+{{- define "END_SECTION_L2_TITLE" -}}
+</h3>
+{{- end -}}
+
+{{- define "BEGIN_SECTION_L3"}}
+<div class="sect3">
+<h4 id="{{.ID}}">
+<div class="sectionbody">
+{{- end}}
+
+{{- define "END_SECTION_L3_TITLE" -}}
+</h4>
+{{- end -}}
+
+{{- define "BEGIN_SECTION_L4"}}
+<div class="sect4">
+<h5 id="{{.ID}}">
+<div class="sectionbody">
+{{- end}}
+
+{{- define "END_SECTION_L4_TITLE" -}}
+</h5>
+{{- end -}}
+
+{{- define "BEGIN_SECTION_L5"}}
+<div class="sect5">
+<h6 id="{{.ID}}">
+<div class="sectionbody">
+{{- end}}
+
+{{- define "END_SECTION_L5_TITLE" -}}
+</h6>
+{{- end -}}
+
 {{- define "END_SECTION"}}
 </div>
 {{- end}}
-{{/*----------------------------------------------------------------------*/}}
-{{- define "BEGIN_SECTION_L3"}}
-<div class="sect3">
-<h4 id="{{.GenerateID .Content}}">{{- .Content -}}</h4>
-<div class="sectionbody">
-{{- end}}
-{{/*----------------------------------------------------------------------*/}}
-{{- define "BEGIN_SECTION_L4"}}
-<div class="sect4">
-<h5 id="{{.GenerateID .Content}}">{{- .Content -}}</h5>
-<div class="sectionbody">
-{{- end}}
-{{/*----------------------------------------------------------------------*/}}
-{{- define "BEGIN_SECTION_L5"}}
-<div class="sect5">
-<h6 id="{{.GenerateID .Content}}">{{- .Content -}}</h6>
-<div class="sectionbody">
-{{- end}}
-{{/*----------------------------------------------------------------------*/}}
+
 {{- define "BLOCK_TITLE"}}
 	{{- with $title := .Title}}
 <div class="title">{{$title}}</div>
@@ -434,7 +467,6 @@ Your browser does not support the audio tag.
 {{- define "END_URL" -}}
 </a>
 {{- end}}
-{{/*----------------------------------------------------------------------*/}}
 `)
 	return tmpl, err
 }

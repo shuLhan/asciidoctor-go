@@ -6,6 +6,7 @@ package asciidoctor
 
 import (
 	"strings"
+	"unicode"
 
 	"github.com/shuLhan/share/lib/ascii"
 	"github.com/shuLhan/share/lib/parser"
@@ -196,6 +197,21 @@ var adocStyles map[string]int64 = map[string]int64{
 	"listing":           styleBlockListing,
 	"quote":             styleQuote,
 	"verse":             styleVerse,
+}
+
+func generateID(str string) string {
+	id := make([]rune, 0, len(str)+1)
+	id = append(id, '_')
+	for _, c := range strings.ToLower(str) {
+		if unicode.IsLetter(c) || unicode.IsDigit(c) {
+			id = append(id, c)
+		} else {
+			if id[len(id)-1] != '_' {
+				id = append(id, '_')
+			}
+		}
+	}
+	return strings.TrimRight(string(id), "_")
 }
 
 func isAdmonition(line string) bool {

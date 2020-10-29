@@ -17,6 +17,12 @@ a
 
   :indented-meta:
 
+
+== _Inline `formatting` on **section**_
+
+Test inline formatting on section title.
+
+
 == Comment
 
 //comment without WSP
