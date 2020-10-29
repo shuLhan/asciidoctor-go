@@ -462,12 +462,13 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 			continue
 
 		case nodeKindBlockImage:
-			if node.parseImage(line) {
+			lineImage := strings.TrimRight(line[7:], " \t")
+			if node.parseImage(lineImage) {
 				node.kind = doc.kind
 				line = ""
 			} else {
 				node.kind = nodeKindParagraph
-				node.WriteString("image::" + line)
+				node.WriteString(line)
 				node.WriteByte('\n')
 				line, _ = doc.consumeLinesUntil(
 					node,

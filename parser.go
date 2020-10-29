@@ -16,6 +16,7 @@ const (
 	macroHTTP   = "http"
 	macroHTTPS  = "https"
 	macroIRC    = "irc"
+	macroImage  = "image"
 	macroLink   = "link"
 	macroMailto = "mailto"
 )
@@ -43,6 +44,7 @@ const (
 	nodeKindBlockPassthrough           // Block wrapped with "++++"
 	nodeKindBlockSidebar               // "****"
 	nodeKindBlockVideo                 // 20: "video::"
+	nodeKindInlineImage                // Inline macro for "image:"
 	nodeKindListOrdered                // Wrapper.
 	nodeKindListOrderedItem            // Line start with ". "
 	nodeKindListUnordered              // Wrapper.
@@ -51,8 +53,8 @@ const (
 	nodeKindListDescriptionItem        // Line that has "::" + WSP
 	nodeKindPassthrough                // Text wrapped inside "+"
 	nodeKindPassthroughDouble          // Text wrapped inside "++"
-	nodeKindPassthroughTriple          // Text wrapped inside "+++"
-	nodeKindSymbolQuoteDoubleBegin     // 30: The ("`)
+	nodeKindPassthroughTriple          // 30: Text wrapped inside "+++"
+	nodeKindSymbolQuoteDoubleBegin     // The ("`)
 	nodeKindSymbolQuoteDoubleEnd       // The (`")
 	nodeKindSymbolQuoteSingleBegin     // The ('`)
 	nodeKindSymbolQuoteSingleEnd       // The (`')
@@ -61,8 +63,8 @@ const (
 	nodeKindTextItalic                 // Text wrapped by "_"
 	nodeKindTextMono                   // Text wrapped by "`"
 	nodeKindTextSubscript              // Word wrapped by '~'
-	nodeKindTextSuperscript            // Word wrapped by '^'
-	nodeKindUnconstrainedBold          // 40: Text wrapped by "**"
+	nodeKindTextSuperscript            // 40: Word wrapped by '^'
+	nodeKindUnconstrainedBold          // Text wrapped by "**"
 	nodeKindUnconstrainedItalic        // Text wrapped by "__"
 	nodeKindUnconstrainedMono          // Text wrapped by "``"
 	nodeKindURL                        // Anchor text.
@@ -81,8 +83,10 @@ const (
 )
 
 const (
+	attrNameAlign       = "align"
 	attrNameAlt         = "alt"
 	attrNameEnd         = "end"
+	attrNameFloat       = "float"
 	attrNameHeight      = "height"
 	attrNameLang        = "lang"
 	attrNameOptions     = "options"
@@ -392,7 +396,6 @@ func whatKindOfLine(line string) (kind int, spaces, got string) {
 		return nodeKindBlockPassthrough, spaces, line
 	}
 	if strings.HasPrefix(line, "image::") {
-		line = strings.TrimRight(line[7:], " \t")
 		return nodeKindBlockImage, spaces, line
 	}
 	if strings.HasPrefix(line, "video::") {

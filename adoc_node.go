@@ -12,6 +12,8 @@ import (
 	"strings"
 	"text/template"
 	"unicode"
+
+	"github.com/shuLhan/share/lib/ascii"
 )
 
 //
@@ -355,6 +357,10 @@ func (node *adocNode) parseBlockAudio(line string) bool {
 	return true
 }
 
+//
+// parseImage parse the image block or line.
+// The line parameter must not have "image::" block or "image:" macro prefix.
+//
 func (node *adocNode) parseImage(line string) bool {
 	attrBegin := strings.IndexByte(line, '[')
 	if attrBegin < 0 {
@@ -364,49 +370,48 @@ func (node *adocNode) parseImage(line string) bool {
 	if attrEnd < 0 {
 		return false
 	}
-	name := strings.TrimRight(line[:attrBegin], " \t")
-	node.WriteString(name)
+	node.value = strings.TrimRight(line[:attrBegin], " \t")
 
 	attrs := strings.Split(line[attrBegin+1:attrEnd], ",")
 	if node.Attrs == nil {
 		node.Attrs = make(map[string]string)
 	}
+	var hasWidth bool
 	for x, attr := range attrs {
-		switch x {
-		case 0:
+		if x == 0 {
 			alt := strings.TrimSpace(attrs[0])
 			if len(alt) == 0 {
-				dot := strings.IndexByte(name, '.')
+				dot := strings.IndexByte(node.value, '.')
 				if dot > 0 {
-					alt = name[:dot]
+					alt = node.value[:dot]
 				}
 			}
 			node.Attrs[attrNameAlt] = alt
-		case 1:
-			node.Attrs[attrNameWidth] = attrs[1]
-		case 2:
-			node.Attrs[attrNameHeight] = attrs[2]
-		default:
-			kv := strings.SplitN(attr, "=", 2)
-			if len(kv) != 2 {
+			continue
+		}
+		if x == 1 {
+			if ascii.IsDigits([]byte(attrs[1])) {
+				node.Attrs[attrNameWidth] = attrs[1]
+				hasWidth = true
 				continue
 			}
-			var (
-				ok  bool
-				val = strings.Trim(kv[1], `"`)
-			)
-			switch kv[0] {
-			case "float", "align", "role":
-				ok = true
-				if val == "center" {
-					val = "text-center"
-				}
+		}
+		if hasWidth && x == 2 {
+			if ascii.IsDigits([]byte(attrs[2])) {
+				node.Attrs[attrNameHeight] = attrs[2]
 			}
-			if ok {
-				if len(val) > 0 {
-					node.classes = append(node.classes, val)
-				}
+		}
+		kv := strings.SplitN(attr, "=", 2)
+		if len(kv) != 2 {
+			continue
+		}
+		val := strings.Trim(kv[1], `"`)
+		switch kv[0] {
+		case attrNameFloat, attrNameAlign, attrNameRole:
+			if val == "center" {
+				val = "text-center"
 			}
+			node.classes = append(node.classes, val)
 		}
 	}
 	return true
@@ -699,6 +704,8 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		}
 	case nodeKindBlockListingDelimiter:
 		err = tmpl.ExecuteTemplate(w, "BLOCK_LISTING", node)
+	case nodeKindInlineImage:
+		err = tmpl.ExecuteTemplate(w, "INLINE_IMAGE", node)
 	case nodeKindListOrdered:
 		err = tmpl.ExecuteTemplate(w, "BEGIN_LIST_ORDERED", node)
 	case nodeKindListUnordered:

@@ -355,6 +355,25 @@ func (pi *parserInline) parseFormatUnconstrained(
 	return false
 }
 
+func (pi *parserInline) parseInlineImage() *adocNode {
+	content := pi.content[pi.x+1:]
+	_, idx := indexByteUnescape(pi.content[pi.x+1:], ']')
+	if idx < 0 {
+		return nil
+	}
+
+	lineImage := content[:idx+1]
+	nodeImage := &adocNode{
+		kind: nodeKindInlineImage,
+	}
+	if nodeImage.parseImage(string(lineImage)) {
+		pi.x += idx + 2
+		pi.prev = 0
+		return nodeImage
+	}
+	return nil
+}
+
 func (pi *parserInline) parseMacro() bool {
 	name, lastc := pi.getBackMacroName()
 	if lastc == '\\' || len(name) == 0 {
@@ -366,6 +385,21 @@ func (pi *parserInline) parseMacro() bool {
 		return false
 	case macroFTP, macroHTTPS, macroHTTP, macroIRC, macroLink, macroMailto:
 		node := pi.parseURL(name)
+		if node == nil {
+			return false
+		}
+
+		pi.current.raw = pi.current.raw[:len(pi.current.raw)-len(name)]
+
+		pi.current.addChild(node)
+		node = &adocNode{
+			kind: nodeKindText,
+		}
+		pi.current.addChild(node)
+		pi.current = node
+		return true
+	case macroImage:
+		node := pi.parseInlineImage()
 		if node == nil {
 			return false
 		}

@@ -176,6 +176,21 @@ COMMENT_BLOCK  = "////" LF
 COMMENTS = *(COMMENT_SINGLE / COMMENT_BLOCK)
 ----
 
+
+==  Image
+
+===  Inline image
+
+----
+IMAGE_INLINE  = "image:" URL "[" (IMAGE_ATTRS) "]"
+
+IMAGE_ATTRS   = TEXT ("," IMAGE_WIDTH ("," IMAGE_HEIGHT)) *("," IMAGE_OPTS)
+
+IMAGE_OPTS    = IMAGE_OPT_KEY "=" 1*VCHAR
+
+IMAGE_OPT_KEY = "title" / "float" / "align" / "role"
+----
+
 ==  Video
 
 ----

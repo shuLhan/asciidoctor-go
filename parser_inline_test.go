@@ -135,6 +135,40 @@ func TestParserInline_parseFormatUnconstrained(t *testing.T) {
 	}
 }
 
+func TestParserInline_parseInlineImage(t *testing.T) {
+	cases := []struct {
+		content string
+		exp     string
+	}{{
+		content: `image:https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg[Linux,25,35]`,
+		exp:     `<span class="image"><img src="https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg" alt="Linux" width="25" height="35"></span>`,
+	}, {
+		content: `image:linux.png[Linux,150,150,float="right"]
+You can find Linux everywhere these days!`,
+		exp: `<span class="image right"><img src="linux.png" alt="Linux" width="150" height="150"></span>
+You can find Linux everywhere these days!`,
+	}, {
+		content: `image:sunset.jpg[Sunset,150,150,role="right"] What a beautiful sunset!`,
+		exp:     `<span class="image right"><img src="sunset.jpg" alt="Sunset" width="150" height="150"></span> What a beautiful sunset!`,
+	}}
+
+	var buf bytes.Buffer
+	for _, c := range cases {
+		buf.Reset()
+
+		container := parseInlineMarkup([]byte(c.content))
+		err := container.toHTML(_testDoc, _testTmpl, &buf)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// container.debug(0)
+
+		got := buf.String()
+		test.Assert(t, c.content, c.exp, got, true)
+	}
+}
+
 func TestParserInline_parsePassthrough(t *testing.T) {
 	cases := []struct {
 		content string

@@ -262,7 +262,7 @@ Last updated {{.LastUpdated}}
 {{- define "BLOCK_IMAGE"}}
 <div class="imageblock {{- .Classes}}">
 <div class="content">
-<img src="{{.Content}}" alt="{{.Attrs.alt}}"
+<img src="{{.URLTarget}}" alt="{{.Attrs.alt}}"
 	{{- with $w := .Attrs.width}} width="{{$w}}"{{end}}
 	{{- with $h := .Attrs.height}} height="{{$h}}"{{end}}>
 </div>
@@ -272,6 +272,14 @@ Last updated {{.LastUpdated}}
 </div>
 {{- end}}
 {{/*----------------------------------------------------------------------*/}}
+{{- define "INLINE_IMAGE" -}}
+{{- $content := .Content -}}
+<span class="image {{- .Classes}}"><img src="{{.URLTarget}}" alt="{{.Attrs.alt}}"
+	{{- with $w := .Attrs.width}} width="{{$w}}"{{end}}
+	{{- with $h := .Attrs.height}} height="{{$h}}"{{end}}></span>
+{{- end}}
+{{/*----------------------------------------------------------------------*/}}
+
 {{- define "BEGIN_BLOCK_OPEN"}}
 <div class="openblock {{- .Classes}}">
 {{- template "BLOCK_TITLE" .}}

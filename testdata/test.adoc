@@ -523,6 +523,16 @@ image::b.png[B,240,180]
 
 Text below images.
 
+=== Inline image
+
+image:https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg[Linux,25,35]
+
+image:linux.png[Linux,150,150,float="right"]
+You can find Linux everywhere these days!
+
+image:sunset.jpg[Sunset,150,150,role="right"] What a beautiful sunset!
+
+
 == Block open
 
 .Section inside
