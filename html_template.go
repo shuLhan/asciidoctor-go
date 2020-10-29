@@ -270,7 +270,7 @@ Last updated {{.LastUpdated}}
 {{- define "BLOCK_IMAGE"}}
 <div class="imageblock {{- .Classes}}">
 <div class="content">
-<img src="{{.URLTarget}}" alt="{{.Attrs.alt}}"
+<img src="{{.Attrs.src}}" alt="{{.Attrs.alt}}"
 	{{- with $w := .Attrs.width}} width="{{$w}}"{{end}}
 	{{- with $h := .Attrs.height}} height="{{$h}}"{{end}}>
 </div>
@@ -282,7 +282,7 @@ Last updated {{.LastUpdated}}
 {{/*----------------------------------------------------------------------*/}}
 {{- define "INLINE_IMAGE" -}}
 {{- $content := .Content -}}
-<span class="image {{- .Classes}}"><img src="{{.URLTarget}}" alt="{{.Attrs.alt}}"
+<span class="image {{- .Classes}}"><img src="{{.Attrs.src}}" alt="{{.Attrs.alt}}"
 	{{- with $w := .Attrs.width}} width="{{$w}}"{{end}}
 	{{- with $h := .Attrs.height}} height="{{$h}}"{{end}}></span>
 {{- end}}
@@ -434,7 +434,7 @@ Your browser does not support the audio tag.
 {{- end}}
 {{/*----------------------------------------------------------------------*/}}
 {{- define "BEGIN_URL" -}}
-<a href="{{.URLTarget}}"
+<a href="{{.Attrs.href}}"
 	{{- with $classes := .Classes}} class="{{trimSpace $classes}}"{{end}}
 	{{- with $target := .Attrs.target}} target="{{$target}}"{{end}}
 	{{- with $rel := .Attrs.rel}} rel="{{$rel}}"{{end}}>{{.Content}}

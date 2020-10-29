@@ -31,8 +31,10 @@ type adocNode struct {
 	rawTitle string
 	style    int64
 	classes  []string
-	key      string
-	value    string
+
+	// The key and value for attribute (lineKindAttribute).
+	key   string
+	value string
 
 	// title is the parsed rawTitle for section L1 or parsed raw for
 	// section L2-L5.
@@ -361,7 +363,13 @@ func (node *adocNode) parseImage(line string) bool {
 	if attrEnd < 0 {
 		return false
 	}
-	node.value = strings.TrimRight(line[:attrBegin], " \t")
+
+	src := strings.TrimRight(line[:attrBegin], " \t")
+
+	if node.Attrs == nil {
+		node.Attrs = make(map[string]string)
+	}
+	node.Attrs[attrNameSrc] = src
 
 	attrs := strings.Split(line[attrBegin+1:attrEnd], ",")
 	if node.Attrs == nil {
@@ -372,9 +380,9 @@ func (node *adocNode) parseImage(line string) bool {
 		if x == 0 {
 			alt := strings.TrimSpace(attrs[0])
 			if len(alt) == 0 {
-				dot := strings.IndexByte(node.value, '.')
+				dot := strings.IndexByte(src, '.')
 				if dot > 0 {
-					alt = node.value[:dot]
+					alt = src[:dot]
 				}
 			}
 			node.Attrs[attrNameAlt] = alt

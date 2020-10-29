@@ -49,8 +49,7 @@ STRING    = WORD *(WSP WORD)  ; Sequence of word with spaces between them.
 
 LINE      = STRING LF         ; STRING that end with new line.
 
-TEXT      = 1*WORD *(LWSP WORD)     ; One or more WORD with spaces and/or
-                                    ; new line.
+TEXT      = 1*LINE            ; One or more LINE.
 ----
 
 

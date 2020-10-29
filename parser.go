@@ -90,6 +90,7 @@ const (
 	attrNameEnd         = "end"
 	attrNameFloat       = "float"
 	attrNameHeight      = "height"
+	attrNameHref        = "href"
 	attrNameLang        = "lang"
 	attrNameOptions     = "options"
 	attrNamePoster      = "poster"

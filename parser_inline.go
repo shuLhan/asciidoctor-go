@@ -364,7 +364,8 @@ func (pi *parserInline) parseInlineImage() *adocNode {
 
 	lineImage := content[:idx+1]
 	nodeImage := &adocNode{
-		kind: nodeKindInlineImage,
+		kind:  nodeKindInlineImage,
+		Attrs: make(map[string]string),
 	}
 	if nodeImage.parseImage(string(lineImage)) {
 		pi.x += idx + 2
@@ -622,7 +623,7 @@ func (pi *parserInline) parseURL(scheme string) (node *adocNode) {
 			pi.prev = c
 		}
 		node.raw = uri
-		node.value = string(uri)
+		node.Attrs[attrNameHref] = string(uri)
 		return node
 	}
 	_, idx := indexByteUnescape(content[x:], ']')
@@ -630,7 +631,7 @@ func (pi *parserInline) parseURL(scheme string) (node *adocNode) {
 		return nil
 	}
 
-	node.value = string(uri)
+	node.Attrs[attrNameHref] = string(uri)
 	pi.x += x + idx + 2
 	pi.prev = 0
 
