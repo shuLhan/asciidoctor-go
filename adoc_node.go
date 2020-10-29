@@ -181,7 +181,7 @@ func (node *adocNode) GetVideoSource() string {
 		}
 		return src
 	}
-	u.RawQuery = strings.Join(q, "&")
+	u.RawQuery = strings.Join(q, "&amp;")
 	u.Fragment = fragment
 
 	return u.String()
