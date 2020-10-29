@@ -364,8 +364,9 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 				lineKindEmpty,
 				[]int{
 					term,
-					nodeKindBlockListingDelimiter,
-					nodeKindBlockLiteralDelimiter,
+					nodeKindBlockListing,
+					nodeKindBlockListingNamed,
+					nodeKindBlockLiteral,
 					nodeKindBlockLiteralNamed,
 					lineKindListContinue,
 				})
@@ -402,8 +403,9 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 				lineKindEmpty,
 				[]int{
 					term,
-					nodeKindBlockListingDelimiter,
-					nodeKindBlockLiteralDelimiter,
+					nodeKindBlockListing,
+					nodeKindBlockListingNamed,
+					nodeKindBlockLiteral,
 					nodeKindBlockLiteralNamed,
 					lineKindListContinue,
 				})
@@ -427,8 +429,9 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 				lineKindEmpty,
 				[]int{
 					term,
-					nodeKindBlockListingDelimiter,
-					nodeKindBlockLiteralDelimiter,
+					nodeKindBlockListing,
+					nodeKindBlockListingNamed,
+					nodeKindBlockLiteral,
 					nodeKindBlockLiteralNamed,
 					lineKindListContinue,
 				})
@@ -449,8 +452,9 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 					lineKindEmpty,
 					[]int{
 						term,
-						nodeKindBlockListingDelimiter,
-						nodeKindBlockLiteralDelimiter,
+						nodeKindBlockListing,
+						nodeKindBlockListingNamed,
+						nodeKindBlockLiteral,
 						nodeKindBlockLiteralNamed,
 						lineKindListContinue,
 					})
@@ -491,14 +495,16 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 					lineKindEmpty,
 					[]int{
 						term,
-						nodeKindBlockListingDelimiter,
-						nodeKindBlockLiteralDelimiter,
+						nodeKindBlockListing,
+						nodeKindBlockListingNamed,
+						nodeKindBlockLiteral,
 						nodeKindBlockLiteralNamed,
 						lineKindListContinue,
 					})
 				node.parseInlineMarkup()
 			} else {
 				node.kind = doc.kind
+				node.classes = append(node.classes, classNameLiteralBlock)
 				node.WriteString(line)
 				node.WriteByte('\n')
 				line, _ = doc.consumeLinesUntil(
@@ -506,17 +512,19 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 					lineKindEmpty,
 					[]int{
 						term,
-						nodeKindBlockListingDelimiter,
+						nodeKindBlockListing,
+						nodeKindBlockListingNamed,
+						nodeKindBlockLiteral,
 						nodeKindBlockLiteralNamed,
-						nodeKindBlockLiteralDelimiter,
 					})
 			}
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
 
-		case nodeKindBlockLiteralDelimiter:
+		case nodeKindBlockLiteral:
 			node.kind = doc.kind
+			node.classes = append(node.classes, classNameLiteralBlock)
 			line, _ = doc.consumeLinesUntil(node, doc.kind, nil)
 			parent.addChild(node)
 			node = &adocNode{}
@@ -524,14 +532,33 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 
 		case nodeKindBlockLiteralNamed:
 			node.kind = doc.kind
+			node.classes = append(node.classes, classNameLiteralBlock)
 			line, _ = doc.consumeLinesUntil(node, lineKindEmpty, nil)
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
 
-		case nodeKindBlockListingDelimiter:
+		case nodeKindBlockListing:
 			node.kind = doc.kind
+			node.classes = append(node.classes, classNameListingBlock)
 			line, _ = doc.consumeLinesUntil(node, doc.kind, nil)
+			parent.addChild(node)
+			node = &adocNode{}
+			continue
+
+		case nodeKindBlockListingNamed:
+			node.kind = doc.kind
+			node.classes = append(node.classes, classNameListingBlock)
+			line, _ = doc.consumeLinesUntil(
+				node,
+				lineKindEmpty,
+				[]int{
+					nodeKindBlockListing,
+					nodeKindBlockListingNamed,
+					nodeKindBlockLiteral,
+					nodeKindBlockLiteralNamed,
+					lineKindListContinue,
+				})
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
@@ -575,8 +602,9 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 					lineKindEmpty,
 					[]int{
 						term,
-						nodeKindBlockListingDelimiter,
-						nodeKindBlockLiteralDelimiter,
+						nodeKindBlockListing,
+						nodeKindBlockListingNamed,
+						nodeKindBlockLiteral,
 						nodeKindBlockLiteralNamed,
 						lineKindListContinue,
 					})
@@ -603,8 +631,9 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 					doc.kind,
 					[]int{
 						term,
-						nodeKindBlockListingDelimiter,
-						nodeKindBlockLiteralDelimiter,
+						nodeKindBlockListing,
+						nodeKindBlockListingNamed,
+						nodeKindBlockLiteral,
 						nodeKindBlockLiteralNamed,
 						lineKindListContinue,
 					})
@@ -629,8 +658,9 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 					lineKindEmpty,
 					[]int{
 						term,
-						nodeKindBlockListingDelimiter,
-						nodeKindBlockLiteralDelimiter,
+						nodeKindBlockListing,
+						nodeKindBlockListingNamed,
+						nodeKindBlockLiteral,
 						nodeKindBlockLiteralNamed,
 						lineKindListContinue,
 					})
@@ -653,8 +683,9 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 					lineKindEmpty,
 					[]int{
 						term,
-						nodeKindBlockListingDelimiter,
-						nodeKindBlockLiteralDelimiter,
+						nodeKindBlockListing,
+						nodeKindBlockListingNamed,
+						nodeKindBlockLiteral,
 						nodeKindBlockLiteralNamed,
 						lineKindListContinue,
 					})
@@ -809,8 +840,9 @@ func (doc *Document) parseListBlock() (node *adocNode, line string, c rune) {
 				node,
 				lineKindEmpty,
 				[]int{
-					nodeKindBlockListingDelimiter,
-					nodeKindBlockLiteralDelimiter,
+					nodeKindBlockListing,
+					nodeKindBlockListingNamed,
+					nodeKindBlockLiteral,
 					nodeKindBlockLiteralNamed,
 					lineKindListContinue,
 				})
@@ -832,7 +864,8 @@ func (doc *Document) parseListBlock() (node *adocNode, line string, c rune) {
 		}
 		if doc.kind == nodeKindLiteralParagraph {
 			node = &adocNode{
-				kind: doc.kind,
+				kind:    doc.kind,
+				classes: []string{classNameLiteralBlock},
 			}
 			node.WriteString(strings.TrimLeft(line, " \t"))
 			node.WriteByte('\n')
@@ -864,9 +897,10 @@ func (doc *Document) parseListBlock() (node *adocNode, line string, c rune) {
 			node.parseInlineMarkup()
 			break
 		}
-		if doc.kind == nodeKindBlockListingDelimiter {
+		if doc.kind == nodeKindBlockListing {
 			node = &adocNode{
-				kind: doc.kind,
+				kind:    doc.kind,
+				classes: []string{classNameListingBlock},
 			}
 			doc.consumeLinesUntil(node, doc.kind, nil)
 			line = ""
@@ -974,12 +1008,13 @@ func (doc *Document) parseListDescription(parent, node *adocNode, line string) (
 				break
 			}
 		}
-		if doc.kind == nodeKindBlockLiteralNamed {
+		if doc.kind == nodeKindBlockListingNamed {
 			if doc.prevKind == lineKindEmpty {
 				break
 			}
 			node := &adocNode{
-				kind: doc.kind,
+				kind:    doc.kind,
+				classes: []string{classNameListingBlock},
 			}
 			line, c = doc.consumeLinesUntil(node,
 				lineKindEmpty,
@@ -990,7 +1025,24 @@ func (doc *Document) parseListDescription(parent, node *adocNode, line string) (
 			listItem.addChild(node)
 			continue
 		}
-		if doc.kind == nodeKindBlockListingDelimiter ||
+		if doc.kind == nodeKindBlockLiteralNamed {
+			if doc.prevKind == lineKindEmpty {
+				break
+			}
+			node := &adocNode{
+				kind:    doc.kind,
+				classes: []string{classNameLiteralBlock},
+			}
+			line, c = doc.consumeLinesUntil(node,
+				lineKindEmpty,
+				[]int{
+					nodeKindListOrderedItem,
+					nodeKindListUnorderedItem,
+				})
+			listItem.addChild(node)
+			continue
+		}
+		if doc.kind == nodeKindBlockListing ||
 			doc.kind == nodeKindBlockExample ||
 			doc.kind == nodeKindBlockSidebar {
 			break
@@ -1144,12 +1196,13 @@ func (doc *Document) parseListOrdered(parent *adocNode, title, line string) (
 				break
 			}
 		}
-		if doc.kind == nodeKindBlockLiteralNamed {
+		if doc.kind == nodeKindBlockListingNamed {
 			if doc.prevKind == lineKindEmpty {
 				break
 			}
 			node := &adocNode{
-				kind: doc.kind,
+				kind:    doc.kind,
+				classes: []string{classNameListingBlock},
 			}
 			line, c = doc.consumeLinesUntil(node,
 				lineKindEmpty,
@@ -1160,7 +1213,24 @@ func (doc *Document) parseListOrdered(parent *adocNode, title, line string) (
 			listItem.addChild(node)
 			continue
 		}
-		if doc.kind == nodeKindBlockListingDelimiter ||
+		if doc.kind == nodeKindBlockLiteralNamed {
+			if doc.prevKind == lineKindEmpty {
+				break
+			}
+			node := &adocNode{
+				kind:    doc.kind,
+				classes: []string{classNameLiteralBlock},
+			}
+			line, c = doc.consumeLinesUntil(node,
+				lineKindEmpty,
+				[]int{
+					nodeKindListOrderedItem,
+					nodeKindListUnorderedItem,
+				})
+			listItem.addChild(node)
+			continue
+		}
+		if doc.kind == nodeKindBlockListing ||
 			doc.kind == nodeKindBlockExample ||
 			doc.kind == nodeKindBlockSidebar {
 			break
@@ -1188,6 +1258,7 @@ func (doc *Document) parseListUnordered(parent, node *adocNode, line string) (
 ) {
 	list := &adocNode{
 		kind:     nodeKindListUnordered,
+		classes:  []string{classNameUlist},
 		rawTitle: node.rawTitle,
 	}
 	listItem := &adocNode{
@@ -1312,12 +1383,13 @@ func (doc *Document) parseListUnordered(parent, node *adocNode, line string) (
 				break
 			}
 		}
-		if doc.kind == nodeKindBlockLiteralNamed {
+		if doc.kind == nodeKindBlockListingNamed {
 			if doc.prevKind == lineKindEmpty {
 				break
 			}
 			node := &adocNode{
-				kind: doc.kind,
+				kind:    doc.kind,
+				classes: []string{classNameListingBlock},
 			}
 			line, c = doc.consumeLinesUntil(node,
 				lineKindEmpty,
@@ -1328,7 +1400,24 @@ func (doc *Document) parseListUnordered(parent, node *adocNode, line string) (
 			listItem.addChild(node)
 			continue
 		}
-		if doc.kind == nodeKindBlockListingDelimiter ||
+		if doc.kind == nodeKindBlockLiteralNamed {
+			if doc.prevKind == lineKindEmpty {
+				break
+			}
+			node := &adocNode{
+				kind:    doc.kind,
+				classes: []string{classNameLiteralBlock},
+			}
+			line, c = doc.consumeLinesUntil(node,
+				lineKindEmpty,
+				[]int{
+					nodeKindListOrderedItem,
+					nodeKindListUnorderedItem,
+				})
+			listItem.addChild(node)
+			continue
+		}
+		if doc.kind == nodeKindBlockListing ||
 			doc.kind == nodeKindBlockExample ||
 			doc.kind == nodeKindBlockSidebar {
 			break

@@ -216,6 +216,41 @@ COMMENTS = *(COMMENT_SINGLE / COMMENT_BLOCK)
 ----
 
 
+==  Block listing
+
+----
+LISTING_STYLE = "[listing]" LF TEXT LF
+
+LISTING_BLOCK = "----" LF TEXT "----" LF
+----
+
+
+==  Block literal
+
+----
+LITERAL_PARAGRAPH = 1*WSP TEXT
+
+LITERAL_STYLE     = "[literal]" LF TEXT LF
+
+LITERAL_BLOCK     = "...." LF TEXT "...." LF
+----
+
+HTML format,
+
+----
+<div class="literalblock">
+    <div class="content">
+        <pre>{{TEXT}}</pre>
+    </div>
+</div>
+----
+
+Substitution rules,
+
+* special characters: "<", ">", and "&"
+* callouts
+
+
 ==  Image
 
 ===  Inline image
@@ -360,4 +395,21 @@ URL_TEXT        = TEXT ("^")
 URL_ATTR_TARGET = "window" "=" "_blank"
 
 URL_ATTR_RILE   = "role=" WORD *("," WORD)
+----
+
+== Inconsistencies and bugs on asciidoctor
+
+Listing style "[listing]" followed by "...." is become listing block.
+Example,
+----
+[listing]
+....
+This block become listing.
+....
+----
+
+Image width and height with non-digits characters are allowed,
+Example,
+----
+image::sunset.jpg[Text,a,b]
 ----

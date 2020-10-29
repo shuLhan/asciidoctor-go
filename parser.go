@@ -38,9 +38,10 @@ const (
 	nodeKindBlockExample               // "===="
 	nodeKindBlockExcerpts              // "____"
 	nodeKindBlockImage                 // "image::"
-	nodeKindBlockListingDelimiter      // Block start and end with "----"
-	nodeKindBlockLiteralNamed          // Block start with "[literal]", end with ""
-	nodeKindBlockLiteralDelimiter      // Block start and end with "...."
+	nodeKindBlockListing               // "----"
+	nodeKindBlockListingNamed          // "[listing]"
+	nodeKindBlockLiteral               // "...."
+	nodeKindBlockLiteralNamed          // "[literal]"
 	nodeKindBlockOpen                  // Block wrapped with "--"
 	nodeKindBlockPassthrough           // Block wrapped with "++++"
 	nodeKindBlockSidebar               // 20: "****"
@@ -426,8 +427,17 @@ func whatKindOfLine(line string) (kind int, spaces, got string) {
 	if line == "____" {
 		return nodeKindBlockExcerpts, spaces, line
 	}
+	if line == "...." {
+		return nodeKindBlockLiteral, "", line
+	}
 	if line == "++++" {
 		return nodeKindBlockPassthrough, spaces, line
+	}
+	if line == "[listing]" {
+		return nodeKindBlockListingNamed, "", line
+	}
+	if line == "[literal]" {
+		return nodeKindBlockLiteralNamed, "", line
 	}
 	if line == "toc::[]" {
 		return nodeKindMacroTOC, spaces, line
@@ -480,9 +490,7 @@ func whatKindOfLine(line string) (kind int, spaces, got string) {
 	} else if line[0] == '[' {
 		newline := strings.TrimRight(line, " \t")
 		if newline[len(newline)-1] == ']' {
-			if line == "[literal]" {
-				kind = nodeKindBlockLiteralNamed
-			} else if line[1] == '.' {
+			if line[1] == '.' {
 				kind = lineKindStyleClass
 			} else {
 				kind = lineKindStyle
@@ -510,8 +518,6 @@ func whatKindOfLine(line string) (kind int, spaces, got string) {
 	} else if line[0] == '.' {
 		if len(line) <= 1 {
 			kind = lineKindText
-		} else if line == "...." {
-			kind = nodeKindBlockLiteralDelimiter
 		} else if ascii.IsAlnum(line[1]) {
 			kind = lineKindBlockTitle
 		} else {
@@ -548,7 +554,7 @@ func whatKindOfLine(line string) (kind int, spaces, got string) {
 	} else if line == "+" {
 		kind = lineKindListContinue
 	} else if line == "----" {
-		kind = nodeKindBlockListingDelimiter
+		kind = nodeKindBlockListing
 	} else if isLineDescriptionItem(line) {
 		kind = nodeKindListDescriptionItem
 	}

@@ -159,7 +159,7 @@ Last updated {{.LastUpdated}}
 {{- end}}
 {{/*----------------------------------------------------------------------*/}}
 {{- define "BLOCK_LITERAL"}}
-<div class="literalblock {{- .Classes}}">
+<div class="{{trimSpace .Classes}}">
 <div class="content">
 <pre>{{.Content -}}</pre>
 </div>
@@ -167,7 +167,7 @@ Last updated {{.LastUpdated}}
 {{- end}}
 {{/*----------------------------------------------------------------------*/}}
 {{- define "BLOCK_LISTING"}}
-<div class="listingblock {{- .Classes}}">
+<div class="{{trimSpace .Classes}}">
 <div class="content">
 <pre>{{.Content -}}</pre>
 </div>
@@ -187,7 +187,7 @@ Last updated {{.LastUpdated}}
 {{- end}}
 {{/*----------------------------------------------------------------------*/}}
 {{- define "BEGIN_LIST_UNORDERED"}}
-<div class="ulist {{- .Classes}}">
+<div class="{{trimSpace .Classes}}">
 {{- template "BLOCK_TITLE" .}}
 <ul>
 {{- end}}

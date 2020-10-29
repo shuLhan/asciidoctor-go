@@ -43,7 +43,8 @@
 <li><a href="#_title">Title</a></li>
 </ul>
 </li>
-<li><a href="#_literal_block">Literal block</a></li>
+<li><a href="#_block_listing">Block listing</a></li>
+<li><a href="#_block_literal">Block literal</a></li>
 <li><a href="#_ordered_lists">Ordered Lists</a></li>
 <li><a href="#_unordered_lists">Unordered Lists</a></li>
 <li><a href="#_mixed_list">Mixed list</a></li>
@@ -354,7 +355,26 @@ paragraph*</em>.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_literal_block">Literal block</h2>
+<h2 id="_block_listing">Block listing</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre>This is single paragraph listing.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>[listing] x
+This is not listing.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>This is block listing.</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_block_literal">Block literal</h2>
 <div class="sectionbody">
 <div class="literalblock">
 <div class="content">
@@ -369,7 +389,7 @@ non-space line.</pre>
 </div>
 <div class="paragraph">
 <p>[literal] x
-A literal named and trailing characters.</p>
+A literal named and trailing characters will become paragraph.</p>
 </div>
 <div class="literalblock">
 <div class="content">
@@ -1368,7 +1388,7 @@ Your browser does not support the video tag.
 <div class="videoblock">
 <div class="title">Video with nocontrols, nofullscreen</div>
 <div class="content">
-<video src="video_file.mp4#t=60,140" width="640" height="320" poster="sunset.jpg" autoplay loop>
+<video src="video_file.mp4#t=60,140" width="640" height="320" poster="sunset.jpg" loop>
 Your browser does not support the video tag.
 </video>
 </div>
@@ -1382,7 +1402,7 @@ Your browser does not support the video tag.
 <div class="videoblock">
 <div class="title">Youtube</div>
 <div class="content">
-<iframe width="640" height="320" src="https://www.youtube.com/embed/rPQoq7ThGAU?rel=0&amp;start=60&amp;end=140&amp;autoplay=1&amp;loop=1&amp;controls=0&amp;playlist=rPQoq7ThGAU&amp;fs=0&amp;modestbranding=1&amp;theme=light&amp;hl=fr" frameborder="0"></iframe>
+<iframe width="640" height="320" src="https://www.youtube.com/embed/rPQoq7ThGAU?rel=0&amp;start=60&amp;end=140&amp;loop=1&amp;controls=0&amp;playlist=rPQoq7ThGAU&amp;fs=0&amp;modestbranding=1&amp;theme=light&amp;hl=fr" frameborder="0"></iframe>
 </div>
 </div>
 <div class="videoblock">
@@ -1396,7 +1416,7 @@ Your browser does not support the video tag.
 <div class="videoblock">
 <div class="title">Vimeo</div>
 <div class="content">
-<iframe width="640" height="320" src="https://player.vimeo.com/video/67480300?autoplay=1&amp;loop=1#at=60" frameborder="0"></iframe>
+<iframe width="640" height="320" src="https://player.vimeo.com/video/67480300?loop=1#at=60" frameborder="0"></iframe>
 </div>
 </div>
 </div>
@@ -1806,7 +1826,7 @@ and then moves on.</pre>
 <div id="footer">
 <div id="footer-text">
 Version 1.1.1<br>
-Last updated 2020-10-29 23:36:45 +0700
+Last updated 2020-10-30 03:55:00 +0700
 </div>
 </div>
 </body>

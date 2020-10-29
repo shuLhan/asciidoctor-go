@@ -175,7 +175,21 @@ A bold with * space *, with single non alnum *=*.
 * Install Asciidoctor
 * Write my document
 
-== Literal block
+
+== Block listing
+
+[listing]
+This is single paragraph listing.
+
+[listing] x
+This is not listing.
+
+----
+This is block listing.
+----
+
+
+== Block literal
 
  A literal paragraph followed by non-space line:
 non-space line.
@@ -184,13 +198,13 @@ non-space line.
 A literal named.
 
 [literal] x
-A literal named and trailing characters.
+A literal named and trailing characters will become paragraph.
 
 ....
 With 4 dots.
 ....
 
-// WARNING:
+// This one does not work:
 //.... Trailing
 //Literal block with trailing.
 //....
@@ -565,19 +579,19 @@ image:sunset.jpg[Sunset,150,150,role="right"] What a beautiful sunset!
 video::video_file.mp4[poster="sunset.jpg",width=640,height=320, start=60, end=140]
 
 .Video with nocontrols, nofullscreen
-video::video_file.mp4[poster="sunset.jpg",width=640,height=320, start=60, end=140, options="autoplay, loop, modest, nocontrols, nofullscreen"]
+video::video_file.mp4[poster="sunset.jpg",width=640,height=320, start=60, end=140, options="loop, modest, nocontrols, nofullscreen"]
 
 .Youtube default options
 video::rPQoq7ThGAU[youtube,width=640,height=320, start=60, end=140,lang=fr]
 
 .Youtube
-video::rPQoq7ThGAU[youtube,width=640,height=320, start=60, end=140,options="autoplay, loop, modest, nocontrols, nofullscreen",theme=light,lang=fr]
+video::rPQoq7ThGAU[youtube,width=640,height=320, start=60, end=140,options="loop, modest, nocontrols, nofullscreen",theme=light,lang=fr]
 
 .Youtube attribute at the end
 video::rPQoq7ThGAU[width=640,height=320, start=60, end=140,lang=fr,youtube]
 
 .Vimeo
-video::67480300[vimeo, width=640,height=320, start=60, end=140,options="autoplay, loop, modest, nocontrols, nofullscreen",theme=light,lang=fr]
+video::67480300[vimeo, width=640,height=320, start=60, end=140,options="loop, modest, nocontrols, nofullscreen",theme=light,lang=fr]
 
 
 ==  Audio
@@ -672,14 +686,13 @@ for producing professional documents like DocBook and LaTeX.
 ====
 Here's a sample AsciiDoc document:
 
-[listing]
-....
+----
 = Title of Document
 Doc Writer
 :toc:
 
 This guide provides...
-....
+----
 
 The document header is useful, but not required.
 ====

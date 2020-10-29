@@ -760,16 +760,12 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		} else {
 			err = tmpl.ExecuteTemplate(w, "BEGIN_PARAGRAPH", node)
 		}
-	case nodeKindLiteralParagraph, nodeKindBlockLiteralNamed:
+
+	case nodeKindLiteralParagraph, nodeKindBlockLiteral, nodeKindBlockLiteralNamed:
 		err = tmpl.ExecuteTemplate(w, "BLOCK_LITERAL", node)
-	case nodeKindBlockLiteralDelimiter:
-		if node.IsStyleListing() {
-			err = tmpl.ExecuteTemplate(w, "BLOCK_LISTING", node)
-		} else {
-			err = tmpl.ExecuteTemplate(w, "BLOCK_LITERAL", node)
-		}
-	case nodeKindBlockListingDelimiter:
+	case nodeKindBlockListing, nodeKindBlockListingNamed:
 		err = tmpl.ExecuteTemplate(w, "BLOCK_LISTING", node)
+
 	case nodeKindInlineImage:
 		err = tmpl.ExecuteTemplate(w, "INLINE_IMAGE", node)
 	case nodeKindListOrdered:

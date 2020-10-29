@@ -12,11 +12,14 @@ import (
 )
 
 const (
-	classNameArticle  = "article"
-	classNameToc      = "toc"
-	classNameToc2     = "toc2"
-	classNameTocLeft  = "toc-left"
-	classNameTocRight = "toc-right"
+	classNameArticle      = "article"
+	classNameListingBlock = "listingblock"
+	classNameLiteralBlock = "literalblock"
+	classNameToc          = "toc"
+	classNameToc2         = "toc2"
+	classNameTocLeft      = "toc-left"
+	classNameTocRight     = "toc-right"
+	classNameUlist        = "ulist"
 )
 
 const (
