@@ -680,6 +680,13 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 	switch node.kind {
 	case lineKindAttribute:
 		doc.attributes[node.key] = node.value
+	case nodeKindMacroTOC:
+		if doc.tocIsEnabled && doc.tocPosition == metaValueMacro {
+			err = doc.tocHTML(tmpl, w)
+			if err != nil {
+				return fmt.Errorf("toHTML: nodeKindMacroTOC: %w", err)
+			}
+		}
 	case nodeKindPreamble:
 		err = tmpl.ExecuteTemplate(w, "BEGIN_PREAMBLE", nil)
 	case nodeKindSectionL1:

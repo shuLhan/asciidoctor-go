@@ -660,6 +660,11 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 			parent.addChild(node)
 			node = new(adocNode)
 			continue
+
+		case nodeKindMacroTOC:
+			node.kind = doc.kind
+			parent.addChild(node)
+			node = new(adocNode)
 		}
 		line = ""
 	}

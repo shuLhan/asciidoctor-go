@@ -3,7 +3,7 @@
 Author A, Author B
 :unclosed metadata:
 v1.1.1, 18 July 2020
-:toc: right
+:toc:
 :toclevels: 4
 
 This is preamble.
@@ -352,6 +352,7 @@ This line separated by comment.
 .. Ordered L2
 
 ==  Description list
+toc::[]
 
 CPU:: The brain of the computer.
 Hard drive:: Permanent storage for operating system and/or user files.

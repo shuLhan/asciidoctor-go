@@ -52,6 +52,7 @@ const (
 	nodeKindListUnorderedItem          // Line start with "* "
 	nodeKindListDescription            // Wrapper.
 	nodeKindListDescriptionItem        // Line that has "::" + WSP
+	nodeKindMacroTOC                   // "toc::[]"
 	nodeKindPassthrough                // Text wrapped inside "+"
 	nodeKindPassthroughDouble          // 30: Text wrapped inside "++"
 	nodeKindPassthroughTriple          // Text wrapped inside "+++"
@@ -426,6 +427,9 @@ func whatKindOfLine(line string) (kind int, spaces, got string) {
 	}
 	if line == "++++" {
 		return nodeKindBlockPassthrough, spaces, line
+	}
+	if line == "toc::[]" {
+		return nodeKindMacroTOC, spaces, line
 	}
 	if strings.HasPrefix(line, "image::") {
 		return nodeKindBlockImage, spaces, line
