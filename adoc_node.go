@@ -511,6 +511,7 @@ func (node *adocNode) parseListUnordered(line string) {
 
 func (node *adocNode) parseSection() {
 	node.ID = generateID(string(node.raw))
+	node.level = node.kind - nodeKindSectionL1
 
 	container := parseInlineMarkup(node.raw)
 	container.parent = node
@@ -928,7 +929,17 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 
 	switch node.kind {
 	case nodeKindPreamble:
-		err = tmpl.ExecuteTemplate(w, "END_PREAMBLE", nil)
+		_, err = w.Write([]byte("\n</div>"))
+		if err != nil {
+			return fmt.Errorf("toHTML: nodeKindPreamble: %w", err)
+		}
+		if doc.tocIsEnabled && doc.tocPosition == metaValuePreamble {
+			err = doc.tocHTML(tmpl, w)
+			if err != nil {
+				return fmt.Errorf("ToHTML: %w", err)
+			}
+		}
+		_, err = w.Write([]byte("\n</div>"))
 	case nodeKindSectionL1:
 		err = tmpl.ExecuteTemplate(w, "END_SECTION_L1", nil)
 	case nodeKindSectionL2, nodeKindSectionL3, nodeKindSectionL4, nodeKindSectionL5:

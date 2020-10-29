@@ -11,11 +11,18 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strconv"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/shuLhan/share/lib/ascii"
 	"github.com/shuLhan/share/lib/parser"
+)
+
+const (
+	defTOCLevel = 2
+	defTOCTitle = "Table of Contents"
 )
 
 //
@@ -33,6 +40,11 @@ type Document struct {
 	LastUpdated  string
 	attributes   map[string]string
 	lineNum      int
+
+	TOCTitle     string
+	TOCLevel     int
+	tocPosition  string
+	tocIsEnabled bool
 
 	title   *adocNode
 	header  *adocNode
@@ -59,6 +71,8 @@ func Open(file string) (doc *Document, err error) {
 	doc = &Document{
 		file:        file,
 		LastUpdated: fi.ModTime().Round(time.Second).Format("2006-01-02 15:04:05 Z0700"),
+		TOCLevel:    defTOCLevel,
+		TOCTitle:    defTOCTitle,
 		attributes:  make(map[string]string),
 		content: &adocNode{
 			kind: nodeKindDocContent,
@@ -103,6 +117,8 @@ func (doc *Document) ToHTML(w io.Writer) (err error) {
 		return err
 	}
 
+	doc.tocPosition, doc.tocIsEnabled = doc.attributes[metaNameTOC]
+
 	err = tmpl.ExecuteTemplate(w, "BEGIN", doc)
 	if err != nil {
 		return err
@@ -129,6 +145,16 @@ func (doc *Document) ToHTML(w io.Writer) (err error) {
 	err = tmpl.ExecuteTemplate(w, "HEADER_DETAILS", doc)
 	if err != nil {
 		return err
+	}
+
+	if doc.tocIsEnabled && (doc.tocPosition == "" ||
+		doc.tocPosition == metaValueAuto ||
+		doc.tocPosition == metaValueLeft ||
+		doc.tocPosition == metaValueRight) {
+		err = doc.tocHTML(tmpl, w)
+		if err != nil {
+			return fmt.Errorf("ToHTML: %w", err)
+		}
 	}
 
 	err = tmpl.ExecuteTemplate(w, "END_HEADER", doc)
@@ -1285,4 +1311,42 @@ func (doc *Document) parseListUnordered(parent, node *adocNode, line string) (
 	}
 
 	return line, c
+}
+
+//
+// tocHTML write table of contents with HTML template into out.
+//
+func (doc *Document) tocHTML(tmpl *template.Template, out io.Writer) (err error) {
+	v, ok := doc.attributes[metaNameTOCLevels]
+	if ok {
+		doc.TOCLevel, err = strconv.Atoi(v)
+		if err != nil {
+			return fmt.Errorf("tocHTML: %w", err)
+		}
+		if doc.TOCLevel <= 0 {
+			doc.TOCLevel = defTOCLevel
+		}
+	}
+
+	v, ok = doc.attributes[metaNameTOCTitle]
+	if ok && len(v) > 0 {
+		doc.TOCTitle = v
+	}
+
+	err = tmpl.ExecuteTemplate(out, "BEGIN_TOC", doc)
+	if err != nil {
+		return fmt.Errorf("tocHTML: BEGIN_TOC: %w", err)
+	}
+
+	err = doc.htmlGenerateTOC(doc.content, tmpl, out, 0)
+	if err != nil {
+		return fmt.Errorf("tocHTML: %w", err)
+	}
+
+	err = tmpl.ExecuteTemplate(out, "END_TOC", doc)
+	if err != nil {
+		return fmt.Errorf("tocHTML: END_TOC: %w", err)
+	}
+
+	return nil
 }

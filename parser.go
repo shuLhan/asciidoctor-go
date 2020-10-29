@@ -43,8 +43,8 @@ const (
 	nodeKindBlockLiteralDelimiter      // Block start and end with "...."
 	nodeKindBlockOpen                  // Block wrapped with "--"
 	nodeKindBlockPassthrough           // Block wrapped with "++++"
-	nodeKindBlockSidebar               // "****"
-	nodeKindBlockVideo                 // 20: "video::"
+	nodeKindBlockSidebar               // 20: "****"
+	nodeKindBlockVideo                 // "video::"
 	nodeKindInlineImage                // Inline macro for "image:"
 	nodeKindListOrdered                // Wrapper.
 	nodeKindListOrderedItem            // Line start with ". "
@@ -53,8 +53,8 @@ const (
 	nodeKindListDescription            // Wrapper.
 	nodeKindListDescriptionItem        // Line that has "::" + WSP
 	nodeKindPassthrough                // Text wrapped inside "+"
-	nodeKindPassthroughDouble          // Text wrapped inside "++"
-	nodeKindPassthroughTriple          // 30: Text wrapped inside "+++"
+	nodeKindPassthroughDouble          // 30: Text wrapped inside "++"
+	nodeKindPassthroughTriple          // Text wrapped inside "+++"
 	nodeKindSymbolQuoteDoubleBegin     // The ("`)
 	nodeKindSymbolQuoteDoubleEnd       // The (`")
 	nodeKindSymbolQuoteSingleBegin     // The ('`)
@@ -63,8 +63,8 @@ const (
 	nodeKindTextBold                   // Text wrapped by "*"
 	nodeKindTextItalic                 // Text wrapped by "_"
 	nodeKindTextMono                   // Text wrapped by "`"
-	nodeKindTextSubscript              // Word wrapped by '~'
-	nodeKindTextSuperscript            // 40: Word wrapped by '^'
+	nodeKindTextSubscript              // 40: Word wrapped by '~'
+	nodeKindTextSuperscript            // Word wrapped by '^'
 	nodeKindUnconstrainedBold          // Text wrapped by "**"
 	nodeKindUnconstrainedItalic        // Text wrapped by "__"
 	nodeKindUnconstrainedMono          // Text wrapped by "``"
@@ -73,7 +73,7 @@ const (
 	lineKindAttribute                  // Line start with ":"
 	lineKindBlockComment               // Block start and end with "////"
 	lineKindBlockTitle                 // Line start with ".<alnum>"
-	lineKindComment                    // Line start with "//"
+	lineKindComment                    // 50: Line start with "//"
 	lineKindEmpty                      // LF
 	lineKindHorizontalRule             // "'''", "---", "- - -", "***", "* * *"
 	lineKindListContinue               // A single "+" line
@@ -108,6 +108,22 @@ const (
 const (
 	attrValueBlank    = "_blank"
 	attrValueNoopener = "noopener"
+)
+
+// List of document metadata.
+const (
+	metaNameTOC       = "toc"
+	metaNameTOCLevels = "toclevels"
+	metaNameTOCTitle  = "toc-title"
+)
+
+// List of possible metadata value.
+const (
+	metaValueAuto     = "auto"
+	metaValueMacro    = "macro"
+	metaValuePreamble = "preamble"
+	metaValueLeft     = "left"
+	metaValueRight    = "right"
 )
 
 const (

@@ -138,6 +138,46 @@ HTML format,
 BLOCK_REF   = "[#" REF_ID *["." RoleName] "]" LF
 ----
 
+== Table of contents
+
+The table of contents (ToC) will be generated if "toc" attribute is set in
+document header with the following syntax,
+
+----
+TOC_ATTR      = ":toc:" (TOC_PLACEMENT / TOC_POSITION )
+
+TOC_PLACEMENT = ("auto" / "preamble" / "macro")
+
+TOC_POSITION  = ("left" / "right")
+
+TOC_MACRO     = "toc::[]"
+----
+
+If toc placement is empty it default to "auto", and placed after document
+header.
+If toc is set to "preamble" it will be set after document preamble.
+If toc is set to "macro", it will be set after section title that have
+TOC_MACRO.
+
+===  Title
+
+By default the ToC element will have the title set to "Table of Contents".
+One can change the ToC title using attribute "toc-title",
+
+----
+TOC_TITLE  = ":toc-title:" LINE
+----
+
+===  Levels
+
+By default only section level 1 and 2 will be rendered.
+One can change it using the attribute "toclevels",
+
+----
+TOC_LEVELS = ":toclevels:" 1DIGIT
+----
+
+
 == Sections
 
 Sections or headers group one or more paragraphs or blocks.

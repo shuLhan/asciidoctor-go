@@ -105,8 +105,14 @@ Last updated {{.LastUpdated}}
 <div class="sectionbody">
 {{- end}}
 
-{{- define "END_PREAMBLE"}}
-</div>
+{{- define "BEGIN_TOC"}}
+<div id="toc" class="toc">
+<div id="toctitle">{{.TOCTitle}}</div>
+<ul class="sectlevel1">
+{{end}}
+
+{{- define "END_TOC" -}}
+</ul>
 </div>
 {{- end}}
 

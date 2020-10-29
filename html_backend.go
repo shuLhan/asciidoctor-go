@@ -4,7 +4,12 @@
 
 package asciidoctor
 
-import "strings"
+import (
+	"fmt"
+	"io"
+	"strings"
+	"text/template"
+)
 
 const (
 	htmlLessthanSymbol    = "&lt;"
@@ -44,4 +49,87 @@ func htmlSubstituteSpecialChars(in string) (out string) {
 		}
 	}
 	return sb.String()
+}
+
+func (doc *Document) htmlGenerateTOC(
+	node *adocNode, tmpl *template.Template, out io.Writer, level int,
+) (err error) {
+	if level >= doc.TOCLevel {
+		return nil
+	}
+
+	var sectClass string
+
+	switch node.kind {
+	case nodeKindSectionL1:
+		sectClass = "sectlevel1"
+	case nodeKindSectionL2:
+		sectClass = "sectlevel2"
+	case nodeKindSectionL3:
+		sectClass = "sectlevel3"
+	case nodeKindSectionL4:
+		sectClass = "sectlevel4"
+	case nodeKindSectionL5:
+		sectClass = "sectlevel5"
+	}
+
+	if len(sectClass) > 0 {
+		if level < node.level {
+			_, err = fmt.Fprintf(out, `
+<ul class="%s">
+`, sectClass)
+		} else if level > node.level {
+			n := level
+			for n > node.level {
+				_, err = out.Write([]byte(`</ul>
+`))
+				n--
+			}
+		}
+
+		_, err = fmt.Fprintf(out, `<li><a href="#%s">`, node.ID)
+		if err != nil {
+			return fmt.Errorf("htmlGenerateTOC: %w", err)
+		}
+
+		err = node.title.toHTML(doc, tmpl, out)
+		if err != nil {
+			return fmt.Errorf("htmlGenerateTOC: %w", err)
+		}
+
+		_, err = out.Write([]byte(`</a>`))
+		if err != nil {
+			return fmt.Errorf("htmlGenerateTOC: %w", err)
+		}
+	}
+
+	if node.child != nil {
+		err = doc.htmlGenerateTOC(node.child, tmpl, out, node.level)
+		if err != nil {
+			return err
+		}
+
+		if len(sectClass) > 0 {
+			_, err = out.Write([]byte("</li>\n"))
+			if err != nil {
+				return fmt.Errorf("htmlGenerateTOC: %w", err)
+			}
+		}
+	}
+
+	if node.next != nil {
+		err = doc.htmlGenerateTOC(node.next, tmpl, out, node.level)
+		if err != nil {
+			return err
+		}
+	}
+
+	if len(sectClass) > 0 && level < node.level {
+		_, err = out.Write([]byte("</ul>\n"))
+		if err != nil {
+			return fmt.Errorf("htmlGenerateTOC: %w", err)
+		}
+	}
+
+	return nil
 }

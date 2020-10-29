@@ -3,6 +3,8 @@
 Author A, Author B
 :unclosed metadata:
 v1.1.1, 18 July 2020
+:toc: preamble
+:toclevels: 4
 
 This is preamble.
 :other metadata:
