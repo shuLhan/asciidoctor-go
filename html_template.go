@@ -52,7 +52,7 @@ func (doc *Document) createHTMLTemplate() (tmpl *template.Template, err error) {
 
 </style>
 </head>
-<body class="article">
+<body class="{{.Classes}}">
 {{- end -}}
 
 {{- define "END"}}
@@ -106,7 +106,7 @@ Last updated {{.LastUpdated}}
 {{- end}}
 
 {{- define "BEGIN_TOC"}}
-<div id="toc" class="toc">
+<div id="toc" class="{{.TocClasses}}">
 <div id="toctitle">{{.TOCTitle}}</div>
 <ul class="sectlevel1">
 {{end}}

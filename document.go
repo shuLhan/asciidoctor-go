@@ -38,13 +38,16 @@ type Document struct {
 	RevSeparator string
 	RevDate      string
 	LastUpdated  string
-	attributes   map[string]string
-	lineNum      int
+
+	classes    []string
+	attributes map[string]string
+	lineNum    int
 
 	TOCTitle     string
 	TOCLevel     int
 	tocPosition  string
 	tocIsEnabled bool
+	tocClasses   []string
 
 	title   *adocNode
 	header  *adocNode
@@ -85,6 +88,13 @@ func Open(file string) (doc *Document, err error) {
 }
 
 //
+// Classes return the HTML class value for document body.
+//
+func (doc *Document) Classes() string {
+	return strings.Join(doc.classes, " ")
+}
+
+//
 // Parse the content of asciidoc document.
 //
 func (doc *Document) Parse(content []byte) {
@@ -117,7 +127,20 @@ func (doc *Document) ToHTML(w io.Writer) (err error) {
 		return err
 	}
 
+	doc.classes = append(doc.classes, classNameArticle)
+
 	doc.tocPosition, doc.tocIsEnabled = doc.attributes[metaNameTOC]
+
+	switch doc.tocPosition {
+	case metaValueLeft:
+		doc.classes = append(doc.classes, classNameToc2, classNameTocLeft)
+		doc.tocClasses = append(doc.tocClasses, classNameToc2)
+	case metaValueRight:
+		doc.classes = append(doc.classes, classNameToc2, classNameTocRight)
+		doc.tocClasses = append(doc.tocClasses, classNameToc2)
+	default:
+		doc.tocClasses = append(doc.tocClasses, classNameToc)
+	}
 
 	err = tmpl.ExecuteTemplate(w, "BEGIN", doc)
 	if err != nil {
@@ -183,6 +206,13 @@ func (doc *Document) ToHTML(w io.Writer) (err error) {
 	err = tmpl.ExecuteTemplate(w, "END", doc)
 
 	return err
+}
+
+//
+// TocClasses return list of classes for table of contents.
+//
+func (doc *Document) TocClasses() string {
+	return strings.Join(doc.tocClasses, " ")
 }
 
 func (doc *Document) consumeLinesUntil(node *adocNode, term int, terms []int) (

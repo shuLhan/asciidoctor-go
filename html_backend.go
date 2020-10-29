@@ -12,6 +12,14 @@ import (
 )
 
 const (
+	classNameArticle  = "article"
+	classNameToc      = "toc"
+	classNameToc2     = "toc2"
+	classNameTocLeft  = "toc-left"
+	classNameTocRight = "toc-right"
+)
+
+const (
 	htmlLessthanSymbol    = "&lt;"
 	htmlGreaterthanSymbol = "&gt;"
 	htmlAmpersandSymbol   = "&amp;"
