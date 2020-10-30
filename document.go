@@ -50,6 +50,10 @@ type Document struct {
 	tocIsEnabled bool
 	tocClasses   []string
 
+	// anchors contains mapping between reference ID and its label and
+	// vice versa.
+	anchors map[string]string
+
 	title   *adocNode
 	header  *adocNode
 	content *adocNode
@@ -78,6 +82,7 @@ func Open(file string) (doc *Document, err error) {
 		TOCLevel:    defTOCLevel,
 		TOCTitle:    defTOCTitle,
 		attributes:  make(map[string]string),
+		anchors:     make(map[string]string),
 		content: &adocNode{
 			kind: nodeKindDocContent,
 		},
@@ -103,7 +108,7 @@ func (doc *Document) Parse(content []byte) {
 
 	_, _, _ = doc.parseHeader()
 
-	doc.title = parseInlineMarkup([]byte(doc.Title))
+	doc.title = parseInlineMarkup(doc, []byte(doc.Title))
 
 	var text bytes.Buffer
 	err := doc.title.toText(&text)
@@ -157,7 +162,7 @@ func (doc *Document) ToHTML(w io.Writer) (err error) {
 	if err != nil {
 		return err
 	}
-	err = doc.title.toHTML(doc, tmpl, w)
+	err = doc.title.toHTML(doc, tmpl, w, false)
 	if err != nil {
 		return err
 	}
@@ -192,13 +197,13 @@ func (doc *Document) ToHTML(w io.Writer) (err error) {
 	}
 
 	if doc.content.child != nil {
-		err = doc.content.child.toHTML(doc, tmpl, w)
+		err = doc.content.child.toHTML(doc, tmpl, w, false)
 		if err != nil {
 			return err
 		}
 	}
 	if doc.content.next != nil {
-		err = doc.content.next.toHTML(doc, tmpl, w)
+		err = doc.content.next.toHTML(doc, tmpl, w, false)
 		if err != nil {
 			return err
 		}
@@ -339,6 +344,63 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 			node = &adocNode{}
 			line = ""
 			continue
+
+		case lineKindID:
+			idLabel := line[2 : len(line)-2]
+			id, label := parseIDLabel(idLabel)
+			if len(id) > 0 {
+				node.ID = id
+				doc.registerAnchor(id, label)
+				line = ""
+				continue
+			}
+			node.kind = nodeKindParagraph
+			node.WriteString(line)
+			node.WriteByte('\n')
+			line, _ = doc.consumeLinesUntil(
+				node,
+				lineKindEmpty,
+				[]int{
+					term,
+					nodeKindBlockListing,
+					nodeKindBlockListingNamed,
+					nodeKindBlockLiteral,
+					nodeKindBlockLiteralNamed,
+					lineKindListContinue,
+				})
+			node.parseInlineMarkup(doc, nodeKindText)
+			parent.addChild(node)
+			node = &adocNode{}
+			continue
+
+		case lineKindIDShort:
+			id := line[2 : len(line)-1]
+			id, label := parseIDLabel(id)
+			if len(id) > 0 {
+				node.ID = id
+				doc.registerAnchor(id, label)
+				line = ""
+				continue
+			}
+			node.kind = nodeKindParagraph
+			node.WriteString(line)
+			node.WriteByte('\n')
+			line, _ = doc.consumeLinesUntil(
+				node,
+				lineKindEmpty,
+				[]int{
+					term,
+					nodeKindBlockListing,
+					nodeKindBlockListingNamed,
+					nodeKindBlockLiteral,
+					nodeKindBlockLiteralNamed,
+					lineKindListContinue,
+				})
+			node.parseInlineMarkup(doc, nodeKindText)
+			parent.addChild(node)
+			node = &adocNode{}
+			continue
+
 		case lineKindPageBreak:
 			node.kind = doc.kind
 			parent.addChild(node)
@@ -370,7 +432,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 					nodeKindBlockLiteralNamed,
 					lineKindListContinue,
 				})
-			node.parseInlineMarkup()
+			node.parseInlineMarkup(doc, nodeKindText)
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
@@ -410,7 +472,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 					lineKindListContinue,
 				})
 			node.postParseParagraph(parent)
-			node.parseInlineMarkup()
+			node.parseInlineMarkup(doc, nodeKindText)
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
@@ -435,7 +497,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 					nodeKindBlockLiteralNamed,
 					lineKindListContinue,
 				})
-			node.parseInlineMarkup()
+			node.parseInlineMarkup(doc, nodeKindText)
 			parent.addChild(node)
 			node = new(adocNode)
 			continue
@@ -458,7 +520,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 						nodeKindBlockLiteralNamed,
 						lineKindListContinue,
 					})
-				node.parseInlineMarkup()
+				node.parseInlineMarkup(doc, nodeKindText)
 				parent.addChild(node)
 				node = new(adocNode)
 				continue
@@ -478,7 +540,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 					break
 				}
 			}
-			node.parseSection()
+			node.parseSection(doc)
 			parent.addChild(node)
 			parent = node
 			node = new(adocNode)
@@ -501,7 +563,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 						nodeKindBlockLiteralNamed,
 						lineKindListContinue,
 					})
-				node.parseInlineMarkup()
+				node.parseInlineMarkup(doc, nodeKindText)
 			} else {
 				node.kind = doc.kind
 				node.classes = append(node.classes, classNameLiteralBlock)
@@ -608,7 +670,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 						nodeKindBlockLiteralNamed,
 						lineKindListContinue,
 					})
-				node.parseInlineMarkup()
+				node.parseInlineMarkup(doc, nodeKindText)
 			}
 			parent.addChild(node)
 			node = &adocNode{}
@@ -664,7 +726,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 						nodeKindBlockLiteralNamed,
 						lineKindListContinue,
 					})
-				node.parseInlineMarkup()
+				node.parseInlineMarkup(doc, nodeKindText)
 			}
 			parent.addChild(node)
 			node = new(adocNode)
@@ -689,7 +751,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 						nodeKindBlockLiteralNamed,
 						lineKindListContinue,
 					})
-				node.parseInlineMarkup()
+				node.parseInlineMarkup(doc, nodeKindText)
 			}
 			parent.addChild(node)
 			node = new(adocNode)
@@ -846,7 +908,7 @@ func (doc *Document) parseListBlock() (node *adocNode, line string, c rune) {
 					nodeKindBlockLiteralNamed,
 					lineKindListContinue,
 				})
-			node.parseInlineMarkup()
+			node.parseInlineMarkup(doc, nodeKindText)
 			break
 		}
 		if doc.kind == lineKindBlockComment {
@@ -894,7 +956,7 @@ func (doc *Document) parseListBlock() (node *adocNode, line string, c rune) {
 					nodeKindListDescriptionItem,
 				})
 			node.postParseParagraph(nil)
-			node.parseInlineMarkup()
+			node.parseInlineMarkup(doc, nodeKindText)
 			break
 		}
 		if doc.kind == nodeKindBlockListing {
@@ -931,7 +993,7 @@ func (doc *Document) parseListDescription(parent, node *adocNode, line string) (
 		kind:  nodeKindListDescriptionItem,
 		style: list.style,
 	}
-	listItem.parseListDescription(line)
+	listItem.parseListDescriptionItem(line)
 	list.level = listItem.level
 	list.addChild(listItem)
 	parent.addChild(list)
@@ -984,7 +1046,7 @@ func (doc *Document) parseListDescription(parent, node *adocNode, line string) (
 				kind:  nodeKindListDescriptionItem,
 				style: list.style,
 			}
-			node.parseListDescription(line)
+			node.parseListDescriptionItem(line)
 			if listItem.level == node.level {
 				list.addChild(node)
 				listItem = node
@@ -994,6 +1056,7 @@ func (doc *Document) parseListDescription(parent, node *adocNode, line string) (
 			parentListItem := parent
 			for parentListItem != nil {
 				if parentListItem.kind == doc.kind && parentListItem.level == node.level {
+					list.postParseList(doc, nodeKindListDescriptionItem)
 					return line, c
 				}
 				parentListItem = parentListItem.parent
@@ -1061,6 +1124,7 @@ func (doc *Document) parseListDescription(parent, node *adocNode, line string) (
 		listItem.WriteByte('\n')
 		line = ""
 	}
+	list.postParseList(doc, nodeKindListDescriptionItem)
 	return line, c
 }
 
@@ -1079,7 +1143,7 @@ func (doc *Document) parseListOrdered(parent *adocNode, title, line string) (
 	listItem := &adocNode{
 		kind: nodeKindListOrderedItem,
 	}
-	listItem.parseListOrdered(line)
+	listItem.parseListOrderedItem(line)
 	list.level = listItem.level
 	list.addChild(listItem)
 	parent.addChild(list)
@@ -1124,7 +1188,7 @@ func (doc *Document) parseListOrdered(parent *adocNode, title, line string) (
 			node := &adocNode{
 				kind: nodeKindListOrderedItem,
 			}
-			node.parseListOrdered(line)
+			node.parseListOrderedItem(line)
 			if listItem.level == node.level {
 				list.addChild(node)
 				listItem = node
@@ -1139,6 +1203,7 @@ func (doc *Document) parseListOrdered(parent *adocNode, title, line string) (
 			parentListItem := parent
 			for parentListItem != nil {
 				if parentListItem.kind == doc.kind && parentListItem.level == node.level {
+					list.postParseList(doc, nodeKindListOrderedItem)
 					return line, c
 				}
 				parentListItem = parentListItem.parent
@@ -1151,7 +1216,7 @@ func (doc *Document) parseListOrdered(parent *adocNode, title, line string) (
 			node := &adocNode{
 				kind: nodeKindListUnorderedItem,
 			}
-			node.parseListUnordered(line)
+			node.parseListUnorderedItem(line)
 
 			// Case:
 			// . Parent
@@ -1160,6 +1225,7 @@ func (doc *Document) parseListOrdered(parent *adocNode, title, line string) (
 			parentListItem := parent
 			for parentListItem != nil {
 				if parentListItem.kind == doc.kind && parentListItem.level == node.level {
+					list.postParseList(doc, nodeKindListOrderedItem)
 					return line, c
 				}
 				parentListItem = parentListItem.parent
@@ -1172,11 +1238,12 @@ func (doc *Document) parseListOrdered(parent *adocNode, title, line string) (
 			node := &adocNode{
 				kind: doc.kind,
 			}
-			node.parseListDescription(line)
+			node.parseListDescriptionItem(line)
 
 			parentListItem := parent
 			for parentListItem != nil {
 				if parentListItem.kind == doc.kind && parentListItem.level == node.level {
+					list.postParseList(doc, nodeKindListOrderedItem)
 					return line, c
 				}
 				parentListItem = parentListItem.parent
@@ -1249,7 +1316,7 @@ func (doc *Document) parseListOrdered(parent *adocNode, title, line string) (
 		listItem.WriteByte('\n')
 		line = ""
 	}
-
+	list.postParseList(doc, nodeKindListOrderedItem)
 	return line, c
 }
 
@@ -1264,7 +1331,7 @@ func (doc *Document) parseListUnordered(parent, node *adocNode, line string) (
 	listItem := &adocNode{
 		kind: nodeKindListUnorderedItem,
 	}
-	listItem.parseListUnordered(line)
+	listItem.parseListUnorderedItem(line)
 	list.level = listItem.level
 	list.addChild(listItem)
 	parent.addChild(list)
@@ -1310,7 +1377,7 @@ func (doc *Document) parseListUnordered(parent, node *adocNode, line string) (
 			node := &adocNode{
 				kind: nodeKindListOrderedItem,
 			}
-			node.parseListOrdered(line)
+			node.parseListOrderedItem(line)
 
 			// Case:
 			// . Parent
@@ -1319,6 +1386,7 @@ func (doc *Document) parseListUnordered(parent, node *adocNode, line string) (
 			parentListItem := parent
 			for parentListItem != nil {
 				if parentListItem.kind == doc.kind && parentListItem.level == node.level {
+					list.postParseList(doc, nodeKindListUnorderedItem)
 					return line, c
 				}
 				parentListItem = parentListItem.parent
@@ -1332,7 +1400,7 @@ func (doc *Document) parseListUnordered(parent, node *adocNode, line string) (
 			node := &adocNode{
 				kind: nodeKindListUnorderedItem,
 			}
-			node.parseListUnordered(line)
+			node.parseListUnorderedItem(line)
 			if listItem.level == node.level {
 				list.addChild(node)
 				listItem = node
@@ -1347,6 +1415,7 @@ func (doc *Document) parseListUnordered(parent, node *adocNode, line string) (
 			parentListItem := parent
 			for parentListItem != nil {
 				if parentListItem.kind == doc.kind && parentListItem.level == node.level {
+					list.postParseList(doc, nodeKindListUnorderedItem)
 					return line, c
 				}
 				parentListItem = parentListItem.parent
@@ -1359,11 +1428,12 @@ func (doc *Document) parseListUnordered(parent, node *adocNode, line string) (
 			node := &adocNode{
 				kind: doc.kind,
 			}
-			node.parseListDescription(line)
+			node.parseListDescriptionItem(line)
 
 			parentListItem := parent
 			for parentListItem != nil {
 				if parentListItem.kind == doc.kind && parentListItem.level == node.level {
+					list.postParseList(doc, nodeKindListUnorderedItem)
 					return line, c
 				}
 				parentListItem = parentListItem.parent
@@ -1436,8 +1506,19 @@ func (doc *Document) parseListUnordered(parent, node *adocNode, line string) (
 		listItem.WriteByte('\n')
 		line = ""
 	}
-
+	list.postParseList(doc, nodeKindListUnorderedItem)
 	return line, c
+}
+
+func (doc *Document) registerAnchor(id, label string) {
+	if doc.anchors == nil {
+		doc.anchors = make(map[string]string)
+	}
+
+	doc.anchors[id] = label
+	if len(label) > 0 {
+		doc.anchors[label] = id
+	}
 }
 
 //

@@ -506,6 +506,30 @@ mailto:ms@kilabit.info[Mail to me].
 
 Relative file link:test.html[test.html].
 
+
+== Anchors
+
+[[notice]]
+This paragraph gets a lot of attention.
+
+[#notice_2]
+This paragraph gets a lot of attention.
+
+[[bookmark-a]]Inline anchors make arbitrary content referenceable.
+
+[#bookmark-b]#Inline _anchors_ can be applied to a phrase like this one.#
+
+* First item
+* [[step2]]Second item
+* Third item
+
+=== Version 4.9 [[version-4_9]]
+
+=== [[current]]Version 4.10 [[version-4_10]]
+
+[#which-one]
+=== Version 4.11 [[version-4_11]]
+
 == Block images
 
 image::sunset.jpg[]

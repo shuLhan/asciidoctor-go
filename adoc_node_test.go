@@ -10,7 +10,7 @@ import (
 	"github.com/shuLhan/share/lib/test"
 )
 
-func TestAdocNode_parseListDescription(t *testing.T) {
+func TestAdocNode_parseListDescriptionItem(t *testing.T) {
 	cases := []struct {
 		line       string
 		expLevel   int
@@ -24,7 +24,7 @@ func TestAdocNode_parseListDescription(t *testing.T) {
 
 	for _, c := range cases {
 		node := &adocNode{}
-		node.parseListDescription(c.line)
+		node.parseListDescriptionItem(c.line)
 
 		test.Assert(t, "adocNode.Level", c.expLevel, node.level, true)
 		test.Assert(t, "adocNode.rawLabel", c.expRawTerm, node.rawLabel.String(), true)

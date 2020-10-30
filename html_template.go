@@ -150,7 +150,10 @@ Last updated {{.LastUpdated}}
 {{- end}}
 {{/*----------------------------------------------------------------------*/}}
 {{- define "BEGIN_PARAGRAPH"}}
-<div class="paragraph {{- .Classes}}">
+<div
+	{{- if .ID}} id="{{.ID}}"{{end}}
+	{{- with $c := printf "paragraph %s" .Classes | trimSpace}} class="{{$c}}"{{end -}}
+>
 {{- template "BLOCK_TITLE" .}}
 <p>
 {{- end}}
@@ -159,7 +162,10 @@ Last updated {{.LastUpdated}}
 {{- end}}
 {{/*----------------------------------------------------------------------*/}}
 {{- define "BLOCK_LITERAL"}}
-<div class="{{trimSpace .Classes}}">
+<div
+	{{- if .ID}} id="{{.ID}}"{{end}}
+	{{- with $c := .Classes}} class="{{$c -}}"{{end -}}
+>
 <div class="content">
 <pre>{{.Content -}}</pre>
 </div>
@@ -167,7 +173,10 @@ Last updated {{.LastUpdated}}
 {{- end}}
 {{/*----------------------------------------------------------------------*/}}
 {{- define "BLOCK_LISTING"}}
-<div class="{{trimSpace .Classes}}">
+<div
+	{{- if .ID}} id="{{.ID}}"{{end}}
+	{{- with $c := .Classes}} class="{{$c -}}"{{end -}}
+>
 <div class="content">
 <pre>{{.Content -}}</pre>
 </div>
@@ -177,7 +186,10 @@ Last updated {{.LastUpdated}}
 {{- define "BEGIN_LIST_ORDERED"}}
 {{- $class := .GetListOrderedClass}}
 {{- $type := .GetListOrderedType}}
-<div class="olist {{$class}} {{- .Classes}}">
+<div
+	{{- if .ID}} id="{{.ID}}"{{end}}
+	{{- with $c := printf "olist %s %s" $class .Classes | trimSpace}} class="{{$c}}"{{end -}}
+>
 {{- template "BLOCK_TITLE" .}}
 <ol class="{{$class}}"{{- if $type}} type="{{$type}}"{{end}}>
 {{- end}}
@@ -187,7 +199,10 @@ Last updated {{.LastUpdated}}
 {{- end}}
 {{/*----------------------------------------------------------------------*/}}
 {{- define "BEGIN_LIST_UNORDERED"}}
-<div class="{{trimSpace .Classes}}">
+<div
+	{{- if .ID}} id="{{.ID}}"{{end}}
+	{{- with $c := .Classes}} class="{{$c -}}"{{end -}}
+>
 {{- template "BLOCK_TITLE" .}}
 <ul>
 {{- end}}
@@ -195,22 +210,28 @@ Last updated {{.LastUpdated}}
 </ul>
 </div>
 {{- end}}
-{{/*----------------------------------------------------------------------*/}}
+
+
 {{- define "BEGIN_LIST_DESCRIPTION"}}
 	{{- if .IsStyleQandA}}
-<div class="qlist qanda {{- .Classes}}">
+<div
+	{{- if .ID}} id="{{.ID}}"{{end}}
+	{{- with $c := printf "qlist qanda %s" .Classes | trimSpace}} class="{{$c}}"{{end -}}
+>
 {{- template "BLOCK_TITLE" .}}
 <ol>
 	{{- else if .IsStyleHorizontal}}
-<div class="hdlist {{- .Classes}}">
+<div class="hdlist {{- .Classes -}}">
 {{- template "BLOCK_TITLE" .}}
 <table>
 	{{- else}}
-<div class="dlist {{- .Classes}}">
+<div class="dlist {{- .Classes -}}">
 {{- template "BLOCK_TITLE" .}}
 <dl>
 	{{- end}}
 {{- end}}
+
+
 {{- define "END_LIST_DESCRIPTION"}}
 	{{- if .IsStyleQandA}}
 </ol>
@@ -221,15 +242,8 @@ Last updated {{.LastUpdated}}
 	{{- end}}
 </div>
 {{- end}}
-{{/*----------------------------------------------------------------------*/}}
-{{- define "BEGIN_LIST_ITEM"}}
-<li>
-<p>{{- .Content -}}</p>
-{{- end}}
-{{- define "END_LIST_ITEM"}}
-</li>
-{{- end}}
-{{/*----------------------------------------------------------------------*/}}
+
+
 {{- define "BEGIN_LIST_DESCRIPTION_ITEM"}}
 	{{- if .IsStyleQandA}}
 <li>
@@ -244,10 +258,9 @@ Last updated {{.LastUpdated}}
 <dt class="hdlist1">{{- .Label -}}</dt>
 <dd>
 	{{- end}}
-	{{- with $content := .Content}}
-<p>{{- $content -}}</p>
-	{{- end}}
 {{- end}}
+
+
 {{- define "END_LIST_DESCRIPTION_ITEM"}}
 	{{- if .IsStyleQandA}}
 </li>
@@ -258,7 +271,8 @@ Last updated {{.LastUpdated}}
 </dd>
 	{{- end}}
 {{- end}}
-{{/*----------------------------------------------------------------------*/}}
+
+
 {{- define "HORIZONTAL_RULE"}}
 <hr>
 {{- end}}
@@ -268,7 +282,10 @@ Last updated {{.LastUpdated}}
 {{- end}}
 {{/*----------------------------------------------------------------------*/}}
 {{- define "BLOCK_IMAGE"}}
-<div class="imageblock {{- .Classes}}">
+<div
+	{{- if .ID}} id="{{.ID}}"{{end}}
+	{{- with $c := printf "imageblock %s" .Classes | trimSpace}} class="{{$c}}"{{end -}}
+>
 <div class="content">
 <img src="{{.Attrs.src}}" alt="{{.Attrs.alt}}"
 	{{- with $w := .Attrs.width}} width="{{$w}}"{{end}}
@@ -279,17 +296,27 @@ Last updated {{.LastUpdated}}
 {{- end}}
 </div>
 {{- end}}
-{{/*----------------------------------------------------------------------*/}}
+
+{{define "INLINE_ID"}}<a id="{{.ID}}"></a>{{end}}
+
+{{define "BEGIN_INLINE_ID_SHORT"}}<span id="{{.ID}}">{{end}}
+{{define "END_INLINE_ID_SHORT"}}</span>{{end}}
+
 {{- define "INLINE_IMAGE" -}}
 {{- $content := .Content -}}
-<span class="image {{- .Classes}}"><img src="{{.Attrs.src}}" alt="{{.Attrs.alt}}"
+<span
+	{{- with $c := printf "image %s" .Classes | trimSpace}} class="{{$c}}"{{end -}}
+><img src="{{.Attrs.src}}" alt="{{.Attrs.alt}}"
 	{{- with $w := .Attrs.width}} width="{{$w}}"{{end}}
 	{{- with $h := .Attrs.height}} height="{{$h}}"{{end}}></span>
 {{- end}}
 {{/*----------------------------------------------------------------------*/}}
 
 {{- define "BEGIN_BLOCK_OPEN"}}
-<div class="openblock {{- .Classes}}">
+<div
+	{{- if .ID}} id="{{.ID}}"{{end}}
+	{{- with $c := printf "openblock %s" .Classes | trimSpace}} class="{{$c}}"{{end -}}
+>
 {{- template "BLOCK_TITLE" .}}
 <div class="content">
 {{- end}}
@@ -300,7 +327,8 @@ Last updated {{.LastUpdated}}
 {{- end}}
 {{/*----------------------------------------------------------------------*/}}
 {{- define "BLOCK_VIDEO"}}
-<div class="videoblock">
+<div
+	{{- if .ID}} id="{{.ID}}"{{end}} class="videoblock">
 {{- template "BLOCK_TITLE" .}}
 <div class="content">
 	{{- if .Attrs.youtube}}
@@ -329,7 +357,10 @@ Your browser does not support the video tag.
 {{- end}}
 {{/*----------------------------------------------------------------------*/}}
 {{- define "BLOCK_AUDIO"}}
-<div class="audioblock">
+<div
+	{{- if .ID}} id="{{.ID}}"{{end}}
+	{{- with $c := printf "audioblock %s" .Classes | trimSpace}} class="{{$c}}"{{end -}}
+>
 {{- template "BLOCK_TITLE" .}}
 <div class="content">
 <audio src="{{.Attrs.src}}"
@@ -343,7 +374,10 @@ Your browser does not support the audio tag.
 {{- end}}
 {{/*----------------------------------------------------------------------*/}}
 {{- define "BEGIN_ADMONITION"}}
-<div class="admonitionblock {{- .Classes}}">
+<div
+	{{- if .ID}} id="{{.ID}}"{{end}}
+	{{- with $c := printf "admonitionblock %s" .Classes | trimSpace}} class="{{$c}}"{{end -}}
+>
 <table>
 <tr>
 <td class="icon">
@@ -366,7 +400,10 @@ Your browser does not support the audio tag.
 {{- end}}
 {{/*----------------------------------------------------------------------*/}}
 {{- define "BEGIN_SIDEBAR"}}
-<div class="sidebarblock {{- .Classes}}">
+<div
+	{{- if .ID}} id="{{.ID}}"{{end}}
+	{{- with $c := printf "sidebarblock %s" .Classes | trimSpace}} class="{{$c}}"{{end -}}
+>
 <div class="content">
 {{- template "BLOCK_TITLE" .}}
 {{- end}}
@@ -376,7 +413,10 @@ Your browser does not support the audio tag.
 {{- end}}
 {{/*----------------------------------------------------------------------*/}}
 {{- define "BEGIN_EXAMPLE"}}
-<div class="exampleblock {{- .Classes}}">
+<div
+	{{- if .ID}} id="{{.ID}}"{{end}}
+	{{- with $c := printf "exampleblock %s" .Classes | trimSpace}} class="{{$c}}"{{end -}}
+>
 {{- with $caption := .Title}}
 <div class="title">Example {{exampleCounter}}. {{$caption}}</div>
 {{- end}}
@@ -388,7 +428,10 @@ Your browser does not support the audio tag.
 {{- end}}
 {{/*----------------------------------------------------------------------*/}}
 {{- define "BEGIN_QUOTE"}}
-<div class="quoteblock {{- .Classes}}">
+<div
+	{{- if .ID}} id="{{.ID}}"{{end}}
+	{{- with $c := printf "quoteblock %s" .Classes | trimSpace}} class="{{$c}}"{{end -}}
+>
 {{- with $caption := .Title}}
 <div class="title">{{$caption}}</div>
 {{- end}}
@@ -412,7 +455,10 @@ Your browser does not support the audio tag.
 {{- end}}
 {{/*----------------------------------------------------------------------*/}}
 {{- define "BEGIN_VERSE"}}
-<div class="verseblock {{- .Classes}}">
+<div
+	{{- if .ID}} id="{{.ID}}"{{end}}
+	{{- with $c := printf "verseblock %s" .Classes | trimSpace}} class="{{$c}}"{{end -}}
+>
 {{- with $caption := .Title}}
 <div class="title">{{$caption}}</div>
 {{- end}}

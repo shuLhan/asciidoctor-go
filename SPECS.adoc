@@ -50,6 +50,8 @@ STRING    = WORD *(WSP WORD)  ; Sequence of word with spaces between them.
 LINE      = STRING LF         ; STRING that end with new line.
 
 TEXT      = 1*LINE            ; One or more LINE.
+
+REF_ID    = 1*ALPHA *("-" / "_" / ALPHA / DIGIT)
 ----
 
 
@@ -397,6 +399,20 @@ URL_ATTR_TARGET = "window" "=" "_blank"
 URL_ATTR_RILE   = "role=" WORD *("," WORD)
 ----
 
+
+==  Anchor
+
+----
+ANCHOR_LINE         = "[[" REF_ID "]]" LF
+
+ANCHOR_LINE_SHORT   = "[#" REF_ID "]" LF
+
+ANCHOR_INLINE       = "[[" REF_ID "]]" TEXT
+
+ANCHOR_INLINE_SHORT = "[#" REF_ID "]#" TEXT "#" FORMAT_END.
+----
+
+
 == Inconsistencies and bugs on asciidoctor
 
 Listing style "[listing]" followed by "...." is become listing block.
@@ -412,4 +428,13 @@ Image width and height with non-digits characters are allowed,
 Example,
 ----
 image::sunset.jpg[Text,a,b]
+----
+
+Link with "https" end with '.' works, but "mailto" end with '.' is not
+working.
+Example,
+----
+https://asciidoctor.org.
+
+mailto:me@example.com.
 ----

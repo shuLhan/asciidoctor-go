@@ -50,7 +50,7 @@ func (node *adocNode) Classes() string {
 	if len(node.classes) == 0 {
 		return ""
 	}
-	return " " + strings.Join(node.classes, " ")
+	return strings.Join(node.classes, " ")
 }
 
 func (node *adocNode) Content() string {
@@ -273,6 +273,15 @@ func (node *adocNode) addChild(child *adocNode) {
 	}
 }
 
+func (node *adocNode) addNext(next *adocNode) {
+	if next == nil {
+		return
+	}
+	next.parent = node.parent
+	next.prev = node
+	node.next = next
+}
+
 func (node *adocNode) applySubstitutions() {
 	if len(node.rawTitle) > 0 {
 		node.rawTitle = htmlSubstituteSpecialChars(node.rawTitle)
@@ -301,6 +310,20 @@ func (node *adocNode) debug(n int) {
 	if node.next != nil {
 		node.next.debug(n)
 	}
+}
+
+func (node *adocNode) lastSuccessor() (last *adocNode) {
+	if node.child == nil {
+		return nil
+	}
+	last = node
+	for last.child != nil {
+		last = last.child
+		for last.next != nil {
+			last = last.next
+		}
+	}
+	return last
 }
 
 func (node *adocNode) parseBlockAudio(line string) bool {
@@ -416,8 +439,15 @@ func (node *adocNode) parseImage(line string) bool {
 	return true
 }
 
-func (node *adocNode) parseInlineMarkup() {
-	container := parseInlineMarkup(node.raw)
+func (node *adocNode) parseInlineMarkup(doc *Document, kind int) {
+	if len(node.raw) == 0 {
+		return
+	}
+
+	container := parseInlineMarkup(doc, node.raw)
+	if kind != 0 {
+		container.kind = kind
+	}
 	container.parent = node
 	container.next = node.child
 	if node.child != nil {
@@ -438,7 +468,7 @@ func (node *adocNode) parseLineAdmonition(line string) {
 	node.WriteByte('\n')
 }
 
-func (node *adocNode) parseListDescription(line string) {
+func (node *adocNode) parseListDescriptionItem(line string) {
 	var (
 		x int
 		c rune
@@ -475,7 +505,7 @@ func (node *adocNode) parseListDescription(line string) {
 	}
 }
 
-func (node *adocNode) parseListOrdered(line string) {
+func (node *adocNode) parseListOrderedItem(line string) {
 	x := 0
 	for ; x < len(line); x++ {
 		if line[x] == '.' {
@@ -496,7 +526,7 @@ func (node *adocNode) parseListOrdered(line string) {
 	node.WriteByte('\n')
 }
 
-func (node *adocNode) parseListUnordered(line string) {
+func (node *adocNode) parseListUnorderedItem(line string) {
 	x := 0
 	for ; x < len(line); x++ {
 		if line[x] == '*' {
@@ -517,11 +547,31 @@ func (node *adocNode) parseListUnordered(line string) {
 	node.WriteByte('\n')
 }
 
-func (node *adocNode) parseSection() {
-	node.ID = generateID(string(node.raw))
+func (node *adocNode) parseSection(doc *Document) {
 	node.level = (node.kind - nodeKindSectionL1) + 1
 
-	container := parseInlineMarkup(node.raw)
+	container := parseInlineMarkup(doc, node.raw)
+
+	container.debug(0)
+
+	if len(node.ID) == 0 {
+		lastChild := container.lastSuccessor()
+		if lastChild != nil && lastChild.kind == nodeKindInlineID {
+			node.ID = lastChild.ID
+
+			// Delete last child
+			if lastChild.prev != nil {
+				p := lastChild.prev
+				p.next = nil
+			} else if lastChild.parent != nil {
+				p := lastChild.parent
+				p.child = nil
+			}
+			lastChild.prev = nil
+			lastChild.parent = nil
+		}
+	}
+
 	container.parent = node
 	node.title = container
 	node.raw = nil
@@ -532,6 +582,11 @@ func (node *adocNode) parseSection() {
 		log.Fatalf("parseSection: " + err.Error())
 	}
 	node.Text = text.String()
+
+	if len(node.ID) == 0 {
+		node.ID = generateID(node.Text)
+		doc.registerAnchor(node.ID, node.Text)
+	}
 }
 
 func (node *adocNode) parseStyleClass(line string) {
@@ -593,6 +648,16 @@ func (node *adocNode) parseVideo(line string) bool {
 		}
 	}
 	return true
+}
+
+func (node *adocNode) postParseList(doc *Document, kind int) {
+	item := node.child
+	for item != nil {
+		if item.kind == kind {
+			item.parseInlineMarkup(doc, nodeKindInlineParagraph)
+		}
+		item = item.next
+	}
 }
 
 //
@@ -669,6 +734,32 @@ func (node *adocNode) postParseParagraphAsQuote(lines [][]byte) bool {
 	return true
 }
 
+func (node *adocNode) removeLastIfEmpty() {
+	if node.child == nil {
+		return
+	}
+	c := node
+	for c.child != nil {
+		c = c.child
+		for c.next != nil {
+			c = c.next
+		}
+	}
+	if c.kind != nodeKindText || len(c.raw) > 0 {
+		return
+	}
+	if c.prev != nil {
+		c.prev.next = nil
+		if c.prev.kind == nodeKindText {
+			node.raw = bytes.TrimRight(node.raw, " \t")
+		}
+	} else if c.parent != nil {
+		c.parent.child = nil
+	}
+	c.prev = nil
+	c.parent = nil
+}
+
 func (node *adocNode) setQuoteOpts(opts []string) {
 	if len(opts) >= 1 {
 		node.key = strings.TrimSpace(opts[0])
@@ -684,7 +775,7 @@ func (node *adocNode) setStyleAdmonition(admName string) {
 	node.rawLabel.WriteString(strings.Title(admName))
 }
 
-func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer) (err error) {
+func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer, isForToC bool) (err error) {
 	switch node.kind {
 	case lineKindAttribute:
 		doc.attributes[node.key] = node.value
@@ -702,7 +793,7 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		if err != nil {
 			return err
 		}
-		err = node.title.toHTML(doc, tmpl, w)
+		err = node.title.toHTML(doc, tmpl, w, isForToC)
 		if err != nil {
 			return err
 		}
@@ -718,7 +809,7 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		if err != nil {
 			return err
 		}
-		err = node.title.toHTML(doc, tmpl, w)
+		err = node.title.toHTML(doc, tmpl, w, isForToC)
 		if err != nil {
 			return err
 		}
@@ -729,7 +820,7 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 			return err
 		}
 		if node.title != nil {
-			err = node.title.toHTML(doc, tmpl, w)
+			err = node.title.toHTML(doc, tmpl, w, isForToC)
 		}
 		_, err = w.Write([]byte("</h4>"))
 	case nodeKindSectionL4:
@@ -738,7 +829,7 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 			return err
 		}
 		if node.title != nil {
-			err = node.title.toHTML(doc, tmpl, w)
+			err = node.title.toHTML(doc, tmpl, w, isForToC)
 		}
 		_, err = w.Write([]byte("</h5>"))
 	case nodeKindSectionL5:
@@ -747,7 +838,7 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 			return err
 		}
 		if node.title != nil {
-			err = node.title.toHTML(doc, tmpl, w)
+			err = node.title.toHTML(doc, tmpl, w, isForToC)
 		}
 		_, err = w.Write([]byte("</h6>"))
 	case nodeKindParagraph:
@@ -774,8 +865,10 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		err = tmpl.ExecuteTemplate(w, "BEGIN_LIST_UNORDERED", node)
 	case nodeKindListDescription:
 		err = tmpl.ExecuteTemplate(w, "BEGIN_LIST_DESCRIPTION", node)
+
 	case nodeKindListOrderedItem, nodeKindListUnorderedItem:
-		err = tmpl.ExecuteTemplate(w, "BEGIN_LIST_ITEM", node)
+		_, err = w.Write([]byte("\n<li>"))
+
 	case nodeKindListDescriptionItem:
 		err = tmpl.ExecuteTemplate(w, "BEGIN_LIST_DESCRIPTION_ITEM", node)
 	case lineKindHorizontalRule:
@@ -827,6 +920,28 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		err = tmpl.ExecuteTemplate(w, "BLOCK_VIDEO", node)
 	case nodeKindBlockAudio:
 		err = tmpl.ExecuteTemplate(w, "BLOCK_AUDIO", node)
+
+	case nodeKindInlineID:
+		if !isForToC {
+			err = tmpl.ExecuteTemplate(w, "INLINE_ID", node)
+		}
+
+	case nodeKindInlineIDShort:
+		if !isForToC {
+			err = tmpl.ExecuteTemplate(w, "BEGIN_INLINE_ID_SHORT", node)
+			if err != nil {
+				return err
+			}
+			_, err = w.Write(node.raw)
+		}
+
+	case nodeKindInlineParagraph:
+		_, err = w.Write([]byte("\n<p>"))
+		if err != nil {
+			return err
+		}
+		_, err = w.Write(node.raw)
+
 	case nodeKindPassthrough:
 		_, err = w.Write(node.raw)
 	case nodeKindPassthroughDouble:
@@ -938,7 +1053,7 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 	}
 
 	if node.child != nil {
-		err = node.child.toHTML(doc, tmpl, w)
+		err = node.child.toHTML(doc, tmpl, w, isForToC)
 		if err != nil {
 			return err
 		}
@@ -974,8 +1089,10 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		} else {
 			err = tmpl.ExecuteTemplate(w, "END_PARAGRAPH", node)
 		}
+
 	case nodeKindListOrderedItem, nodeKindListUnorderedItem:
-		err = tmpl.ExecuteTemplate(w, "END_LIST_ITEM", nil)
+		_, err = w.Write([]byte("\n</li>"))
+
 	case nodeKindListDescriptionItem:
 		err = tmpl.ExecuteTemplate(w, "END_LIST_DESCRIPTION_ITEM", node)
 	case nodeKindListOrdered:
@@ -1008,6 +1125,15 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		}
 	case nodeKindBlockSidebar:
 		err = tmpl.ExecuteTemplate(w, "END_SIDEBAR", node)
+
+	case nodeKindInlineIDShort:
+		if !isForToC {
+			err = tmpl.ExecuteTemplate(w, "END_INLINE_ID_SHORT", node)
+		}
+
+	case nodeKindInlineParagraph:
+		_, err = w.Write([]byte("</p>"))
+
 	case nodeKindTextBold, nodeKindUnconstrainedBold:
 		if node.HasStyle(styleTextBold) {
 			_, err = fmt.Fprintf(w, "</strong>")
@@ -1028,7 +1154,7 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 	}
 
 	if node.next != nil {
-		err = node.next.toHTML(doc, tmpl, w)
+		err = node.next.toHTML(doc, tmpl, w, isForToC)
 		if err != nil {
 			return err
 		}

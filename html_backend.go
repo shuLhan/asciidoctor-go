@@ -86,29 +86,26 @@ func (doc *Document) htmlGenerateTOC(
 
 	if len(sectClass) > 0 {
 		if level < node.level {
-			_, err = fmt.Fprintf(out, `
-<ul class="%s">
-`, sectClass)
+			_, err = fmt.Fprintf(out, "\n<ul class=\"%s\">", sectClass)
 		} else if level > node.level {
 			n := level
 			for n > node.level {
-				_, err = out.Write([]byte(`</ul>
-`))
+				_, err = out.Write([]byte("\n</ul>"))
 				n--
 			}
 		}
 
-		_, err = fmt.Fprintf(out, `<li><a href="#%s">`, node.ID)
+		_, err = fmt.Fprintf(out, "\n<li><a href=\"#%s\">", node.ID)
 		if err != nil {
 			return fmt.Errorf("htmlGenerateTOC: %w", err)
 		}
 
-		err = node.title.toHTML(doc, tmpl, out)
+		err = node.title.toHTML(doc, tmpl, out, true)
 		if err != nil {
 			return fmt.Errorf("htmlGenerateTOC: %w", err)
 		}
 
-		_, err = out.Write([]byte(`</a>`))
+		_, err = out.Write([]byte("</a>"))
 		if err != nil {
 			return fmt.Errorf("htmlGenerateTOC: %w", err)
 		}
@@ -119,15 +116,13 @@ func (doc *Document) htmlGenerateTOC(
 		if err != nil {
 			return err
 		}
-
-		if len(sectClass) > 0 {
-			_, err = out.Write([]byte("</li>\n"))
-			if err != nil {
-				return fmt.Errorf("htmlGenerateTOC: %w", err)
-			}
+	}
+	if len(sectClass) > 0 {
+		_, err = out.Write([]byte("</li>"))
+		if err != nil {
+			return fmt.Errorf("htmlGenerateTOC: %w", err)
 		}
 	}
-
 	if node.next != nil {
 		err = doc.htmlGenerateTOC(node.next, tmpl, out, node.level)
 		if err != nil {
@@ -136,7 +131,7 @@ func (doc *Document) htmlGenerateTOC(
 	}
 
 	if len(sectClass) > 0 && level < node.level {
-		_, err = out.Write([]byte("</ul>\n"))
+		_, err = out.Write([]byte("\n</ul>\n"))
 		if err != nil {
 			return fmt.Errorf("htmlGenerateTOC: %w", err)
 		}

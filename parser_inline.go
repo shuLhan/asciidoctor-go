@@ -19,18 +19,20 @@ type parserInline struct {
 	container      *adocNode
 	current        *adocNode
 	content        []byte
+	doc            *Document
 	x              int
 	state          *parserInlineState
 	prev, c, nextc byte
 	isEscaped      bool
 }
 
-func newParserInline(content []byte) (pi *parserInline) {
+func newParserInline(doc *Document, content []byte) (pi *parserInline) {
 	pi = &parserInline{
 		container: &adocNode{
 			kind: nodeKindText,
 		},
 		content: bytes.TrimRight(content, "\n"),
+		doc:     doc,
 		state:   &parserInlineState{},
 	}
 	pi.current = pi.container
@@ -193,11 +195,39 @@ func (pi *parserInline) do() {
 			if pi.parseFormat(nodeKindTextMono, styleTextMono) {
 				continue
 			}
+		} else if pi.c == '[' {
+			if pi.isEscaped {
+				pi.escape()
+				continue
+			}
+			if pi.nextc == '[' {
+				if pi.parseInlineID() {
+					continue
+				}
+			} else if pi.nextc == '#' {
+				if pi.parseInlineIDShort() {
+					continue
+				}
+			}
+		} else if pi.c == '#' {
+			if pi.isEscaped {
+				pi.escape()
+				continue
+			}
+			// Do we have the beginning?
+			if pi.state.has(nodeKindInlineIDShort) {
+				pi.terminate(nodeKindInlineIDShort, 0)
+				pi.x++
+				pi.prev = 0
+				continue
+			}
 		}
 		pi.current.WriteByte(pi.c)
 		pi.x++
 		pi.prev = pi.c
 	}
+
+	pi.container.removeLastIfEmpty()
 }
 
 func (pi *parserInline) escape() {
@@ -217,6 +247,74 @@ func (pi *parserInline) getBackMacroName() (macroName string, lastc byte) {
 		start--
 	}
 	return string(raw), 0
+}
+
+//
+// parseInlineID parse the ID and optional label between "[[" "]]".
+//
+func (pi *parserInline) parseInlineID() bool {
+	// Check if we have term at the end.
+	raw := pi.content[pi.x+2:]
+	raw, idx := indexUnescape(raw, []byte("]]"))
+	if idx < 0 {
+		return false
+	}
+	id, label := parseIDLabel(string(raw))
+	if len(id) == 0 {
+		return false
+	}
+
+	pi.doc.registerAnchor(id, label)
+
+	node := &adocNode{
+		ID:   id,
+		kind: nodeKindInlineID,
+	}
+	pi.current.addChild(node)
+	node = &adocNode{
+		kind: nodeKindText,
+	}
+	pi.current.addChild(node)
+	pi.current = node
+	pi.x += 2 + len(raw) + 2
+	pi.prev = 0
+	return true
+}
+
+//
+// parseInlineIDShort parse the ID and optional label between "[#", "]#", and
+// "#".
+//
+func (pi *parserInline) parseInlineIDShort() bool {
+	// Check if we have term at the end.
+	raw := pi.content[pi.x+2:]
+	id, idx := indexUnescape(raw, []byte("]#"))
+	if idx < 0 {
+		return false
+	}
+
+	stringID := string(id)
+	if !isValidID(stringID) {
+		return false
+	}
+
+	// Check if we have "#"
+	_, idx = indexByteUnescape(raw[idx+2:], '#')
+	if idx < 0 {
+		return false
+	}
+
+	pi.doc.registerAnchor(stringID, "")
+
+	node := &adocNode{
+		ID:   stringID,
+		kind: nodeKindInlineIDShort,
+	}
+	pi.state.push(nodeKindInlineIDShort)
+	pi.current.addChild(node)
+	pi.current = node
+	pi.x += 2 + len(id) + 2
+	return true
 }
 
 //
@@ -649,7 +747,7 @@ func (pi *parserInline) parseURL(scheme string) (node *adocNode) {
 			text = strings.TrimRight(text, "^")
 			node.Attrs[attrNameRel] = attrValueNoopener
 		}
-		child := parseInlineMarkup([]byte(text))
+		child := parseInlineMarkup(pi.doc, []byte(text))
 		node.addChild(child)
 	}
 	if len(attrs) >= 2 {

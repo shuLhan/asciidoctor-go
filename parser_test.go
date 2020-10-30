@@ -10,6 +10,23 @@ import (
 	"github.com/shuLhan/share/lib/test"
 )
 
+func TestIsValidID(t *testing.T) {
+	cases := []struct {
+		id  string
+		exp bool
+	}{{
+		id:  "a",
+		exp: true,
+	}, {
+		id: "1",
+	}}
+
+	for _, c := range cases {
+		got := isValidID(c.id)
+		test.Assert(t, c.id, c.exp, got, true)
+	}
+}
+
 func TestParseBlockAttribute(t *testing.T) {
 	cases := []struct {
 		in  string

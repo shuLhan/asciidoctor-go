@@ -30,8 +30,8 @@ func TestParserInline_do(t *testing.T) {
 	for _, c := range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup([]byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf)
+		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -80,8 +80,8 @@ func TestParserInline_parseFormat(t *testing.T) {
 	for _, c := range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup([]byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf)
+		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -122,8 +122,95 @@ func TestParserInline_parseFormatUnconstrained(t *testing.T) {
 	for _, c := range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup([]byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf)
+		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// container.debug(0)
+
+		got := buf.String()
+		test.Assert(t, c.content, c.exp, got, true)
+	}
+}
+
+func TestParserInline_parseInlineID(t *testing.T) {
+	cases := []struct {
+		content  string
+		exp      string
+		isForToC bool
+	}{{
+		content: `[[A]] B`,
+		exp:     `<a id="A"></a> B`,
+	}, {
+		content:  `[[A]] B`,
+		exp:      ` B`,
+		isForToC: true,
+	}, {
+		content: `[[A] B`,
+		exp:     `[[A] B`,
+	}, {
+		content: `[A]] B`,
+		exp:     `[A]] B`,
+	}, {
+		content: `[[A ]] B`,
+		exp:     `[[A ]] B`,
+	}, {
+		content: `[[ A]] B`,
+		exp:     `[[ A]] B`,
+	}, {
+		content: `[[A B]] C`,
+		exp:     `[[A B]] C`,
+	}}
+
+	var buf bytes.Buffer
+	for _, c := range cases {
+		buf.Reset()
+
+		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		err := container.toHTML(_testDoc, _testTmpl, &buf, c.isForToC)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// container.debug(0)
+
+		got := buf.String()
+		test.Assert(t, c.content, c.exp, got, true)
+	}
+}
+
+func TestParserInline_parseInlineIDShort(t *testing.T) {
+	cases := []struct {
+		content string
+		exp     string
+	}{{
+		content: `[#A]#B#`,
+		exp:     `<span id="A">B</span>`,
+	}, {
+		content: `[#A]#B`,
+		exp:     `[#A]#B`,
+	}, {
+		content: `[#A]B#`,
+		exp:     `[#A]B#`,
+	}, {
+		content: `[#A ]#B#`,
+		exp:     `[#A ]#B#`,
+	}, {
+		content: `[# A]# B#`,
+		exp:     `[# A]# B#`,
+	}, {
+		content: `[#A B]# C#`,
+		exp:     `[#A B]# C#`,
+	}}
+
+	var buf bytes.Buffer
+	for _, c := range cases {
+		buf.Reset()
+
+		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -156,8 +243,8 @@ You can find Linux everywhere these days!`,
 	for _, c := range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup([]byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf)
+		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -194,8 +281,8 @@ func TestParserInline_parsePassthrough(t *testing.T) {
 	for _, c := range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup([]byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf)
+		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -238,8 +325,8 @@ func TestParserInline_parsePassthroughDouble(t *testing.T) {
 	for _, c := range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup([]byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf)
+		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -288,8 +375,8 @@ func TestParserInline_parsePassthroughTriple(t *testing.T) {
 	for _, c := range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup([]byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf)
+		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -335,8 +422,8 @@ func TestParserInline_parseQuote(t *testing.T) {
 	for _, c := range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup([]byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf)
+		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -373,8 +460,8 @@ func TestParserInline_parseSubscsript(t *testing.T) {
 	for _, c := range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup([]byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf)
+		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -411,8 +498,8 @@ func TestParserInline_parseSuperscript(t *testing.T) {
 	for _, c := range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup([]byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf)
+		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -458,8 +545,8 @@ func TestParserInline_parseURL(t *testing.T) {
 	for _, c := range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup([]byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf)
+		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
