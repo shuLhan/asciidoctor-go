@@ -46,14 +46,15 @@ const (
 	nodeKindBlockPassthrough           // 20: Block wrapped with "++++"
 	nodeKindBlockSidebar               // "****"
 	nodeKindBlockVideo                 // "video::"
+	nodeKindCrossReference             // "<<" REF ("," LABEL) ">>"
 	nodeKindInlineID                   // "[[" REF_ID "]]" TEXT
 	nodeKindInlineIDShort              // "[#" REF_ID "]#" TEXT "#"
 	nodeKindInlineImage                // Inline macro for "image:"
 	nodeKindInlineParagraph            //
 	nodeKindListOrdered                // Wrapper.
 	nodeKindListOrderedItem            // Line start with ". "
-	nodeKindListUnordered              // Wrapper.
-	nodeKindListUnorderedItem          // 30: Line start with "* "
+	nodeKindListUnordered              // 30: Wrapper.
+	nodeKindListUnorderedItem          // Line start with "* "
 	nodeKindListDescription            // Wrapper.
 	nodeKindListDescriptionItem        // Line that has "::" + WSP
 	nodeKindMacroTOC                   // "toc::[]"
@@ -62,8 +63,8 @@ const (
 	nodeKindPassthroughTriple          // Text wrapped inside "+++"
 	nodeKindSymbolQuoteDoubleBegin     // The ("`)
 	nodeKindSymbolQuoteDoubleEnd       // The (`")
-	nodeKindSymbolQuoteSingleBegin     // The ('`)
-	nodeKindSymbolQuoteSingleEnd       // 40: The (`')
+	nodeKindSymbolQuoteSingleBegin     // 40: The ('`)
+	nodeKindSymbolQuoteSingleEnd       // The (`')
 	nodeKindText                       //
 	nodeKindTextBold                   // Text wrapped by "*"
 	nodeKindTextItalic                 // Text wrapped by "_"
@@ -72,8 +73,8 @@ const (
 	nodeKindTextSuperscript            // Word wrapped by '^'
 	nodeKindUnconstrainedBold          // Text wrapped by "**"
 	nodeKindUnconstrainedItalic        // Text wrapped by "__"
-	nodeKindUnconstrainedMono          // Text wrapped by "``"
-	nodeKindURL                        // 50: Anchor text.
+	nodeKindUnconstrainedMono          // 50: Text wrapped by "``"
+	nodeKindURL                        // Anchor text.
 	lineKindAdmonition                 // "LABEL: WSP"
 	lineKindAttribute                  // Line start with ":"
 	lineKindBlockComment               // Block start and end with "////"
@@ -82,8 +83,8 @@ const (
 	lineKindEmpty                      // LF
 	lineKindHorizontalRule             // "'''", "---", "- - -", "***", "* * *"
 	lineKindID                         // "[[" REF_ID "]]"
-	lineKindIDShort                    // "[#" REF_ID "]#" TEXT "#"
-	lineKindListContinue               // 60: A single "+" line
+	lineKindIDShort                    // 60:"[#" REF_ID "]#" TEXT "#"
+	lineKindListContinue               // A single "+" line
 	lineKindPageBreak                  // "<<<"
 	lineKindStyle                      // Line start with "["
 	lineKindStyleClass                 // Custom style "[.x.y]"
@@ -107,6 +108,7 @@ const (
 	attrNameStart       = "start"
 	attrNameTarget      = "target"
 	attrNameTheme       = "theme"
+	attrNameTitle       = "title"
 	attrNameVimeo       = "vimeo"
 	attrNameWidth       = "width"
 	attrNameWindow      = "window"
@@ -282,6 +284,17 @@ func isLineDescriptionItem(line string) bool {
 	return x > 0
 }
 
+// isRefTitle will return true if one of character is upper case or white
+// space.
+func isRefTitle(s string) bool {
+	for _, r := range s {
+		if unicode.IsUpper(r) || unicode.IsSpace(r) {
+			return true
+		}
+	}
+	return false
+}
+
 func isStyleAdmonition(style int64) bool {
 	return style&styleAdmonition > 0
 }
@@ -305,12 +318,12 @@ func isTitle(line string) bool {
 
 //
 // isValidID will return true if id is valid XML ID, where the first character
-// is letter and the rest is either '-', '_', letter or digits.
+// is '-', '_', or letter; and the rest is either '-', '_', letter or digits.
 //
 func isValidID(id string) bool {
 	for x, r := range id {
 		if x == 0 {
-			if !unicode.IsLetter(r) {
+			if !(r == '-' || r == '_' || unicode.IsLetter(r)) {
 				return false
 			}
 			continue

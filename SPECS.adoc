@@ -37,6 +37,11 @@ This implementation,
 * minimize duplicate markup.
 
 
+=== Minimize duplicate markup
+
+* Support only "<<" ">>" syntax, drop "xref:" syntax
+
+
 ==  Common grammar
 
 ----
@@ -390,7 +395,7 @@ The URL should end with "[]".
 
 ----
 URL = URL_SCHEME "://" 1*VCHAR (
-        "[" URL_TEXT ("," URL_ATTR_TARGET ) ("," URL_ATTR_ROLE ) "]" ) LWSP
+      "[" URL_TEXT ("," URL_ATTR_TARGET ) ("," URL_ATTR_ROLE ) "]" ) LWSP
 
 URL_TEXT        = TEXT ("^")
 
@@ -411,6 +416,22 @@ ANCHOR_INLINE       = "[[" REF_ID "]]" TEXT
 
 ANCHOR_INLINE_SHORT = "[#" REF_ID "]#" TEXT "#" FORMAT_END.
 ----
+
+==  Cross references
+
+----
+CROSS_REF_INTERNAL  = "<<" REF_ID ("," REF_LABEL) / CROSS_REF_NATURAL ">>"
+
+CROSS_REF_NATURAL   = BLOCK_TITLE
+----
+
+Rendered HTML,
+----
+<a href="#REF_ID">REF_LABEL / BLOCK_TITLE</a>
+----
+
+The CROSS_REF_NATURAL only works if the text contains at least one uppercase
+or space.
 
 
 == Inconsistencies and bugs on asciidoctor

@@ -9,6 +9,10 @@ import (
 	"text/template"
 )
 
+const (
+	_htmlCrossReference = "<a href=\"#%s\">%s</a>"
+)
+
 func (doc *Document) createHTMLTemplate() (tmpl *template.Template, err error) {
 	imageCounter := 0
 	exampleCounter := 0

@@ -552,8 +552,6 @@ func (node *adocNode) parseSection(doc *Document) {
 
 	container := parseInlineMarkup(doc, node.raw)
 
-	container.debug(0)
-
 	if len(node.ID) == 0 {
 		lastChild := container.lastSuccessor()
 		if lastChild != nil && lastChild.kind == nodeKindInlineID {
@@ -779,6 +777,17 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 	switch node.kind {
 	case lineKindAttribute:
 		doc.attributes[node.key] = node.value
+
+	case nodeKindCrossReference:
+		href, ok := node.Attrs[attrNameHref]
+		if !ok {
+			title, ok := node.Attrs[attrNameTitle]
+			if ok {
+				href = doc.anchors[title]
+			}
+		}
+		_, err = fmt.Fprintf(w, _htmlCrossReference, href, node.raw)
+
 	case nodeKindMacroTOC:
 		if doc.tocIsEnabled && doc.tocPosition == metaValueMacro {
 			err = doc.tocHTML(tmpl, w)

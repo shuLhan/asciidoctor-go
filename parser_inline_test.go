@@ -43,6 +43,46 @@ func TestParserInline_do(t *testing.T) {
 	}
 }
 
+func TestParserInline_parseCrossReference(t *testing.T) {
+	_testDoc.anchors = map[string]string{
+		"x":   "X y",
+		"X y": "x",
+	}
+
+	cases := []struct {
+		content string
+		exp     string
+	}{{
+		content: "A <<x>>",
+		exp:     `A <a href="#x">X y</a>`,
+	}, {
+		content: "A <<x, Label>>",
+		exp:     `A <a href="#x">Label</a>`,
+	}, {
+		content: "A <<X y>>",
+		exp:     `A <a href="#x">X y</a>`,
+	}, {
+		content: "A <<X y,Label>>",
+		exp:     `A <a href="#x">Label</a>`,
+	}}
+
+	var buf bytes.Buffer
+	for _, c := range cases {
+		buf.Reset()
+
+		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// container.debug(0)
+
+		got := buf.String()
+		test.Assert(t, c.content, c.exp, got, true)
+	}
+}
+
 func TestParserInline_parseFormat(t *testing.T) {
 	cases := []struct {
 		content string
@@ -91,7 +131,6 @@ func TestParserInline_parseFormat(t *testing.T) {
 		got := buf.String()
 		test.Assert(t, c.content, c.exp, got, true)
 	}
-
 }
 
 func TestParserInline_parseFormatUnconstrained(t *testing.T) {

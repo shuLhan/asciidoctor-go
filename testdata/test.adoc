@@ -530,7 +530,21 @@ This paragraph gets a lot of attention.
 [#which-one]
 === Version 4.11 [[version-4_11]]
 
-== Block images
+
+== Cross references
+
+===  Internal
+
+Cross reference with ID <<_anchors>>.
+
+Cross reference with block title <<Anchors>>.
+
+Cross reference with custom label <<_anchors,custom anchor label>>.
+
+
+== Images
+
+===  Block images
 
 image::sunset.jpg[]
 

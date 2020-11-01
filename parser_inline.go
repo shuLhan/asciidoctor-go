@@ -221,6 +221,16 @@ func (pi *parserInline) do() {
 				pi.prev = 0
 				continue
 			}
+		} else if pi.c == '<' {
+			if pi.isEscaped {
+				pi.escape()
+				continue
+			}
+			if pi.nextc == '<' {
+				if pi.parseCrossRef() {
+					continue
+				}
+			}
 		}
 		pi.current.WriteByte(pi.c)
 		pi.x++
@@ -247,6 +257,64 @@ func (pi *parserInline) getBackMacroName() (macroName string, lastc byte) {
 		start--
 	}
 	return string(raw), 0
+}
+
+func (pi *parserInline) parseCrossRef() bool {
+	raw := pi.content[pi.x+2:]
+	raw, idx := indexUnescape(raw, []byte(">>"))
+	if idx < 0 {
+		return false
+	}
+
+	var (
+		href, label, title string
+		ok                 bool
+	)
+
+	parts := strings.Split(string(raw), ",")
+	if len(parts) >= 2 {
+		label = strings.TrimSpace(parts[1])
+	}
+
+	if isRefTitle(parts[0]) {
+		// Get ID by title.
+		href, ok = pi.doc.anchors[parts[0]]
+		if ok {
+			if len(label) == 0 {
+				label = parts[0]
+			}
+		} else {
+			// Store the label for cross reference later.
+			title = parts[0]
+		}
+	} else if isValidID(parts[0]) {
+		href = parts[0]
+		if len(label) == 0 {
+			label = pi.doc.anchors[href]
+		}
+	} else {
+		return false
+	}
+
+	// The ID field will we non-empty if href is empty, it will be
+	// revalidated later when rendered.
+	nodeCrossRef := &adocNode{
+		kind: nodeKindCrossReference,
+		raw:  []byte(label),
+		Attrs: map[string]string{
+			attrNameHref:  href,
+			attrNameTitle: title,
+		},
+	}
+	pi.current.addChild(nodeCrossRef)
+	node := &adocNode{
+		kind: nodeKindText,
+	}
+	pi.current.addChild(node)
+	pi.current = node
+	pi.x += 2 + len(raw) + 2
+	pi.prev = 0
+	return true
 }
 
 //
