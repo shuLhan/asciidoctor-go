@@ -22,8 +22,9 @@ import (
 )
 
 const (
-	defTOCLevel = 2
-	defTOCTitle = "Table of Contents"
+	defSectnumlevels = 3
+	defTOCLevel      = 2
+	defTOCTitle      = "Table of Contents"
 )
 
 //
@@ -41,7 +42,7 @@ type Document struct {
 	LastUpdated  string
 
 	classes    []string
-	attributes map[string]string
+	attributes *attributeEntry
 	lineNum    int
 
 	TOCTitle     string
@@ -56,6 +57,9 @@ type Document struct {
 	// titleID is the reverse of anchors, it contains mapping of title and
 	// its ID.
 	titleID map[string]string
+
+	sectnums  *sectionCounters
+	sectLevel int
 
 	title   *adocNode
 	header  *adocNode
@@ -84,9 +88,11 @@ func Open(file string) (doc *Document, err error) {
 		LastUpdated: fi.ModTime().Round(time.Second).Format("2006-01-02 15:04:05 Z0700"),
 		TOCLevel:    defTOCLevel,
 		TOCTitle:    defTOCTitle,
-		attributes:  make(map[string]string),
+		attributes:  newAttributeEntry(),
 		anchors:     make(map[string]string),
 		titleID:     make(map[string]string),
+		sectnums:    &sectionCounters{},
+		sectLevel:   defSectnumlevels,
 		content: &adocNode{
 			kind: nodeKindDocContent,
 		},
@@ -121,12 +127,22 @@ func (doc *Document) Parse(content []byte) {
 		log.Fatalf("Parse: " + err.Error())
 	}
 
-	parent := &adocNode{
-		kind: nodeKindPreamble,
+	sectLevel, ok := doc.attributes.v[attrNameSectnumlevels]
+	if ok {
+		doc.sectLevel, err = strconv.Atoi(sectLevel)
+		if err != nil {
+			log.Fatalf("Parse %s %s: %s", attrNameSectnumlevels,
+				sectLevel, err)
+		}
 	}
-	doc.content.addChild(parent)
 
-	doc.parseBlock(parent, 0)
+	preamble := &adocNode{
+		kind:  nodeKindPreamble,
+		Attrs: make(map[string]string),
+	}
+	doc.content.addChild(preamble)
+
+	doc.parseBlock(preamble, 0)
 }
 
 //
@@ -140,7 +156,7 @@ func (doc *Document) ToHTML(w io.Writer) (err error) {
 
 	doc.classes = append(doc.classes, classNameArticle)
 
-	doc.tocPosition, doc.tocIsEnabled = doc.attributes[metaNameTOC]
+	doc.tocPosition, doc.tocIsEnabled = doc.attributes.v[metaNameTOC]
 
 	switch doc.tocPosition {
 	case metaValueLeft:
@@ -299,7 +315,8 @@ func (doc *Document) parseAttribute(line string, strict bool) (key, value string
 		if line[x] == ':' {
 			break
 		}
-		if ascii.IsAlnum(line[x]) || line[x] == '_' || line[x] == '-' {
+		if ascii.IsAlnum(line[x]) || line[x] == '_' ||
+			line[x] == '-' || line[x] == '!' {
 			sb.WriteByte(line[x])
 			continue
 		}
@@ -415,6 +432,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 		case lineKindAttribute:
 			key, value := doc.parseAttribute(line, false)
 			if len(key) > 0 {
+				doc.attributes.apply(key, value)
 				parent.addChild(&adocNode{
 					kind:  doc.kind,
 					key:   key,
@@ -845,7 +863,7 @@ func (doc *Document) parseHeader() {
 		if line[0] == ':' {
 			key, value := doc.parseAttribute(line, false)
 			if len(key) > 0 {
-				doc.attributes[key] = value
+				doc.attributes.apply(key, value)
 				continue
 			}
 			if state != stateTitle {
@@ -1552,7 +1570,7 @@ func (doc *Document) registerAnchor(id, label string) {
 // tocHTML write table of contents with HTML template into out.
 //
 func (doc *Document) tocHTML(tmpl *template.Template, out io.Writer) (err error) {
-	v, ok := doc.attributes[metaNameTOCLevels]
+	v, ok := doc.attributes.v[metaNameTOCLevels]
 	if ok {
 		doc.TOCLevel, err = strconv.Atoi(v)
 		if err != nil {
@@ -1563,7 +1581,7 @@ func (doc *Document) tocHTML(tmpl *template.Template, out io.Writer) (err error)
 		}
 	}
 
-	v, ok = doc.attributes[metaNameTOCTitle]
+	v, ok = doc.attributes.v[metaNameTOCTitle]
 	if ok && len(v) > 0 {
 		doc.TOCTitle = v
 	}

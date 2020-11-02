@@ -3,6 +3,7 @@
 Author A, Author B
 :unclosed metadata:
 v1.1.1, 18 July 2020
+:sectnums:
 :toc:
 :toclevels: 3
 
@@ -33,6 +34,14 @@ Test inline formatting on section title.
 ===== Level 4
 
 ====== Level 5
+
+:sectnums!:
+
+== Section Two
+
+:sectnums:
+
+== Section Three
 
 == Comment
 

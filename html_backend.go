@@ -100,6 +100,13 @@ func (doc *Document) htmlGenerateTOC(
 			return fmt.Errorf("htmlGenerateTOC: %w", err)
 		}
 
+		if node.sectnums != nil {
+			_, err = out.Write([]byte(node.sectnums.String()))
+			if err != nil {
+				return fmt.Errorf("htmlGenerateTOC: %w", err)
+			}
+		}
+
 		err = node.title.toHTML(doc, tmpl, out, true)
 		if err != nil {
 			return fmt.Errorf("htmlGenerateTOC: %w", err)

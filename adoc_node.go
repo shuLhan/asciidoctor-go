@@ -40,6 +40,10 @@ type adocNode struct {
 	// section L2-L5.
 	title *adocNode
 
+	// sectnums contain the current section numbers.
+	// It will be set only if attribute "sectnums" is on.
+	sectnums *sectionCounters
+
 	parent *adocNode
 	child  *adocNode
 	next   *adocNode
@@ -592,6 +596,11 @@ func (node *adocNode) parseSection(doc *Document) {
 	}
 
 	doc.registerAnchor(node.ID, refText)
+
+	_, ok = doc.attributes.v[attrNameSectnums]
+	if ok {
+		node.sectnums = doc.sectnums.set(node.level)
+	}
 }
 
 func (node *adocNode) parseStyleClass(line string) {
@@ -777,7 +786,7 @@ func (node *adocNode) setStyleAdmonition(admName string) {
 func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer, isForToC bool) (err error) {
 	switch node.kind {
 	case lineKindAttribute:
-		doc.attributes[node.key] = node.value
+		doc.attributes.apply(node.key, node.value)
 
 	case nodeKindCrossReference:
 		href, ok := node.Attrs[attrNameHref]
@@ -804,6 +813,12 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		if err != nil {
 			return err
 		}
+		if node.sectnums != nil && node.level <= doc.sectLevel {
+			_, err = w.Write([]byte(node.sectnums.String()))
+			if err != nil {
+				return err
+			}
+		}
 		err = node.title.toHTML(doc, tmpl, w, isForToC)
 		if err != nil {
 			return err
@@ -820,6 +835,12 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		if err != nil {
 			return err
 		}
+		if node.sectnums != nil && node.level <= doc.sectLevel {
+			_, err = w.Write([]byte(node.sectnums.String()))
+			if err != nil {
+				return err
+			}
+		}
 		err = node.title.toHTML(doc, tmpl, w, isForToC)
 		if err != nil {
 			return err
@@ -831,6 +852,12 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 			return err
 		}
 		if node.title != nil {
+			if node.sectnums != nil && node.level <= doc.sectLevel {
+				_, err = w.Write([]byte(node.sectnums.String()))
+				if err != nil {
+					return err
+				}
+			}
 			err = node.title.toHTML(doc, tmpl, w, isForToC)
 		}
 		_, err = w.Write([]byte("</h4>"))
@@ -840,6 +867,12 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 			return err
 		}
 		if node.title != nil {
+			if node.sectnums != nil && node.level <= doc.sectLevel {
+				_, err = w.Write([]byte(node.sectnums.String()))
+				if err != nil {
+					return err
+				}
+			}
 			err = node.title.toHTML(doc, tmpl, w, isForToC)
 		}
 		_, err = w.Write([]byte("</h5>"))
@@ -849,6 +882,12 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 			return err
 		}
 		if node.title != nil {
+			if node.sectnums != nil && node.level <= doc.sectLevel {
+				_, err = w.Write([]byte(node.sectnums.String()))
+				if err != nil {
+					return err
+				}
+			}
 			err = node.title.toHTML(doc, tmpl, w, isForToC)
 		}
 		_, err = w.Write([]byte("</h6>"))
