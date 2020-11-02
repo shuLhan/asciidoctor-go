@@ -110,7 +110,7 @@ func (doc *Document) Classes() string {
 func (doc *Document) Parse(content []byte) {
 	doc.p = parser.New(string(content), "\n")
 
-	_, _, _ = doc.parseHeader()
+	doc.parseHeader()
 
 	doc.title = parseInlineMarkup(doc, []byte(doc.Title))
 
@@ -125,6 +125,7 @@ func (doc *Document) Parse(content []byte) {
 		kind: nodeKindPreamble,
 	}
 	doc.content.addChild(parent)
+
 	doc.parseBlock(parent, 0)
 }
 
@@ -813,7 +814,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 //	              DOC_REVISION LF
 //	              (*DOC_ATTRIBUTE)
 //
-func (doc *Document) parseHeader() (spaces, line string, c rune) {
+func (doc *Document) parseHeader() {
 	const (
 		stateTitle int = iota
 		stateAuthor
@@ -822,7 +823,7 @@ func (doc *Document) parseHeader() (spaces, line string, c rune) {
 	)
 	state := stateTitle
 	for {
-		spaces, line, c = doc.line()
+		_, line, c := doc.line()
 		if len(line) == 0 && c == 0 {
 			break
 		}
@@ -831,7 +832,7 @@ func (doc *Document) parseHeader() (spaces, line string, c rune) {
 			if state == stateTitle {
 				continue
 			}
-			return spaces, line, c
+			return
 		}
 
 		if strings.HasPrefix(line, "////") {
@@ -848,7 +849,7 @@ func (doc *Document) parseHeader() (spaces, line string, c rune) {
 				continue
 			}
 			if state != stateTitle {
-				return spaces, line, c
+				return
 			}
 			// The line will be assumed either as author or
 			// revision.
@@ -856,7 +857,7 @@ func (doc *Document) parseHeader() (spaces, line string, c rune) {
 		switch state {
 		case stateTitle:
 			if !isTitle(line) {
-				return spaces, line, c
+				return
 			}
 			doc.header = &adocNode{
 				kind: nodeKindDocHeader,
@@ -869,14 +870,14 @@ func (doc *Document) parseHeader() (spaces, line string, c rune) {
 			state = stateRevision
 		case stateRevision:
 			if !doc.parseHeaderRevision(line) {
-				return spaces, line, c
+				return
 			}
 			state = stateEnd
 		case stateEnd:
-			return spaces, line, c
+			return
 		}
 	}
-	return spaces, "", 0
+	return
 }
 
 //
