@@ -27,36 +27,43 @@ func TestIsValidID(t *testing.T) {
 	}
 }
 
-func TestParseBlockAttribute(t *testing.T) {
+func TestParseAttributeElement(t *testing.T) {
 	cases := []struct {
-		in  string
-		exp []string
+		in       string
+		expKey   string
+		expValue string
+		expOpts  []string
 	}{{
-		in:  "",
-		exp: nil,
+		in: "",
 	}, {
 		in: "[]",
 	}, {
-		in: `[a]`,
-		exp: []string{
+		in:     `[a]`,
+		expKey: "a",
+		expOpts: []string{
 			"a",
 		},
 	}, {
-		in: `[a=2]`,
-		exp: []string{
+		in:       `[a=2]`,
+		expKey:   "a",
+		expValue: "2",
+		expOpts: []string{
 			"a=2",
 		},
 	}, {
-		in: `[a=2,b="c, d",e,f=3]`,
-		exp: []string{
+		in:       `[a=2,b="c, d",e,f=3]`,
+		expKey:   "a",
+		expValue: "2",
+		expOpts: []string{
 			"a=2",
 			`b=c, d`,
 			"e",
 			"f=3",
 		},
 	}, {
-		in: `["A,B",w=_blank,role="a,b"]`,
-		exp: []string{
+		in:     `["A,B",w=_blank,role="a,b"]`,
+		expKey: "A,B",
+		expOpts: []string{
 			"A,B",
 			"w=_blank",
 			"role=a,b",
@@ -64,7 +71,9 @@ func TestParseBlockAttribute(t *testing.T) {
 	}}
 
 	for _, c := range cases {
-		got := parseBlockAttribute(c.in)
-		test.Assert(t, "parseBlockAttribute", c.exp, got, true)
+		key, val, opts := parseAttributeElement(c.in)
+		test.Assert(t, "attribute name", c.expKey, key, true)
+		test.Assert(t, "attribute value", c.expValue, val, true)
+		test.Assert(t, "opts", c.expOpts, opts, true)
 	}
 }

@@ -76,19 +76,19 @@ const (
 	nodeKindUnconstrainedMono          // 50: Text wrapped by "``"
 	nodeKindURL                        // Anchor text.
 	lineKindAdmonition                 // "LABEL: WSP"
-	lineKindAttribute                  // Line start with ":"
+	lineKindAttribute                  // ":" ATTR_NAME ":" (ATTR_VALUE)
+	lineKindAttributeElement           // "[" ATTR_NAME ("=" ATTR_VALUE)"]"
 	lineKindBlockComment               // Block start and end with "////"
 	lineKindBlockTitle                 // Line start with ".<alnum>"
 	lineKindComment                    // Line start with "//"
 	lineKindEmpty                      // LF
 	lineKindHorizontalRule             // "'''", "---", "- - -", "***", "* * *"
-	lineKindID                         // "[[" REF_ID "]]"
-	lineKindIDShort                    // 60:"[#" REF_ID "]#" TEXT "#"
-	lineKindListContinue               // A single "+" line
+	lineKindID                         // 60: "[[" REF_ID "]]"
+	lineKindIDShort                    // "[#" REF_ID "]#" TEXT "#"
+	lineKindListContinue               // "+" LF
 	lineKindPageBreak                  // "<<<"
-	lineKindStyle                      // Line start with "["
-	lineKindStyleClass                 // Custom style "[.x.y]"
-	lineKindText                       //
+	lineKindStyleClass                 // "[.x.y]"
+	lineKindText                       // 1*VCHAR
 )
 
 const (
@@ -102,6 +102,7 @@ const (
 	attrNameLang        = "lang"
 	attrNameOptions     = "options"
 	attrNamePoster      = "poster"
+	attrNameRefText     = "reftext"
 	attrNameRel         = "rel"
 	attrNameRole        = "role"
 	attrNameSrc         = "src"
@@ -182,10 +183,11 @@ const (
 	styleAdmonition
 	styleBlockListing
 	styleQuote
-	styleVerse
+	styleRefText
 	styleTextBold
 	styleTextItalic
 	styleTextMono
+	styleVerse
 )
 
 const (
@@ -338,7 +340,7 @@ func isValidID(id string) bool {
 }
 
 //
-// parseBlockAttribute parse list of attributes in between "[" "]".
+// parseAttributeElement parse list of attributes in between "[" "]".
 //
 //	BLOCK_ATTRS = BLOCK_ATTR *("," BLOCK_ATTR)
 //
@@ -352,18 +354,18 @@ func isValidID(id string) bool {
 //
 // If the attribute value contains space or comma, it must be wrapped with
 // double quote.
-// The double quote on value will be removed when stored on output.
+// The double quote on value will be removed when stored on opts.
 //
 // It will return nil if input is not a valid block attribute.
 //
-func parseBlockAttribute(in string) (out []string) {
+func parseAttributeElement(in string) (attrName, attrValue string, opts []string) {
 	p := parser.New(in, `[,="]`)
 	tok, c := p.Token()
 	if c != '[' {
-		return nil
+		return "", "", nil
 	}
 	if len(tok) > 0 {
-		return nil
+		return "", "", nil
 	}
 
 	for c != 0 {
@@ -372,12 +374,12 @@ func parseBlockAttribute(in string) (out []string) {
 		if c == '"' && len(tok) == 0 {
 			tok, c = p.ReadEnclosed('"', '"')
 			tok = strings.TrimSpace(tok)
-			out = append(out, tok)
+			opts = append(opts, tok)
 			continue
 		}
 		if c == ',' || c == ']' {
 			if len(tok) > 0 {
-				out = append(out, tok)
+				opts = append(opts, tok)
 			}
 			if c == ']' {
 				break
@@ -397,16 +399,26 @@ func parseBlockAttribute(in string) (out []string) {
 		if c == '"' {
 			tok, c = p.ReadEnclosed('"', '"')
 			tok = strings.TrimSpace(tok)
-			out = append(out, key+"="+tok)
+			opts = append(opts, key+"="+tok)
 		} else {
-			out = append(out, key+"="+tok)
+			opts = append(opts, key+"="+tok)
 		}
 
 		for c != ',' && c != 0 {
 			_, c = p.Token()
 		}
 	}
-	return out
+	if len(opts) == 0 {
+		return "", "", nil
+	}
+
+	nameValue := strings.Split(opts[0], "=")
+	attrName = nameValue[0]
+	if len(nameValue) >= 2 {
+		attrValue = strings.Join(nameValue[1:], "=")
+	}
+
+	return attrName, attrValue, opts
 }
 
 //
@@ -434,21 +446,20 @@ func parseInlineMarkup(doc *Document, content []byte) (container *adocNode) {
 //
 // parseStyle parse line that start with "[" and end with "]".
 //
-func parseStyle(line string) (styleName string, styleKind int64, opts []string) {
-	line = strings.Trim(line, "[]")
-	parts := strings.Split(line, ",")
-	styleName = strings.Trim(parts[0], "\"")
-
+func parseStyle(styleName string) (styleKind int64) {
 	// Check for admonition label first...
 	styleKind = adocStyles[styleName]
 	if styleKind > 0 {
-		return styleName, styleKind, parts[1:]
+		return styleKind
 	}
 
 	styleName = strings.ToLower(styleName)
 	styleKind = adocStyles[styleName]
+	if styleKind > 0 {
+		return styleKind
+	}
 
-	return styleName, styleKind, parts[1:]
+	return 0
 }
 
 //
@@ -562,7 +573,7 @@ func whatKindOfLine(line string) (kind int, spaces, got string) {
 				return lineKindStyleClass, "", line
 			}
 		}
-		return lineKindStyle, spaces, line
+		return lineKindAttributeElement, spaces, line
 	} else if line[0] == '=' {
 		if line == "====" {
 			return nodeKindBlockExample, spaces, line

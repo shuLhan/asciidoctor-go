@@ -53,6 +53,9 @@ type Document struct {
 	// anchors contains mapping between reference ID and its label and
 	// vice versa.
 	anchors map[string]string
+	// titleID is the reverse of anchors, it contains mapping of title and
+	// its ID.
+	titleID map[string]string
 
 	title   *adocNode
 	header  *adocNode
@@ -83,6 +86,7 @@ func Open(file string) (doc *Document, err error) {
 		TOCTitle:    defTOCTitle,
 		attributes:  make(map[string]string),
 		anchors:     make(map[string]string),
+		titleID:     make(map[string]string),
 		content: &adocNode{
 			kind: nodeKindDocContent,
 		},
@@ -436,20 +440,49 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
-		case lineKindStyle:
-			styleName, styleKind, styleOpts := parseStyle(line)
-			if styleKind != styleNone {
+
+		case lineKindAttributeElement:
+			key, val, opts := parseAttributeElement(line)
+
+			styleKind := parseStyle(key)
+			if styleKind > 0 {
 				node.style |= styleKind
 				if isStyleAdmonition(styleKind) {
-					node.setStyleAdmonition(styleName)
+					node.setStyleAdmonition(key)
 				} else if isStyleQuote(styleKind) {
-					node.setQuoteOpts(styleOpts)
+					node.setQuoteOpts(opts[1:])
 				} else if isStyleVerse(styleKind) {
-					node.setQuoteOpts(styleOpts)
+					node.setQuoteOpts(opts[1:])
 				}
 				line = ""
 				continue
 			}
+			if key == attrNameRefText {
+				if node.Attrs == nil {
+					node.Attrs = make(map[string]string)
+				}
+				node.Attrs[key] = val
+				line = ""
+				continue
+			}
+			node.kind = nodeKindParagraph
+			node.WriteString(line)
+			node.WriteByte('\n')
+			line, _ = doc.consumeLinesUntil(
+				node,
+				lineKindEmpty,
+				[]int{
+					term,
+					nodeKindBlockListing,
+					nodeKindBlockListingNamed,
+					nodeKindBlockLiteral,
+					nodeKindBlockLiteralNamed,
+					lineKindListContinue,
+				})
+			node.parseInlineMarkup(doc, nodeKindText)
+			parent.addChild(node)
+			node = &adocNode{}
+			continue
 
 		case lineKindStyleClass:
 			node.parseStyleClass(line)
@@ -1027,7 +1060,7 @@ func (doc *Document) parseListDescription(parent, node *adocNode, line string) (
 			// Keep going, maybe next line is still a list.
 			continue
 		}
-		if doc.kind == lineKindStyle {
+		if doc.kind == lineKindAttributeElement {
 			if doc.prevKind == lineKindEmpty {
 				break
 			}
@@ -1179,7 +1212,7 @@ func (doc *Document) parseListOrdered(parent *adocNode, title, line string) (
 			// Keep going, maybe next line is still a list.
 			continue
 		}
-		if doc.kind == lineKindStyle {
+		if doc.kind == lineKindAttributeElement {
 			if doc.prevKind == lineKindEmpty {
 				break
 			}
@@ -1367,7 +1400,7 @@ func (doc *Document) parseListUnordered(parent, node *adocNode, line string) (
 			// Keep going, maybe next line is still a list.
 			continue
 		}
-		if doc.kind == lineKindStyle {
+		if doc.kind == lineKindAttributeElement {
 			if doc.prevKind == lineKindEmpty {
 				break
 			}
@@ -1511,14 +1544,7 @@ func (doc *Document) parseListUnordered(parent, node *adocNode, line string) (
 }
 
 func (doc *Document) registerAnchor(id, label string) {
-	if doc.anchors == nil {
-		doc.anchors = make(map[string]string)
-	}
-
 	doc.anchors[id] = label
-	if len(label) > 0 {
-		doc.anchors[label] = id
-	}
 }
 
 //

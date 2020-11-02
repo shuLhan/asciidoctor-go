@@ -19,7 +19,10 @@ var (
 func TestMain(m *testing.M) {
 	var err error
 
-	_testDoc = &Document{}
+	_testDoc = &Document{
+		anchors: make(map[string]string),
+		titleID: make(map[string]string),
+	}
 	_testTmpl, err = _testDoc.createHTMLTemplate()
 	if err != nil {
 		log.Fatal(err)

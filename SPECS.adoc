@@ -138,11 +138,25 @@ HTML format,
 </div>
 ----
 
+
 == Block
 
 ----
 BLOCK_REF   = "[#" REF_ID *["." RoleName] "]" LF
 ----
+
+===  Attribute
+
+----
+BLOCK_ATTR  = "[" ATTR_NAME ("=" ATTR_VALUE) *("," ATTR_OPT) "]" LF
+
+ATTR_NAME   = WORD
+
+ATTR_VALUE  = STRING
+
+ATTR_OPT    = ATTR_NAME ("=") ATTR_VALUE)
+----
+
 
 == Table of contents
 

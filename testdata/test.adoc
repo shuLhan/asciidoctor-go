@@ -506,7 +506,7 @@ mailto:ms@kilabit.info[Mail to me].
 
 Relative file link:test.html[test.html].
 
-
+[reftext="This is anchor"]
 == Anchors
 
 [[notice]]
@@ -538,6 +538,8 @@ This paragraph gets a lot of attention.
 Cross reference with ID <<_anchors>>.
 
 Cross reference with block title <<Anchors>>.
+
+Cross reference with reftext <<This is anchor>>.
 
 Cross reference with custom label <<_anchors,custom anchor label>>.
 

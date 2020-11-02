@@ -278,7 +278,7 @@ func (pi *parserInline) parseCrossRef() bool {
 
 	if isRefTitle(parts[0]) {
 		// Get ID by title.
-		href, ok = pi.doc.anchors[parts[0]]
+		href, ok = pi.doc.titleID[parts[0]]
 		if ok {
 			if len(label) == 0 {
 				label = parts[0]
@@ -802,20 +802,19 @@ func (pi *parserInline) parseURL(scheme string) (node *adocNode) {
 	pi.prev = 0
 
 	attr := string(content[x : x+idx+1])
-	attrs := parseBlockAttribute(attr)
+	key, _, attrs := parseAttributeElement(attr)
 	if len(attrs) == 0 {
 		// empty "[]"
 		node.raw = uri
 		return node
 	}
 	if len(attrs) >= 1 {
-		text := attrs[0]
-		if text[len(text)-1] == '^' {
+		if key[len(key)-1] == '^' {
 			node.Attrs[attrNameTarget] = attrValueBlank
-			text = strings.TrimRight(text, "^")
+			key = strings.TrimRight(key, "^")
 			node.Attrs[attrNameRel] = attrValueNoopener
 		}
-		child := parseInlineMarkup(pi.doc, []byte(text))
+		child := parseInlineMarkup(pi.doc, []byte(key))
 		node.addChild(child)
 	}
 	if len(attrs) >= 2 {

@@ -337,11 +337,10 @@ func (node *adocNode) parseBlockAudio(line string) bool {
 	}
 
 	src := strings.TrimRight(line[:attrBegin], " \t")
-	attrs := parseBlockAttribute(line[attrBegin : attrEnd+1])
+	key, val, attrs := parseAttributeElement(line[attrBegin : attrEnd+1])
 	node.Attrs = make(map[string]string, len(attrs)+1)
 	node.Attrs[attrNameSrc] = src
 
-	var key, val string
 	for _, attr := range attrs {
 		kv := strings.Split(attr, "=")
 
@@ -583,8 +582,17 @@ func (node *adocNode) parseSection(doc *Document) {
 
 	if len(node.ID) == 0 {
 		node.ID = generateID(node.Text)
-		doc.registerAnchor(node.ID, node.Text)
 	}
+	doc.titleID[node.Text] = node.ID
+
+	refText, ok := node.Attrs[attrNameRefText]
+	if ok {
+		doc.titleID[refText] = node.ID
+	} else {
+		refText = node.Text
+	}
+
+	doc.registerAnchor(node.ID, refText)
 }
 
 func (node *adocNode) parseStyleClass(line string) {
@@ -609,15 +617,20 @@ func (node *adocNode) parseVideo(line string) bool {
 	}
 
 	videoSrc := strings.TrimRight(line[:attrBegin], " \t")
-	attrs := parseBlockAttribute(line[attrBegin : attrEnd+1])
+	key, val, attrs := parseAttributeElement(line[attrBegin : attrEnd+1])
 
 	if node.Attrs == nil {
 		node.Attrs = make(map[string]string, len(attrs)+1)
 	}
 	node.Attrs[attrNameSrc] = videoSrc
 
-	var key, val string
-	for x, attr := range attrs {
+	start := 0
+	if key == attrNameYoutube || key == attrNameVimeo {
+		node.Attrs[key] = "1"
+		start = 1
+	}
+
+	for _, attr := range attrs[start:] {
 		kv := strings.Split(attr, "=")
 
 		key = strings.ToLower(kv[0])
@@ -625,17 +638,6 @@ func (node *adocNode) parseVideo(line string) bool {
 			val = kv[1]
 		} else {
 			val = "1"
-		}
-
-		if x == 0 {
-			if key == attrNameYoutube {
-				node.Attrs[key] = val
-				continue
-			}
-			if key == attrNameVimeo {
-				node.Attrs[key] = val
-				continue
-			}
 		}
 
 		switch key {
@@ -782,9 +784,10 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		href, ok := node.Attrs[attrNameHref]
 		if !ok {
 			title, ok := node.Attrs[attrNameTitle]
-			if ok {
-				href = doc.anchors[title]
+			if !ok {
+				title, ok = node.Attrs[attrNameRefText]
 			}
+			href = doc.titleID[title]
 		}
 		_, err = fmt.Fprintf(w, _htmlCrossReference, href, node.raw)
 

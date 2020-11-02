@@ -45,7 +45,9 @@ func TestParserInline_do(t *testing.T) {
 
 func TestParserInline_parseCrossReference(t *testing.T) {
 	_testDoc.anchors = map[string]string{
-		"x":   "X y",
+		"x": "X y",
+	}
+	_testDoc.titleID = map[string]string{
 		"X y": "x",
 	}
 
