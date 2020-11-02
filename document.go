@@ -432,12 +432,19 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 		case lineKindAttribute:
 			key, value := doc.parseAttribute(line, false)
 			if len(key) > 0 {
-				doc.attributes.apply(key, value)
-				parent.addChild(&adocNode{
-					kind:  doc.kind,
-					key:   key,
-					value: value,
-				})
+				if key == attrNameIcons {
+					if node.Attrs == nil {
+						node.Attrs = make(map[string]string)
+					}
+					node.Attrs[key] = value
+				} else {
+					doc.attributes.apply(key, value)
+					parent.addChild(&adocNode{
+						kind:  doc.kind,
+						key:   key,
+						value: value,
+					})
+				}
 				line = ""
 				continue
 			}

@@ -99,6 +99,7 @@ const (
 	attrNameHeight        = "height"
 	attrNameHref          = "href"
 	attrNameID            = "id"
+	attrNameIcons         = "icons"
 	attrNameLang          = "lang"
 	attrNameOptions       = "options"
 	attrNamePoster        = "poster"

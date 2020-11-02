@@ -385,16 +385,15 @@ Your browser does not support the audio tag.
 <table>
 <tr>
 <td class="icon">
-	{{- if eq (docAttribute "icons") "font"}}
+	{{- $icons := printf "%s" .Attrs.icons }}
+	{{- if eq $icons "font"}}
 <i class="fa icon-{{toLower .Classes}}" title="{{.Label}}"></i>
 	{{- else}}
 <div class="title">{{.Label}}</div>
 	{{- end}}
 </td>
 <td class="content">
-{{ with $content := .Content }}
-{{$content}}
-	{{- end}}
+{{.Content}}
 {{- end}}
 {{- define "END_ADMONITION"}}
 </td>
