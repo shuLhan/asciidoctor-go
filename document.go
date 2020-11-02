@@ -108,18 +108,18 @@ func (doc *Document) Classes() string {
 // Parse the content of asciidoc document.
 //
 func (doc *Document) Parse(content []byte) {
+	var err error
+
 	doc.p = parser.New(string(content), "\n")
 
 	doc.parseHeader()
 
 	doc.title = parseInlineMarkup(doc, []byte(doc.Title))
 
-	var text bytes.Buffer
-	err := doc.title.toText(&text)
+	doc.Title, err = doc.title.toText()
 	if err != nil {
 		log.Fatalf("Parse: " + err.Error())
 	}
-	doc.Title = text.String()
 
 	parent := &adocNode{
 		kind: nodeKindPreamble,

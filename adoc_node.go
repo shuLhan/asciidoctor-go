@@ -573,12 +573,11 @@ func (node *adocNode) parseSection(doc *Document) {
 	node.title = container
 	node.raw = nil
 
-	var text bytes.Buffer
-	err := container.toText(&text)
+	var err error
+	node.Text, err = container.toText()
 	if err != nil {
 		log.Fatalf("parseSection: " + err.Error())
 	}
-	node.Text = text.String()
 
 	if len(node.ID) == 0 {
 		node.ID = generateID(node.Text)
@@ -1175,7 +1174,16 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 	return nil
 }
 
-func (node *adocNode) toText(w io.Writer) (err error) {
+func (node *adocNode) toText() (text string, err error) {
+	var buf bytes.Buffer
+	err = node.writeText(&buf)
+	if err != nil {
+		return "", err
+	}
+	return buf.String(), nil
+}
+
+func (node *adocNode) writeText(w io.Writer) (err error) {
 	switch node.kind {
 	case nodeKindPassthrough:
 		_, err = w.Write(node.raw)
@@ -1276,13 +1284,13 @@ func (node *adocNode) toText(w io.Writer) (err error) {
 	}
 
 	if node.child != nil {
-		err = node.child.toText(w)
+		err = node.child.writeText(w)
 		if err != nil {
 			return err
 		}
 	}
 	if node.next != nil {
-		err = node.next.toText(w)
+		err = node.next.writeText(w)
 		if err != nil {
 			return err
 		}
