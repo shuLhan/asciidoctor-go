@@ -43,6 +43,45 @@ func TestParserInline_do(t *testing.T) {
 	}
 }
 
+func TestParserInline_parseAttrRef(t *testing.T) {
+	_testDoc.Attributes = map[string]string{
+		"x": "https://kilabit.info",
+	}
+
+	cases := []struct {
+		content string
+		exp     string
+	}{{
+		content: "A {x}[*B*] C",
+		exp:     `A <a href="https://kilabit.info"><strong>B</strong></a> C`,
+	}, {
+		content: "A {x }[*B*] C",
+		exp:     `A <a href="https://kilabit.info"><strong>B</strong></a> C`,
+	}, {
+		content: "A {x }*B* C",
+		exp:     `A <a href="https://kilabit.info*B*" class="bare">https://kilabit.info*B*</a> C`,
+	}, {
+		content: "A {y }*B* C",
+		exp:     "A {y }<strong>B</strong> C",
+	}}
+
+	var buf bytes.Buffer
+	for _, c := range cases {
+		buf.Reset()
+
+		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// container.debug(0)
+
+		got := buf.String()
+		test.Assert(t, c.content, c.exp, got, true)
+	}
+}
+
 func TestParserInline_parseCrossReference(t *testing.T) {
 	_testDoc.anchors = map[string]string{
 		"x": "X y",

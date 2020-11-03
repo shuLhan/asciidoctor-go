@@ -390,6 +390,16 @@ TEXT_SUBSCRIPT = "~" WORD "~"
 TEXT_SUPERSCRIPT = "^" WORD "^"
 ----
 
+===  Attribute reference
+
+----
+ATTR_REF = "{" META_KEY "}"
+----
+
+The attribute reference will be replace with document attributes, if its
+exist, otherwise it would be considered as normal text.
+
+
 ==  Passthrough
 
 ----

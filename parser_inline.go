@@ -12,7 +12,7 @@ import (
 )
 
 //
-// parserInline is the one the responsible to parse text that contains inline
+// parserInline is the one that responsible to parse text that contains inline
 // markup (bold, italic, etc.) into tree.
 //
 type parserInline struct {
@@ -231,6 +231,14 @@ func (pi *parserInline) do() {
 					continue
 				}
 			}
+		} else if pi.c == '{' {
+			if pi.isEscaped {
+				pi.escape()
+				continue
+			}
+			if pi.parseAttrRef() {
+				continue
+			}
 		}
 		pi.current.WriteByte(pi.c)
 		pi.x++
@@ -257,6 +265,34 @@ func (pi *parserInline) getBackMacroName() (macroName string, lastc byte) {
 		start--
 	}
 	return string(raw), 0
+}
+
+//
+// parseAttrRef parse the attribute reference, an attribute key wrapped by
+// "{" "}".  If the attribute reference exist, replace the content with the
+// attribute value and reset the parser state to zero.
+//
+func (pi *parserInline) parseAttrRef() bool {
+	raw := pi.content[pi.x+1:]
+	attrName, idx := indexUnescape(raw, []byte("}"))
+	if idx < 0 {
+		return false
+	}
+
+	key := string(bytes.TrimSpace(bytes.ToLower(attrName)))
+	attrValue, ok := pi.doc.Attributes[key]
+	if !ok {
+		return false
+	}
+
+	rest := pi.content[pi.x+idx+2:]
+	newContent := make([]byte, 0, len(attrValue)+len(rest))
+	newContent = append(newContent, attrValue...)
+	newContent = append(newContent, rest...)
+	pi.content = newContent
+	pi.x = 0
+	pi.prev = 0
+	return true
 }
 
 func (pi *parserInline) parseCrossRef() bool {
