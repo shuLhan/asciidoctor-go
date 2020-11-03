@@ -601,6 +601,9 @@ func TestParserInline_parseURL(t *testing.T) {
 		content string
 		exp     string
 	}{{
+		content: `https://asciidoctor.org/abc`,
+		exp:     `<a href="https://asciidoctor.org/abc" class="bare">https://asciidoctor.org/abc</a>`,
+	}, {
 		content: `https://asciidoctor.org.`,
 		exp:     `<a href="https://asciidoctor.org" class="bare">https://asciidoctor.org</a>.`,
 	}, {

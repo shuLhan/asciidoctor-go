@@ -926,7 +926,7 @@ func (pi *parserInline) parseURL(scheme string) (node *adocNode) {
 		if scheme == macroHTTP || scheme == macroHTTPS {
 			node.classes = append(node.classes, "bare")
 		}
-		if !ascii.IsSpace(c) {
+		if c == '.' || c == ',' || c == ';' {
 			uri = uri[:len(uri)-1]
 			pi.prev = 0
 			pi.x += x
