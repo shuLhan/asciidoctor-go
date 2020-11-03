@@ -75,10 +75,6 @@ func htmlSubstituteSpecialChars(in string) (out string) {
 func (doc *Document) htmlGenerateTOC(
 	node *adocNode, tmpl *template.Template, out io.Writer, level int,
 ) (err error) {
-	if level >= doc.TOCLevel {
-		return nil
-	}
-
 	var sectClass string
 
 	switch node.kind {
@@ -92,6 +88,9 @@ func (doc *Document) htmlGenerateTOC(
 		sectClass = "sectlevel4"
 	case nodeKindSectionL5:
 		sectClass = "sectlevel5"
+	}
+	if node.level > doc.TOCLevel {
+		sectClass = ""
 	}
 
 	if len(sectClass) > 0 {
