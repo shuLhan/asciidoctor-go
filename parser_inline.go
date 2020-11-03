@@ -16,14 +16,17 @@ import (
 // markup (bold, italic, etc.) into tree.
 //
 type parserInline struct {
-	container      *adocNode
-	current        *adocNode
-	content        []byte
-	doc            *Document
-	x              int
-	state          *parserInlineState
-	prev, c, nextc byte
-	isEscaped      bool
+	container *adocNode
+	current   *adocNode
+	content   []byte
+	doc       *Document
+	x         int
+	state     *parserInlineState
+	prev      byte
+	c         byte
+	nextc     byte
+	nextcc    byte
+	isEscaped bool
 }
 
 func newParserInline(doc *Document, content []byte) (pi *parserInline) {
@@ -47,6 +50,11 @@ func (pi *parserInline) do() {
 			pi.nextc = 0
 		} else {
 			pi.nextc = pi.content[pi.x+1]
+		}
+		if pi.x+2 >= len(pi.content) {
+			pi.nextcc = 0
+		} else {
+			pi.nextcc = pi.content[pi.x+2]
 		}
 
 		if pi.c == '\\' {
@@ -125,6 +133,12 @@ func (pi *parserInline) do() {
 				if ok {
 					continue
 				}
+			}
+			if ascii.IsAlpha(pi.prev) {
+				pi.current.WriteString(htmlSymbolApostrophe)
+				pi.x++
+				pi.prev = pi.c
+				continue
 			}
 		} else if pi.c == '*' {
 			if pi.isEscaped {
@@ -230,6 +244,36 @@ func (pi *parserInline) do() {
 				if pi.parseCrossRef() {
 					continue
 				}
+			} else if pi.nextc == '-' {
+				pi.current.WriteString(htmlSymbolSingleLeftArrow)
+				pi.x += 2
+				pi.prev = pi.nextc
+				continue
+			} else if pi.nextc == '=' {
+				pi.current.WriteString(htmlSymbolDoubleLeftArrow)
+				pi.x += 2
+				pi.prev = pi.nextc
+				continue
+			}
+			pi.current.WriteString(htmlSymbolLessthan)
+			pi.x++
+			pi.prev = pi.c
+			continue
+		} else if pi.c == '>' {
+			if pi.isEscaped {
+				pi.escape()
+				continue
+			}
+			pi.current.WriteString(htmlSymbolGreaterthan)
+			pi.x++
+			pi.prev = pi.c
+			continue
+		} else if pi.c == '&' {
+			if ascii.IsSpace(pi.prev) && ascii.IsSpace(pi.nextc) {
+				pi.current.WriteString(htmlSymbolAmpersand)
+				pi.x += 2
+				pi.prev = pi.nextc
+				continue
 			}
 		} else if pi.c == '{' {
 			if pi.isEscaped {
@@ -237,6 +281,72 @@ func (pi *parserInline) do() {
 				continue
 			}
 			if pi.parseAttrRef() {
+				continue
+			}
+		} else if pi.c == '-' {
+			if pi.isEscaped {
+				pi.escape()
+				continue
+			}
+			if pi.prev != '-' {
+				if pi.nextc == '-' && pi.nextcc != '-' {
+					pi.current.WriteString(htmlSymbolEmdash)
+					pi.x += 2
+					pi.prev = pi.nextc
+					continue
+				}
+			} else if pi.nextc == '>' {
+				pi.current.WriteString(htmlSymbolSingleRightArrow)
+				pi.x += 2
+				pi.prev = pi.nextc
+				continue
+			}
+		} else if pi.c == '=' {
+			if pi.isEscaped {
+				pi.escape()
+				continue
+			}
+			if pi.nextc == '>' {
+				pi.current.WriteString(htmlSymbolDoubleRightArrow)
+				pi.x += 2
+				pi.prev = pi.nextc
+				continue
+			}
+		} else if pi.c == '.' {
+			if pi.isEscaped {
+				pi.escape()
+				continue
+			}
+			if pi.nextc == '.' && pi.nextcc == '.' {
+				pi.current.WriteString(htmlSymbolEllipsis)
+				pi.x += 3
+				pi.prev = pi.c
+				continue
+			}
+		} else if pi.c == '(' {
+			if pi.isEscaped {
+				pi.escape()
+				continue
+			}
+			var isReplaced bool
+			raw, _ := indexUnescape(pi.content[pi.x+1:], []byte(")"))
+			if len(raw) == 1 {
+				if raw[0] == 'C' {
+					pi.current.WriteString(htmlSymbolCopyright)
+					isReplaced = true
+				} else if raw[0] == 'R' {
+					pi.current.WriteString(htmlSymbolRegistered)
+					isReplaced = true
+				}
+			} else if len(raw) == 2 {
+				if bytes.Equal(raw, []byte("TM")) {
+					pi.current.WriteString(htmlSymbolTrademark)
+					isReplaced = true
+				}
+			}
+			if isReplaced {
+				pi.x += len(raw) + 2
+				pi.prev = ')'
 				continue
 			}
 		}
@@ -559,7 +669,7 @@ func (pi *parserInline) parseFormatUnconstrained(
 
 func (pi *parserInline) parseInlineImage() *adocNode {
 	content := pi.content[pi.x+1:]
-	_, idx := indexByteUnescape(pi.content[pi.x+1:], ']')
+	_, idx := indexByteUnescape(content, ']')
 	if idx < 0 {
 		return nil
 	}

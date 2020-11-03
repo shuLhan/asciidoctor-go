@@ -23,9 +23,19 @@ const (
 )
 
 const (
-	htmlLessthanSymbol    = "&lt;"
-	htmlGreaterthanSymbol = "&gt;"
-	htmlAmpersandSymbol   = "&amp;"
+	htmlSymbolAmpersand        = "&amp;"
+	htmlSymbolApostrophe       = "&#8217;"
+	htmlSymbolCopyright        = "&#169;"
+	htmlSymbolDoubleLeftArrow  = "&#8656;"
+	htmlSymbolDoubleRightArrow = "&#8658;"
+	htmlSymbolEllipsis         = "&#8230;"
+	htmlSymbolEmdash           = "&#8212;"
+	htmlSymbolGreaterthan      = "&gt;"
+	htmlSymbolLessthan         = "&lt;"
+	htmlSymbolRegistered       = "&#174;"
+	htmlSymbolSingleLeftArrow  = "&#8592;"
+	htmlSymbolSingleRightArrow = "&#8594;"
+	htmlSymbolTrademark        = "&#8482;"
 )
 
 func htmlSubstituteSpecialChars(in string) (out string) {
@@ -50,11 +60,11 @@ func htmlSubstituteSpecialChars(in string) (out string) {
 		case '\\':
 			isEscaped = true
 		case '<':
-			sb.WriteString(htmlLessthanSymbol)
+			sb.WriteString(htmlSymbolLessthan)
 		case '>':
-			sb.WriteString(htmlGreaterthanSymbol)
+			sb.WriteString(htmlSymbolGreaterthan)
 		case '&':
-			sb.WriteString(htmlAmpersandSymbol)
+			sb.WriteString(htmlSymbolAmpersand)
 		default:
 			sb.WriteRune(c)
 		}
