@@ -291,44 +291,19 @@ func (node *adocNode) applySubstitutions() {
 		raw    = bytes.TrimRight(node.raw, " \n")
 		newraw = make([]byte, 0, len(raw))
 		buf    = bytes.NewBuffer(newraw)
-		isEsc  bool
 		c      byte
 	)
 	for x := 0; x < len(raw); x++ {
 		c = raw[x]
-		if c == '\\' {
-			if isEsc {
-				buf.WriteByte('\\')
-				isEsc = false
-			} else {
-				isEsc = true
-			}
-			continue
-		}
 		if c == '<' {
-			if isEsc {
-				buf.WriteByte(c)
-				isEsc = false
-				continue
-			}
 			buf.WriteString(htmlSymbolLessthan)
 			continue
 		}
 		if c == '>' {
-			if isEsc {
-				buf.WriteByte(c)
-				isEsc = false
-				continue
-			}
 			buf.WriteString(htmlSymbolGreaterthan)
 			continue
 		}
 		if c == '&' {
-			if isEsc {
-				buf.WriteByte(c)
-				isEsc = false
-				continue
-			}
 			buf.WriteString(htmlSymbolAmpersand)
 			continue
 		}

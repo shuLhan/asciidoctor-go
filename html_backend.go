@@ -7,7 +7,6 @@ package asciidoctor
 import (
 	"fmt"
 	"io"
-	"strings"
 	"text/template"
 )
 
@@ -37,40 +36,6 @@ const (
 	htmlSymbolSingleRightArrow = "&#8594;"
 	htmlSymbolTrademark        = "&#8482;"
 )
-
-func htmlSubstituteSpecialChars(in string) (out string) {
-	var (
-		isEscaped bool
-		sb        strings.Builder
-	)
-	sb.Grow(len(in))
-
-	for _, c := range in {
-		if isEscaped {
-			if c == '\\' || c == '<' || c == '>' || c == '&' {
-				sb.WriteRune(c)
-			} else {
-				sb.WriteRune('\\')
-				sb.WriteRune(c)
-			}
-			isEscaped = false
-			continue
-		}
-		switch c {
-		case '\\':
-			isEscaped = true
-		case '<':
-			sb.WriteString(htmlSymbolLessthan)
-		case '>':
-			sb.WriteString(htmlSymbolGreaterthan)
-		case '&':
-			sb.WriteString(htmlSymbolAmpersand)
-		default:
-			sb.WriteRune(c)
-		}
-	}
-	return sb.String()
-}
 
 func (doc *Document) htmlGenerateTOC(
 	node *adocNode, tmpl *template.Template, out io.Writer, level int,
