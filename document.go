@@ -146,7 +146,8 @@ func (doc *Document) Parse(content []byte) {
 }
 
 //
-// ToHTML convert the asciidoc to HTML.
+// ToHTML convert the asciidoc document into full HTML document, including
+// head and body.
 //
 func (doc *Document) ToHTML(w io.Writer) (err error) {
 	tmpl, err := doc.createHTMLTemplate()
@@ -174,6 +175,49 @@ func (doc *Document) ToHTML(w io.Writer) (err error) {
 		return err
 	}
 
+	err = doc.htmlWriteBody(tmpl, w)
+	if err != nil {
+		return err
+	}
+
+	err = tmpl.ExecuteTemplate(w, "END", doc)
+
+	return err
+}
+
+//
+// ToHTMLBody convert the document object into HTML with content of body only.
+//
+func (doc *Document) ToHTMLBody(w io.Writer) (err error) {
+	tmpl, err := doc.createHTMLTemplate()
+	if err != nil {
+		return fmt.Errorf("ToHTMLBody: %w", err)
+	}
+
+	doc.classes = append(doc.classes, classNameArticle)
+
+	doc.tocPosition, doc.tocIsEnabled = doc.Attributes[metaNameTOC]
+
+	switch doc.tocPosition {
+	case metaValueLeft:
+		doc.classes = append(doc.classes, classNameToc2, classNameTocLeft)
+		doc.tocClasses = append(doc.tocClasses, classNameToc2)
+	case metaValueRight:
+		doc.classes = append(doc.classes, classNameToc2, classNameTocRight)
+		doc.tocClasses = append(doc.tocClasses, classNameToc2)
+	default:
+		doc.tocClasses = append(doc.tocClasses, classNameToc)
+	}
+
+	err = doc.htmlWriteBody(tmpl, w)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (doc *Document) htmlWriteBody(tmpl *template.Template, w io.Writer) (err error) {
 	err = tmpl.ExecuteTemplate(w, "BEGIN_HEADER", doc)
 	if err != nil {
 		return err
@@ -229,10 +273,7 @@ func (doc *Document) ToHTML(w io.Writer) (err error) {
 			return err
 		}
 	}
-
-	err = tmpl.ExecuteTemplate(w, "END", doc)
-
-	return err
+	return nil
 }
 
 //
