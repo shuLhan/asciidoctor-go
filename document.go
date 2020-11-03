@@ -472,6 +472,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 			node = &adocNode{}
 			line = ""
 			continue
+
 		case lineKindAttribute:
 			key, value := doc.parseAttribute(line, false)
 			if len(key) > 0 {
@@ -1136,12 +1137,6 @@ func (doc *Document) parseListDescription(parent, node *adocNode, line string) (
 			// Keep going, maybe next line is still a list.
 			continue
 		}
-		if doc.kind == lineKindAttributeElement {
-			if doc.prevKind == lineKindEmpty {
-				break
-			}
-		}
-
 		if doc.kind == nodeKindListOrderedItem {
 			line, c = doc.parseListOrdered(listItem, "", line)
 			continue
@@ -1173,9 +1168,6 @@ func (doc *Document) parseListDescription(parent, node *adocNode, line string) (
 
 			line, c = doc.parseListDescription(listItem, node, line)
 			continue
-		}
-
-		if doc.kind == lineKindText {
 			if doc.prevKind == lineKindEmpty {
 				break
 			}
@@ -1225,7 +1217,12 @@ func (doc *Document) parseListDescription(parent, node *adocNode, line string) (
 			doc.kind == nodeKindSectionL2 ||
 			doc.kind == nodeKindSectionL3 ||
 			doc.kind == nodeKindSectionL4 ||
-			doc.kind == nodeKindSectionL5 {
+			doc.kind == nodeKindSectionL5 ||
+			doc.kind == lineKindAttributeElement ||
+			doc.kind == lineKindBlockTitle ||
+			doc.kind == lineKindID ||
+			doc.kind == lineKindIDShort ||
+			doc.kind == lineKindText {
 			if doc.prevKind == lineKindEmpty {
 				break
 			}
@@ -1289,11 +1286,6 @@ func (doc *Document) parseListOrdered(parent *adocNode, title, line string) (
 		if doc.kind == lineKindEmpty {
 			// Keep going, maybe next line is still a list.
 			continue
-		}
-		if doc.kind == lineKindAttributeElement {
-			if doc.prevKind == lineKindEmpty {
-				break
-			}
 		}
 		if doc.kind == nodeKindListOrderedItem {
 			node := &adocNode{
@@ -1363,17 +1355,6 @@ func (doc *Document) parseListOrdered(parent *adocNode, title, line string) (
 			line, c = doc.parseListDescription(listItem, node, line)
 			continue
 		}
-
-		if doc.kind == lineKindAdmonition {
-			if doc.prevKind == lineKindEmpty {
-				break
-			}
-		}
-		if doc.kind == lineKindText {
-			if doc.prevKind == lineKindEmpty {
-				break
-			}
-		}
 		if doc.kind == nodeKindBlockListingNamed {
 			if doc.prevKind == lineKindEmpty {
 				break
@@ -1419,7 +1400,13 @@ func (doc *Document) parseListOrdered(parent *adocNode, title, line string) (
 			doc.kind == nodeKindSectionL2 ||
 			doc.kind == nodeKindSectionL3 ||
 			doc.kind == nodeKindSectionL4 ||
-			doc.kind == nodeKindSectionL5 {
+			doc.kind == nodeKindSectionL5 ||
+			doc.kind == lineKindAdmonition ||
+			doc.kind == lineKindAttributeElement ||
+			doc.kind == lineKindBlockTitle ||
+			doc.kind == lineKindID ||
+			doc.kind == lineKindIDShort ||
+			doc.kind == lineKindText {
 			if doc.prevKind == lineKindEmpty {
 				break
 			}
@@ -1480,12 +1467,6 @@ func (doc *Document) parseListUnordered(parent, node *adocNode, line string) (
 			// Keep going, maybe next line is still a list.
 			continue
 		}
-		if doc.kind == lineKindAttributeElement {
-			if doc.prevKind == lineKindEmpty {
-				break
-			}
-		}
-
 		if doc.kind == nodeKindListOrderedItem {
 			node := &adocNode{
 				kind: nodeKindListOrderedItem,
@@ -1555,17 +1536,6 @@ func (doc *Document) parseListUnordered(parent, node *adocNode, line string) (
 			line, c = doc.parseListDescription(listItem, node, line)
 			continue
 		}
-
-		if doc.kind == lineKindAdmonition {
-			if doc.prevKind == lineKindEmpty {
-				break
-			}
-		}
-		if doc.kind == lineKindText {
-			if doc.prevKind == lineKindEmpty {
-				break
-			}
-		}
 		if doc.kind == nodeKindBlockListingNamed {
 			if doc.prevKind == lineKindEmpty {
 				break
@@ -1611,7 +1581,13 @@ func (doc *Document) parseListUnordered(parent, node *adocNode, line string) (
 			doc.kind == nodeKindSectionL2 ||
 			doc.kind == nodeKindSectionL3 ||
 			doc.kind == nodeKindSectionL4 ||
-			doc.kind == nodeKindSectionL5 {
+			doc.kind == nodeKindSectionL5 ||
+			doc.kind == lineKindAdmonition ||
+			doc.kind == lineKindAttributeElement ||
+			doc.kind == lineKindBlockTitle ||
+			doc.kind == lineKindID ||
+			doc.kind == lineKindIDShort ||
+			doc.kind == lineKindText {
 			if doc.prevKind == lineKindEmpty {
 				break
 			}
