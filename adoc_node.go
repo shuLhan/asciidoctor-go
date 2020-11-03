@@ -287,20 +287,54 @@ func (node *adocNode) addNext(next *adocNode) {
 }
 
 func (node *adocNode) applySubstitutions() {
-	if len(node.rawTitle) > 0 {
-		node.rawTitle = htmlSubstituteSpecialChars(node.rawTitle)
+	var (
+		raw    = bytes.TrimRight(node.raw, " \n")
+		newraw = make([]byte, 0, len(raw))
+		buf    = bytes.NewBuffer(newraw)
+		isEsc  bool
+		c      byte
+	)
+	for x := 0; x < len(raw); x++ {
+		c = raw[x]
+		if c == '\\' {
+			if isEsc {
+				buf.WriteByte('\\')
+				isEsc = false
+			} else {
+				isEsc = true
+			}
+			continue
+		}
+		if c == '<' {
+			if isEsc {
+				buf.WriteByte(c)
+				isEsc = false
+				continue
+			}
+			buf.WriteString(htmlSymbolLessthan)
+			continue
+		}
+		if c == '>' {
+			if isEsc {
+				buf.WriteByte(c)
+				isEsc = false
+				continue
+			}
+			buf.WriteString(htmlSymbolGreaterthan)
+			continue
+		}
+		if c == '&' {
+			if isEsc {
+				buf.WriteByte(c)
+				isEsc = false
+				continue
+			}
+			buf.WriteString(htmlSymbolAmpersand)
+			continue
+		}
+		buf.WriteByte(c)
 	}
-
-	node.raw = bytes.TrimRight(node.raw, "\n")
-	content := htmlSubstituteSpecialChars(string(node.raw))
-
-	switch node.kind {
-	case nodeKindBlockExample, nodeKindBlockExcerpts, nodeKindParagraph,
-		nodeKindBlockSidebar:
-		node.raw = []byte(content)
-	default:
-		node.raw = []byte(content)
-	}
+	node.raw = buf.Bytes()
 }
 
 func (node *adocNode) debug(n int) {

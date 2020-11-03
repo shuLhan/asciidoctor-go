@@ -267,7 +267,9 @@ func (doc *Document) consumeLinesUntil(node *adocNode, term int, terms []int) (
 				return line, c
 			}
 		}
-		if node.kind == nodeKindBlockPassthrough {
+		if node.kind == nodeKindBlockPassthrough ||
+			node.kind == nodeKindBlockListing ||
+			node.kind == nodeKindBlockLiteral {
 			node.WriteString(spaces)
 		} else if node.kind == nodeKindParagraph && len(spaces) > 0 {
 			node.WriteByte(' ')
@@ -638,6 +640,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 						nodeKindBlockLiteral,
 						nodeKindBlockLiteralNamed,
 					})
+				node.applySubstitutions()
 			}
 			parent.addChild(node)
 			node = &adocNode{}
@@ -647,6 +650,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 			node.kind = doc.kind
 			node.classes = append(node.classes, classNameLiteralBlock)
 			line, _ = doc.consumeLinesUntil(node, doc.kind, nil)
+			node.applySubstitutions()
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
@@ -655,6 +659,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 			node.kind = doc.kind
 			node.classes = append(node.classes, classNameLiteralBlock)
 			line, _ = doc.consumeLinesUntil(node, lineKindEmpty, nil)
+			node.applySubstitutions()
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
@@ -663,6 +668,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 			node.kind = doc.kind
 			node.classes = append(node.classes, classNameListingBlock)
 			line, _ = doc.consumeLinesUntil(node, doc.kind, nil)
+			node.applySubstitutions()
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
@@ -680,6 +686,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 					nodeKindBlockLiteralNamed,
 					lineKindListContinue,
 				})
+			node.applySubstitutions()
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
@@ -998,6 +1005,7 @@ func (doc *Document) parseListBlock() (node *adocNode, line string, c rune) {
 					nodeKindListOrderedItem,
 					nodeKindListUnorderedItem,
 				})
+			node.applySubstitutions()
 			break
 		}
 		if doc.kind == lineKindText {
@@ -1024,6 +1032,7 @@ func (doc *Document) parseListBlock() (node *adocNode, line string, c rune) {
 				classes: []string{classNameListingBlock},
 			}
 			doc.consumeLinesUntil(node, doc.kind, nil)
+			node.applySubstitutions()
 			line = ""
 			break
 		}
@@ -1144,6 +1153,7 @@ func (doc *Document) parseListDescription(parent, node *adocNode, line string) (
 					nodeKindListOrderedItem,
 					nodeKindListUnorderedItem,
 				})
+			node.applySubstitutions()
 			listItem.addChild(node)
 			continue
 		}
@@ -1161,6 +1171,7 @@ func (doc *Document) parseListDescription(parent, node *adocNode, line string) (
 					nodeKindListOrderedItem,
 					nodeKindListUnorderedItem,
 				})
+			node.applySubstitutions()
 			listItem.addChild(node)
 			continue
 		}
@@ -1336,6 +1347,7 @@ func (doc *Document) parseListOrdered(parent *adocNode, title, line string) (
 					nodeKindListOrderedItem,
 					nodeKindListUnorderedItem,
 				})
+			node.applySubstitutions()
 			listItem.addChild(node)
 			continue
 		}
@@ -1353,6 +1365,7 @@ func (doc *Document) parseListOrdered(parent *adocNode, title, line string) (
 					nodeKindListOrderedItem,
 					nodeKindListUnorderedItem,
 				})
+			node.applySubstitutions()
 			listItem.addChild(node)
 			continue
 		}
@@ -1526,6 +1539,7 @@ func (doc *Document) parseListUnordered(parent, node *adocNode, line string) (
 					nodeKindListOrderedItem,
 					nodeKindListUnorderedItem,
 				})
+			node.applySubstitutions()
 			listItem.addChild(node)
 			continue
 		}
@@ -1543,6 +1557,7 @@ func (doc *Document) parseListUnordered(parent, node *adocNode, line string) (
 					nodeKindListOrderedItem,
 					nodeKindListUnorderedItem,
 				})
+			node.applySubstitutions()
 			listItem.addChild(node)
 			continue
 		}
