@@ -51,9 +51,8 @@ type Document struct {
 	tocIsEnabled bool
 	tocClasses   []string
 
-	// anchors contains mapping between reference ID and its label and
-	// vice versa.
-	anchors map[string]string
+	// anchors contains mapping between unique ID and its label.
+	anchors map[string]*anchor
 	// titleID is the reverse of anchors, it contains mapping of title and
 	// its ID.
 	titleID map[string]string
@@ -89,7 +88,7 @@ func Open(file string) (doc *Document, err error) {
 		TOCLevel:    defTOCLevel,
 		TOCTitle:    defTOCTitle,
 		Attributes:  newAttributeEntry(),
-		anchors:     make(map[string]string),
+		anchors:     make(map[string]*anchor),
 		titleID:     make(map[string]string),
 		sectnums:    &sectionCounters{},
 		sectLevel:   defSectnumlevels,
@@ -414,8 +413,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 			idLabel := line[2 : len(line)-2]
 			id, label := parseIDLabel(idLabel)
 			if len(id) > 0 {
-				node.ID = id
-				doc.registerAnchor(id, label)
+				node.ID = doc.registerAnchor(id, label)
 				line = ""
 				continue
 			}
@@ -442,8 +440,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 			id := line[2 : len(line)-1]
 			id, label := parseIDLabel(id)
 			if len(id) > 0 {
-				node.ID = id
-				doc.registerAnchor(id, label)
+				node.ID = doc.registerAnchor(id, label)
 				line = ""
 				continue
 			}
@@ -1601,8 +1598,25 @@ func (doc *Document) parseListUnordered(parent, node *adocNode, line string) (
 	return line, c
 }
 
-func (doc *Document) registerAnchor(id, label string) {
-	doc.anchors[id] = label
+//
+// registerAnchor register ID and its label.
+// If the ID is already exist it will generate new ID with additional suffix
+// "_x" added, where x is the counter of duplicate ID.
+// The old or new ID will be returned to caller.
+//
+func (doc *Document) registerAnchor(id, label string) string {
+	got, ok := doc.anchors[id]
+	for ok {
+		log.Printf("registerAnchor duplicate: %s %+v", id, got)
+		// The ID is duplicate
+		got.counter++
+		id = fmt.Sprintf("%s_%d", id, got.counter)
+		got, ok = doc.anchors[id]
+	}
+	doc.anchors[id] = &anchor{
+		label: label,
+	}
+	return id
 }
 
 //

@@ -83,8 +83,10 @@ func TestParserInline_parseAttrRef(t *testing.T) {
 }
 
 func TestParserInline_parseCrossReference(t *testing.T) {
-	_testDoc.anchors = map[string]string{
-		"x": "X y",
+	_testDoc.anchors = map[string]*anchor{
+		"x": &anchor{
+			label: "X y",
+		},
 	}
 	_testDoc.titleID = map[string]string{
 		"X y": "x",
@@ -262,6 +264,8 @@ func TestParserInline_parseInlineID(t *testing.T) {
 }
 
 func TestParserInline_parseInlineIDShort(t *testing.T) {
+	_testDoc.anchors = make(map[string]*anchor)
+
 	cases := []struct {
 		content string
 		exp     string

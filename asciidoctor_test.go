@@ -20,7 +20,7 @@ func TestMain(m *testing.M) {
 	var err error
 
 	_testDoc = &Document{
-		anchors: make(map[string]string),
+		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
 	}
 	_testTmpl, err = _testDoc.createHTMLTemplate()

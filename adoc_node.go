@@ -597,17 +597,19 @@ func (node *adocNode) parseSection(doc *Document) {
 
 	if len(node.ID) == 0 {
 		node.ID = generateID(node.Text)
+		node.ID = doc.registerAnchor(node.ID, node.Text)
 	}
-	doc.titleID[node.Text] = node.ID
 
 	refText, ok := node.Attrs[attrNameRefText]
 	if ok {
 		doc.titleID[refText] = node.ID
-	} else {
-		refText = node.Text
+		// Replace the label with refText.
+		anc := doc.anchors[node.ID]
+		if anc != nil {
+			anc.label = refText
+		}
 	}
-
-	doc.registerAnchor(node.ID, refText)
+	doc.titleID[node.Text] = node.ID
 
 	_, ok = doc.Attributes[attrNameSectnums]
 	if ok {

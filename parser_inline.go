@@ -436,7 +436,10 @@ func (pi *parserInline) parseCrossRef() bool {
 	} else if isValidID(parts[0]) {
 		href = parts[0]
 		if len(label) == 0 {
-			label = pi.doc.anchors[href]
+			anchor := pi.doc.anchors[href]
+			if anchor != nil {
+				label = anchor.label
+			}
 		}
 	} else {
 		return false
@@ -478,7 +481,7 @@ func (pi *parserInline) parseInlineID() bool {
 		return false
 	}
 
-	pi.doc.registerAnchor(id, label)
+	id = pi.doc.registerAnchor(id, label)
 
 	node := &adocNode{
 		ID:   id,
@@ -518,7 +521,7 @@ func (pi *parserInline) parseInlineIDShort() bool {
 		return false
 	}
 
-	pi.doc.registerAnchor(stringID, "")
+	stringID = pi.doc.registerAnchor(stringID, "")
 
 	node := &adocNode{
 		ID:   stringID,
