@@ -307,12 +307,16 @@ Last updated {{.LastUpdated}}
 {{define "END_INLINE_ID_SHORT"}}</span>{{end}}
 
 {{- define "INLINE_IMAGE" -}}
-{{- $content := .Content -}}
+{{- $link := .Attrs.link -}}
 <span
 	{{- with $c := printf "image %s" .Classes | trimSpace}} class="{{$c}}"{{end -}}
-><img src="{{.Attrs.src}}" alt="{{.Attrs.alt}}"
+>
+{{- with $link}}<a class="image" href="{{$link}}">{{end -}}
+<img src="{{.Attrs.src}}" alt="{{.Attrs.alt}}"
 	{{- with $w := .Attrs.width}} width="{{$w}}"{{end}}
-	{{- with $h := .Attrs.height}} height="{{$h}}"{{end}}></span>
+	{{- with $h := .Attrs.height}} height="{{$h}}"{{end}}>
+{{- with $link}}</a>{{end -}}
+</span>
 {{- end}}
 {{/*----------------------------------------------------------------------*/}}
 

@@ -317,6 +317,11 @@ You can find Linux everywhere these days!`,
 	}, {
 		content: `image:sunset.jpg[Sunset,150,150,role="right"] What a beautiful sunset!`,
 		exp:     `<span class="image right"><img src="sunset.jpg" alt="Sunset" width="150" height="150"></span> What a beautiful sunset!`,
+	}, {
+		content: `image:sunset.jpg[Sunset]
+image:linux.png[2]`,
+		exp: `<span class="image"><img src="sunset.jpg" alt="Sunset"></span>
+<span class="image"><img src="linux.png" alt="2"></span>`,
 	}}
 
 	var buf bytes.Buffer

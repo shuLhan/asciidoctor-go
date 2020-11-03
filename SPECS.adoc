@@ -283,7 +283,7 @@ IMAGE_ATTRS   = TEXT ("," IMAGE_WIDTH ("," IMAGE_HEIGHT)) *("," IMAGE_OPTS)
 
 IMAGE_OPTS    = IMAGE_OPT_KEY "=" 1*VCHAR
 
-IMAGE_OPT_KEY = "title" / "float" / "align" / "role"
+IMAGE_OPT_KEY = "title" / "float" / "align" / "role" / "link"
 ----
 
 ==  Video

@@ -101,6 +101,7 @@ const (
 	attrNameID            = "id"
 	attrNameIcons         = "icons"
 	attrNameLang          = "lang"
+	attrNameLink          = "link"
 	attrNameOptions       = "options"
 	attrNamePoster        = "poster"
 	attrNameRefText       = "reftext"

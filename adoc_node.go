@@ -430,13 +430,16 @@ func (node *adocNode) parseImage(line string) bool {
 		if len(kv) != 2 {
 			continue
 		}
+		key := strings.TrimSpace(kv[0])
 		val := strings.Trim(kv[1], `"`)
-		switch kv[0] {
+		switch key {
 		case attrNameFloat, attrNameAlign, attrNameRole:
 			if val == "center" {
 				val = "text-center"
 			}
 			node.classes = append(node.classes, val)
+		default:
+			node.Attrs[key] = val
 		}
 	}
 	return true

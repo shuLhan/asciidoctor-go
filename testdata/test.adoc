@@ -613,6 +613,7 @@ You can find Linux everywhere these days!
 
 image:sunset.jpg[Sunset,150,150,role="right"] What a beautiful sunset!
 
+Image with link image:sunset.jpg[Sunset,link="https://kilabit.info"].
 
 == Block open
 

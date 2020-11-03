@@ -368,7 +368,7 @@ func (pi *parserInline) escape() {
 func (pi *parserInline) getBackMacroName() (macroName string, lastc byte) {
 	raw := pi.current.raw
 	start := len(raw) - 1
-	for start > 0 {
+	for start >= 0 {
 		if !ascii.IsAlpha(raw[start]) {
 			return string(raw[start+1:]), raw[start]
 		}
