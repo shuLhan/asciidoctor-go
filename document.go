@@ -40,10 +40,10 @@ type Document struct {
 	RevSeparator string
 	RevDate      string
 	LastUpdated  string
+	Attributes   AttributeEntry
 
-	classes    []string
-	attributes *attributeEntry
-	lineNum    int
+	classes []string
+	lineNum int
 
 	TOCTitle     string
 	TOCLevel     int
@@ -88,7 +88,7 @@ func Open(file string) (doc *Document, err error) {
 		LastUpdated: fi.ModTime().Round(time.Second).Format("2006-01-02 15:04:05 Z0700"),
 		TOCLevel:    defTOCLevel,
 		TOCTitle:    defTOCTitle,
-		attributes:  newAttributeEntry(),
+		Attributes:  newAttributeEntry(),
 		anchors:     make(map[string]string),
 		titleID:     make(map[string]string),
 		sectnums:    &sectionCounters{},
@@ -127,7 +127,7 @@ func (doc *Document) Parse(content []byte) {
 		log.Fatalf("Parse: " + err.Error())
 	}
 
-	sectLevel, ok := doc.attributes.v[attrNameSectnumlevels]
+	sectLevel, ok := doc.Attributes[attrNameSectnumlevels]
 	if ok {
 		doc.sectLevel, err = strconv.Atoi(sectLevel)
 		if err != nil {
@@ -156,7 +156,7 @@ func (doc *Document) ToHTML(w io.Writer) (err error) {
 
 	doc.classes = append(doc.classes, classNameArticle)
 
-	doc.tocPosition, doc.tocIsEnabled = doc.attributes.v[metaNameTOC]
+	doc.tocPosition, doc.tocIsEnabled = doc.Attributes[metaNameTOC]
 
 	switch doc.tocPosition {
 	case metaValueLeft:
@@ -438,7 +438,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 					}
 					node.Attrs[key] = value
 				} else {
-					doc.attributes.apply(key, value)
+					doc.Attributes.apply(key, value)
 					parent.addChild(&adocNode{
 						kind:  doc.kind,
 						key:   key,
@@ -870,7 +870,7 @@ func (doc *Document) parseHeader() {
 		if line[0] == ':' {
 			key, value := doc.parseAttribute(line, false)
 			if len(key) > 0 {
-				doc.attributes.apply(key, value)
+				doc.Attributes.apply(key, value)
 				continue
 			}
 			if state != stateTitle {
@@ -1577,7 +1577,7 @@ func (doc *Document) registerAnchor(id, label string) {
 // tocHTML write table of contents with HTML template into out.
 //
 func (doc *Document) tocHTML(tmpl *template.Template, out io.Writer) (err error) {
-	v, ok := doc.attributes.v[metaNameTOCLevels]
+	v, ok := doc.Attributes[metaNameTOCLevels]
 	if ok {
 		doc.TOCLevel, err = strconv.Atoi(v)
 		if err != nil {
@@ -1588,7 +1588,7 @@ func (doc *Document) tocHTML(tmpl *template.Template, out io.Writer) (err error)
 		}
 	}
 
-	v, ok = doc.attributes.v[metaNameTOCTitle]
+	v, ok = doc.Attributes[metaNameTOCTitle]
 	if ok && len(v) > 0 {
 		doc.TOCTitle = v
 	}

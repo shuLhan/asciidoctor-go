@@ -6,22 +6,22 @@ package asciidoctor
 
 import "strings"
 
-type attributeEntry struct {
-	v map[string]string
+//
+// AttributeEntry contains the mapping of global attribute keys in the headers
+// with its value.
+//
+type AttributeEntry map[string]string
+
+func newAttributeEntry() AttributeEntry {
+	return AttributeEntry{}
 }
 
-func newAttributeEntry() *attributeEntry {
-	return &attributeEntry{
-		v: make(map[string]string),
-	}
-}
-
-func (entry *attributeEntry) apply(key, val string) {
+func (entry *AttributeEntry) apply(key, val string) {
 	if key[0] == '!' {
-		delete(entry.v, strings.TrimSpace(key[1:]))
+		delete(*entry, strings.TrimSpace(key[1:]))
 	} else if key[len(key)-1] == '!' {
-		delete(entry.v, strings.TrimSpace(key[:len(key)-1]))
+		delete(*entry, strings.TrimSpace(key[:len(key)-1]))
 	} else {
-		entry.v[key] = val
+		(*entry)[key] = val
 	}
 }

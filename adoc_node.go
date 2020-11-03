@@ -597,7 +597,7 @@ func (node *adocNode) parseSection(doc *Document) {
 
 	doc.registerAnchor(node.ID, refText)
 
-	_, ok = doc.attributes.v[attrNameSectnums]
+	_, ok = doc.Attributes[attrNameSectnums]
 	if ok {
 		node.sectnums = doc.sectnums.set(node.level)
 	}
@@ -786,7 +786,7 @@ func (node *adocNode) setStyleAdmonition(admName string) {
 func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer, isForToC bool) (err error) {
 	switch node.kind {
 	case lineKindAttribute:
-		doc.attributes.apply(node.key, node.value)
+		doc.Attributes.apply(node.key, node.value)
 
 	case nodeKindCrossReference:
 		href, ok := node.Attrs[attrNameHref]

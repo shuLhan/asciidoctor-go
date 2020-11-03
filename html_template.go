@@ -21,7 +21,7 @@ func (doc *Document) createHTMLTemplate() (tmpl *template.Template, err error) {
 		// docAttribute access the global document attributes using
 		// specific key.
 		"docAttribute": func(key string) string {
-			return doc.attributes.v[key]
+			return doc.Attributes[key]
 		},
 		"exampleCounter": func() int {
 			exampleCounter++
