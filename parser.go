@@ -128,9 +128,12 @@ const (
 
 // List of document metadata.
 const (
-	metaNameTOC       = "toc"
-	metaNameTOCLevels = "toclevels"
-	metaNameTOCTitle  = "toc-title"
+	metaNameDescription = "description"
+	metaNameKeywords    = "keywords"
+	metaNameTOC         = "toc"
+	metaNameTOCLevels   = "toclevels"
+	metaNameTOCTitle    = "toc-title"
+	metaNameTitle       = "title"
 )
 
 // List of possible metadata value.

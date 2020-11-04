@@ -45,11 +45,11 @@ type Document struct {
 	classes []string
 	lineNum int
 
-	TOCTitle     string
 	TOCLevel     int
-	tocPosition  string
-	tocIsEnabled bool
 	tocClasses   []string
+	tocPosition  string
+	tocTitle     string
+	tocIsEnabled bool
 
 	// anchors contains mapping between unique ID and its label.
 	anchors map[string]*anchor
@@ -86,7 +86,7 @@ func Open(file string) (doc *Document, err error) {
 		file:        file,
 		LastUpdated: fi.ModTime().Round(time.Second).Format("2006-01-02 15:04:05 Z0700"),
 		TOCLevel:    defTOCLevel,
-		TOCTitle:    defTOCTitle,
+		tocTitle:    defTOCTitle,
 		Attributes:  newAttributeEntry(),
 		anchors:     make(map[string]*anchor),
 		titleID:     make(map[string]string),
@@ -100,13 +100,6 @@ func Open(file string) (doc *Document, err error) {
 	doc.Parse(raw)
 
 	return doc, nil
-}
-
-//
-// Classes return the HTML class value for document body.
-//
-func (doc *Document) Classes() string {
-	return strings.Join(doc.classes, " ")
 }
 
 //
@@ -148,7 +141,7 @@ func (doc *Document) Parse(content []byte) {
 // ToHTML convert the asciidoc document into full HTML document, including
 // head and body.
 //
-func (doc *Document) ToHTML(w io.Writer) (err error) {
+func (doc *Document) ToHTML(out io.Writer) (err error) {
 	tmpl, err := doc.createHTMLTemplate()
 	if err != nil {
 		return err
@@ -169,17 +162,75 @@ func (doc *Document) ToHTML(w io.Writer) (err error) {
 		doc.tocClasses = append(doc.tocClasses, classNameToc)
 	}
 
-	err = tmpl.ExecuteTemplate(w, "BEGIN", doc)
+	_, err = fmt.Fprintf(out, _htmlBegin)
 	if err != nil {
 		return err
 	}
 
-	err = doc.htmlWriteBody(tmpl, w)
-	if err != nil {
+	metaValue := doc.Attributes[metaNameDescription]
+	if len(metaValue) > 0 {
+		_, err = fmt.Fprintf(out, _htmlMetaDescription, metaValue)
+		if err != nil {
+			return err
+		}
+	}
+
+	metaValue = doc.Attributes[metaNameKeywords]
+	if len(metaValue) > 0 {
+		_, err = fmt.Fprintf(out, _htmlMetaKeywords, metaValue)
+		if err != nil {
+			return err
+		}
+	}
+
+	if len(doc.Author) > 0 {
+		_, err = fmt.Fprintf(out, _htmlMetaAuthor, doc.Author)
+		if err != nil {
+			return err
+		}
+	}
+
+	title := doc.Attributes[metaNameTitle]
+	if len(title) == 0 && len(doc.Title) > 0 {
+		title = doc.Title
+	}
+	if len(title) > 0 {
+		_, err = fmt.Fprintf(out, _htmlHeadTitle, title)
+		if err != nil {
+			return err
+		}
+	}
+	if _, err = fmt.Fprint(out, _htmlHeadStyle); err != nil {
 		return err
 	}
 
-	err = tmpl.ExecuteTemplate(w, "END", doc)
+	bodyClasses := strings.Join(doc.classes, " ")
+	if _, err = fmt.Fprintf(out, _htmlBodyBegin, bodyClasses); err != nil {
+		return err
+	}
+
+	if err = doc.htmlWriteBody(tmpl, out); err != nil {
+		return err
+	}
+
+	if _, err = fmt.Fprint(out, _htmlFooterBegin); err != nil {
+		return err
+	}
+	if len(doc.RevNumber) > 0 {
+		_, err = fmt.Fprintf(out, _htmlFooterVersion, doc.RevNumber)
+		if err != nil {
+			return err
+		}
+	}
+	if _, err = fmt.Fprintf(out, _htmlFooterLastUpdated, doc.LastUpdated); err != nil {
+		if err != nil {
+			return err
+		}
+	}
+	if _, err = fmt.Fprint(out, _htmlFooterEnd); err != nil {
+		return err
+	}
+	_, err = fmt.Fprint(out, _htmlBodyEnd)
 
 	return err
 }
@@ -255,7 +306,7 @@ func (doc *Document) htmlWriteBody(tmpl *template.Template, w io.Writer) (err er
 		return err
 	}
 
-	err = tmpl.ExecuteTemplate(w, "BEGIN_CONTENT", doc)
+	_, err = fmt.Fprint(w, _htmlContentBegin)
 	if err != nil {
 		return err
 	}
@@ -272,14 +323,13 @@ func (doc *Document) htmlWriteBody(tmpl *template.Template, w io.Writer) (err er
 			return err
 		}
 	}
-	return nil
-}
 
-//
-// TocClasses return list of classes for table of contents.
-//
-func (doc *Document) TocClasses() string {
-	return strings.Join(doc.tocClasses, " ")
+	_, err = fmt.Fprint(w, _htmlContentEnd)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (doc *Document) consumeLinesUntil(node *adocNode, term int, terms []int) (
@@ -1629,24 +1679,25 @@ func (doc *Document) tocHTML(tmpl *template.Template, out io.Writer) (err error)
 		}
 	}
 
+	tocClasses := strings.Join(doc.tocClasses, " ")
 	v, ok = doc.Attributes[metaNameTOCTitle]
 	if ok && len(v) > 0 {
-		doc.TOCTitle = v
+		doc.tocTitle = v
 	}
 
-	err = tmpl.ExecuteTemplate(out, "BEGIN_TOC", doc)
+	_, err = fmt.Fprintf(out, _htmlToCBegin, tocClasses, doc.tocTitle)
 	if err != nil {
-		return fmt.Errorf("tocHTML: BEGIN_TOC: %w", err)
+		return fmt.Errorf("tocHTML: _htmlToCBegin: %w", err)
 	}
 
 	err = doc.htmlGenerateTOC(doc.content, tmpl, out, 0)
 	if err != nil {
-		return fmt.Errorf("tocHTML: %w", err)
+		return fmt.Errorf("tocHTML: htmlGenerateTOC: %w", err)
 	}
 
-	err = tmpl.ExecuteTemplate(out, "END_TOC", doc)
+	_, err = fmt.Fprintf(out, _htmlToCEnd)
 	if err != nil {
-		return fmt.Errorf("tocHTML: END_TOC: %w", err)
+		return fmt.Errorf("tocHTML: _htmlToCEnd: %w", err)
 	}
 
 	return nil

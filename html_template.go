@@ -9,9 +9,85 @@ import (
 	"text/template"
 )
 
+//
+// HTML templates for head, meta attributes, and footers.
+//
 const (
-	_htmlCrossReference = "<a href=\"#%s\">%s</a>"
+	_htmlBegin = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="ciigo">`
 
+	_htmlMetaAuthor = `
+<meta name="author" content="%s">`
+
+	_htmlMetaDescription = `
+<meta name="description" content="%s">`
+
+	_htmlMetaKeywords = `
+<meta name="keywords" content="%s">`
+
+	_htmlHeadTitle = `
+<title>%s</title>`
+
+	_htmlHeadStyle = `
+<style>
+
+</style>`
+
+	_htmlBodyBegin = `
+</head>
+<body class="%s">`
+
+	_htmlFooterBegin = `
+<div id="footer">
+<div id="footer-text">`
+
+	_htmlFooterVersion = `
+Version %s<br>`
+
+	_htmlFooterLastUpdated = `
+Last updated %s`
+
+	_htmlFooterEnd = `
+</div>
+</div>`
+
+	_htmlBodyEnd = `
+</body>
+</html>`
+)
+
+//
+// HTML templates for content.
+//
+const (
+	_htmlContentBegin = `
+<div id="content">`
+
+	_htmlContentEnd = `
+</div>`
+)
+
+//
+// HTML templates for table of contens.
+//
+const (
+	_htmlToCBegin = `
+<div id="toc" class="%s">
+<div id="toctitle">%s</div>`
+
+	_htmlToCEnd = `
+</div>`
+)
+
+//
+// HTML templates for list description.
+//
+const (
 	_htmlListDescriptionItemBegin = `
 <dt class="hdlist1">%s</dt>
 <dd>`
@@ -33,6 +109,13 @@ const (
 	_htmlListDescriptionItemHorizontalEnd = `
 </td>
 </tr>`
+)
+
+//
+// HTML templates for inline markup.
+//
+const (
+	_htmlCrossReference = `<a href="#%s">%s</a>`
 )
 
 func (doc *Document) createHTMLTemplate() (tmpl *template.Template, err error) {
@@ -60,41 +143,6 @@ func (doc *Document) createHTMLTemplate() (tmpl *template.Template, err error) {
 			return strings.TrimSpace(s)
 		},
 	}).Parse(`
-{{- define "BEGIN" -}}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="ciigo">
-	{{- if .Author}}
-<meta name="author" content="{{.Author}}">
-	{{- end -}}
-	{{- if .Title}}
-<title>{{.Title}}</title>
-	{{- end}}
-<style>
-
-</style>
-</head>
-<body class="{{.Classes}}">
-{{- end -}}
-
-{{- define "END"}}
-</div>
-<div id="footer">
-<div id="footer-text">
-	{{- if .RevNumber}}
-Version {{.RevNumber}}<br>
-	{{- end}}
-Last updated {{.LastUpdated}}
-</div>
-</div>
-</body>
-</html>
-{{- end}}
-
 {{- define "BEGIN_HEADER"}}
 <div id="header">
 {{- end}}
@@ -122,22 +170,9 @@ Last updated {{.LastUpdated}}
 </div>
 {{- end}}
 
-{{- define "BEGIN_CONTENT"}}
-<div id="content">
-{{- end}}
-
 {{- define "BEGIN_PREAMBLE"}}
 <div id="preamble">
 <div class="sectionbody">
-{{- end}}
-
-{{- define "BEGIN_TOC"}}
-<div id="toc" class="{{.TocClasses}}">
-<div id="toctitle">{{.TOCTitle}}</div>
-{{end}}
-
-{{- define "END_TOC" -}}
-</div>
 {{- end}}
 
 {{- define "BEGIN_SECTION_L1"}}

@@ -6,6 +6,8 @@ v1.1.1, 18 July 2020
 :sectnums:
 :toc:
 :toclevels: 3
+:description: meta description
+:keywords: key, words
 
 This is preamble.
 :other metadata:
