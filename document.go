@@ -1603,7 +1603,6 @@ func (doc *Document) parseListUnordered(parent, node *adocNode, line string) (
 func (doc *Document) registerAnchor(id, label string) string {
 	got, ok := doc.anchors[id]
 	for ok {
-		log.Printf("registerAnchor duplicate: %s %+v", id, got)
 		// The ID is duplicate
 		got.counter++
 		id = fmt.Sprintf("%s_%d", id, got.counter)
