@@ -39,6 +39,7 @@ type adocNode struct {
 	// title is the parsed rawTitle for section L1 or parsed raw for
 	// section L2-L5.
 	title *adocNode
+	label *adocNode
 
 	// sectnums contain the current section numbers.
 	// It will be set only if attribute "sectnums" is on.
@@ -253,8 +254,6 @@ func (node *adocNode) WriteString(s string) {
 
 //
 // addChild push the node "child" to the list of current node child.
-//
-// This function trigger the text substitution on child.
 //
 func (node *adocNode) addChild(child *adocNode) {
 	if child == nil {
@@ -676,6 +675,11 @@ func (node *adocNode) postParseList(doc *Document, kind int) {
 	item := node.child
 	for item != nil {
 		if item.kind == kind {
+			if item.kind == nodeKindListDescriptionItem {
+				raw := item.rawLabel.Bytes()
+				item.label = parseInlineMarkup(doc, raw)
+				item.rawLabel.Reset()
+			}
 			item.parseInlineMarkup(doc, nodeKindInlineParagraph)
 		}
 		item = item.next
@@ -934,7 +938,28 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		_, err = w.Write([]byte("\n<li>"))
 
 	case nodeKindListDescriptionItem:
-		err = tmpl.ExecuteTemplate(w, "BEGIN_LIST_DESCRIPTION_ITEM", node)
+		var (
+			format string
+			label  bytes.Buffer
+		)
+		if node.label != nil {
+			err = node.label.toHTML(doc, tmpl, &label, false)
+			if err != nil {
+				return err
+			}
+		} else {
+			label.Write(node.rawLabel.Bytes())
+		}
+
+		if node.IsStyleQandA() {
+			format = _htmlListDescriptionItemQandABegin
+		} else if node.IsStyleHorizontal() {
+			format = _htmlListDescriptionItemHorizontalBegin
+		} else {
+			format = _htmlListDescriptionItemBegin
+		}
+		_, err = fmt.Fprintf(w, format, label.String())
+
 	case lineKindHorizontalRule:
 		err = tmpl.ExecuteTemplate(w, "HORIZONTAL_RULE", nil)
 	case lineKindPageBreak:
@@ -1158,7 +1183,16 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		_, err = w.Write([]byte("\n</li>"))
 
 	case nodeKindListDescriptionItem:
-		err = tmpl.ExecuteTemplate(w, "END_LIST_DESCRIPTION_ITEM", node)
+		var format string
+		if node.IsStyleQandA() {
+			format = _htmlListDescriptionItemQandAEnd
+		} else if node.IsStyleHorizontal() {
+			format = _htmlListDescriptionItemHorizontalEnd
+		} else {
+			format = _htmlListDescriptionItemEnd
+		}
+		_, err = w.Write([]byte(format))
+
 	case nodeKindListOrdered:
 		err = tmpl.ExecuteTemplate(w, "END_LIST_ORDERED", nil)
 	case nodeKindListUnordered:

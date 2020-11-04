@@ -11,6 +11,28 @@ import (
 
 const (
 	_htmlCrossReference = "<a href=\"#%s\">%s</a>"
+
+	_htmlListDescriptionItemBegin = `
+<dt class="hdlist1">%s</dt>
+<dd>`
+	_htmlListDescriptionItemEnd = `
+</dd>`
+
+	_htmlListDescriptionItemQandABegin = `
+<li>
+<p><em>%s</em></p>`
+	_htmlListDescriptionItemQandAEnd = `
+</li>`
+
+	_htmlListDescriptionItemHorizontalBegin = `
+<tr>
+<td class="hdlist1">
+%s
+</td>
+<td class="hdlist2">`
+	_htmlListDescriptionItemHorizontalEnd = `
+</td>
+</tr>`
 )
 
 func (doc *Document) createHTMLTemplate() (tmpl *template.Template, err error) {
@@ -245,35 +267,6 @@ Last updated {{.LastUpdated}}
 </dl>
 	{{- end}}
 </div>
-{{- end}}
-
-
-{{- define "BEGIN_LIST_DESCRIPTION_ITEM"}}
-	{{- if .IsStyleQandA}}
-<li>
-<p><em>{{.Label}}</em></p>
-	{{- else if .IsStyleHorizontal}}
-<tr>
-<td class="hdlist1">
-{{.Label}}
-</td>
-<td class="hdlist2">
-	{{- else}}
-<dt class="hdlist1">{{- .Label -}}</dt>
-<dd>
-	{{- end}}
-{{- end}}
-
-
-{{- define "END_LIST_DESCRIPTION_ITEM"}}
-	{{- if .IsStyleQandA}}
-</li>
-	{{- else if .IsStyleHorizontal}}
-</td>
-</tr>
-	{{- else}}
-</dd>
-	{{- end}}
 {{- end}}
 
 

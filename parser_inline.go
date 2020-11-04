@@ -329,7 +329,7 @@ func (pi *parserInline) do() {
 				continue
 			}
 			var isReplaced bool
-			raw, _ := indexUnescape(pi.content[pi.x+1:], []byte(")"))
+			raw, _ := indexByteUnescape(pi.content[pi.x+1:], ')')
 			if len(raw) == 1 {
 				if raw[0] == 'C' {
 					pi.current.WriteString(htmlSymbolCopyright)
@@ -384,7 +384,7 @@ func (pi *parserInline) getBackMacroName() (macroName string, lastc byte) {
 //
 func (pi *parserInline) parseAttrRef() bool {
 	raw := pi.content[pi.x+1:]
-	attrName, idx := indexUnescape(raw, []byte("}"))
+	attrName, idx := indexByteUnescape(raw, '}')
 	if idx < 0 {
 		return false
 	}

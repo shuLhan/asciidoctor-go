@@ -278,15 +278,16 @@ func isAdmonition(line string) bool {
 }
 
 func isLineDescriptionItem(line string) bool {
-	x := strings.Index(line, ":: ")
+	bline := []byte(line)
+	_, x := indexUnescape(bline, []byte(":: "))
 	if x > 0 {
 		return true
 	}
-	x = strings.Index(line, "::\t")
+	_, x = indexUnescape(bline, []byte("::\t"))
 	if x > 0 {
 		return true
 	}
-	x = strings.Index(line, "::")
+	_, x = indexUnescape(bline, []byte("::"))
 	return x > 0
 }
 

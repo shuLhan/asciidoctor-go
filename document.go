@@ -1162,12 +1162,8 @@ func (doc *Document) parseListDescription(parent, node *adocNode, line string) (
 				}
 				parentListItem = parentListItem.parent
 			}
-
 			line, c = doc.parseListDescription(listItem, node, line)
 			continue
-			if doc.prevKind == lineKindEmpty {
-				break
-			}
 		}
 		if doc.kind == nodeKindBlockListingNamed {
 			if doc.prevKind == lineKindEmpty {
