@@ -61,6 +61,29 @@ Last updated %s`
 </html>`
 )
 
+const (
+	_htmlHeaderBegin = `
+<div id="header">`
+
+	_htmlHeaderTitleBegin = `
+<h1>`
+	_htmlHeaderTitleEnd = `</h1>`
+
+	_htmlHeaderDetail = `
+<div class="details">`
+	_htmlHeaderDetailAuthor = `
+<span id="author" class="author">%s</span><br>`
+	_htmlHeaderDetailRevNumber = `
+<span id="revnumber">version %s%s</span>`
+	_htmlHeaderDetailRevDate = `
+<span id="revdate">%s</span>`
+	_htmlHeaderDetailEnd = `
+</div>`
+
+	_htmlHeaderEnd = `
+</div>`
+)
+
 //
 // HTML templates for content.
 //
@@ -70,6 +93,16 @@ const (
 
 	_htmlContentEnd = `
 </div>`
+)
+
+const (
+	_htmlPreambleBegin = `
+<div id="preamble">
+<div class="sectionbody">`
+
+	_htmlSection = `
+<div class="%s">
+<%s id="%s">`
 )
 
 //
@@ -82,6 +115,36 @@ const (
 
 	_htmlToCEnd = `
 </div>`
+)
+
+const (
+	_htmlAdmonitionIconsFont = `
+<i class="fa icon-%s" title="%s"></i>`
+
+	_htmlAdmonitionTitle = `
+<div class="title">%s</div>`
+
+	_htmlAdmonitionContent = `
+</td>
+<td class="content">
+%s`
+
+	_htmlAdmonitionEnd = `
+</td>
+</tr>
+</table>
+</div>`
+)
+
+const (
+	_htmlBlockLiteralContent = `
+<div class="content">
+<pre>%s</pre>
+</div>
+</div>`
+
+	_htmlBlockTitle = `
+<div class="title">%s</div>`
 )
 
 //
@@ -115,7 +178,13 @@ const (
 // HTML templates for inline markup.
 //
 const (
-	_htmlCrossReference = `<a href="#%s">%s</a>`
+	_htmlCrossReference   = `<a href="#%s">%s</a>`
+	_htmlHorizontalRule   = "\n<hr>"
+	_htmlInlineID         = "<a id=\"%s\"></a>"
+	_htmlInlineIDShort    = `<span id="%s">%s`
+	_htmlInlineIDShortEnd = `</span>`
+	_htmlPageBreak        = `
+<div style="page-break-after: always;"></div>`
 )
 
 func (doc *Document) createHTMLTemplate() (tmpl *template.Template, err error) {
@@ -123,11 +192,6 @@ func (doc *Document) createHTMLTemplate() (tmpl *template.Template, err error) {
 	exampleCounter := 0
 
 	tmpl, err = template.New("HTML").Funcs(map[string]interface{}{
-		// docAttribute access the global document attributes using
-		// specific key.
-		"docAttribute": func(key string) string {
-			return doc.Attributes[key]
-		},
 		"exampleCounter": func() int {
 			exampleCounter++
 			return exampleCounter
@@ -143,176 +207,13 @@ func (doc *Document) createHTMLTemplate() (tmpl *template.Template, err error) {
 			return strings.TrimSpace(s)
 		},
 	}).Parse(`
-{{- define "BEGIN_HEADER"}}
-<div id="header">
-{{- end}}
-
-{{- define "BEGIN_TITLE"}}
-<h1>
-{{- end}}
-{{- define "END_TITLE"}}</h1>{{end}}
-
-{{- define "HEADER_DETAILS"}}
-<div class="details">
-	{{- if .Author}}
-<span id="author" class="author">{{.Author}}</span><br>
-	{{- end}}
-	{{- if .RevNumber}}
-<span id="revnumber">version {{.RevNumber}}{{.RevSeparator}}</span>
-	{{- end}}
-	{{- if .RevDate}}
-<span id="revdate">{{.RevDate}}</span>
-	{{- end}}
-</div>
-{{- end}}
-
-{{- define "END_HEADER"}}
-</div>
-{{- end}}
-
-{{- define "BEGIN_PREAMBLE"}}
-<div id="preamble">
-<div class="sectionbody">
-{{- end}}
-
-{{- define "BEGIN_SECTION_L1"}}
-<div class="sect1">
-<h2 id="{{.ID}}">
-{{- end}}
-
-{{- define "BEGIN_SECTION_L2"}}
-<div class="sect2">
-<h3 id="{{.ID}}">
-{{- end}}
-
-{{- define "BEGIN_SECTION_L3"}}
-<div class="sect3">
-<h4 id="{{.ID}}">
-{{- end}}
-
-{{- define "BEGIN_SECTION_L4"}}
-<div class="sect4">
-<h5 id="{{.ID}}">
-{{- end}}
-
-{{- define "BEGIN_SECTION_L5"}}
-<div class="sect5">
-<h6 id="{{.ID}}">
-{{- end}}
-
-{{- define "END_SECTION"}}
-</div>
-{{- end}}
-
 {{- define "BLOCK_TITLE"}}
 	{{- with $title := .Title}}
 <div class="title">{{$title}}</div>
 	{{- end}}
 {{- end}}
-{{/*----------------------------------------------------------------------*/}}
-{{- define "BEGIN_PARAGRAPH"}}
-<div
-	{{- if .ID}} id="{{.ID}}"{{end}}
-	{{- with $c := printf "paragraph %s" .Classes | trimSpace}} class="{{$c}}"{{end -}}
->
-{{- template "BLOCK_TITLE" .}}
-<p>
-{{- end}}
-{{- define "END_PARAGRAPH"}}</p>
-</div>
-{{- end}}
-{{/*----------------------------------------------------------------------*/}}
-{{- define "BLOCK_LITERAL"}}
-<div
-	{{- if .ID}} id="{{.ID}}"{{end}}
-	{{- with $c := .Classes}} class="{{$c -}}"{{end -}}
->
-<div class="content">
-<pre>{{.Content -}}</pre>
-</div>
-</div>
-{{- end}}
-{{/*----------------------------------------------------------------------*/}}
-{{- define "BLOCK_LISTING"}}
-<div
-	{{- if .ID}} id="{{.ID}}"{{end}}
-	{{- with $c := .Classes}} class="{{$c -}}"{{end -}}
->
-<div class="content">
-<pre>{{.Content -}}</pre>
-</div>
-</div>
-{{- end}}
-{{/*----------------------------------------------------------------------*/}}
-{{- define "BEGIN_LIST_ORDERED"}}
-{{- $class := .GetListOrderedClass}}
-{{- $type := .GetListOrderedType}}
-<div
-	{{- if .ID}} id="{{.ID}}"{{end}}
-	{{- with $c := printf "olist %s %s" $class .Classes | trimSpace}} class="{{$c}}"{{end -}}
->
-{{- template "BLOCK_TITLE" .}}
-<ol class="{{$class}}"{{- if $type}} type="{{$type}}"{{end}}>
-{{- end}}
-{{- define "END_LIST_ORDERED"}}
-</ol>
-</div>
-{{- end}}
-{{/*----------------------------------------------------------------------*/}}
-{{- define "BEGIN_LIST_UNORDERED"}}
-<div
-	{{- if .ID}} id="{{.ID}}"{{end}}
-	{{- with $c := .Classes}} class="{{$c -}}"{{end -}}
->
-{{- template "BLOCK_TITLE" .}}
-<ul>
-{{- end}}
-{{define "END_LIST_UNORDERED"}}
-</ul>
-</div>
-{{- end}}
 
 
-{{- define "BEGIN_LIST_DESCRIPTION"}}
-	{{- if .IsStyleQandA}}
-<div
-	{{- if .ID}} id="{{.ID}}"{{end}}
-	{{- with $c := printf "qlist qanda %s" .Classes | trimSpace}} class="{{$c}}"{{end -}}
->
-{{- template "BLOCK_TITLE" .}}
-<ol>
-	{{- else if .IsStyleHorizontal}}
-<div class="hdlist {{- .Classes -}}">
-{{- template "BLOCK_TITLE" .}}
-<table>
-	{{- else}}
-<div class="dlist {{- .Classes -}}">
-{{- template "BLOCK_TITLE" .}}
-<dl>
-	{{- end}}
-{{- end}}
-
-
-{{- define "END_LIST_DESCRIPTION"}}
-	{{- if .IsStyleQandA}}
-</ol>
-	{{- else if .IsStyleHorizontal}}
-</table>
-	{{- else}}
-</dl>
-	{{- end}}
-</div>
-{{- end}}
-
-
-{{- define "HORIZONTAL_RULE"}}
-<hr>
-{{- end}}
-{{/*----------------------------------------------------------------------*/}}
-{{- define "PAGE_BREAK"}}
-<div style="page-break-after: always;"></div>
-{{- end}}
-{{/*----------------------------------------------------------------------*/}}
 {{- define "BLOCK_IMAGE"}}
 <div
 	{{- if .ID}} id="{{.ID}}"{{end}}
@@ -329,10 +230,6 @@ func (doc *Document) createHTMLTemplate() (tmpl *template.Template, err error) {
 </div>
 {{- end}}
 
-{{define "INLINE_ID"}}<a id="{{.ID}}"></a>{{end}}
-
-{{define "BEGIN_INLINE_ID_SHORT"}}<span id="{{.ID}}">{{end}}
-{{define "END_INLINE_ID_SHORT"}}</span>{{end}}
 
 {{- define "INLINE_IMAGE" -}}
 {{- $link := .Attrs.link -}}
@@ -408,32 +305,8 @@ Your browser does not support the audio tag.
 </div>
 </div>
 {{- end}}
-{{/*----------------------------------------------------------------------*/}}
-{{- define "BEGIN_ADMONITION"}}
-<div
-	{{- if .ID}} id="{{.ID}}"{{end}}
-	{{- with $c := printf "admonitionblock %s" .Classes | trimSpace}} class="{{$c}}"{{end -}}
->
-<table>
-<tr>
-<td class="icon">
-	{{- $icons := printf "%s" .Attrs.icons }}
-	{{- if eq $icons "font"}}
-<i class="fa icon-{{toLower .Classes}}" title="{{.Label}}"></i>
-	{{- else}}
-<div class="title">{{.Label}}</div>
-	{{- end}}
-</td>
-<td class="content">
-{{.Content}}
-{{- end}}
-{{- define "END_ADMONITION"}}
-</td>
-</tr>
-</table>
-</div>
-{{- end}}
-{{/*----------------------------------------------------------------------*/}}
+
+
 {{- define "BEGIN_SIDEBAR"}}
 <div
 	{{- if .ID}} id="{{.ID}}"{{end}}
@@ -512,16 +385,6 @@ Your browser does not support the audio tag.
 	{{- end}}
 </div>
 </div>
-{{- end}}
-{{/*----------------------------------------------------------------------*/}}
-{{- define "BEGIN_URL" -}}
-<a href="{{.Attrs.href}}"
-	{{- with $classes := .Classes}} class="{{trimSpace $classes}}"{{end}}
-	{{- with $target := .Attrs.target}} target="{{$target}}"{{end}}
-	{{- with $rel := .Attrs.rel}} rel="{{$rel}}"{{end}}>{{.Content}}
-{{- end}}
-{{- define "END_URL" -}}
-</a>
 {{- end}}
 `)
 	return tmpl, err

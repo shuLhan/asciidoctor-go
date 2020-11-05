@@ -209,7 +209,7 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 		return err
 	}
 
-	if err = doc.htmlWriteBody(tmpl, out); err != nil {
+	if err = htmlWriteBody(doc, tmpl, out); err != nil {
 		return err
 	}
 
@@ -259,72 +259,7 @@ func (doc *Document) ToHTMLBody(w io.Writer) (err error) {
 		doc.tocClasses = append(doc.tocClasses, classNameToc)
 	}
 
-	err = doc.htmlWriteBody(tmpl, w)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (doc *Document) htmlWriteBody(tmpl *template.Template, w io.Writer) (err error) {
-	err = tmpl.ExecuteTemplate(w, "BEGIN_HEADER", doc)
-	if err != nil {
-		return err
-	}
-
-	err = tmpl.ExecuteTemplate(w, "BEGIN_TITLE", doc)
-	if err != nil {
-		return err
-	}
-	err = doc.title.toHTML(doc, tmpl, w, false)
-	if err != nil {
-		return err
-	}
-	err = tmpl.ExecuteTemplate(w, "END_TITLE", doc)
-	if err != nil {
-		return err
-	}
-
-	err = tmpl.ExecuteTemplate(w, "HEADER_DETAILS", doc)
-	if err != nil {
-		return err
-	}
-
-	if doc.tocIsEnabled && (doc.tocPosition == "" ||
-		doc.tocPosition == metaValueAuto ||
-		doc.tocPosition == metaValueLeft ||
-		doc.tocPosition == metaValueRight) {
-		err = doc.tocHTML(tmpl, w)
-		if err != nil {
-			return fmt.Errorf("ToHTML: %w", err)
-		}
-	}
-
-	err = tmpl.ExecuteTemplate(w, "END_HEADER", doc)
-	if err != nil {
-		return err
-	}
-
-	_, err = fmt.Fprint(w, _htmlContentBegin)
-	if err != nil {
-		return err
-	}
-
-	if doc.content.child != nil {
-		err = doc.content.child.toHTML(doc, tmpl, w, false)
-		if err != nil {
-			return err
-		}
-	}
-	if doc.content.next != nil {
-		err = doc.content.next.toHTML(doc, tmpl, w, false)
-		if err != nil {
-			return err
-		}
-	}
-
-	_, err = fmt.Fprint(w, _htmlContentEnd)
+	err = htmlWriteBody(doc, tmpl, w)
 	if err != nil {
 		return err
 	}
@@ -1690,9 +1625,9 @@ func (doc *Document) tocHTML(tmpl *template.Template, out io.Writer) (err error)
 		return fmt.Errorf("tocHTML: _htmlToCBegin: %w", err)
 	}
 
-	err = doc.htmlGenerateTOC(doc.content, tmpl, out, 0)
+	err = htmlWriteToC(doc, doc.content, tmpl, out, 0)
 	if err != nil {
-		return fmt.Errorf("tocHTML: htmlGenerateTOC: %w", err)
+		return fmt.Errorf("tocHTML: %w", err)
 	}
 
 	_, err = fmt.Fprintf(out, _htmlToCEnd)

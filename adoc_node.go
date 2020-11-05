@@ -63,7 +63,7 @@ func (node *adocNode) Content() string {
 	return string(node.raw)
 }
 
-func (node *adocNode) GetListOrderedClass() string {
+func (node *adocNode) getListOrderedClass() string {
 	switch node.level {
 	case 2:
 		return "loweralpha"
@@ -77,7 +77,7 @@ func (node *adocNode) GetListOrderedClass() string {
 	return "arabic"
 }
 
-func (node *adocNode) GetListOrderedType() string {
+func (node *adocNode) getListOrderedType() string {
 	switch node.level {
 	case 2:
 		return "a"
@@ -824,115 +824,39 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 				return fmt.Errorf("toHTML: nodeKindMacroTOC: %w", err)
 			}
 		}
-	case nodeKindPreamble:
-		err = tmpl.ExecuteTemplate(w, "BEGIN_PREAMBLE", nil)
-	case nodeKindSectionL1:
-		err = tmpl.ExecuteTemplate(w, "BEGIN_SECTION_L1", node)
-		if err != nil {
-			return err
-		}
-		if node.sectnums != nil && node.level <= doc.sectLevel {
-			_, err = w.Write([]byte(node.sectnums.String()))
-			if err != nil {
-				return err
-			}
-		}
-		err = node.title.toHTML(doc, tmpl, w, isForToC)
-		if err != nil {
-			return err
-		}
-		_, err = w.Write([]byte("</h2>"))
-		if err != nil {
-			return err
-		}
-		_, err = w.Write([]byte(`
-<div class="sectionbody">`))
 
-	case nodeKindSectionL2:
-		err = tmpl.ExecuteTemplate(w, "BEGIN_SECTION_L2", node)
-		if err != nil {
-			return err
-		}
-		if node.sectnums != nil && node.level <= doc.sectLevel {
-			_, err = w.Write([]byte(node.sectnums.String()))
-			if err != nil {
-				return err
-			}
-		}
-		err = node.title.toHTML(doc, tmpl, w, isForToC)
-		if err != nil {
-			return err
-		}
-		_, err = w.Write([]byte("</h3>"))
-	case nodeKindSectionL3:
-		err = tmpl.ExecuteTemplate(w, "BEGIN_SECTION_L3", node)
-		if err != nil {
-			return err
-		}
-		if node.title != nil {
-			if node.sectnums != nil && node.level <= doc.sectLevel {
-				_, err = w.Write([]byte(node.sectnums.String()))
-				if err != nil {
-					return err
-				}
-			}
-			err = node.title.toHTML(doc, tmpl, w, isForToC)
-		}
-		_, err = w.Write([]byte("</h4>"))
-	case nodeKindSectionL4:
-		err = tmpl.ExecuteTemplate(w, "BEGIN_SECTION_L4", node)
-		if err != nil {
-			return err
-		}
-		if node.title != nil {
-			if node.sectnums != nil && node.level <= doc.sectLevel {
-				_, err = w.Write([]byte(node.sectnums.String()))
-				if err != nil {
-					return err
-				}
-			}
-			err = node.title.toHTML(doc, tmpl, w, isForToC)
-		}
-		_, err = w.Write([]byte("</h5>"))
-	case nodeKindSectionL5:
-		err = tmpl.ExecuteTemplate(w, "BEGIN_SECTION_L5", node)
-		if err != nil {
-			return err
-		}
-		if node.title != nil {
-			if node.sectnums != nil && node.level <= doc.sectLevel {
-				_, err = w.Write([]byte(node.sectnums.String()))
-				if err != nil {
-					return err
-				}
-			}
-			err = node.title.toHTML(doc, tmpl, w, isForToC)
-		}
-		_, err = w.Write([]byte("</h6>"))
+	case nodeKindPreamble:
+		_, err = fmt.Fprint(w, _htmlPreambleBegin)
+
+	case nodeKindSectionL1, nodeKindSectionL2, nodeKindSectionL3,
+		nodeKindSectionL4, nodeKindSectionL5:
+		err = htmlWriteSection(doc, node, tmpl, w, isForToC)
+
 	case nodeKindParagraph:
 		if node.IsStyleAdmonition() {
-			err = tmpl.ExecuteTemplate(w, "BEGIN_ADMONITION", node)
+			err = htmlWriteBlockAdmonition(node, w)
 		} else if node.IsStyleQuote() {
 			err = tmpl.ExecuteTemplate(w, "BEGIN_QUOTE", node)
 		} else if node.IsStyleVerse() {
 			err = tmpl.ExecuteTemplate(w, "BEGIN_VERSE", node)
 		} else {
-			err = tmpl.ExecuteTemplate(w, "BEGIN_PARAGRAPH", node)
+			err = htmlWriteParagraphBegin(node, w)
 		}
 
-	case nodeKindLiteralParagraph, nodeKindBlockLiteral, nodeKindBlockLiteralNamed:
-		err = tmpl.ExecuteTemplate(w, "BLOCK_LITERAL", node)
-	case nodeKindBlockListing, nodeKindBlockListingNamed:
-		err = tmpl.ExecuteTemplate(w, "BLOCK_LISTING", node)
+	case nodeKindLiteralParagraph, nodeKindBlockLiteral,
+		nodeKindBlockLiteralNamed,
+		nodeKindBlockListing, nodeKindBlockListingNamed:
+		err = htmlWriteBlockLiteral(node, w)
 
 	case nodeKindInlineImage:
 		err = tmpl.ExecuteTemplate(w, "INLINE_IMAGE", node)
-	case nodeKindListOrdered:
-		err = tmpl.ExecuteTemplate(w, "BEGIN_LIST_ORDERED", node)
-	case nodeKindListUnordered:
-		err = tmpl.ExecuteTemplate(w, "BEGIN_LIST_UNORDERED", node)
+
 	case nodeKindListDescription:
-		err = tmpl.ExecuteTemplate(w, "BEGIN_LIST_DESCRIPTION", node)
+		err = htmlWriteListDescription(node, w)
+	case nodeKindListOrdered:
+		err = htmlWriteListOrdered(node, w)
+	case nodeKindListUnordered:
+		err = htmlWriteListUnordered(node, w)
 
 	case nodeKindListOrderedItem, nodeKindListUnorderedItem:
 		_, err = w.Write([]byte("\n<li>"))
@@ -961,12 +885,14 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		_, err = fmt.Fprintf(w, format, label.String())
 
 	case lineKindHorizontalRule:
-		err = tmpl.ExecuteTemplate(w, "HORIZONTAL_RULE", nil)
+		_, err = w.Write([]byte(_htmlHorizontalRule))
+
 	case lineKindPageBreak:
-		err = tmpl.ExecuteTemplate(w, "PAGE_BREAK", nil)
+		_, err = w.Write([]byte(_htmlPageBreak))
+
 	case nodeKindBlockExample:
 		if node.IsStyleAdmonition() {
-			err = tmpl.ExecuteTemplate(w, "BEGIN_ADMONITION", node)
+			err = htmlWriteBlockAdmonition(node, w)
 			if err != nil {
 				return err
 			}
@@ -978,7 +904,7 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		err = tmpl.ExecuteTemplate(w, "BLOCK_IMAGE", node)
 	case nodeKindBlockOpen:
 		if node.IsStyleAdmonition() {
-			err = tmpl.ExecuteTemplate(w, "BEGIN_ADMONITION", node)
+			err = htmlWriteBlockAdmonition(node, w)
 			if err != nil {
 				return err
 			}
@@ -1012,16 +938,12 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 
 	case nodeKindInlineID:
 		if !isForToC {
-			err = tmpl.ExecuteTemplate(w, "INLINE_ID", node)
+			_, err = fmt.Fprintf(w, _htmlInlineID, node.ID)
 		}
 
 	case nodeKindInlineIDShort:
 		if !isForToC {
-			err = tmpl.ExecuteTemplate(w, "BEGIN_INLINE_ID_SHORT", node)
-			if err != nil {
-				return err
-			}
-			_, err = w.Write(node.raw)
+			_, err = fmt.Fprintf(w, _htmlInlineIDShort, node.ID, node.raw)
 		}
 
 	case nodeKindInlineParagraph:
@@ -1131,7 +1053,8 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		_, err = w.Write(node.raw)
 
 	case nodeKindURL:
-		err = tmpl.ExecuteTemplate(w, "BEGIN_URL", node)
+		err = htmlWriteURLBegin(node, w)
+
 	case nodeKindTextSubscript:
 		_, err = fmt.Fprintf(w, "<sub>%s</sub>", node.raw)
 	case nodeKindTextSuperscript:
@@ -1162,21 +1085,28 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		}
 		_, err = w.Write([]byte("\n</div>"))
 
-	case nodeKindSectionL1:
-		_, err = w.Write([]byte("\n</div>\n</div>"))
-
-	case nodeKindSectionL2, nodeKindSectionL3, nodeKindSectionL4, nodeKindSectionL5:
+	case nodeKindSectionL1, nodeKindSectionL2, nodeKindSectionL3,
+		nodeKindSectionL4, nodeKindSectionL5:
+		if node.kind == nodeKindSectionL1 {
+			_, err = w.Write([]byte("\n</div>"))
+			if err != nil {
+				return err
+			}
+		}
 		_, err = w.Write([]byte("\n</div>"))
+		if err != nil {
+			return err
+		}
 
 	case nodeKindParagraph:
 		if node.IsStyleAdmonition() {
-			err = tmpl.ExecuteTemplate(w, "END_ADMONITION", node)
+			_, err = fmt.Fprint(w, _htmlAdmonitionEnd)
 		} else if node.IsStyleQuote() {
 			err = tmpl.ExecuteTemplate(w, "END_QUOTE", node)
 		} else if node.IsStyleVerse() {
 			err = tmpl.ExecuteTemplate(w, "END_VERSE", node)
 		} else {
-			err = tmpl.ExecuteTemplate(w, "END_PARAGRAPH", node)
+			_, err = w.Write([]byte("</p>\n</div>"))
 		}
 
 	case nodeKindListOrderedItem, nodeKindListUnorderedItem:
@@ -1193,21 +1123,22 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		}
 		_, err = w.Write([]byte(format))
 
-	case nodeKindListOrdered:
-		err = tmpl.ExecuteTemplate(w, "END_LIST_ORDERED", nil)
-	case nodeKindListUnordered:
-		err = tmpl.ExecuteTemplate(w, "END_LIST_UNORDERED", nil)
 	case nodeKindListDescription:
-		err = tmpl.ExecuteTemplate(w, "END_LIST_DESCRIPTION", node)
+		err = htmlWriteListDescriptionEnd(node, w)
+	case nodeKindListOrdered:
+		err = htmlWriteListOrderedEnd(w)
+	case nodeKindListUnordered:
+		err = htmlWriteListUnorderedEnd(w)
+
 	case nodeKindBlockExample:
 		if node.IsStyleAdmonition() {
-			err = tmpl.ExecuteTemplate(w, "END_ADMONITION", node)
+			_, err = fmt.Fprint(w, _htmlAdmonitionEnd)
 		} else {
 			err = tmpl.ExecuteTemplate(w, "END_EXAMPLE", node)
 		}
 	case nodeKindBlockOpen:
 		if node.IsStyleAdmonition() {
-			err = tmpl.ExecuteTemplate(w, "END_ADMONITION", node)
+			_, err = fmt.Fprint(w, _htmlAdmonitionEnd)
 		} else if node.IsStyleQuote() {
 			err = tmpl.ExecuteTemplate(w, "END_QUOTE", node)
 		} else if node.IsStyleVerse() {
@@ -1226,7 +1157,7 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 
 	case nodeKindInlineIDShort:
 		if !isForToC {
-			err = tmpl.ExecuteTemplate(w, "END_INLINE_ID_SHORT", node)
+			_, err = fmt.Fprint(w, _htmlInlineIDShortEnd)
 		}
 
 	case nodeKindInlineParagraph:
@@ -1245,7 +1176,7 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 			_, err = fmt.Fprintf(w, "</code>")
 		}
 	case nodeKindURL:
-		err = tmpl.ExecuteTemplate(w, "END_URL", node)
+		err = htmlWriteURLEnd(w)
 	}
 	if err != nil {
 		return err

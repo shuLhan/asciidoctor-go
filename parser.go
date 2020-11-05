@@ -123,6 +123,7 @@ const (
 
 const (
 	attrValueBlank    = "_blank"
+	attrValueFont     = "font"
 	attrValueNoopener = "noopener"
 )
 
