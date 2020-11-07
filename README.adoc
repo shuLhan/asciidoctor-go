@@ -1,0 +1,110 @@
+= asciidoctor-go
+
+The asciidoctor-go is the Go module to parse the
+https://asciidoctor.org/docs/what-is-asciidoc[AsciiDoc markup]
+and convert into HTML5.
+
+== Features
+
+List of available formatting that are supported on current implementation,
+numbered based on
+https://asciidoctor.org/docs/user-manual/[AsciiDoc user manual]
+
+* 14. Header
+** 14.1. Document title
+** 14.2. Author and email
+** 14.3. Revision number, date
+** 14.5. Metadata
+***  description
+***  keywords
+* 15. Preamble
+* 16. Sections
+** 16.1. Titles as HTML headings
+** 16.2. Auto-generated IDs
+** 16.3. Custom IDs
+** 16.4. Multiple Anchors
+** 16.7. Numbering
+* 17. Blocks
+** 17.1. Title
+** 17.2. Metadata
+** 17.3. Delimited blocks
+* 18. Paragraph
+* 19. Text formatting
+** 19.1. Bold and italic
+** 19.2. Quotation Marks and Apostrophes
+** 19.3. Subscript and Superscript
+** 19.4. Monospace
+* 20. Unordered Lists
+** 20.1. Nested
+** 20.2. Complex List Content
+* 21. Ordered Lists
+** 21.1. Nested
+** 21.2. Numbering Styles
+* 22. Description List
+** 22.1. Question and Answer Style List
+* 24. Horizontal Rules
+** 24.1. Markdown-style horizontal rules
+* 25. Page Break
+* 26. URLs
+** 26.1. Link to Relative Files
+* 27. Cross References
+** 27.1. Automatic Anchors
+** 27.2. Defining an Anchor
+** 27.3. Internal Cross References
+** 27.5. Customizing the Cross Reference Text
+* 29. Images
+* 30. Video
+** 30.1. YouTube and Vimeo videos
+** 30.2. Supported Attributes
+* 31. Audio
+* 32. Admonition
+* 33. Sidebar
+* 34. Example
+* 35. Prose Excerpts, Quotes and Verses
+** 35.1. Quote
+** 35.2. Verse
+* 36. Comments
+* 37. Text Substitutions
+** 37.1. Special Characters
+** 37.2. Quotes
+** 37.3. Attributes (reference)
+** 37.4. Replacements
+** 37.9. Preventing Substitutions
+* 39. Listing Blocks
+* 40. Passthroughs
+** 40.2. Passthrough Blocks
+* 41. Open Blocks
+
+
+==  TODO
+
+List of features which will need to be implemented,
+
+* 14. Header
+** 14.2. Splitting author and email
+** 14.3. Revision remark
+** 14.4. Subtitle partitioning
+** 14.5. Metadata, any others metadata
+* 16. Sections
+** 16.5. Links
+** 16.6. Anchors
+** 16.8. Discrete headings
+** 16.9. Section styles
+* 18. Paragraph
+** 18.1. Alignment
+** 18.2. Line breaks
+** 18.3. Lead style
+* 19. Text formatting
+** 19.5. Custom Styling With Attributes
+* 20. Unordered Lists
+** 20.3. Custom Markers
+** 20.4. Checklist
+* 23. Tables
+* 27. Cross References
+** 27.6. Inter-document Cross References
+* 28. Include Directive
+* 37. Text Substitutions
+** 37.5. Macros
+** 37.8. Incremental Substitutions
+* 40. Passthroughs
+** 40.1. Passthrough Macros
