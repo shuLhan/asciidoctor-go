@@ -8,6 +8,8 @@ v1.1.1, 18 July 2020
 :toclevels: 3
 :description: meta description
 :keywords: key, words
+:test-url: https://kilabit.info
+:image-sunset: sunset.jpg
 
 This is preamble.
 :other metadata:
@@ -505,7 +507,7 @@ https://asciidoctor.org.
 
 https://asciidoctor.org[Asciidoctor^,window=_blank,role="a,b"].
 
-link:https://kilabit.info[Kilabit^].
+link:{test-url}[Kilabit^].
 
 \https://example.org.
 
@@ -561,6 +563,8 @@ Cross reference with custom label <<_anchors,custom anchor label>>.
 
 image::sunset.jpg[]
 
+image::{image-sunset}[Block image with attribute ref, link={test-url}].
+
 image::sunset.jpg[
 This is become paragraph.
 
@@ -615,7 +619,7 @@ You can find Linux everywhere these days!
 
 image:sunset.jpg[Sunset,150,150,role="right"] What a beautiful sunset!
 
-Image with link image:sunset.jpg[Sunset,link="https://kilabit.info"].
+Image with link image:{image-sunset}[Sunset,link={test-url}].
 
 == Block open
 

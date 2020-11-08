@@ -483,3 +483,8 @@ https://asciidoctor.org.
 
 mailto:me@example.com.
 ----
+
+Block image with "link" option does not work as expected,
+----
+image::{image-sunset}[Block image with attribute ref, link={test-url}].
+----

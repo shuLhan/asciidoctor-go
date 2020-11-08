@@ -666,7 +666,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 						nodeKindBlockLiteral,
 						nodeKindBlockLiteralNamed,
 					})
-				node.applySubstitutions()
+				node.raw = applySubstitutions(doc, node.raw)
 			}
 			parent.addChild(node)
 			node = &adocNode{}
@@ -676,7 +676,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 			node.kind = doc.kind
 			node.classes = append(node.classes, classNameLiteralBlock)
 			line, _ = doc.consumeLinesUntil(node, doc.kind, nil)
-			node.applySubstitutions()
+			node.raw = applySubstitutions(doc, node.raw)
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
@@ -685,7 +685,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 			node.kind = doc.kind
 			node.classes = append(node.classes, classNameLiteralBlock)
 			line, _ = doc.consumeLinesUntil(node, lineKindEmpty, nil)
-			node.applySubstitutions()
+			node.raw = applySubstitutions(doc, node.raw)
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
@@ -694,7 +694,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 			node.kind = doc.kind
 			node.classes = append(node.classes, classNameListingBlock)
 			line, _ = doc.consumeLinesUntil(node, doc.kind, nil)
-			node.applySubstitutions()
+			node.raw = applySubstitutions(doc, node.raw)
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
@@ -712,7 +712,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 					nodeKindBlockLiteralNamed,
 					lineKindListContinue,
 				})
-			node.applySubstitutions()
+			node.raw = applySubstitutions(doc, node.raw)
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
@@ -744,7 +744,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 
 		case nodeKindBlockImage:
 			lineImage := strings.TrimRight(line[7:], " \t")
-			if node.parseImage(lineImage) {
+			if node.parseBlockImage(doc, lineImage) {
 				node.kind = doc.kind
 				line = ""
 			} else {
@@ -800,7 +800,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 			continue
 
 		case nodeKindBlockVideo:
-			if node.parseVideo(line) {
+			if node.parseBlockVideo(doc, line) {
 				node.kind = doc.kind
 				line = ""
 			} else {
@@ -825,7 +825,7 @@ func (doc *Document) parseBlock(parent *adocNode, term int) {
 			continue
 
 		case nodeKindBlockAudio:
-			if node.parseBlockAudio(line) {
+			if node.parseBlockAudio(doc, line) {
 				node.kind = doc.kind
 				line = ""
 			} else {
@@ -1031,7 +1031,7 @@ func (doc *Document) parseListBlock() (node *adocNode, line string, c rune) {
 					nodeKindListOrderedItem,
 					nodeKindListUnorderedItem,
 				})
-			node.applySubstitutions()
+			node.raw = applySubstitutions(doc, node.raw)
 			break
 		}
 		if doc.kind == lineKindText {
@@ -1058,7 +1058,7 @@ func (doc *Document) parseListBlock() (node *adocNode, line string, c rune) {
 				classes: []string{classNameListingBlock},
 			}
 			doc.consumeLinesUntil(node, doc.kind, nil)
-			node.applySubstitutions()
+			node.raw = applySubstitutions(doc, node.raw)
 			line = ""
 			break
 		}
@@ -1166,7 +1166,7 @@ func (doc *Document) parseListDescription(parent, node *adocNode, line string) (
 					nodeKindListOrderedItem,
 					nodeKindListUnorderedItem,
 				})
-			node.applySubstitutions()
+			node.raw = applySubstitutions(doc, node.raw)
 			listItem.addChild(node)
 			continue
 		}
@@ -1184,7 +1184,7 @@ func (doc *Document) parseListDescription(parent, node *adocNode, line string) (
 					nodeKindListOrderedItem,
 					nodeKindListUnorderedItem,
 				})
-			node.applySubstitutions()
+			node.raw = applySubstitutions(doc, node.raw)
 			listItem.addChild(node)
 			continue
 		}
@@ -1349,7 +1349,7 @@ func (doc *Document) parseListOrdered(parent *adocNode, title, line string) (
 					nodeKindListOrderedItem,
 					nodeKindListUnorderedItem,
 				})
-			node.applySubstitutions()
+			node.raw = applySubstitutions(doc, node.raw)
 			listItem.addChild(node)
 			continue
 		}
@@ -1367,7 +1367,7 @@ func (doc *Document) parseListOrdered(parent *adocNode, title, line string) (
 					nodeKindListOrderedItem,
 					nodeKindListUnorderedItem,
 				})
-			node.applySubstitutions()
+			node.raw = applySubstitutions(doc, node.raw)
 			listItem.addChild(node)
 			continue
 		}
@@ -1530,7 +1530,7 @@ func (doc *Document) parseListUnordered(parent, node *adocNode, line string) (
 					nodeKindListOrderedItem,
 					nodeKindListUnorderedItem,
 				})
-			node.applySubstitutions()
+			node.raw = applySubstitutions(doc, node.raw)
 			listItem.addChild(node)
 			continue
 		}
@@ -1548,7 +1548,7 @@ func (doc *Document) parseListUnordered(parent, node *adocNode, line string) (
 					nodeKindListOrderedItem,
 					nodeKindListUnorderedItem,
 				})
-			node.applySubstitutions()
+			node.raw = applySubstitutions(doc, node.raw)
 			listItem.addChild(node)
 			continue
 		}

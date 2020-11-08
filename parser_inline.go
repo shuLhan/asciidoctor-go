@@ -280,7 +280,11 @@ func (pi *parserInline) do() {
 				pi.escape()
 				continue
 			}
-			if pi.parseAttrRef() {
+			content, ok := parseAttrRef(pi.doc, pi.content, pi.x)
+			if ok {
+				pi.content = content
+				pi.x = 0
+				pi.prev = 0
 				continue
 			}
 		} else if pi.c == '-' {
@@ -375,34 +379,6 @@ func (pi *parserInline) getBackMacroName() (macroName string, lastc byte) {
 		start--
 	}
 	return string(raw), 0
-}
-
-//
-// parseAttrRef parse the attribute reference, an attribute key wrapped by
-// "{" "}".  If the attribute reference exist, replace the content with the
-// attribute value and reset the parser state to zero.
-//
-func (pi *parserInline) parseAttrRef() bool {
-	raw := pi.content[pi.x+1:]
-	attrName, idx := indexByteUnescape(raw, '}')
-	if idx < 0 {
-		return false
-	}
-
-	key := string(bytes.TrimSpace(bytes.ToLower(attrName)))
-	attrValue, ok := pi.doc.Attributes[key]
-	if !ok {
-		return false
-	}
-
-	rest := pi.content[pi.x+idx+2:]
-	newContent := make([]byte, 0, len(attrValue)+len(rest))
-	newContent = append(newContent, attrValue...)
-	newContent = append(newContent, rest...)
-	pi.content = newContent
-	pi.x = 0
-	pi.prev = 0
-	return true
 }
 
 func (pi *parserInline) parseCrossRef() bool {
@@ -682,7 +658,7 @@ func (pi *parserInline) parseInlineImage() *adocNode {
 		kind:  nodeKindInlineImage,
 		Attrs: make(map[string]string),
 	}
-	if nodeImage.parseImage(string(lineImage)) {
+	if nodeImage.parseBlockImage(pi.doc, string(lineImage)) {
 		pi.x += idx + 2
 		pi.prev = 0
 		return nodeImage
@@ -937,16 +913,21 @@ func (pi *parserInline) parseURL(scheme string) (node *adocNode) {
 			pi.x += x + 1
 			pi.prev = c
 		}
+	}
+
+	uri = applySubstitutions(pi.doc, uri)
+	node.Attrs[attrNameHref] = string(uri)
+
+	if c != '[' {
 		node.raw = uri
-		node.Attrs[attrNameHref] = string(uri)
 		return node
 	}
+
 	_, idx := indexByteUnescape(content[x:], ']')
 	if idx < 0 {
 		return nil
 	}
 
-	node.Attrs[attrNameHref] = string(uri)
 	pi.x += x + idx + 2
 	pi.prev = 0
 

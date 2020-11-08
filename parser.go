@@ -5,6 +5,7 @@
 package asciidoctor
 
 import (
+	"bytes"
 	"strings"
 	"unicode"
 
@@ -236,6 +237,37 @@ var adocStyles map[string]int64 = map[string]int64{
 	"verse":             styleVerse,
 }
 
+func applySubstitutions(doc *Document, content []byte) []byte {
+	var (
+		raw    = bytes.TrimRight(content, " \n")
+		newraw = make([]byte, 0, len(raw))
+		buf    = bytes.NewBuffer(newraw)
+		c      byte
+		x      int
+	)
+	for x < len(raw) {
+		c = raw[x]
+		if c == '{' {
+			newRaw, ok := parseAttrRef(doc, raw, x)
+			if ok {
+				raw = newRaw
+				continue
+			}
+			buf.WriteByte(c)
+		} else if c == '<' {
+			buf.WriteString(htmlSymbolLessthan)
+		} else if c == '>' {
+			buf.WriteString(htmlSymbolGreaterthan)
+		} else if c == '&' {
+			buf.WriteString(htmlSymbolAmpersand)
+		} else {
+			buf.WriteByte(c)
+		}
+		x++
+	}
+	return buf.Bytes()
+}
+
 func generateID(str string) string {
 	id := make([]rune, 0, len(str)+1)
 	id = append(id, '_')
@@ -428,6 +460,34 @@ func parseAttributeElement(in string) (attrName, attrValue string, opts []string
 	}
 
 	return attrName, attrValue, opts
+}
+
+//
+// parseAttrRef parse the attribute reference, an attribute key wrapped by
+// "{" "}".  If the attribute reference exist, replace the content with the
+// attribute value and reset the parser state to zero.
+//
+func parseAttrRef(doc *Document, content []byte, x int) (
+	newContent []byte, ok bool,
+) {
+	raw := content[x+1:]
+	attrName, idx := indexByteUnescape(raw, '}')
+	if idx < 0 {
+		return nil, false
+	}
+
+	key := string(bytes.TrimSpace(bytes.ToLower(attrName)))
+
+	attrValue, ok := doc.Attributes[key]
+	if !ok {
+		return nil, false
+	}
+
+	rest := content[x+idx+2:]
+	newContent = make([]byte, 0, len(attrValue)+len(rest))
+	newContent = append(newContent, attrValue...)
+	newContent = append(newContent, rest...)
+	return newContent, true
 }
 
 //

@@ -285,32 +285,6 @@ func (node *adocNode) addNext(next *adocNode) {
 	node.next = next
 }
 
-func (node *adocNode) applySubstitutions() {
-	var (
-		raw    = bytes.TrimRight(node.raw, " \n")
-		newraw = make([]byte, 0, len(raw))
-		buf    = bytes.NewBuffer(newraw)
-		c      byte
-	)
-	for x := 0; x < len(raw); x++ {
-		c = raw[x]
-		if c == '<' {
-			buf.WriteString(htmlSymbolLessthan)
-			continue
-		}
-		if c == '>' {
-			buf.WriteString(htmlSymbolGreaterthan)
-			continue
-		}
-		if c == '&' {
-			buf.WriteString(htmlSymbolAmpersand)
-			continue
-		}
-		buf.WriteByte(c)
-	}
-	node.raw = buf.Bytes()
-}
-
 func (node *adocNode) debug(n int) {
 	for x := 0; x < n; x++ {
 		fmt.Printf("\t")
@@ -338,7 +312,7 @@ func (node *adocNode) lastSuccessor() (last *adocNode) {
 	return last
 }
 
-func (node *adocNode) parseBlockAudio(line string) bool {
+func (node *adocNode) parseBlockAudio(doc *Document, line string) bool {
 	attrBegin := strings.IndexByte(line, '[')
 	if attrBegin < 0 {
 		return false
@@ -351,6 +325,8 @@ func (node *adocNode) parseBlockAudio(line string) bool {
 	src := strings.TrimRight(line[:attrBegin], " \t")
 	key, val, attrs := parseAttributeElement(line[attrBegin : attrEnd+1])
 	node.Attrs = make(map[string]string, len(attrs)+1)
+
+	src = string(applySubstitutions(doc, []byte(src)))
 	node.Attrs[attrNameSrc] = src
 
 	for _, attr := range attrs {
@@ -385,10 +361,10 @@ func (node *adocNode) parseBlockAudio(line string) bool {
 }
 
 //
-// parseImage parse the image block or line.
+// parseBlockImage parse the image block or line.
 // The line parameter must not have "image::" block or "image:" macro prefix.
 //
-func (node *adocNode) parseImage(line string) bool {
+func (node *adocNode) parseBlockImage(doc *Document, line string) bool {
 	attrBegin := strings.IndexByte(line, '[')
 	if attrBegin < 0 {
 		return false
@@ -403,6 +379,7 @@ func (node *adocNode) parseImage(line string) bool {
 	if node.Attrs == nil {
 		node.Attrs = make(map[string]string)
 	}
+	src = string(applySubstitutions(doc, []byte(src)))
 	node.Attrs[attrNameSrc] = src
 
 	attrs := strings.Split(line[attrBegin+1:attrEnd], ",")
@@ -450,6 +427,14 @@ func (node *adocNode) parseImage(line string) bool {
 			node.Attrs[key] = val
 		}
 	}
+
+	for k, v := range node.Attrs {
+		if k == attrNameLink {
+			v = string(applySubstitutions(doc, []byte(v)))
+			node.Attrs[k] = v
+		}
+	}
+
 	return true
 }
 
@@ -627,7 +612,7 @@ func (node *adocNode) parseStyleClass(line string) {
 	}
 }
 
-func (node *adocNode) parseVideo(line string) bool {
+func (node *adocNode) parseBlockVideo(doc *Document, line string) bool {
 	attrBegin := strings.IndexByte(line, '[')
 	if attrBegin < 0 {
 		return false
@@ -643,6 +628,7 @@ func (node *adocNode) parseVideo(line string) bool {
 	if node.Attrs == nil {
 		node.Attrs = make(map[string]string, len(attrs)+1)
 	}
+	videoSrc = string(applySubstitutions(doc, []byte(videoSrc)))
 	node.Attrs[attrNameSrc] = videoSrc
 
 	start := 0

@@ -1,4 +1,5 @@
 = asciidoctor-go
+Shulhan <ms@kilabit.info>
 
 The asciidoctor-go is the Go module to parse the
 https://asciidoctor.org/docs/what-is-asciidoc[AsciiDoc markup]
