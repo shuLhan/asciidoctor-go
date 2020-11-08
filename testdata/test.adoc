@@ -125,6 +125,8 @@ This is literal
 
 +**A `B`**+: **A `B`**
 
+A `/**/` *B*.
+
 
 ==  Single quote
 

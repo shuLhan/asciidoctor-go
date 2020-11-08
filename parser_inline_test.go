@@ -157,6 +157,9 @@ func TestParserInline_parseFormat(t *testing.T) {
 	}, {
 		content: "`A `B",
 		exp:     "`A `B",
+	}, {
+		content: "A `/**/` *B*",
+		exp:     "A <code>/<strong></strong>/</code> <strong>B</strong>",
 	}}
 
 	var buf bytes.Buffer
