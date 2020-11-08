@@ -1,4 +1,4 @@
-module github.com/shuLhan/asciidoctor-go
+module git.sr.ht/~shulhan/asciidoctor-go
 
 go 1.13
 
