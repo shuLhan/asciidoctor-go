@@ -58,7 +58,8 @@ func htmlWriteBlockBegin(node *adocNode, out io.Writer, addClass string) (err er
 		_, err = fmt.Fprint(out, ">")
 	}
 
-	if !node.IsStyleAdmonition() && len(node.rawTitle) > 0 {
+	if !(node.IsStyleAdmonition() || node.kind == nodeKindBlockImage) &&
+		len(node.rawTitle) > 0 {
 		_, err = fmt.Fprintf(out, _htmlBlockTitle, node.rawTitle)
 		if err != nil {
 			return err
@@ -86,7 +87,7 @@ func htmlWriteBlockAdmonition(node *adocNode, out io.Writer) (
 		_, err = fmt.Fprintf(out, _htmlAdmonitionIconsFont,
 			strings.ToLower(node.Classes()), node.rawLabel.String())
 	} else {
-		_, err = fmt.Fprintf(out, _htmlAdmonitionTitle,
+		_, err = fmt.Fprintf(out, _htmlBlockTitle,
 			node.rawLabel.String())
 	}
 	if err != nil {
@@ -97,6 +98,44 @@ func htmlWriteBlockAdmonition(node *adocNode, out io.Writer) (
 	if err != nil {
 		return err
 	}
+
+	return err
+}
+
+func htmlWriteBlockImage(doc *Document, node *adocNode, out io.Writer) (err error) {
+	err = htmlWriteBlockBegin(node, out, "imageblock")
+	if err != nil {
+		return err
+	}
+
+	src := node.Attrs[attrNameSrc]
+	alt := node.Attrs[attrNameAlt]
+
+	var width, height string
+	v, ok := node.Attrs[attrNameWidth]
+	if ok && len(v) > 0 {
+		width = ` width="` + v + `"`
+	}
+	v, ok = node.Attrs[attrNameHeight]
+	if ok && len(v) > 0 {
+		height = ` height="` + v + `"`
+	}
+
+	_, err = fmt.Fprintf(out, _htmlBlockImage, src, alt, width, height)
+	if err != nil {
+		return err
+	}
+
+	if len(node.rawTitle) > 0 {
+		doc.imageCounter++
+		_, err = fmt.Fprintf(out, _htmlBlockImageTitle,
+			doc.imageCounter, node.rawTitle)
+		if err != nil {
+			return err
+		}
+	}
+
+	_, err = fmt.Fprint(out, _htmlBlockImageEnd)
 
 	return err
 }

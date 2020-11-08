@@ -66,6 +66,8 @@ type Document struct {
 
 	prevKind int
 	kind     int
+
+	imageCounter int
 }
 
 //

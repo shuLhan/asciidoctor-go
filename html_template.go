@@ -61,6 +61,9 @@ Last updated %s`
 </html>`
 )
 
+//
+// HTML templates for document header.
+//
 const (
 	_htmlHeaderBegin = `
 <div id="header">`
@@ -106,7 +109,7 @@ const (
 )
 
 //
-// HTML templates for table of contens.
+// HTML templates for table of contents.
 //
 const (
 	_htmlToCBegin = `
@@ -117,12 +120,12 @@ const (
 </div>`
 )
 
+//
+// HTML templates for adminition block.
+//
 const (
 	_htmlAdmonitionIconsFont = `
 <i class="fa icon-%s" title="%s"></i>`
-
-	_htmlAdmonitionTitle = `
-<div class="title">%s</div>`
 
 	_htmlAdmonitionContent = `
 </td>
@@ -133,6 +136,22 @@ const (
 </td>
 </tr>
 </table>
+</div>`
+)
+
+//
+// HTML templates for block image.
+//
+const (
+	_htmlBlockImage = `
+<div class="content">
+<img src="%s" alt="%s"%s%s>
+</div>`
+
+	_htmlBlockImageTitle = `
+<div class="title">Figure %d. %s</div>`
+
+	_htmlBlockImageEnd = `
 </div>`
 )
 
@@ -188,20 +207,12 @@ const (
 )
 
 func (doc *Document) createHTMLTemplate() (tmpl *template.Template, err error) {
-	imageCounter := 0
 	exampleCounter := 0
 
 	tmpl, err = template.New("HTML").Funcs(map[string]interface{}{
 		"exampleCounter": func() int {
 			exampleCounter++
 			return exampleCounter
-		},
-		"imageCounter": func() int {
-			imageCounter++
-			return imageCounter
-		},
-		"toLower": func(s string) string {
-			return strings.ToLower(strings.TrimSpace(s))
 		},
 		"trimSpace": func(s string) string {
 			return strings.TrimSpace(s)
@@ -211,23 +222,6 @@ func (doc *Document) createHTMLTemplate() (tmpl *template.Template, err error) {
 	{{- with $title := .Title}}
 <div class="title">{{$title}}</div>
 	{{- end}}
-{{- end}}
-
-
-{{- define "BLOCK_IMAGE"}}
-<div
-	{{- if .ID}} id="{{.ID}}"{{end}}
-	{{- with $c := printf "imageblock %s" .Classes | trimSpace}} class="{{$c}}"{{end -}}
->
-<div class="content">
-<img src="{{.Attrs.src}}" alt="{{.Attrs.alt}}"
-	{{- with $w := .Attrs.width}} width="{{$w}}"{{end}}
-	{{- with $h := .Attrs.height}} height="{{$h}}"{{end}}>
-</div>
-{{- with $caption := .Title}}
-<div class="title">Figure {{imageCounter}}. {{$caption}}</div>
-{{- end}}
-</div>
 {{- end}}
 
 

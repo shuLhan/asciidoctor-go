@@ -900,8 +900,10 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		} else {
 			err = tmpl.ExecuteTemplate(w, "BEGIN_EXAMPLE", node)
 		}
+
 	case nodeKindBlockImage:
-		err = tmpl.ExecuteTemplate(w, "BLOCK_IMAGE", node)
+		err = htmlWriteBlockImage(doc, node, w)
+
 	case nodeKindBlockOpen:
 		if node.IsStyleAdmonition() {
 			err = htmlWriteBlockAdmonition(node, w)
