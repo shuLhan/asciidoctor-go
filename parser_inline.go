@@ -91,8 +91,10 @@ func (pi *parserInline) do() {
 				pi.escape()
 				continue
 			}
-			if pi.parseMacro() {
-				continue
+			if !ascii.IsSpace(pi.nextc) {
+				if pi.parseMacro() {
+					continue
+				}
 			}
 		} else if pi.c == '~' {
 			if pi.isEscaped {

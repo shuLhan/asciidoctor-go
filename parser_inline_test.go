@@ -634,6 +634,9 @@ func TestParserInline_parseURL(t *testing.T) {
 	}, {
 		content: `link:https://kilabit.info[Kilabit^].`,
 		exp:     `<a href="https://kilabit.info" target="_blank" rel="noopener">Kilabit</a>.`,
+	}, {
+		content: `http: this is not link`,
+		exp:     `http: this is not link`,
 	}}
 
 	var buf bytes.Buffer
