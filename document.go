@@ -1335,6 +1335,27 @@ func (doc *Document) parseListOrdered(parent *adocNode, title, line string) (
 			line, c = doc.parseListDescription(listItem, node, line)
 			continue
 		}
+		if doc.kind == nodeKindLiteralParagraph {
+			if doc.prevKind == lineKindEmpty {
+				node := &adocNode{
+					kind:    doc.kind,
+					classes: []string{classNameLiteralBlock},
+				}
+				node.WriteString(strings.TrimLeft(line, " \t"))
+				node.WriteByte('\n')
+				line, c = doc.consumeLinesUntil(
+					node,
+					lineKindEmpty,
+					[]int{
+						lineKindListContinue,
+						nodeKindListOrderedItem,
+						nodeKindListUnorderedItem,
+					})
+				node.raw = applySubstitutions(doc, node.raw)
+				listItem.addChild(node)
+				continue
+			}
+		}
 		if doc.kind == nodeKindBlockListingNamed {
 			if doc.prevKind == lineKindEmpty {
 				break
@@ -1515,6 +1536,27 @@ func (doc *Document) parseListUnordered(parent, node *adocNode, line string) (
 
 			line, c = doc.parseListDescription(listItem, node, line)
 			continue
+		}
+		if doc.kind == nodeKindLiteralParagraph {
+			if doc.prevKind == lineKindEmpty {
+				node = &adocNode{
+					kind:    doc.kind,
+					classes: []string{classNameLiteralBlock},
+				}
+				node.WriteString(strings.TrimLeft(line, " \t"))
+				node.WriteByte('\n')
+				line, c = doc.consumeLinesUntil(
+					node,
+					lineKindEmpty,
+					[]int{
+						lineKindListContinue,
+						nodeKindListOrderedItem,
+						nodeKindListUnorderedItem,
+					})
+				node.raw = applySubstitutions(doc, node.raw)
+				listItem.addChild(node)
+				continue
+			}
 		}
 		if doc.kind == nodeKindBlockListingNamed {
 			if doc.prevKind == lineKindEmpty {

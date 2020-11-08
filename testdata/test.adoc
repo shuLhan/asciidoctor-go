@@ -273,6 +273,10 @@ List that not in order
 +
 . Second item
 
+  Is this literal
+
+. Third item
+
 How many dots?
 
 . How
@@ -347,6 +351,10 @@ List that not in order
 +
 +
 * Second item
+
+  Is this literal
+
+* Third item
 
 How deep?
 
