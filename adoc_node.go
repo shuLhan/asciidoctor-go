@@ -11,7 +11,6 @@ import (
 	"log"
 	"net/url"
 	"strings"
-	"text/template"
 
 	"github.com/shuLhan/share/lib/ascii"
 )
@@ -132,7 +131,7 @@ func (node *adocNode) GetVideoSource() string {
 				q = append(q, optVideoPlaylist+"="+src)
 			case optVideoNofullscreen:
 				q = append(q, optVideoFullscreen+"=0")
-				node.Attrs[optVideoNofullscreen] = "1"
+				node.Attrs[optVideoNofullscreen] = ""
 			}
 		}
 		v, ok = node.Attrs[attrNameTheme]
@@ -165,8 +164,8 @@ func (node *adocNode) GetVideoSource() string {
 			opt = strings.TrimSpace(opt)
 			switch opt {
 			case optNameAutoplay, optNameLoop:
-				node.Attrs[optNameNocontrols] = "1"
-				node.Attrs[opt] = "1"
+				node.Attrs[optNameNocontrols] = ""
+				node.Attrs[opt] = ""
 			}
 		}
 
@@ -222,14 +221,6 @@ func (node *adocNode) IsStyleVerse() bool {
 
 func (node *adocNode) Label() string {
 	return node.rawLabel.String()
-}
-
-func (node *adocNode) QuoteAuthor() string {
-	return node.key
-}
-
-func (node *adocNode) QuoteCitation() string {
-	return node.value
 }
 
 func (node *adocNode) Title() string {
@@ -633,7 +624,7 @@ func (node *adocNode) parseBlockVideo(doc *Document, line string) bool {
 
 	start := 0
 	if key == attrNameYoutube || key == attrNameVimeo {
-		node.Attrs[key] = "1"
+		node.Attrs[key] = ""
 		start = 1
 	}
 
@@ -644,7 +635,7 @@ func (node *adocNode) parseBlockVideo(doc *Document, line string) bool {
 		if len(kv) >= 2 {
 			val = kv[1]
 		} else {
-			val = "1"
+			val = ""
 		}
 
 		switch key {
@@ -787,7 +778,7 @@ func (node *adocNode) setStyleAdmonition(admName string) {
 	node.rawLabel.WriteString(strings.Title(admName))
 }
 
-func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer, isForToC bool) (err error) {
+func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) (err error) {
 	switch node.kind {
 	case lineKindAttribute:
 		doc.Attributes.apply(node.key, node.value)
@@ -805,7 +796,7 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 
 	case nodeKindMacroTOC:
 		if doc.tocIsEnabled && doc.tocPosition == metaValueMacro {
-			err = doc.tocHTML(tmpl, w)
+			err = doc.tocHTML(w)
 			if err != nil {
 				return fmt.Errorf("toHTML: nodeKindMacroTOC: %w", err)
 			}
@@ -816,15 +807,15 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 
 	case nodeKindSectionL1, nodeKindSectionL2, nodeKindSectionL3,
 		nodeKindSectionL4, nodeKindSectionL5:
-		err = htmlWriteSection(doc, node, tmpl, w, isForToC)
+		err = htmlWriteSection(doc, node, w, isForToC)
 
 	case nodeKindParagraph:
 		if node.IsStyleAdmonition() {
 			err = htmlWriteBlockAdmonition(node, w)
 		} else if node.IsStyleQuote() {
-			err = tmpl.ExecuteTemplate(w, "BEGIN_QUOTE", node)
+			err = htmlWriteBlockQuote(node, w)
 		} else if node.IsStyleVerse() {
-			err = tmpl.ExecuteTemplate(w, "BEGIN_VERSE", node)
+			err = htmlWriteBlockVerse(node, w)
 		} else {
 			err = htmlWriteParagraphBegin(node, w)
 		}
@@ -835,7 +826,7 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		err = htmlWriteBlockLiteral(node, w)
 
 	case nodeKindInlineImage:
-		err = tmpl.ExecuteTemplate(w, "INLINE_IMAGE", node)
+		err = htmlWriteInlineImage(node, w)
 
 	case nodeKindListDescription:
 		err = htmlWriteListDescription(node, w)
@@ -853,7 +844,7 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 			label  bytes.Buffer
 		)
 		if node.label != nil {
-			err = node.label.toHTML(doc, tmpl, &label, false)
+			err = node.label.toHTML(doc, &label, false)
 			if err != nil {
 				return err
 			}
@@ -882,9 +873,8 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 			if err != nil {
 				return err
 			}
-			err = tmpl.ExecuteTemplate(w, "BLOCK_TITLE", node)
 		} else {
-			err = tmpl.ExecuteTemplate(w, "BEGIN_EXAMPLE", node)
+			err = htmlWriteBlockExample(doc, node, w)
 		}
 
 	case nodeKindBlockImage:
@@ -896,14 +886,14 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 			if err != nil {
 				return err
 			}
-			err = tmpl.ExecuteTemplate(w, "BLOCK_TITLE", node)
 		} else if node.IsStyleQuote() {
-			err = tmpl.ExecuteTemplate(w, "BEGIN_QUOTE", node)
+			err = htmlWriteBlockQuote(node, w)
 		} else if node.IsStyleVerse() {
-			err = tmpl.ExecuteTemplate(w, "BEGIN_VERSE", node)
+			err = htmlWriteBlockVerse(node, w)
 		} else {
-			err = tmpl.ExecuteTemplate(w, "BEGIN_BLOCK_OPEN", node)
+			err = htmlWriteBlockOpenBegin(node, w)
 		}
+
 	case nodeKindBlockPassthrough:
 		_, err = w.Write([]byte("\n"))
 		if err != nil {
@@ -913,16 +903,19 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 
 	case nodeKindBlockExcerpts:
 		if node.IsStyleVerse() {
-			err = tmpl.ExecuteTemplate(w, "BEGIN_VERSE", node)
+			err = htmlWriteBlockVerse(node, w)
 		} else {
-			err = tmpl.ExecuteTemplate(w, "BEGIN_QUOTE", node)
+			err = htmlWriteBlockQuote(node, w)
 		}
+
 	case nodeKindBlockSidebar:
-		err = tmpl.ExecuteTemplate(w, "BEGIN_SIDEBAR", node)
+		err = htmlWriteBlockSidebar(node, w)
+
 	case nodeKindBlockVideo:
-		err = tmpl.ExecuteTemplate(w, "BLOCK_VIDEO", node)
+		err = htmlWriteBlockVideo(node, w)
+
 	case nodeKindBlockAudio:
-		err = tmpl.ExecuteTemplate(w, "BLOCK_AUDIO", node)
+		err = htmlWriteBlockAudio(node, w)
 
 	case nodeKindInlineID:
 		if !isForToC {
@@ -1053,7 +1046,7 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 	}
 
 	if node.child != nil {
-		err = node.child.toHTML(doc, tmpl, w, isForToC)
+		err = node.child.toHTML(doc, w, isForToC)
 		if err != nil {
 			return err
 		}
@@ -1066,7 +1059,7 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 			return fmt.Errorf("toHTML: nodeKindPreamble: %w", err)
 		}
 		if doc.tocIsEnabled && doc.tocPosition == metaValuePreamble {
-			err = doc.tocHTML(tmpl, w)
+			err = doc.tocHTML(w)
 			if err != nil {
 				return fmt.Errorf("ToHTML: %w", err)
 			}
@@ -1090,9 +1083,9 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		if node.IsStyleAdmonition() {
 			_, err = fmt.Fprint(w, _htmlAdmonitionEnd)
 		} else if node.IsStyleQuote() {
-			err = tmpl.ExecuteTemplate(w, "END_QUOTE", node)
+			err = htmlWriteBlockQuoteEnd(node, w)
 		} else if node.IsStyleVerse() {
-			err = tmpl.ExecuteTemplate(w, "END_VERSE", node)
+			err = htmlWriteBlockVerseEnd(node, w)
 		} else {
 			_, err = w.Write([]byte("</p>\n</div>"))
 		}
@@ -1122,26 +1115,28 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 		if node.IsStyleAdmonition() {
 			_, err = fmt.Fprint(w, _htmlAdmonitionEnd)
 		} else {
-			err = tmpl.ExecuteTemplate(w, "END_EXAMPLE", node)
+			_, err = fmt.Fprint(w, _htmlBlockEnd)
 		}
+
 	case nodeKindBlockOpen:
 		if node.IsStyleAdmonition() {
 			_, err = fmt.Fprint(w, _htmlAdmonitionEnd)
 		} else if node.IsStyleQuote() {
-			err = tmpl.ExecuteTemplate(w, "END_QUOTE", node)
+			err = htmlWriteBlockQuoteEnd(node, w)
 		} else if node.IsStyleVerse() {
-			err = tmpl.ExecuteTemplate(w, "END_VERSE", node)
+			err = htmlWriteBlockVerseEnd(node, w)
 		} else {
-			err = tmpl.ExecuteTemplate(w, "END_BLOCK_OPEN", node)
+			_, err = fmt.Fprint(w, _htmlBlockEnd)
 		}
 	case nodeKindBlockExcerpts:
 		if node.IsStyleVerse() {
-			err = tmpl.ExecuteTemplate(w, "END_VERSE", node)
+			err = htmlWriteBlockVerseEnd(node, w)
 		} else {
-			err = tmpl.ExecuteTemplate(w, "END_QUOTE", node)
+			err = htmlWriteBlockQuoteEnd(node, w)
 		}
+
 	case nodeKindBlockSidebar:
-		err = tmpl.ExecuteTemplate(w, "END_SIDEBAR", node)
+		_, err = fmt.Fprint(w, _htmlBlockEnd)
 
 	case nodeKindInlineIDShort:
 		if !isForToC {
@@ -1171,7 +1166,7 @@ func (node *adocNode) toHTML(doc *Document, tmpl *template.Template, w io.Writer
 	}
 
 	if node.next != nil {
-		err = node.next.toHTML(doc, tmpl, w, isForToC)
+		err = node.next.toHTML(doc, w, isForToC)
 		if err != nil {
 			return err
 		}

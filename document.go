@@ -13,7 +13,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"text/template"
 	"time"
 
 	"github.com/shuLhan/share/lib/ascii"
@@ -67,7 +66,8 @@ type Document struct {
 	prevKind int
 	kind     int
 
-	imageCounter int
+	counterImage   int
+	counterExample int
 }
 
 //
@@ -144,11 +144,6 @@ func (doc *Document) Parse(content []byte) {
 // head and body.
 //
 func (doc *Document) ToHTML(out io.Writer) (err error) {
-	tmpl, err := doc.createHTMLTemplate()
-	if err != nil {
-		return err
-	}
-
 	doc.classes = append(doc.classes, classNameArticle)
 
 	doc.tocPosition, doc.tocIsEnabled = doc.Attributes[metaNameTOC]
@@ -211,7 +206,7 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 		return err
 	}
 
-	if err = htmlWriteBody(doc, tmpl, out); err != nil {
+	if err = htmlWriteBody(doc, out); err != nil {
 		return err
 	}
 
@@ -241,11 +236,6 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 // ToHTMLBody convert the document object into HTML with content of body only.
 //
 func (doc *Document) ToHTMLBody(w io.Writer) (err error) {
-	tmpl, err := doc.createHTMLTemplate()
-	if err != nil {
-		return fmt.Errorf("ToHTMLBody: %w", err)
-	}
-
 	doc.classes = append(doc.classes, classNameArticle)
 
 	doc.tocPosition, doc.tocIsEnabled = doc.Attributes[metaNameTOC]
@@ -261,7 +251,7 @@ func (doc *Document) ToHTMLBody(w io.Writer) (err error) {
 		doc.tocClasses = append(doc.tocClasses, classNameToc)
 	}
 
-	err = htmlWriteBody(doc, tmpl, w)
+	err = htmlWriteBody(doc, w)
 	if err != nil {
 		return err
 	}
@@ -1646,7 +1636,7 @@ func (doc *Document) registerAnchor(id, label string) string {
 //
 // tocHTML write table of contents with HTML template into out.
 //
-func (doc *Document) tocHTML(tmpl *template.Template, out io.Writer) (err error) {
+func (doc *Document) tocHTML(out io.Writer) (err error) {
 	v, ok := doc.Attributes[metaNameTOCLevels]
 	if ok {
 		doc.TOCLevel, err = strconv.Atoi(v)
@@ -1669,7 +1659,7 @@ func (doc *Document) tocHTML(tmpl *template.Template, out io.Writer) (err error)
 		return fmt.Errorf("tocHTML: _htmlToCBegin: %w", err)
 	}
 
-	err = htmlWriteToC(doc, doc.content, tmpl, out, 0)
+	err = htmlWriteToC(doc, doc.content, out, 0)
 	if err != nil {
 		return fmt.Errorf("tocHTML: %w", err)
 	}

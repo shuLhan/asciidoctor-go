@@ -4,11 +4,6 @@
 
 package asciidoctor
 
-import (
-	"strings"
-	"text/template"
-)
-
 //
 // HTML templates for head, meta attributes, and footers.
 //
@@ -139,6 +134,16 @@ const (
 </div>`
 )
 
+const (
+	// Parameters: src, autoplay, controls, loop.
+	_htmlBlockAudio = `
+<audio src="%s"%s%s%s>
+Your browser does not support the audio tag.
+</audio>
+</div>
+</div>`
+)
+
 //
 // HTML templates for block image.
 //
@@ -156,14 +161,72 @@ const (
 )
 
 const (
+	_htmlBlockQuoteBegin = `
+<blockquote>
+%s`
+
+	_htmlBlockQuoteEnd = `
+</blockquote>`
+
+	_htmlBlockVerse = `
+<pre class="content">%s`
+
+	_htmlBlockVerseEnd = `</pre>`
+
+	_htmlQuoteAuthor = `
+<div class="attribution">
+&#8212; %s`
+
+	_htmlQuoteCitation = `<br>
+<cite>%s</cite>`
+)
+
+// Block video.
+const (
+	// List of parameters in order: src, width, height, poster, controls,
+	// autoplay, loop.
+	_htmlBlockVideo = `
+<video src="%s"%s%s%s%s%s%s>
+Your browser does not support the video tag.
+</video>`
+
+	// List of parameters in order: width, height, src, allowfullscreen.
+	_htmlBlockVideoYoutube = `
+<iframe%s%s src="%s" frameborder="0"%s></iframe>`
+
+	// List of parameters in order: width, height, src.
+	_htmlBlockVideoVimeo = `
+<iframe%s%s src="%s" frameborder="0"></iframe>`
+)
+
+const (
 	_htmlBlockLiteralContent = `
 <div class="content">
 <pre>%s</pre>
 </div>
 </div>`
 
+	_htmlBlockContent = `
+<div class="content">`
+
+	_htmlBlockExampleTitle = `
+<div class="title">Example %d. %s</div>`
+
 	_htmlBlockTitle = `
 <div class="title">%s</div>`
+
+	_htmlBlockEnd = `
+</div>
+</div>`
+)
+
+//
+// Inline image.
+//
+const (
+	_htmlInlineImage      = `<span class="%s">`
+	_htmlInlineImageLink  = `<a class="image" href="%s">`
+	_htmlInlineImageImage = `<img src="%s" alt="%s"%s%s>`
 )
 
 //
@@ -205,181 +268,3 @@ const (
 	_htmlPageBreak        = `
 <div style="page-break-after: always;"></div>`
 )
-
-func (doc *Document) createHTMLTemplate() (tmpl *template.Template, err error) {
-	exampleCounter := 0
-
-	tmpl, err = template.New("HTML").Funcs(map[string]interface{}{
-		"exampleCounter": func() int {
-			exampleCounter++
-			return exampleCounter
-		},
-		"trimSpace": func(s string) string {
-			return strings.TrimSpace(s)
-		},
-	}).Parse(`
-{{- define "BLOCK_TITLE"}}
-	{{- with $title := .Title}}
-<div class="title">{{$title}}</div>
-	{{- end}}
-{{- end}}
-
-
-{{- define "INLINE_IMAGE" -}}
-{{- $link := .Attrs.link -}}
-<span
-	{{- with $c := printf "image %s" .Classes | trimSpace}} class="{{$c}}"{{end -}}
->
-{{- with $link}}<a class="image" href="{{$link}}">{{end -}}
-<img src="{{.Attrs.src}}" alt="{{.Attrs.alt}}"
-	{{- with $w := .Attrs.width}} width="{{$w}}"{{end}}
-	{{- with $h := .Attrs.height}} height="{{$h}}"{{end}}>
-{{- with $link}}</a>{{end -}}
-</span>
-{{- end}}
-{{/*----------------------------------------------------------------------*/}}
-
-{{- define "BEGIN_BLOCK_OPEN"}}
-<div
-	{{- if .ID}} id="{{.ID}}"{{end}}
-	{{- with $c := printf "openblock %s" .Classes | trimSpace}} class="{{$c}}"{{end -}}
->
-{{- template "BLOCK_TITLE" .}}
-<div class="content">
-{{- end}}
-
-{{- define "END_BLOCK_OPEN"}}
-</div>
-</div>
-{{- end}}
-{{/*----------------------------------------------------------------------*/}}
-{{- define "BLOCK_VIDEO"}}
-<div
-	{{- if .ID}} id="{{.ID}}"{{end}} class="videoblock">
-{{- template "BLOCK_TITLE" .}}
-<div class="content">
-	{{- if .Attrs.youtube}}
-<iframe
-		{{- with $w := .Attrs.width}} width="{{$w}}" {{- end}}
-		{{- with $h := .Attrs.height}} height="{{$h}}" {{- end}} src="{{.GetVideoSource}}" frameborder="0"
-		{{- if not .Attrs.nofullscreen}} allowfullscreen{{end}}></iframe>
-	{{- else if .Attrs.vimeo}}
-<iframe
-		{{- with $w := .Attrs.width}} width="{{$w}}" {{- end}}
-		{{- with $h := .Attrs.height}} height="{{$h}}" {{- end }} src="{{.GetVideoSource}}" frameborder="0"></iframe>
-	{{- else}}
-<video src="{{.GetVideoSource}}"
-		{{- with $w := .Attrs.width}} width="{{$w}}" {{- end}}
-		{{- with $h := .Attrs.height}} height="{{$h}}" {{- end -}}
-		{{- if .Attrs.poster}} poster="{{.Attrs.poster}}"{{end -}}
-		{{- if not .Attrs.nocontrols}} controls{{end -}}
-		{{- if .Attrs.autoplay}} autoplay{{end -}}
-		{{- if .Attrs.loop}} loop{{end -}}
->
-Your browser does not support the video tag.
-</video>
-	{{- end}}
-</div>
-</div>
-{{- end}}
-{{/*----------------------------------------------------------------------*/}}
-{{- define "BLOCK_AUDIO"}}
-<div
-	{{- if .ID}} id="{{.ID}}"{{end}}
-	{{- with $c := printf "audioblock %s" .Classes | trimSpace}} class="{{$c}}"{{end -}}
->
-{{- template "BLOCK_TITLE" .}}
-<div class="content">
-<audio src="{{.Attrs.src}}"
-	{{- if .Opts.autoplay}} autoplay{{end}}
-	{{- if eq .Opts.controls "1"}} controls{{end}}
-	{{- if .Opts.loop}} loop{{end}}>
-Your browser does not support the audio tag.
-</audio>
-</div>
-</div>
-{{- end}}
-
-
-{{- define "BEGIN_SIDEBAR"}}
-<div
-	{{- if .ID}} id="{{.ID}}"{{end}}
-	{{- with $c := printf "sidebarblock %s" .Classes | trimSpace}} class="{{$c}}"{{end -}}
->
-<div class="content">
-{{- template "BLOCK_TITLE" .}}
-{{- end}}
-{{- define "END_SIDEBAR"}}
-</div>
-</div>
-{{- end}}
-{{/*----------------------------------------------------------------------*/}}
-{{- define "BEGIN_EXAMPLE"}}
-<div
-	{{- if .ID}} id="{{.ID}}"{{end}}
-	{{- with $c := printf "exampleblock %s" .Classes | trimSpace}} class="{{$c}}"{{end -}}
->
-{{- with $caption := .Title}}
-<div class="title">Example {{exampleCounter}}. {{$caption}}</div>
-{{- end}}
-<div class="content">
-{{- end}}
-{{- define "END_EXAMPLE"}}
-</div>
-</div>
-{{- end}}
-{{/*----------------------------------------------------------------------*/}}
-{{- define "BEGIN_QUOTE"}}
-<div
-	{{- if .ID}} id="{{.ID}}"{{end}}
-	{{- with $c := printf "quoteblock %s" .Classes | trimSpace}} class="{{$c}}"{{end -}}
->
-{{- with $caption := .Title}}
-<div class="title">{{$caption}}</div>
-{{- end}}
-<blockquote>
-{{.Content}}
-{{- end}}
-
-{{- define "END_QUOTE"}}
-{{- $author := .QuoteAuthor}}
-{{- $citation := .QuoteCitation}}
-</blockquote>
-	{{- if $author}}
-<div class="attribution">
-&#8212; {{$author}}{{if $citation}}<br>{{end}}
-	{{- end}}
-	{{- if $citation}}
-<cite>{{$citation}}</cite>
-	{{- end}}
-</div>
-</div>
-{{- end}}
-{{/*----------------------------------------------------------------------*/}}
-{{- define "BEGIN_VERSE"}}
-<div
-	{{- if .ID}} id="{{.ID}}"{{end}}
-	{{- with $c := printf "verseblock %s" .Classes | trimSpace}} class="{{$c}}"{{end -}}
->
-{{- with $caption := .Title}}
-<div class="title">{{$caption}}</div>
-{{- end}}
-<pre class="content">{{.Content}}
-{{- end}}
-{{- define "END_VERSE"}}
-{{- $author := .QuoteAuthor}}
-{{- $citation := .QuoteCitation -}}
-</pre>
-	{{- if $author}}
-<div class="attribution">
-&#8212; {{$author}}{{if $citation}}<br>{{end}}
-	{{- end}}
-	{{- if $citation}}
-<cite>{{$citation}}</cite>
-	{{- end}}
-</div>
-</div>
-{{- end}}
-`)
-	return tmpl, err
-}

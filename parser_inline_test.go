@@ -12,6 +12,11 @@ import (
 )
 
 func TestParserInline_do(t *testing.T) {
+	_testDoc := &Document{
+		anchors: make(map[string]*anchor),
+		titleID: make(map[string]string),
+	}
+
 	cases := []struct {
 		content string
 		exp     string
@@ -31,7 +36,7 @@ func TestParserInline_do(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
+		err := container.toHTML(_testDoc, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -44,8 +49,10 @@ func TestParserInline_do(t *testing.T) {
 }
 
 func TestParserInline_parseAttrRef(t *testing.T) {
-	_testDoc.Attributes = map[string]string{
-		"x": "https://kilabit.info",
+	_testDoc := &Document{
+		Attributes: map[string]string{
+			"x": "https://kilabit.info",
+		},
 	}
 
 	cases := []struct {
@@ -70,7 +77,7 @@ func TestParserInline_parseAttrRef(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
+		err := container.toHTML(_testDoc, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -83,13 +90,15 @@ func TestParserInline_parseAttrRef(t *testing.T) {
 }
 
 func TestParserInline_parseCrossReference(t *testing.T) {
-	_testDoc.anchors = map[string]*anchor{
-		"x": &anchor{
-			label: "X y",
+	_testDoc := &Document{
+		anchors: map[string]*anchor{
+			"x": &anchor{
+				label: "X y",
+			},
 		},
-	}
-	_testDoc.titleID = map[string]string{
-		"X y": "x",
+		titleID: map[string]string{
+			"X y": "x",
+		},
 	}
 
 	cases := []struct {
@@ -114,7 +123,7 @@ func TestParserInline_parseCrossReference(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
+		err := container.toHTML(_testDoc, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -127,6 +136,11 @@ func TestParserInline_parseCrossReference(t *testing.T) {
 }
 
 func TestParserInline_parseFormat(t *testing.T) {
+	_testDoc := &Document{
+		anchors: make(map[string]*anchor),
+		titleID: make(map[string]string),
+	}
+
 	cases := []struct {
 		content string
 		exp     string
@@ -167,7 +181,7 @@ func TestParserInline_parseFormat(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
+		err := container.toHTML(_testDoc, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -180,6 +194,11 @@ func TestParserInline_parseFormat(t *testing.T) {
 }
 
 func TestParserInline_parseFormatUnconstrained(t *testing.T) {
+	_testDoc := &Document{
+		anchors: make(map[string]*anchor),
+		titleID: make(map[string]string),
+	}
+
 	cases := []struct {
 		content string
 		exp     string
@@ -208,7 +227,7 @@ func TestParserInline_parseFormatUnconstrained(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
+		err := container.toHTML(_testDoc, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -221,6 +240,11 @@ func TestParserInline_parseFormatUnconstrained(t *testing.T) {
 }
 
 func TestParserInline_parseInlineID(t *testing.T) {
+	_testDoc := &Document{
+		anchors: make(map[string]*anchor),
+		titleID: make(map[string]string),
+	}
+
 	cases := []struct {
 		content  string
 		exp      string
@@ -254,7 +278,7 @@ func TestParserInline_parseInlineID(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf, c.isForToC)
+		err := container.toHTML(_testDoc, &buf, c.isForToC)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -267,7 +291,10 @@ func TestParserInline_parseInlineID(t *testing.T) {
 }
 
 func TestParserInline_parseInlineIDShort(t *testing.T) {
-	_testDoc.anchors = make(map[string]*anchor)
+	_testDoc := &Document{
+		anchors: make(map[string]*anchor),
+		titleID: make(map[string]string),
+	}
 
 	cases := []struct {
 		content string
@@ -297,7 +324,7 @@ func TestParserInline_parseInlineIDShort(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
+		err := container.toHTML(_testDoc, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -310,6 +337,11 @@ func TestParserInline_parseInlineIDShort(t *testing.T) {
 }
 
 func TestParserInline_parseInlineImage(t *testing.T) {
+	_testDoc := &Document{
+		anchors: make(map[string]*anchor),
+		titleID: make(map[string]string),
+	}
+
 	cases := []struct {
 		content string
 		exp     string
@@ -336,7 +368,7 @@ image:linux.png[2]`,
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
+		err := container.toHTML(_testDoc, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -349,6 +381,11 @@ image:linux.png[2]`,
 }
 
 func TestParserInline_parsePassthrough(t *testing.T) {
+	_testDoc := &Document{
+		anchors: make(map[string]*anchor),
+		titleID: make(map[string]string),
+	}
+
 	cases := []struct {
 		content string
 		exp     string
@@ -374,7 +411,7 @@ func TestParserInline_parsePassthrough(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
+		err := container.toHTML(_testDoc, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -387,6 +424,11 @@ func TestParserInline_parsePassthrough(t *testing.T) {
 }
 
 func TestParserInline_parsePassthroughDouble(t *testing.T) {
+	_testDoc := &Document{
+		anchors: make(map[string]*anchor),
+		titleID: make(map[string]string),
+	}
+
 	cases := []struct {
 		content string
 		exp     string
@@ -418,7 +460,7 @@ func TestParserInline_parsePassthroughDouble(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
+		err := container.toHTML(_testDoc, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -431,6 +473,11 @@ func TestParserInline_parsePassthroughDouble(t *testing.T) {
 }
 
 func TestParserInline_parsePassthroughTriple(t *testing.T) {
+	_testDoc := &Document{
+		anchors: make(map[string]*anchor),
+		titleID: make(map[string]string),
+	}
+
 	cases := []struct {
 		content string
 		exp     string
@@ -468,7 +515,7 @@ func TestParserInline_parsePassthroughTriple(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
+		err := container.toHTML(_testDoc, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -481,6 +528,11 @@ func TestParserInline_parsePassthroughTriple(t *testing.T) {
 }
 
 func TestParserInline_parseQuote(t *testing.T) {
+	_testDoc := &Document{
+		anchors: make(map[string]*anchor),
+		titleID: make(map[string]string),
+	}
+
 	cases := []struct {
 		content string
 		exp     string
@@ -515,7 +567,7 @@ func TestParserInline_parseQuote(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
+		err := container.toHTML(_testDoc, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -528,6 +580,11 @@ func TestParserInline_parseQuote(t *testing.T) {
 }
 
 func TestParserInline_parseSubscsript(t *testing.T) {
+	_testDoc := &Document{
+		anchors: make(map[string]*anchor),
+		titleID: make(map[string]string),
+	}
+
 	cases := []struct {
 		content string
 		exp     string
@@ -553,7 +610,7 @@ func TestParserInline_parseSubscsript(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
+		err := container.toHTML(_testDoc, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -566,6 +623,11 @@ func TestParserInline_parseSubscsript(t *testing.T) {
 }
 
 func TestParserInline_parseSuperscript(t *testing.T) {
+	_testDoc := &Document{
+		anchors: make(map[string]*anchor),
+		titleID: make(map[string]string),
+	}
+
 	cases := []struct {
 		content string
 		exp     string
@@ -591,7 +653,7 @@ func TestParserInline_parseSuperscript(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
+		err := container.toHTML(_testDoc, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -604,6 +666,11 @@ func TestParserInline_parseSuperscript(t *testing.T) {
 }
 
 func TestParserInline_parseURL(t *testing.T) {
+	_testDoc := &Document{
+		anchors: make(map[string]*anchor),
+		titleID: make(map[string]string),
+	}
+
 	cases := []struct {
 		content string
 		exp     string
@@ -644,7 +711,7 @@ func TestParserInline_parseURL(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		err := container.toHTML(_testDoc, _testTmpl, &buf, false)
+		err := container.toHTML(_testDoc, &buf, false)
 		if err != nil {
 			t.Fatal(err)
 		}
