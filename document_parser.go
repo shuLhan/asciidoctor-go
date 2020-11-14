@@ -82,9 +82,12 @@ func Parse(content []byte) (doc *Document, err error) {
 func (docp *documentParser) consumeLinesUntil(
 	node *adocNode, term int, terms []int,
 ) (
-	line string, c rune,
+	line string,
 ) {
-	spaces := ""
+	var (
+		c      rune
+		spaces = ""
+	)
 	for {
 		spaces, line, c = docp.line()
 		if len(line) == 0 && c == 0 {
@@ -99,11 +102,11 @@ func (docp *documentParser) consumeLinesUntil(
 		}
 		if docp.kind == term {
 			node.raw = bytes.TrimRight(node.raw, " \n")
-			return "", 0
+			return ""
 		}
 		for _, t := range terms {
 			if t == docp.kind {
-				return line, c
+				return line
 			}
 		}
 		if node.kind == nodeKindBlockPassthrough ||
@@ -116,7 +119,7 @@ func (docp *documentParser) consumeLinesUntil(
 		node.WriteString(line)
 		node.WriteByte('\n')
 	}
-	return line, c
+	return line
 }
 
 func (docp *documentParser) line() (spaces, line string, c rune) {
@@ -273,7 +276,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 			node.kind = nodeKindParagraph
 			node.style |= styleAdmonition
 			node.parseLineAdmonition(line)
-			line, _ = docp.consumeLinesUntil(
+			line = docp.consumeLinesUntil(
 				node,
 				lineKindEmpty,
 				[]int{
@@ -329,7 +332,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 				node.classes = append(node.classes, classNameLiteralBlock)
 				node.WriteString(line)
 				node.WriteByte('\n')
-				line, _ = docp.consumeLinesUntil(
+				line = docp.consumeLinesUntil(
 					node,
 					lineKindEmpty,
 					[]int{
@@ -348,7 +351,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 		case nodeKindBlockLiteral:
 			node.kind = docp.kind
 			node.classes = append(node.classes, classNameLiteralBlock)
-			line, _ = docp.consumeLinesUntil(node, docp.kind, nil)
+			line = docp.consumeLinesUntil(node, docp.kind, nil)
 			node.raw = applySubstitutions(docp.doc, node.raw)
 			parent.addChild(node)
 			node = &adocNode{}
@@ -357,7 +360,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 		case nodeKindBlockLiteralNamed:
 			node.kind = docp.kind
 			node.classes = append(node.classes, classNameLiteralBlock)
-			line, _ = docp.consumeLinesUntil(node, lineKindEmpty, nil)
+			line = docp.consumeLinesUntil(node, lineKindEmpty, nil)
 			node.raw = applySubstitutions(docp.doc, node.raw)
 			parent.addChild(node)
 			node = &adocNode{}
@@ -366,7 +369,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 		case nodeKindBlockListing:
 			node.kind = docp.kind
 			node.classes = append(node.classes, classNameListingBlock)
-			line, _ = docp.consumeLinesUntil(node, docp.kind, nil)
+			line = docp.consumeLinesUntil(node, docp.kind, nil)
 			node.raw = applySubstitutions(docp.doc, node.raw)
 			parent.addChild(node)
 			node = &adocNode{}
@@ -375,7 +378,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 		case nodeKindBlockListingNamed:
 			node.kind = docp.kind
 			node.classes = append(node.classes, classNameListingBlock)
-			line, _ = docp.consumeLinesUntil(
+			line = docp.consumeLinesUntil(
 				node,
 				lineKindEmpty,
 				[]int{
@@ -392,25 +395,25 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 
 		case nodeKindBlockPassthrough:
 			node.kind = docp.kind
-			line, _ = docp.consumeLinesUntil(node, docp.kind, nil)
+			line = docp.consumeLinesUntil(node, docp.kind, nil)
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
 
 		case nodeKindListOrderedItem:
-			line, _ = docp.parseListOrdered(parent, node.rawTitle, line)
+			line = docp.parseListOrdered(parent, node.rawTitle, line)
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
 
 		case nodeKindListUnorderedItem:
-			line, _ = docp.parseListUnordered(parent, node, line)
+			line = docp.parseListUnordered(parent, node, line)
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
 
 		case nodeKindListDescriptionItem:
-			line, _ = docp.parseListDescription(parent, node, line)
+			line = docp.parseListDescription(parent, node, line)
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
@@ -439,7 +442,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 		case nodeKindBlockExcerpts:
 			node.kind = docp.kind
 			if node.IsStyleVerse() {
-				line, _ = docp.consumeLinesUntil(
+				line = docp.consumeLinesUntil(
 					node,
 					docp.kind,
 					[]int{
@@ -599,10 +602,10 @@ func (docp *documentParser) parseHeaderRevision(line string) bool {
 func (docp *documentParser) parseIgnoreCommentBlock() {
 	for {
 		line, c := docp.p.Line()
-		if strings.HasPrefix(line, "////") {
+		if len(line) == 0 && c == 0 {
 			return
 		}
-		if len(line) == 0 && c == 0 {
+		if strings.HasPrefix(line, "////") {
 			return
 		}
 	}
@@ -612,7 +615,8 @@ func (docp *documentParser) parseIgnoreCommentBlock() {
 // parseListBlock parse block after list continuation "+" until we found
 // empty line or non-list line.
 //
-func (docp *documentParser) parseListBlock() (node *adocNode, line string, c rune) {
+func (docp *documentParser) parseListBlock() (node *adocNode, line string) {
+	var c rune
 	for {
 		_, line, c = docp.line()
 		if len(line) == 0 && c == 0 {
@@ -625,7 +629,7 @@ func (docp *documentParser) parseListBlock() (node *adocNode, line string, c run
 				style: styleAdmonition,
 			}
 			node.parseLineAdmonition(line)
-			line, c = docp.consumeLinesUntil(
+			line = docp.consumeLinesUntil(
 				node,
 				lineKindEmpty,
 				[]int{
@@ -646,7 +650,7 @@ func (docp *documentParser) parseListBlock() (node *adocNode, line string, c run
 			continue
 		}
 		if docp.kind == lineKindEmpty {
-			return node, line, c
+			return node, line
 		}
 		if docp.kind == lineKindListContinue {
 			continue
@@ -658,7 +662,7 @@ func (docp *documentParser) parseListBlock() (node *adocNode, line string, c run
 			}
 			node.WriteString(strings.TrimLeft(line, " \t"))
 			node.WriteByte('\n')
-			line, c = docp.consumeLinesUntil(
+			line = docp.consumeLinesUntil(
 				node,
 				lineKindEmpty,
 				[]int{
@@ -675,7 +679,7 @@ func (docp *documentParser) parseListBlock() (node *adocNode, line string, c run
 			}
 			node.WriteString(line)
 			node.WriteByte('\n')
-			line, c = docp.consumeLinesUntil(node,
+			line = docp.consumeLinesUntil(node,
 				lineKindEmpty,
 				[]int{
 					lineKindListContinue,
@@ -707,11 +711,11 @@ func (docp *documentParser) parseListBlock() (node *adocNode, line string, c run
 			break
 		}
 	}
-	return node, line, c
+	return node, line
 }
 
 func (docp *documentParser) parseListDescription(parent, node *adocNode, line string) (
-	got string, c rune,
+	got string,
 ) {
 	list := &adocNode{
 		kind:     nodeKindListDescription,
@@ -727,6 +731,9 @@ func (docp *documentParser) parseListDescription(parent, node *adocNode, line st
 	list.addChild(listItem)
 	parent.addChild(list)
 
+	var (
+		c rune
+	)
 	line = ""
 	for {
 		if len(line) == 0 {
@@ -746,7 +753,7 @@ func (docp *documentParser) parseListDescription(parent, node *adocNode, line st
 		}
 		if docp.kind == lineKindListContinue {
 			var node *adocNode
-			node, line, c = docp.parseListBlock()
+			node, line = docp.parseListBlock()
 			if node != nil {
 				listItem.addChild(node)
 			}
@@ -757,11 +764,11 @@ func (docp *documentParser) parseListDescription(parent, node *adocNode, line st
 			continue
 		}
 		if docp.kind == nodeKindListOrderedItem {
-			line, c = docp.parseListOrdered(listItem, "", line)
+			line = docp.parseListOrdered(listItem, "", line)
 			continue
 		}
 		if docp.kind == nodeKindListUnorderedItem {
-			line, c = docp.parseListUnordered(listItem, node, line)
+			line = docp.parseListUnordered(listItem, node, line)
 			continue
 		}
 		if docp.kind == nodeKindListDescriptionItem {
@@ -782,11 +789,11 @@ func (docp *documentParser) parseListDescription(parent, node *adocNode, line st
 					parentListItem.level == node.level {
 					list.postParseList(docp.doc,
 						nodeKindListDescriptionItem)
-					return line, c
+					return line
 				}
 				parentListItem = parentListItem.parent
 			}
-			line, c = docp.parseListDescription(listItem, node, line)
+			line = docp.parseListDescription(listItem, node, line)
 			continue
 		}
 		if docp.kind == nodeKindBlockListingNamed {
@@ -797,7 +804,7 @@ func (docp *documentParser) parseListDescription(parent, node *adocNode, line st
 				kind:    docp.kind,
 				classes: []string{classNameListingBlock},
 			}
-			line, c = docp.consumeLinesUntil(node,
+			line = docp.consumeLinesUntil(node,
 				lineKindEmpty,
 				[]int{
 					nodeKindListOrderedItem,
@@ -815,7 +822,7 @@ func (docp *documentParser) parseListDescription(parent, node *adocNode, line st
 				kind:    docp.kind,
 				classes: []string{classNameLiteralBlock},
 			}
-			line, c = docp.consumeLinesUntil(node,
+			line = docp.consumeLinesUntil(node,
 				lineKindEmpty,
 				[]int{
 					nodeKindListOrderedItem,
@@ -850,7 +857,7 @@ func (docp *documentParser) parseListDescription(parent, node *adocNode, line st
 		line = ""
 	}
 	list.postParseList(docp.doc, nodeKindListDescriptionItem)
-	return line, c
+	return line
 }
 
 //
@@ -859,7 +866,7 @@ func (docp *documentParser) parseListDescription(parent, node *adocNode, line st
 // On success it will return non-empty line and terminator character.
 //
 func (docp *documentParser) parseListOrdered(parent *adocNode, title, line string) (
-	got string, c rune,
+	got string,
 ) {
 	list := &adocNode{
 		kind:     nodeKindListOrdered,
@@ -873,8 +880,8 @@ func (docp *documentParser) parseListOrdered(parent *adocNode, title, line strin
 	list.addChild(listItem)
 	parent.addChild(list)
 
+	var c rune
 	line = ""
-
 	for {
 		if len(line) == 0 {
 			_, line, c = docp.line()
@@ -894,7 +901,7 @@ func (docp *documentParser) parseListOrdered(parent *adocNode, title, line strin
 		}
 		if docp.kind == lineKindListContinue {
 			var node *adocNode
-			node, line, c = docp.parseListBlock()
+			node, line = docp.parseListBlock()
 			if node != nil {
 				listItem.addChild(node)
 			}
@@ -925,12 +932,12 @@ func (docp *documentParser) parseListOrdered(parent *adocNode, title, line strin
 				if parentListItem.kind == docp.kind &&
 					parentListItem.level == node.level {
 					list.postParseList(docp.doc, nodeKindListOrderedItem)
-					return line, c
+					return line
 				}
 				parentListItem = parentListItem.parent
 			}
 
-			line, c = docp.parseListOrdered(listItem, "", line)
+			line = docp.parseListOrdered(listItem, "", line)
 			continue
 		}
 		if docp.kind == nodeKindListUnorderedItem {
@@ -949,12 +956,12 @@ func (docp *documentParser) parseListOrdered(parent *adocNode, title, line strin
 					parentListItem.level == node.level {
 
 					list.postParseList(docp.doc, nodeKindListOrderedItem)
-					return line, c
+					return line
 				}
 				parentListItem = parentListItem.parent
 			}
 
-			line, c = docp.parseListUnordered(listItem, node, line)
+			line = docp.parseListUnordered(listItem, node, line)
 			continue
 		}
 		if docp.kind == nodeKindListDescriptionItem {
@@ -969,12 +976,12 @@ func (docp *documentParser) parseListOrdered(parent *adocNode, title, line strin
 					parentListItem.level == node.level {
 
 					list.postParseList(docp.doc, nodeKindListOrderedItem)
-					return line, c
+					return line
 				}
 				parentListItem = parentListItem.parent
 			}
 
-			line, c = docp.parseListDescription(listItem, node, line)
+			line = docp.parseListDescription(listItem, node, line)
 			continue
 		}
 		if docp.kind == nodeKindLiteralParagraph {
@@ -985,7 +992,7 @@ func (docp *documentParser) parseListOrdered(parent *adocNode, title, line strin
 				}
 				node.WriteString(strings.TrimLeft(line, " \t"))
 				node.WriteByte('\n')
-				line, c = docp.consumeLinesUntil(
+				line = docp.consumeLinesUntil(
 					node,
 					lineKindEmpty,
 					[]int{
@@ -1006,7 +1013,7 @@ func (docp *documentParser) parseListOrdered(parent *adocNode, title, line strin
 				kind:    docp.kind,
 				classes: []string{classNameListingBlock},
 			}
-			line, c = docp.consumeLinesUntil(node,
+			line = docp.consumeLinesUntil(node,
 				lineKindEmpty,
 				[]int{
 					nodeKindListOrderedItem,
@@ -1024,7 +1031,7 @@ func (docp *documentParser) parseListOrdered(parent *adocNode, title, line strin
 				kind:    docp.kind,
 				classes: []string{classNameLiteralBlock},
 			}
-			line, c = docp.consumeLinesUntil(node,
+			line = docp.consumeLinesUntil(node,
 				lineKindEmpty,
 				[]int{
 					nodeKindListOrderedItem,
@@ -1060,11 +1067,11 @@ func (docp *documentParser) parseListOrdered(parent *adocNode, title, line strin
 		line = ""
 	}
 	list.postParseList(docp.doc, nodeKindListOrderedItem)
-	return line, c
+	return line
 }
 
 func (docp *documentParser) parseListUnordered(parent, node *adocNode, line string) (
-	got string, c rune,
+	got string,
 ) {
 	list := &adocNode{
 		kind:     nodeKindListUnordered,
@@ -1079,8 +1086,8 @@ func (docp *documentParser) parseListUnordered(parent, node *adocNode, line stri
 	list.addChild(listItem)
 	parent.addChild(list)
 
+	var c rune
 	line = ""
-
 	for {
 		if len(line) == 0 {
 			_, line, c = docp.line()
@@ -1100,7 +1107,7 @@ func (docp *documentParser) parseListUnordered(parent, node *adocNode, line stri
 		}
 		if docp.kind == lineKindListContinue {
 			var node *adocNode
-			node, line, c = docp.parseListBlock()
+			node, line = docp.parseListBlock()
 			if node != nil {
 				listItem.addChild(node)
 			}
@@ -1126,12 +1133,12 @@ func (docp *documentParser) parseListUnordered(parent, node *adocNode, line stri
 					parentListItem.level == node.level {
 					list.postParseList(docp.doc,
 						nodeKindListUnorderedItem)
-					return line, c
+					return line
 				}
 				parentListItem = parentListItem.parent
 			}
 
-			line, c = docp.parseListOrdered(listItem, "", line)
+			line = docp.parseListOrdered(listItem, "", line)
 			continue
 		}
 
@@ -1157,12 +1164,12 @@ func (docp *documentParser) parseListUnordered(parent, node *adocNode, line stri
 					parentListItem.level == node.level {
 					list.postParseList(docp.doc,
 						nodeKindListUnorderedItem)
-					return line, c
+					return line
 				}
 				parentListItem = parentListItem.parent
 			}
 
-			line, c = docp.parseListUnordered(listItem, node, line)
+			line = docp.parseListUnordered(listItem, node, line)
 			continue
 		}
 		if docp.kind == nodeKindListDescriptionItem {
@@ -1177,12 +1184,12 @@ func (docp *documentParser) parseListUnordered(parent, node *adocNode, line stri
 					parentListItem.level == node.level {
 					list.postParseList(docp.doc,
 						nodeKindListUnorderedItem)
-					return line, c
+					return line
 				}
 				parentListItem = parentListItem.parent
 			}
 
-			line, c = docp.parseListDescription(listItem, node, line)
+			line = docp.parseListDescription(listItem, node, line)
 			continue
 		}
 		if docp.kind == nodeKindLiteralParagraph {
@@ -1193,7 +1200,7 @@ func (docp *documentParser) parseListUnordered(parent, node *adocNode, line stri
 				}
 				node.WriteString(strings.TrimLeft(line, " \t"))
 				node.WriteByte('\n')
-				line, c = docp.consumeLinesUntil(
+				line = docp.consumeLinesUntil(
 					node,
 					lineKindEmpty,
 					[]int{
@@ -1214,7 +1221,7 @@ func (docp *documentParser) parseListUnordered(parent, node *adocNode, line stri
 				kind:    docp.kind,
 				classes: []string{classNameListingBlock},
 			}
-			line, c = docp.consumeLinesUntil(node,
+			line = docp.consumeLinesUntil(node,
 				lineKindEmpty,
 				[]int{
 					nodeKindListOrderedItem,
@@ -1232,7 +1239,7 @@ func (docp *documentParser) parseListUnordered(parent, node *adocNode, line stri
 				kind:    docp.kind,
 				classes: []string{classNameLiteralBlock},
 			}
-			line, c = docp.consumeLinesUntil(node,
+			line = docp.consumeLinesUntil(node,
 				lineKindEmpty,
 				[]int{
 					nodeKindListOrderedItem,
@@ -1268,7 +1275,7 @@ func (docp *documentParser) parseListUnordered(parent, node *adocNode, line stri
 		line = ""
 	}
 	list.postParseList(docp.doc, nodeKindListUnorderedItem)
-	return line, c
+	return line
 }
 
 func (docp *documentParser) parseParagraph(
@@ -1277,7 +1284,7 @@ func (docp *documentParser) parseParagraph(
 	node.kind = nodeKindParagraph
 	node.WriteString(line)
 	node.WriteByte('\n')
-	line, _ = docp.consumeLinesUntil(
+	line = docp.consumeLinesUntil(
 		node,
 		lineKindEmpty,
 		[]int{
