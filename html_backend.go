@@ -327,7 +327,7 @@ func htmlWriteListDescription(node *adocNode, out io.Writer) {
 		openTag = "\n<dl>"
 	}
 
-	fmt.Fprintf(out, openTag)
+	fmt.Fprint(out, openTag)
 }
 
 func htmlWriteListDescriptionEnd(node *adocNode, out io.Writer) {
@@ -367,7 +367,7 @@ func htmlWriteListUnorderedEnd(out io.Writer) {
 
 func htmlWriteParagraphBegin(node *adocNode, out io.Writer) {
 	htmlWriteBlockBegin(node, out, "paragraph")
-	out.Write([]byte("\n<p>"))
+	fmt.Fprint(out, "\n<p>")
 }
 
 func htmlWriteSection(doc *Document, node *adocNode, out io.Writer, isForToC bool) {
@@ -393,14 +393,14 @@ func htmlWriteSection(doc *Document, node *adocNode, out io.Writer, isForToC boo
 	fmt.Fprintf(out, _htmlSection, class, tag, node.ID)
 
 	if node.sectnums != nil && node.level <= doc.sectLevel {
-		out.Write([]byte(node.sectnums.String()))
+		fmt.Fprint(out, node.sectnums.String())
 	}
 
 	node.title.toHTML(doc, out, isForToC)
 
 	fmt.Fprintf(out, "</%s>", tag)
 	if node.kind == nodeKindSectionL1 {
-		out.Write([]byte("\n<div class=\"sectionbody\">"))
+		fmt.Fprint(out, "\n<div class=\"sectionbody\">")
 	}
 }
 
@@ -429,7 +429,7 @@ func htmlWriteToC(doc *Document, node *adocNode, out io.Writer, level int) {
 		} else if level > node.level {
 			n := level
 			for n > node.level {
-				out.Write([]byte("\n</ul>"))
+				fmt.Fprint(out, "\n</ul>")
 				n--
 			}
 		}
@@ -437,25 +437,25 @@ func htmlWriteToC(doc *Document, node *adocNode, out io.Writer, level int) {
 		fmt.Fprintf(out, "\n<li><a href=\"#%s\">", node.ID)
 
 		if node.sectnums != nil {
-			out.Write([]byte(node.sectnums.String()))
+			fmt.Fprint(out, node.sectnums.String())
 		}
 
 		node.title.toHTML(doc, out, true)
-		out.Write([]byte("</a>"))
+		fmt.Fprint(out, "</a>")
 	}
 
 	if node.child != nil {
 		htmlWriteToC(doc, node.child, out, node.level)
 	}
 	if len(sectClass) > 0 {
-		out.Write([]byte("</li>"))
+		fmt.Fprint(out, "</li>")
 	}
 	if node.next != nil {
 		htmlWriteToC(doc, node.next, out, node.level)
 	}
 
 	if len(sectClass) > 0 && level < node.level {
-		out.Write([]byte("\n</ul>\n"))
+		fmt.Fprint(out, "\n</ul>\n")
 	}
 }
 

@@ -1,6 +1,6 @@
-.PHONY: all lint install serve build build-release
+.PHONY: all lint
 
-all: install
+all: lint
 
 lint:
 	golangci-lint run ./...

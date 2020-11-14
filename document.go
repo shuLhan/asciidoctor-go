@@ -97,7 +97,7 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 	// Use *bytes.Buffer to minimize checking for error.
 	buf := &bytes.Buffer{}
 
-	fmt.Fprintf(buf, _htmlBegin)
+	fmt.Fprint(buf, _htmlBegin)
 
 	metaValue := doc.Attributes[metaNameDescription]
 	if len(metaValue) > 0 {
@@ -206,5 +206,5 @@ func (doc *Document) tocHTML(out io.Writer) {
 
 	fmt.Fprintf(out, _htmlToCBegin, tocClasses, doc.tocTitle)
 	htmlWriteToC(doc, doc.content, out, 0)
-	fmt.Fprintf(out, _htmlToCEnd)
+	fmt.Fprint(out, _htmlToCEnd)
 }

@@ -99,7 +99,6 @@ const (
 	attrNameFloat         = "float"
 	attrNameHeight        = "height"
 	attrNameHref          = "href"
-	attrNameID            = "id"
 	attrNameIcons         = "icons"
 	attrNameLang          = "lang"
 	attrNameLink          = "link"
@@ -168,7 +167,7 @@ const (
 )
 
 const (
-	styleNone            int64 = iota
+	_                    int64 = iota
 	styleSectionColophon       = 1 << (iota - 1)
 	styleSectionAbstract
 	styleSectionPreface
@@ -192,7 +191,6 @@ const (
 	styleAdmonition
 	styleBlockListing
 	styleQuote
-	styleRefText
 	styleTextBold
 	styleTextItalic
 	styleTextMono
@@ -518,9 +516,9 @@ func parseAttrRef(doc *Document, content []byte, x int) (
 		return nil, false
 	}
 
-	key := string(bytes.TrimSpace(bytes.ToLower(attrName)))
+	attrName = bytes.TrimSpace(bytes.ToLower(attrName))
 
-	attrValue, ok := doc.Attributes[key]
+	attrValue, ok := doc.Attributes[string(attrName)]
 	if !ok {
 		return nil, false
 	}

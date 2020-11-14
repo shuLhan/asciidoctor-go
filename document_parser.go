@@ -78,7 +78,7 @@ func (docp *documentParser) consumeLinesUntil(
 ) {
 	var (
 		c      rune
-		spaces = ""
+		spaces string
 	)
 	for {
 		spaces, line, c = docp.line()

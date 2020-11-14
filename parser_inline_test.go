@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"testing"
 
+	"github.com/shuLhan/share/lib/debug"
 	"github.com/shuLhan/share/lib/test"
 )
 
@@ -38,7 +39,9 @@ func TestParserInline_do(t *testing.T) {
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf, false)
 
-		// container.debug(0)
+		if debug.Value > 0 {
+			container.debug(0)
+		}
 
 		got := buf.String()
 		test.Assert(t, c.content, c.exp, got, true)
@@ -76,7 +79,9 @@ func TestParserInline_parseAttrRef(t *testing.T) {
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf, false)
 
-		// container.debug(0)
+		if debug.Value > 0 {
+			container.debug(0)
+		}
 
 		got := buf.String()
 		test.Assert(t, c.content, c.exp, got, true)
@@ -119,7 +124,9 @@ func TestParserInline_parseCrossReference(t *testing.T) {
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf, false)
 
-		// container.debug(0)
+		if debug.Value > 0 {
+			container.debug(0)
+		}
 
 		got := buf.String()
 		test.Assert(t, c.content, c.exp, got, true)
@@ -174,7 +181,9 @@ func TestParserInline_parseFormat(t *testing.T) {
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf, false)
 
-		// container.debug(0)
+		if debug.Value > 0 {
+			container.debug(0)
+		}
 
 		got := buf.String()
 		test.Assert(t, c.content, c.exp, got, true)
@@ -217,7 +226,9 @@ func TestParserInline_parseFormatUnconstrained(t *testing.T) {
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf, false)
 
-		// container.debug(0)
+		if debug.Value > 0 {
+			container.debug(0)
+		}
 
 		got := buf.String()
 		test.Assert(t, c.content, c.exp, got, true)
@@ -265,7 +276,9 @@ func TestParserInline_parseInlineID(t *testing.T) {
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf, c.isForToC)
 
-		// container.debug(0)
+		if debug.Value > 0 {
+			container.debug(0)
+		}
 
 		got := buf.String()
 		test.Assert(t, c.content, c.exp, got, true)
@@ -308,7 +321,9 @@ func TestParserInline_parseInlineIDShort(t *testing.T) {
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf, false)
 
-		// container.debug(0)
+		if debug.Value > 0 {
+			container.debug(0)
+		}
 
 		got := buf.String()
 		test.Assert(t, c.content, c.exp, got, true)
@@ -349,7 +364,9 @@ image:linux.png[2]`,
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf, false)
 
-		// container.debug(0)
+		if debug.Value > 0 {
+			container.debug(0)
+		}
 
 		got := buf.String()
 		test.Assert(t, c.content, c.exp, got, true)
@@ -389,7 +406,9 @@ func TestParserInline_parsePassthrough(t *testing.T) {
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf, false)
 
-		// container.debug(0)
+		if debug.Value > 0 {
+			container.debug(0)
+		}
 
 		got := buf.String()
 		test.Assert(t, c.content, c.exp, got, true)
@@ -435,7 +454,9 @@ func TestParserInline_parsePassthroughDouble(t *testing.T) {
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf, false)
 
-		// container.debug(0)
+		if debug.Value > 0 {
+			container.debug(0)
+		}
 
 		got := buf.String()
 		test.Assert(t, c.content, c.exp, got, true)
@@ -487,7 +508,9 @@ func TestParserInline_parsePassthroughTriple(t *testing.T) {
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf, false)
 
-		// container.debug(0)
+		if debug.Value > 0 {
+			container.debug(0)
+		}
 
 		got := buf.String()
 		test.Assert(t, c.content, c.exp, got, true)
@@ -536,7 +559,9 @@ func TestParserInline_parseQuote(t *testing.T) {
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf, false)
 
-		// container.debug(0)
+		if debug.Value > 0 {
+			container.debug(0)
+		}
 
 		got := buf.String()
 		test.Assert(t, c.content, c.exp, got, true)
@@ -576,7 +601,9 @@ func TestParserInline_parseSubscsript(t *testing.T) {
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf, false)
 
-		// container.debug(0)
+		if debug.Value > 0 {
+			container.debug(0)
+		}
 
 		got := buf.String()
 		test.Assert(t, c.content, c.exp, got, true)
@@ -616,7 +643,9 @@ func TestParserInline_parseSuperscript(t *testing.T) {
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf, false)
 
-		// container.debug(0)
+		if debug.Value > 0 {
+			container.debug(0)
+		}
 
 		got := buf.String()
 		test.Assert(t, c.content, c.exp, got, true)
@@ -671,7 +700,9 @@ func TestParserInline_parseURL(t *testing.T) {
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf, false)
 
-		//container.debug(0)
+		if debug.Value > 0 {
+			container.debug(0)
+		}
 
 		got := buf.String()
 		test.Assert(t, c.content, c.exp, got, true)
