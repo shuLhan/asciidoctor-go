@@ -5,6 +5,7 @@
 package asciidoctor
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"strings"
@@ -37,24 +38,19 @@ const (
 	htmlSymbolTrademark        = "&#8482;"
 )
 
-func htmlWriteBlockBegin(node *adocNode, out io.Writer, addClass string) (err error) {
-	_, err = fmt.Fprint(out, "\n<div")
-	if err != nil {
-		return err
-	}
+func htmlWriteBlockBegin(node *adocNode, out io.Writer, addClass string) {
+	fmt.Fprint(out, "\n<div")
+
 	if len(node.ID) > 0 {
-		_, err = fmt.Fprintf(out, ` id="%s"`, node.ID)
-		if err != nil {
-			return err
-		}
+		fmt.Fprintf(out, ` id="%s"`, node.ID)
 	}
 
 	classes := node.Classes()
 	c := strings.TrimSpace(addClass + " " + classes)
 	if len(c) > 0 {
-		_, err = fmt.Fprintf(out, ` class="%s">`, c)
+		fmt.Fprintf(out, ` class="%s">`, c)
 	} else {
-		_, err = fmt.Fprint(out, ">")
+		fmt.Fprint(out, ">")
 	}
 
 	if !(node.IsStyleAdmonition() ||
@@ -63,59 +59,34 @@ func htmlWriteBlockBegin(node *adocNode, out io.Writer, addClass string) (err er
 		node.kind == nodeKindBlockSidebar) &&
 		len(node.rawTitle) > 0 {
 
-		_, err = fmt.Fprintf(out, _htmlBlockTitle, node.rawTitle)
-		if err != nil {
-			return err
-		}
+		fmt.Fprintf(out, _htmlBlockTitle, node.rawTitle)
 	}
-
-	return err
 }
 
-func htmlWriteBlockAdmonition(node *adocNode, out io.Writer) (err error) {
-	err = htmlWriteBlockBegin(node, out, "admonitionblock")
-	if err != nil {
-		return err
-	}
+func htmlWriteBlockAdmonition(node *adocNode, out io.Writer) {
+	htmlWriteBlockBegin(node, out, "admonitionblock")
 
-	_, err = fmt.Fprint(out, "\n<table>\n<tr>\n<td class=\"icon\">")
-	if err != nil {
-		return err
-	}
+	fmt.Fprint(out, "\n<table>\n<tr>\n<td class=\"icon\">")
 
 	iconsFont := node.Attrs[attrNameIcons]
 	if iconsFont == attrValueFont {
-		_, err = fmt.Fprintf(out, _htmlAdmonitionIconsFont,
+		fmt.Fprintf(out, _htmlAdmonitionIconsFont,
 			strings.ToLower(node.Classes()), node.rawLabel.String())
 	} else {
-		_, err = fmt.Fprintf(out, _htmlBlockTitle,
-			node.rawLabel.String())
-	}
-	if err != nil {
-		return err
+		fmt.Fprintf(out, _htmlBlockTitle, node.rawLabel.String())
 	}
 
-	_, err = fmt.Fprintf(out, _htmlAdmonitionContent, node.raw)
-	if err != nil {
-		return err
-	}
+	fmt.Fprintf(out, _htmlAdmonitionContent, node.raw)
 
 	if len(node.rawTitle) > 0 {
-		_, err = fmt.Fprintf(out, _htmlBlockTitle, node.rawTitle)
+		fmt.Fprintf(out, _htmlBlockTitle, node.rawTitle)
 	}
-
-	return err
 }
 
-func htmlWriteBlockAudio(node *adocNode, out io.Writer) (err error) {
-	err = htmlWriteBlockBegin(node, out, "audioblock")
-	if err != nil {
-		return err
-	}
-	_, err = fmt.Fprint(out, _htmlBlockContent)
-	if err != nil {
-		return err
-	}
+func htmlWriteBlockAudio(node *adocNode, out io.Writer) {
+	htmlWriteBlockBegin(node, out, "audioblock")
+
+	fmt.Fprint(out, _htmlBlockContent)
 
 	src := node.Attrs[attrNameSrc]
 
@@ -132,37 +103,20 @@ func htmlWriteBlockAudio(node *adocNode, out io.Writer) (err error) {
 		optLoop = " loop"
 	}
 
-	_, err = fmt.Fprintf(out, _htmlBlockAudio, src, optAutoplay,
-		optControls, optLoop)
-
-	return err
+	fmt.Fprintf(out, _htmlBlockAudio, src, optAutoplay, optControls, optLoop)
 }
 
-func htmlWriteBlockExample(doc *Document, node *adocNode, out io.Writer) (err error) {
-	err = htmlWriteBlockBegin(node, out, "exampleblock")
-	if err != nil {
-		return err
-	}
+func htmlWriteBlockExample(doc *Document, node *adocNode, out io.Writer) {
+	htmlWriteBlockBegin(node, out, "exampleblock")
 	if len(node.rawTitle) > 0 {
 		doc.counterExample++
-		_, err = fmt.Fprintf(out, _htmlBlockExampleTitle,
-			doc.counterExample, node.rawTitle)
-		if err != nil {
-			return err
-		}
+		fmt.Fprintf(out, _htmlBlockExampleTitle, doc.counterExample, node.rawTitle)
 	}
-	_, err = fmt.Fprint(out, _htmlBlockContent)
-	if err != nil {
-		return err
-	}
-	return nil
+	fmt.Fprint(out, _htmlBlockContent)
 }
 
-func htmlWriteBlockImage(doc *Document, node *adocNode, out io.Writer) (err error) {
-	err = htmlWriteBlockBegin(node, out, "imageblock")
-	if err != nil {
-		return err
-	}
+func htmlWriteBlockImage(doc *Document, node *adocNode, out io.Writer) {
+	htmlWriteBlockBegin(node, out, "imageblock")
 
 	src := node.Attrs[attrNameSrc]
 	alt := node.Attrs[attrNameAlt]
@@ -177,135 +131,67 @@ func htmlWriteBlockImage(doc *Document, node *adocNode, out io.Writer) (err erro
 		height = ` height="` + v + `"`
 	}
 
-	_, err = fmt.Fprintf(out, _htmlBlockImage, src, alt, width, height)
-	if err != nil {
-		return err
-	}
+	fmt.Fprintf(out, _htmlBlockImage, src, alt, width, height)
 
 	if len(node.rawTitle) > 0 {
 		doc.counterImage++
-		_, err = fmt.Fprintf(out, _htmlBlockImageTitle,
-			doc.counterImage, node.rawTitle)
-		if err != nil {
-			return err
-		}
+		fmt.Fprintf(out, _htmlBlockImageTitle, doc.counterImage, node.rawTitle)
 	}
 
-	_, err = fmt.Fprint(out, _htmlBlockImageEnd)
-
-	return err
+	fmt.Fprint(out, _htmlBlockImageEnd)
 }
 
-func htmlWriteBlockLiteral(node *adocNode, out io.Writer) (err error) {
-	err = htmlWriteBlockBegin(node, out, "")
-	if err != nil {
-		return err
-	}
-
-	_, err = fmt.Fprintf(out, _htmlBlockLiteralContent, node.raw)
-	if err != nil {
-		return err
-	}
-
-	return err
+func htmlWriteBlockLiteral(node *adocNode, out io.Writer) {
+	htmlWriteBlockBegin(node, out, "")
+	fmt.Fprintf(out, _htmlBlockLiteralContent, node.raw)
 }
 
-func htmlWriteBlockOpenBegin(node *adocNode, out io.Writer) (err error) {
-	err = htmlWriteBlockBegin(node, out, "openblock")
-	if err != nil {
-		return err
-	}
-
-	_, err = fmt.Fprint(out, _htmlBlockContent)
-
-	return err
+func htmlWriteBlockOpenBegin(node *adocNode, out io.Writer) {
+	htmlWriteBlockBegin(node, out, "openblock")
+	_, _ = fmt.Fprint(out, _htmlBlockContent)
 }
 
-func htmlWriteBlockQuote(node *adocNode, out io.Writer) (err error) {
-	err = htmlWriteBlockBegin(node, out, "quoteblock")
-	if err != nil {
-		return err
-	}
-
-	_, err = fmt.Fprintf(out, _htmlBlockQuoteBegin, node.raw)
-
-	return err
+func htmlWriteBlockQuote(node *adocNode, out io.Writer) {
+	htmlWriteBlockBegin(node, out, "quoteblock")
+	_, _ = fmt.Fprintf(out, _htmlBlockQuoteBegin, node.raw)
 }
 
-func htmlWriteBlockQuoteEnd(node *adocNode, out io.Writer) (err error) {
-	_, err = fmt.Fprint(out, _htmlBlockQuoteEnd)
-	if err != nil {
-		return err
-	}
+func htmlWriteBlockQuoteEnd(node *adocNode, out io.Writer) {
+	_, _ = fmt.Fprint(out, _htmlBlockQuoteEnd)
 	if len(node.key) > 0 {
-		_, err = fmt.Fprintf(out, _htmlQuoteAuthor, node.key)
-		if err != nil {
-			return err
-		}
+		_, _ = fmt.Fprintf(out, _htmlQuoteAuthor, node.key)
 	}
 	if len(node.value) > 0 {
-		_, err = fmt.Fprintf(out, _htmlQuoteCitation, node.value)
-		if err != nil {
-			return err
-		}
+		_, _ = fmt.Fprintf(out, _htmlQuoteCitation, node.value)
 	}
-
-	_, err = fmt.Fprint(out, _htmlBlockEnd)
-
-	return err
+	_, _ = fmt.Fprint(out, _htmlBlockEnd)
 }
 
-func htmlWriteBlockSidebar(node *adocNode, out io.Writer) (err error) {
-	err = htmlWriteBlockBegin(node, out, "sidebarblock")
-	if err != nil {
-		return err
-	}
-	_, err = fmt.Fprint(out, _htmlBlockContent)
-	if err != nil {
-		return err
-	}
+func htmlWriteBlockSidebar(node *adocNode, out io.Writer) {
+	htmlWriteBlockBegin(node, out, "sidebarblock")
+	_, _ = fmt.Fprint(out, _htmlBlockContent)
 	if len(node.rawTitle) > 0 {
-		_, err = fmt.Fprintf(out, _htmlBlockTitle, node.rawTitle)
+		_, _ = fmt.Fprintf(out, _htmlBlockTitle, node.rawTitle)
 	}
-	return err
 }
 
-func htmlWriteBlockVerse(node *adocNode, out io.Writer) (err error) {
-	err = htmlWriteBlockBegin(node, out, "verseblock")
-	if err != nil {
-		return err
-	}
-	_, err = fmt.Fprintf(out, _htmlBlockVerse, node.raw)
-	if err != nil {
-		return err
-	}
-	return nil
+func htmlWriteBlockVerse(node *adocNode, out io.Writer) {
+	htmlWriteBlockBegin(node, out, "verseblock")
+	_, _ = fmt.Fprintf(out, _htmlBlockVerse, node.raw)
 }
 
-func htmlWriteBlockVerseEnd(node *adocNode, out io.Writer) (err error) {
-	_, err = fmt.Fprint(out, _htmlBlockVerseEnd)
-	if err != nil {
-		return err
-	}
+func htmlWriteBlockVerseEnd(node *adocNode, out io.Writer) {
+	_, _ = fmt.Fprint(out, _htmlBlockVerseEnd)
 	if len(node.key) > 0 {
-		_, err = fmt.Fprintf(out, _htmlQuoteAuthor, node.key)
-		if err != nil {
-			return err
-		}
+		_, _ = fmt.Fprintf(out, _htmlQuoteAuthor, node.key)
 	}
 	if len(node.value) > 0 {
-		_, err = fmt.Fprintf(out, _htmlQuoteCitation, node.value)
-		if err != nil {
-			return err
-		}
+		_, _ = fmt.Fprintf(out, _htmlQuoteCitation, node.value)
 	}
-
-	_, err = fmt.Fprint(out, _htmlBlockEnd)
-
-	return err
+	_, _ = fmt.Fprint(out, _htmlBlockEnd)
 }
 
-func htmlWriteBlockVideo(node *adocNode, out io.Writer) (err error) {
+func htmlWriteBlockVideo(node *adocNode, out io.Writer) {
 	src := node.GetVideoSource()
 	width, withWidth := node.Attrs[attrNameWidth]
 	if withWidth {
@@ -318,26 +204,18 @@ func htmlWriteBlockVideo(node *adocNode, out io.Writer) (err error) {
 	_, isYoutube := node.Attrs[attrNameYoutube]
 	_, isVimeo := node.Attrs[attrNameVimeo]
 
-	err = htmlWriteBlockBegin(node, out, "videoblock")
-	if err != nil {
-		return err
-	}
+	htmlWriteBlockBegin(node, out, "videoblock")
 
-	_, err = fmt.Fprint(out, _htmlBlockContent)
-	if err != nil {
-		return err
-	}
+	fmt.Fprint(out, _htmlBlockContent)
 
 	if isYoutube {
 		optFullscreen, noFullscreen := node.Attrs[optVideoNofullscreen]
 		if !noFullscreen {
 			optFullscreen = " allowfullscreen"
 		}
-		_, err = fmt.Fprintf(out, _htmlBlockVideoYoutube, width,
-			height, src, optFullscreen)
+		fmt.Fprintf(out, _htmlBlockVideoYoutube, width, height, src, optFullscreen)
 	} else if isVimeo {
-		_, err = fmt.Fprintf(out, _htmlBlockVideoVimeo, width,
-			height, src)
+		fmt.Fprintf(out, _htmlBlockVideoVimeo, width, height, src)
 	} else {
 		optPoster, withPoster := node.Attrs[attrNamePoster]
 		if withPoster {
@@ -356,128 +234,63 @@ func htmlWriteBlockVideo(node *adocNode, out io.Writer) (err error) {
 			optLoop = " loop"
 		}
 
-		_, err = fmt.Fprintf(out, _htmlBlockVideo, src, width,
+		fmt.Fprintf(out, _htmlBlockVideo, src, width,
 			height, optPoster, optControls, optAutoplay, optLoop)
 	}
-	if err != nil {
-		return err
-	}
 
-	_, err = fmt.Fprint(out, _htmlBlockEnd)
-
-	return err
+	fmt.Fprint(out, _htmlBlockEnd)
 }
 
-func htmlWriteBody(doc *Document, out io.Writer) (err error) {
-	err = htmlWriteHeader(doc, out)
-	if err != nil {
-		return err
-	}
+func htmlWriteBody(doc *Document, out *bytes.Buffer) {
+	htmlWriteHeader(doc, out)
 
-	_, err = fmt.Fprint(out, _htmlContentBegin)
-	if err != nil {
-		return err
-	}
+	fmt.Fprint(out, _htmlContentBegin)
 
 	if doc.content.child != nil {
-		err = doc.content.child.toHTML(doc, out, false)
-		if err != nil {
-			return err
-		}
+		doc.content.child.toHTML(doc, out, false)
 	}
 	if doc.content.next != nil {
-		err = doc.content.next.toHTML(doc, out, false)
-		if err != nil {
-			return err
-		}
+		doc.content.next.toHTML(doc, out, false)
 	}
 
-	_, err = fmt.Fprint(out, _htmlContentEnd)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	fmt.Fprint(out, _htmlContentEnd)
 }
 
-func htmlWriteHeader(doc *Document, out io.Writer) (
-	err error,
-) {
-	_, err = fmt.Fprint(out, _htmlHeaderBegin)
-	if err != nil {
-		return err
-	}
+func htmlWriteHeader(doc *Document, out io.Writer) {
+	fmt.Fprint(out, _htmlHeaderBegin)
 
-	_, err = fmt.Fprint(out, _htmlHeaderTitleBegin)
-	if err != nil {
-		return err
-	}
-	err = doc.title.toHTML(doc, out, false)
-	if err != nil {
-		return err
-	}
-	_, err = fmt.Fprint(out, _htmlHeaderTitleEnd)
-	if err != nil {
-		return err
-	}
+	fmt.Fprint(out, _htmlHeaderTitleBegin)
+	doc.title.toHTML(doc, out, false)
+	fmt.Fprint(out, _htmlHeaderTitleEnd)
 
-	if _, err = fmt.Fprint(out, _htmlHeaderDetail); err != nil {
-		return err
-	}
+	fmt.Fprint(out, _htmlHeaderDetail)
 	if len(doc.Author) > 0 {
-		_, err = fmt.Fprintf(out, _htmlHeaderDetailAuthor, doc.Author)
-		if err != nil {
-			return err
-		}
+		fmt.Fprintf(out, _htmlHeaderDetailAuthor, doc.Author)
 	}
 	if len(doc.RevNumber) > 0 {
-		_, err = fmt.Fprintf(out, _htmlHeaderDetailRevNumber,
+		fmt.Fprintf(out, _htmlHeaderDetailRevNumber,
 			doc.RevNumber, doc.RevSeparator)
-		if err != nil {
-			return err
-		}
 	}
 	if len(doc.RevDate) > 0 {
-		_, err = fmt.Fprintf(out, _htmlHeaderDetailRevDate, doc.RevDate)
-		if err != nil {
-			return err
-		}
+		fmt.Fprintf(out, _htmlHeaderDetailRevDate, doc.RevDate)
 	}
-	_, err = fmt.Fprint(out, _htmlHeaderDetailEnd)
-	if err != nil {
-		return err
-	}
+	fmt.Fprint(out, _htmlHeaderDetailEnd)
 
 	if doc.tocIsEnabled && (doc.tocPosition == "" ||
 		doc.tocPosition == metaValueAuto ||
 		doc.tocPosition == metaValueLeft ||
 		doc.tocPosition == metaValueRight) {
-		err = doc.tocHTML(out)
-		if err != nil {
-			return fmt.Errorf("ToHTML: %w", err)
-		}
+		doc.tocHTML(out)
 	}
-
-	_, err = fmt.Fprint(out, _htmlHeaderEnd)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	fmt.Fprint(out, _htmlHeaderEnd)
 }
 
-func htmlWriteInlineImage(node *adocNode, out io.Writer) (err error) {
+func htmlWriteInlineImage(node *adocNode, out io.Writer) {
 	classes := strings.TrimSpace("image " + node.Classes())
-	_, err = fmt.Fprintf(out, _htmlInlineImage, classes)
-	if err != nil {
-		return fmt.Errorf("htmlWriteInlineImage: %w", err)
-	}
+	fmt.Fprintf(out, _htmlInlineImage, classes)
 	link, withLink := node.Attrs[attrNameLink]
 	if withLink {
-		_, err = fmt.Fprintf(out, _htmlInlineImageLink, link)
-		if err != nil {
-			return err
-		}
+		fmt.Fprintf(out, _htmlInlineImageLink, link)
 	}
 
 	src := node.Attrs[attrNameSrc]
@@ -492,107 +305,72 @@ func htmlWriteInlineImage(node *adocNode, out io.Writer) (err error) {
 		height = fmt.Sprintf(` height="%s"`, height)
 	}
 
-	_, err = fmt.Fprintf(out, _htmlInlineImageImage, src, alt, width, height)
-	if err != nil {
-		return err
-	}
+	fmt.Fprintf(out, _htmlInlineImageImage, src, alt, width, height)
 
 	if withLink {
-		_, err = fmt.Fprint(out, `</a>`)
-		if err != nil {
-			return err
-		}
+		fmt.Fprint(out, `</a>`)
 	}
 
-	_, err = fmt.Fprint(out, `</span>`)
-
-	return err
+	fmt.Fprint(out, `</span>`)
 }
 
-func htmlWriteListDescription(node *adocNode, out io.Writer) (err error) {
+func htmlWriteListDescription(node *adocNode, out io.Writer) {
 	var openTag string
 	if node.IsStyleQandA() {
-		err = htmlWriteBlockBegin(node, out, "qlist qanda")
+		htmlWriteBlockBegin(node, out, "qlist qanda")
 		openTag = "\n<ol>"
 	} else if node.IsStyleHorizontal() {
-		err = htmlWriteBlockBegin(node, out, "hdlist")
+		htmlWriteBlockBegin(node, out, "hdlist")
 		openTag = "\n<table>"
 	} else {
-		err = htmlWriteBlockBegin(node, out, "dlist")
+		htmlWriteBlockBegin(node, out, "dlist")
 		openTag = "\n<dl>"
 	}
-	if err != nil {
-		return err
-	}
 
-	_, err = fmt.Fprintf(out, openTag)
-
-	return err
+	fmt.Fprintf(out, openTag)
 }
 
-func htmlWriteListDescriptionEnd(node *adocNode, out io.Writer) (err error) {
+func htmlWriteListDescriptionEnd(node *adocNode, out io.Writer) {
 	if node.IsStyleQandA() {
-		_, err = fmt.Fprintf(out, "\n</ol>\n</div>")
+		fmt.Fprintf(out, "\n</ol>\n</div>")
 	} else if node.IsStyleHorizontal() {
-		_, err = fmt.Fprintf(out, "\n</table>\n</div>")
+		fmt.Fprintf(out, "\n</table>\n</div>")
 	} else {
-		_, err = fmt.Fprintf(out, "\n</dl>\n</div>")
+		fmt.Fprintf(out, "\n</dl>\n</div>")
 	}
-	return err
 }
 
-func htmlWriteListOrdered(node *adocNode, out io.Writer) (err error) {
+func htmlWriteListOrdered(node *adocNode, out io.Writer) {
 	class := node.getListOrderedClass()
 	tipe := node.getListOrderedType()
 	if len(tipe) > 0 {
 		tipe = ` type="` + tipe + `"`
 	}
 
-	err = htmlWriteBlockBegin(node, out, "olist "+class)
-	if err != nil {
-		return err
-	}
+	htmlWriteBlockBegin(node, out, "olist "+class)
 
-	_, err = fmt.Fprintf(out, "\n<ol class=\"%s\"%s>", class, tipe)
-
-	return err
+	fmt.Fprintf(out, "\n<ol class=\"%s\"%s>", class, tipe)
 }
 
-func htmlWriteListOrderedEnd(out io.Writer) (err error) {
-	_, err = fmt.Fprint(out, "\n</ol>\n</div>")
-	return err
+func htmlWriteListOrderedEnd(out io.Writer) {
+	fmt.Fprint(out, "\n</ol>\n</div>")
 }
 
-func htmlWriteListUnordered(node *adocNode, out io.Writer) (err error) {
-	err = htmlWriteBlockBegin(node, out, "")
-	if err != nil {
-		return err
-	}
-
-	_, err = fmt.Fprintf(out, "\n<ul>")
-
-	return err
+func htmlWriteListUnordered(node *adocNode, out io.Writer) {
+	htmlWriteBlockBegin(node, out, "")
+	fmt.Fprintf(out, "\n<ul>")
 }
 
-func htmlWriteListUnorderedEnd(out io.Writer) (err error) {
-	_, err = fmt.Fprint(out, "\n</ul>\n</div>")
-	return err
+func htmlWriteListUnorderedEnd(out io.Writer) {
+	fmt.Fprint(out, "\n</ul>\n</div>")
 }
 
-func htmlWriteParagraphBegin(node *adocNode, out io.Writer) (err error) {
-	err = htmlWriteBlockBegin(node, out, "paragraph")
-	if err != nil {
-		return err
-	}
-
-	_, err = out.Write([]byte("\n<p>"))
-
-	return err
+func htmlWriteParagraphBegin(node *adocNode, out io.Writer) {
+	htmlWriteBlockBegin(node, out, "paragraph")
+	out.Write([]byte("\n<p>"))
 }
 
-func htmlWriteSection(doc *Document, node *adocNode, out io.Writer, isForToC bool) (
-	err error,
-) {
+func htmlWriteSection(doc *Document, node *adocNode, out io.Writer, isForToC bool) {
 	var class, tag string
 	switch node.kind {
 	case nodeKindSectionL1:
@@ -612,41 +390,21 @@ func htmlWriteSection(doc *Document, node *adocNode, out io.Writer, isForToC boo
 		tag = "h6"
 	}
 
-	_, err = fmt.Fprintf(out, _htmlSection, class, tag, node.ID)
-	if err != nil {
-		return err
-	}
+	fmt.Fprintf(out, _htmlSection, class, tag, node.ID)
 
 	if node.sectnums != nil && node.level <= doc.sectLevel {
-		_, err = out.Write([]byte(node.sectnums.String()))
-		if err != nil {
-			return err
-		}
+		out.Write([]byte(node.sectnums.String()))
 	}
 
-	err = node.title.toHTML(doc, out, isForToC)
-	if err != nil {
-		return err
-	}
+	node.title.toHTML(doc, out, isForToC)
 
-	_, err = fmt.Fprintf(out, "</%s>", tag)
-	if err != nil {
-		return err
-	}
-
+	fmt.Fprintf(out, "</%s>", tag)
 	if node.kind == nodeKindSectionL1 {
-		_, err = out.Write([]byte("\n<div class=\"sectionbody\">"))
-		if err != nil {
-			return err
-		}
+		out.Write([]byte("\n<div class=\"sectionbody\">"))
 	}
-
-	return nil
 }
 
-func htmlWriteToC(
-	doc *Document, node *adocNode, out io.Writer, level int,
-) (err error) {
+func htmlWriteToC(doc *Document, node *adocNode, out io.Writer, level int) {
 	var sectClass string
 
 	switch node.kind {
@@ -667,99 +425,57 @@ func htmlWriteToC(
 
 	if len(sectClass) > 0 {
 		if level < node.level {
-			_, err = fmt.Fprintf(out, "\n<ul class=\"%s\">", sectClass)
+			fmt.Fprintf(out, "\n<ul class=\"%s\">", sectClass)
 		} else if level > node.level {
 			n := level
 			for n > node.level {
-				_, err = out.Write([]byte("\n</ul>"))
+				out.Write([]byte("\n</ul>"))
 				n--
 			}
 		}
 
-		_, err = fmt.Fprintf(out, "\n<li><a href=\"#%s\">", node.ID)
-		if err != nil {
-			return fmt.Errorf("htmlWriteToC: %w", err)
-		}
+		fmt.Fprintf(out, "\n<li><a href=\"#%s\">", node.ID)
 
 		if node.sectnums != nil {
-			_, err = out.Write([]byte(node.sectnums.String()))
-			if err != nil {
-				return fmt.Errorf("htmlWriteToC: %w", err)
-			}
+			out.Write([]byte(node.sectnums.String()))
 		}
 
-		err = node.title.toHTML(doc, out, true)
-		if err != nil {
-			return fmt.Errorf("htmlWriteToC: %w", err)
-		}
-
-		_, err = out.Write([]byte("</a>"))
-		if err != nil {
-			return fmt.Errorf("htmlWriteToC: %w", err)
-		}
+		node.title.toHTML(doc, out, true)
+		out.Write([]byte("</a>"))
 	}
 
 	if node.child != nil {
-		err = htmlWriteToC(doc, node.child, out, node.level)
-		if err != nil {
-			return err
-		}
+		htmlWriteToC(doc, node.child, out, node.level)
 	}
 	if len(sectClass) > 0 {
-		_, err = out.Write([]byte("</li>"))
-		if err != nil {
-			return fmt.Errorf("htmlWriteToC: %w", err)
-		}
+		out.Write([]byte("</li>"))
 	}
 	if node.next != nil {
-		err = htmlWriteToC(doc, node.next, out, node.level)
-		if err != nil {
-			return err
-		}
+		htmlWriteToC(doc, node.next, out, node.level)
 	}
 
 	if len(sectClass) > 0 && level < node.level {
-		_, err = out.Write([]byte("\n</ul>\n"))
-		if err != nil {
-			return fmt.Errorf("htmlWriteToC: %w", err)
-		}
+		out.Write([]byte("\n</ul>\n"))
 	}
-
-	return nil
 }
 
-func htmlWriteURLBegin(node *adocNode, out io.Writer) (err error) {
-	_, err = fmt.Fprintf(out, "<a href=\"%s\"", node.Attrs[attrNameHref])
-	if err != nil {
-		return err
-	}
+func htmlWriteURLBegin(node *adocNode, out io.Writer) {
+	fmt.Fprintf(out, "<a href=\"%s\"", node.Attrs[attrNameHref])
 	classes := node.Classes()
 	if len(classes) > 0 {
-		_, err = fmt.Fprintf(out, ` class="%s"`, classes)
-		if err != nil {
-			return err
-		}
+		fmt.Fprintf(out, ` class="%s"`, classes)
 	}
 	target := node.Attrs[attrNameTarget]
 	if len(target) > 0 {
-		_, err = fmt.Fprintf(out, ` target="%s"`, target)
-		if err != nil {
-			return err
-		}
+		fmt.Fprintf(out, ` target="%s"`, target)
 	}
 	rel := node.Attrs[attrNameRel]
 	if len(rel) > 0 {
-		_, err = fmt.Fprintf(out, ` rel="%s"`, rel)
-		if err != nil {
-			return err
-		}
+		fmt.Fprintf(out, ` rel="%s"`, rel)
 	}
-	_, err = fmt.Fprintf(out, `>%s`, node.raw)
-
-	return err
+	fmt.Fprintf(out, `>%s`, node.raw)
 }
 
-func htmlWriteURLEnd(out io.Writer) (err error) {
-	_, err = fmt.Fprint(out, "</a>")
-	return err
+func htmlWriteURLEnd(out io.Writer) {
+	fmt.Fprint(out, "</a>")
 }

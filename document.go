@@ -5,6 +5,7 @@
 package asciidoctor
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -66,11 +67,7 @@ func Open(file string) (doc *Document, err error) {
 		return nil, fmt.Errorf("ciigo.Open %s: %w", file, err)
 	}
 
-	doc, err = Parse(raw)
-	if err != nil {
-		return nil, fmt.Errorf("Open %s: %w", file, err)
-	}
-
+	doc = Parse(raw)
 	doc.file = file
 	doc.LastUpdated = fi.ModTime().Round(time.Second).Format("2006-01-02 15:04:05 Z0700")
 
@@ -97,32 +94,23 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 		doc.tocClasses = append(doc.tocClasses, classNameToc)
 	}
 
-	_, err = fmt.Fprintf(out, _htmlBegin)
-	if err != nil {
-		return err
-	}
+	// Use *bytes.Buffer to minimize checking for error.
+	buf := &bytes.Buffer{}
+
+	fmt.Fprintf(buf, _htmlBegin)
 
 	metaValue := doc.Attributes[metaNameDescription]
 	if len(metaValue) > 0 {
-		_, err = fmt.Fprintf(out, _htmlMetaDescription, metaValue)
-		if err != nil {
-			return err
-		}
+		fmt.Fprintf(buf, _htmlMetaDescription, metaValue)
 	}
 
 	metaValue = doc.Attributes[metaNameKeywords]
 	if len(metaValue) > 0 {
-		_, err = fmt.Fprintf(out, _htmlMetaKeywords, metaValue)
-		if err != nil {
-			return err
-		}
+		fmt.Fprintf(buf, _htmlMetaKeywords, metaValue)
 	}
 
 	if len(doc.Author) > 0 {
-		_, err = fmt.Fprintf(out, _htmlMetaAuthor, doc.Author)
-		if err != nil {
-			return err
-		}
+		fmt.Fprintf(buf, _htmlMetaAuthor, doc.Author)
 	}
 
 	title := doc.Attributes[metaNameTitle]
@@ -130,42 +118,24 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 		title = doc.Title
 	}
 	if len(title) > 0 {
-		_, err = fmt.Fprintf(out, _htmlHeadTitle, title)
-		if err != nil {
-			return err
-		}
+		fmt.Fprintf(buf, _htmlHeadTitle, title)
 	}
-	if _, err = fmt.Fprint(out, _htmlHeadStyle); err != nil {
-		return err
-	}
+	fmt.Fprint(buf, _htmlHeadStyle)
 
 	bodyClasses := strings.Join(doc.classes, " ")
-	if _, err = fmt.Fprintf(out, _htmlBodyBegin, bodyClasses); err != nil {
-		return err
-	}
+	fmt.Fprintf(buf, _htmlBodyBegin, bodyClasses)
 
-	if err = htmlWriteBody(doc, out); err != nil {
-		return err
-	}
+	htmlWriteBody(doc, buf)
 
-	if _, err = fmt.Fprint(out, _htmlFooterBegin); err != nil {
-		return err
-	}
+	fmt.Fprint(buf, _htmlFooterBegin)
 	if len(doc.RevNumber) > 0 {
-		_, err = fmt.Fprintf(out, _htmlFooterVersion, doc.RevNumber)
-		if err != nil {
-			return err
-		}
+		fmt.Fprintf(buf, _htmlFooterVersion, doc.RevNumber)
 	}
-	if _, err = fmt.Fprintf(out, _htmlFooterLastUpdated, doc.LastUpdated); err != nil {
-		if err != nil {
-			return err
-		}
-	}
-	if _, err = fmt.Fprint(out, _htmlFooterEnd); err != nil {
-		return err
-	}
-	_, err = fmt.Fprint(out, _htmlBodyEnd)
+	fmt.Fprintf(buf, _htmlFooterLastUpdated, doc.LastUpdated)
+	fmt.Fprint(buf, _htmlFooterEnd)
+	fmt.Fprint(buf, _htmlBodyEnd)
+
+	_, err = out.Write(buf.Bytes())
 
 	return err
 }
@@ -173,7 +143,7 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 //
 // ToHTMLBody convert the document object into HTML with content of body only.
 //
-func (doc *Document) ToHTMLBody(w io.Writer) (err error) {
+func (doc *Document) ToHTMLBody(out io.Writer) (err error) {
 	doc.classes = append(doc.classes, classNameArticle)
 
 	doc.tocPosition, doc.tocIsEnabled = doc.Attributes[metaNameTOC]
@@ -189,12 +159,11 @@ func (doc *Document) ToHTMLBody(w io.Writer) (err error) {
 		doc.tocClasses = append(doc.tocClasses, classNameToc)
 	}
 
-	err = htmlWriteBody(doc, w)
-	if err != nil {
-		return err
-	}
+	buf := &bytes.Buffer{}
+	htmlWriteBody(doc, buf)
+	_, err = out.Write(buf.Bytes())
 
-	return nil
+	return err
 }
 
 //
@@ -220,13 +189,10 @@ func (doc *Document) registerAnchor(id, label string) string {
 //
 // tocHTML write table of contents with HTML template into out.
 //
-func (doc *Document) tocHTML(out io.Writer) (err error) {
+func (doc *Document) tocHTML(out io.Writer) {
 	v, ok := doc.Attributes[metaNameTOCLevels]
 	if ok {
-		doc.TOCLevel, err = strconv.Atoi(v)
-		if err != nil {
-			return fmt.Errorf("tocHTML: %w", err)
-		}
+		doc.TOCLevel, _ = strconv.Atoi(v)
 		if doc.TOCLevel <= 0 {
 			doc.TOCLevel = defTOCLevel
 		}
@@ -238,20 +204,7 @@ func (doc *Document) tocHTML(out io.Writer) (err error) {
 		doc.tocTitle = v
 	}
 
-	_, err = fmt.Fprintf(out, _htmlToCBegin, tocClasses, doc.tocTitle)
-	if err != nil {
-		return fmt.Errorf("tocHTML: _htmlToCBegin: %w", err)
-	}
-
-	err = htmlWriteToC(doc, doc.content, out, 0)
-	if err != nil {
-		return fmt.Errorf("tocHTML: %w", err)
-	}
-
-	_, err = fmt.Fprintf(out, _htmlToCEnd)
-	if err != nil {
-		return fmt.Errorf("tocHTML: _htmlToCEnd: %w", err)
-	}
-
-	return nil
+	fmt.Fprintf(out, _htmlToCBegin, tocClasses, doc.tocTitle)
+	htmlWriteToC(doc, doc.content, out, 0)
+	fmt.Fprintf(out, _htmlToCEnd)
 }

@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"log"
 	"net/url"
 	"strings"
 
@@ -563,12 +562,7 @@ func (node *adocNode) parseSection(doc *Document) {
 	container.parent = node
 	node.title = container
 	node.raw = nil
-
-	var err error
-	node.Text, err = container.toText()
-	if err != nil {
-		log.Fatalf("parseSection: " + err.Error())
-	}
+	node.Text = container.toText()
 
 	if len(node.ID) == 0 {
 		node.ID = generateID(node.Text)
@@ -778,7 +772,7 @@ func (node *adocNode) setStyleAdmonition(admName string) {
 	node.rawLabel.WriteString(strings.Title(admName))
 }
 
-func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) (err error) {
+func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 	switch node.kind {
 	case lineKindAttribute:
 		doc.Attributes.apply(node.key, node.value)
@@ -792,51 +786,48 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) (err err
 			}
 			href = doc.titleID[title]
 		}
-		_, err = fmt.Fprintf(w, _htmlCrossReference, href, node.raw)
+		fmt.Fprintf(w, _htmlCrossReference, href, node.raw)
 
 	case nodeKindMacroTOC:
 		if doc.tocIsEnabled && doc.tocPosition == metaValueMacro {
-			err = doc.tocHTML(w)
-			if err != nil {
-				return fmt.Errorf("toHTML: nodeKindMacroTOC: %w", err)
-			}
+			doc.tocHTML(w)
 		}
 
 	case nodeKindPreamble:
-		_, err = fmt.Fprint(w, _htmlPreambleBegin)
+		fmt.Fprint(w, _htmlPreambleBegin)
 
 	case nodeKindSectionL1, nodeKindSectionL2, nodeKindSectionL3,
 		nodeKindSectionL4, nodeKindSectionL5:
-		err = htmlWriteSection(doc, node, w, isForToC)
+		htmlWriteSection(doc, node, w, isForToC)
 
 	case nodeKindParagraph:
 		if node.IsStyleAdmonition() {
-			err = htmlWriteBlockAdmonition(node, w)
+			htmlWriteBlockAdmonition(node, w)
 		} else if node.IsStyleQuote() {
-			err = htmlWriteBlockQuote(node, w)
+			htmlWriteBlockQuote(node, w)
 		} else if node.IsStyleVerse() {
-			err = htmlWriteBlockVerse(node, w)
+			htmlWriteBlockVerse(node, w)
 		} else {
-			err = htmlWriteParagraphBegin(node, w)
+			htmlWriteParagraphBegin(node, w)
 		}
 
 	case nodeKindLiteralParagraph, nodeKindBlockLiteral,
 		nodeKindBlockLiteralNamed,
 		nodeKindBlockListing, nodeKindBlockListingNamed:
-		err = htmlWriteBlockLiteral(node, w)
+		htmlWriteBlockLiteral(node, w)
 
 	case nodeKindInlineImage:
-		err = htmlWriteInlineImage(node, w)
+		htmlWriteInlineImage(node, w)
 
 	case nodeKindListDescription:
-		err = htmlWriteListDescription(node, w)
+		htmlWriteListDescription(node, w)
 	case nodeKindListOrdered:
-		err = htmlWriteListOrdered(node, w)
+		htmlWriteListOrdered(node, w)
 	case nodeKindListUnordered:
-		err = htmlWriteListUnordered(node, w)
+		htmlWriteListUnordered(node, w)
 
 	case nodeKindListOrderedItem, nodeKindListUnorderedItem:
-		_, err = w.Write([]byte("\n<li>"))
+		w.Write([]byte("\n<li>"))
 
 	case nodeKindListDescriptionItem:
 		var (
@@ -844,10 +835,7 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) (err err
 			label  bytes.Buffer
 		)
 		if node.label != nil {
-			err = node.label.toHTML(doc, &label, false)
-			if err != nil {
-				return err
-			}
+			node.label.toHTML(doc, &label, false)
 		} else {
 			label.Write(node.rawLabel.Bytes())
 		}
@@ -859,239 +847,182 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) (err err
 		} else {
 			format = _htmlListDescriptionItemBegin
 		}
-		_, err = fmt.Fprintf(w, format, label.String())
+		fmt.Fprintf(w, format, label.String())
 
 	case lineKindHorizontalRule:
-		_, err = w.Write([]byte(_htmlHorizontalRule))
+		w.Write([]byte(_htmlHorizontalRule))
 
 	case lineKindPageBreak:
-		_, err = w.Write([]byte(_htmlPageBreak))
+		w.Write([]byte(_htmlPageBreak))
 
 	case nodeKindBlockExample:
 		if node.IsStyleAdmonition() {
-			err = htmlWriteBlockAdmonition(node, w)
-			if err != nil {
-				return err
-			}
+			htmlWriteBlockAdmonition(node, w)
 		} else {
-			err = htmlWriteBlockExample(doc, node, w)
+			htmlWriteBlockExample(doc, node, w)
 		}
 
 	case nodeKindBlockImage:
-		err = htmlWriteBlockImage(doc, node, w)
+		htmlWriteBlockImage(doc, node, w)
 
 	case nodeKindBlockOpen:
 		if node.IsStyleAdmonition() {
-			err = htmlWriteBlockAdmonition(node, w)
-			if err != nil {
-				return err
-			}
+			htmlWriteBlockAdmonition(node, w)
 		} else if node.IsStyleQuote() {
-			err = htmlWriteBlockQuote(node, w)
+			htmlWriteBlockQuote(node, w)
 		} else if node.IsStyleVerse() {
-			err = htmlWriteBlockVerse(node, w)
+			htmlWriteBlockVerse(node, w)
 		} else {
-			err = htmlWriteBlockOpenBegin(node, w)
+			htmlWriteBlockOpenBegin(node, w)
 		}
 
 	case nodeKindBlockPassthrough:
-		_, err = w.Write([]byte("\n"))
-		if err != nil {
-			return err
-		}
-		_, err = w.Write(node.raw)
+		w.Write([]byte("\n"))
+		w.Write(node.raw)
 
 	case nodeKindBlockExcerpts:
 		if node.IsStyleVerse() {
-			err = htmlWriteBlockVerse(node, w)
+			htmlWriteBlockVerse(node, w)
 		} else {
-			err = htmlWriteBlockQuote(node, w)
+			htmlWriteBlockQuote(node, w)
 		}
 
 	case nodeKindBlockSidebar:
-		err = htmlWriteBlockSidebar(node, w)
+		htmlWriteBlockSidebar(node, w)
 
 	case nodeKindBlockVideo:
-		err = htmlWriteBlockVideo(node, w)
+		htmlWriteBlockVideo(node, w)
 
 	case nodeKindBlockAudio:
-		err = htmlWriteBlockAudio(node, w)
+		htmlWriteBlockAudio(node, w)
 
 	case nodeKindInlineID:
 		if !isForToC {
-			_, err = fmt.Fprintf(w, _htmlInlineID, node.ID)
+			fmt.Fprintf(w, _htmlInlineID, node.ID)
 		}
 
 	case nodeKindInlineIDShort:
 		if !isForToC {
-			_, err = fmt.Fprintf(w, _htmlInlineIDShort, node.ID, node.raw)
+			fmt.Fprintf(w, _htmlInlineIDShort, node.ID, node.raw)
 		}
 
 	case nodeKindInlineParagraph:
-		_, err = w.Write([]byte("\n<p>"))
-		if err != nil {
-			return err
-		}
-		_, err = w.Write(node.raw)
+		w.Write([]byte("\n<p>"))
+		w.Write(node.raw)
 
 	case nodeKindPassthrough:
-		_, err = w.Write(node.raw)
+		w.Write(node.raw)
 	case nodeKindPassthroughDouble:
-		_, err = w.Write(node.raw)
+		w.Write(node.raw)
 	case nodeKindPassthroughTriple:
-		_, err = w.Write(node.raw)
+		w.Write(node.raw)
 
 	case nodeKindSymbolQuoteDoubleBegin:
-		_, err = w.Write([]byte(symbolQuoteDoubleBegin))
-		if err != nil {
-			return err
-		}
-		_, err = w.Write(node.raw)
+		w.Write([]byte(symbolQuoteDoubleBegin))
+		w.Write(node.raw)
 	case nodeKindSymbolQuoteDoubleEnd:
-		_, err = w.Write([]byte(symbolQuoteDoubleEnd))
-		if err != nil {
-			return err
-		}
-		_, err = w.Write(node.raw)
+		w.Write([]byte(symbolQuoteDoubleEnd))
+		w.Write(node.raw)
 
 	case nodeKindSymbolQuoteSingleBegin:
-		_, err = w.Write([]byte(symbolQuoteSingleBegin))
-		if err != nil {
-			return err
-		}
-		_, err = w.Write(node.raw)
+		w.Write([]byte(symbolQuoteSingleBegin))
+		w.Write(node.raw)
 	case nodeKindSymbolQuoteSingleEnd:
-		_, err = w.Write([]byte(symbolQuoteSingleEnd))
-		if err != nil {
-			return err
-		}
-		_, err = w.Write(node.raw)
+		w.Write([]byte(symbolQuoteSingleEnd))
+		w.Write(node.raw)
 
 	case nodeKindText:
-		_, err = w.Write(node.raw)
+		w.Write(node.raw)
+
 	case nodeKindTextBold:
 		if node.HasStyle(styleTextBold) {
-			_, err = w.Write([]byte("<strong>"))
+			w.Write([]byte("<strong>"))
 		} else if len(node.raw) > 0 {
-			_, err = w.Write([]byte("*"))
+			w.Write([]byte("*"))
 		}
-		if err != nil {
-			return err
-		}
-		_, err = w.Write(node.raw)
+		w.Write(node.raw)
+
 	case nodeKindUnconstrainedBold:
 		if node.HasStyle(styleTextBold) {
-			_, err = w.Write([]byte("<strong>"))
+			w.Write([]byte("<strong>"))
 		} else if len(node.raw) > 0 {
-			_, err = w.Write([]byte("**"))
+			w.Write([]byte("**"))
 		}
-		if err != nil {
-			return err
-		}
-		_, err = w.Write(node.raw)
+		w.Write(node.raw)
 
 	case nodeKindTextItalic:
 		if node.HasStyle(styleTextItalic) {
-			_, err = w.Write([]byte("<em>"))
+			w.Write([]byte("<em>"))
 		} else if len(node.raw) > 0 {
-			_, err = w.Write([]byte("_"))
+			w.Write([]byte("_"))
 		}
-		if err != nil {
-			return err
-		}
-		_, err = w.Write(node.raw)
+		w.Write(node.raw)
+
 	case nodeKindUnconstrainedItalic:
 		if node.HasStyle(styleTextItalic) {
-			_, err = w.Write([]byte("<em>"))
+			w.Write([]byte("<em>"))
 		} else if len(node.raw) > 0 {
-			_, err = w.Write([]byte("__"))
+			w.Write([]byte("__"))
 		}
-		if err != nil {
-			return err
-		}
-		_, err = w.Write(node.raw)
+		w.Write(node.raw)
 
 	case nodeKindTextMono:
 		if node.HasStyle(styleTextMono) {
-			_, err = w.Write([]byte("<code>"))
+			w.Write([]byte("<code>"))
 		} else if len(node.raw) > 0 {
-			_, err = w.Write([]byte("`"))
+			w.Write([]byte("`"))
 		}
-		if err != nil {
-			return err
-		}
-		_, err = w.Write(node.raw)
+		w.Write(node.raw)
 
 	case nodeKindUnconstrainedMono:
 		if node.HasStyle(styleTextMono) {
-			_, err = w.Write([]byte("<code>"))
+			w.Write([]byte("<code>"))
 		} else if len(node.raw) > 0 {
-			_, err = w.Write([]byte("``"))
+			w.Write([]byte("``"))
 		}
-		if err != nil {
-			return err
-		}
-		_, err = w.Write(node.raw)
+		w.Write(node.raw)
 
 	case nodeKindURL:
-		err = htmlWriteURLBegin(node, w)
+		htmlWriteURLBegin(node, w)
 
 	case nodeKindTextSubscript:
-		_, err = fmt.Fprintf(w, "<sub>%s</sub>", node.raw)
+		fmt.Fprintf(w, "<sub>%s</sub>", node.raw)
 	case nodeKindTextSuperscript:
-		_, err = fmt.Fprintf(w, "<sup>%s</sup>", node.raw)
-	}
-	if err != nil {
-		return err
+		fmt.Fprintf(w, "<sup>%s</sup>", node.raw)
 	}
 
 	if node.child != nil {
-		err = node.child.toHTML(doc, w, isForToC)
-		if err != nil {
-			return err
-		}
+		node.child.toHTML(doc, w, isForToC)
 	}
 
 	switch node.kind {
 	case nodeKindPreamble:
-		_, err = w.Write([]byte("\n</div>"))
-		if err != nil {
-			return fmt.Errorf("toHTML: nodeKindPreamble: %w", err)
-		}
+		w.Write([]byte("\n</div>"))
 		if doc.tocIsEnabled && doc.tocPosition == metaValuePreamble {
-			err = doc.tocHTML(w)
-			if err != nil {
-				return fmt.Errorf("ToHTML: %w", err)
-			}
+			doc.tocHTML(w)
 		}
-		_, err = w.Write([]byte("\n</div>"))
+		w.Write([]byte("\n</div>"))
 
 	case nodeKindSectionL1, nodeKindSectionL2, nodeKindSectionL3,
 		nodeKindSectionL4, nodeKindSectionL5:
 		if node.kind == nodeKindSectionL1 {
-			_, err = w.Write([]byte("\n</div>"))
-			if err != nil {
-				return err
-			}
+			w.Write([]byte("\n</div>"))
 		}
-		_, err = w.Write([]byte("\n</div>"))
-		if err != nil {
-			return err
-		}
+		w.Write([]byte("\n</div>"))
 
 	case nodeKindParagraph:
 		if node.IsStyleAdmonition() {
-			_, err = fmt.Fprint(w, _htmlAdmonitionEnd)
+			fmt.Fprint(w, _htmlAdmonitionEnd)
 		} else if node.IsStyleQuote() {
-			err = htmlWriteBlockQuoteEnd(node, w)
+			htmlWriteBlockQuoteEnd(node, w)
 		} else if node.IsStyleVerse() {
-			err = htmlWriteBlockVerseEnd(node, w)
+			htmlWriteBlockVerseEnd(node, w)
 		} else {
-			_, err = w.Write([]byte("</p>\n</div>"))
+			w.Write([]byte("</p>\n</div>"))
 		}
 
 	case nodeKindListOrderedItem, nodeKindListUnorderedItem:
-		_, err = w.Write([]byte("\n</li>"))
+		w.Write([]byte("\n</li>"))
 
 	case nodeKindListDescriptionItem:
 		var format string
@@ -1102,199 +1033,149 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) (err err
 		} else {
 			format = _htmlListDescriptionItemEnd
 		}
-		_, err = w.Write([]byte(format))
+		w.Write([]byte(format))
 
 	case nodeKindListDescription:
-		err = htmlWriteListDescriptionEnd(node, w)
+		htmlWriteListDescriptionEnd(node, w)
 	case nodeKindListOrdered:
-		err = htmlWriteListOrderedEnd(w)
+		htmlWriteListOrderedEnd(w)
 	case nodeKindListUnordered:
-		err = htmlWriteListUnorderedEnd(w)
+		htmlWriteListUnorderedEnd(w)
 
 	case nodeKindBlockExample:
 		if node.IsStyleAdmonition() {
-			_, err = fmt.Fprint(w, _htmlAdmonitionEnd)
+			fmt.Fprint(w, _htmlAdmonitionEnd)
 		} else {
-			_, err = fmt.Fprint(w, _htmlBlockEnd)
+			fmt.Fprint(w, _htmlBlockEnd)
 		}
 
 	case nodeKindBlockOpen:
 		if node.IsStyleAdmonition() {
-			_, err = fmt.Fprint(w, _htmlAdmonitionEnd)
+			fmt.Fprint(w, _htmlAdmonitionEnd)
 		} else if node.IsStyleQuote() {
-			err = htmlWriteBlockQuoteEnd(node, w)
+			htmlWriteBlockQuoteEnd(node, w)
 		} else if node.IsStyleVerse() {
-			err = htmlWriteBlockVerseEnd(node, w)
+			htmlWriteBlockVerseEnd(node, w)
 		} else {
-			_, err = fmt.Fprint(w, _htmlBlockEnd)
+			fmt.Fprint(w, _htmlBlockEnd)
 		}
 	case nodeKindBlockExcerpts:
 		if node.IsStyleVerse() {
-			err = htmlWriteBlockVerseEnd(node, w)
+			htmlWriteBlockVerseEnd(node, w)
 		} else {
-			err = htmlWriteBlockQuoteEnd(node, w)
+			htmlWriteBlockQuoteEnd(node, w)
 		}
 
 	case nodeKindBlockSidebar:
-		_, err = fmt.Fprint(w, _htmlBlockEnd)
+		fmt.Fprint(w, _htmlBlockEnd)
 
 	case nodeKindInlineIDShort:
 		if !isForToC {
-			_, err = fmt.Fprint(w, _htmlInlineIDShortEnd)
+			fmt.Fprint(w, _htmlInlineIDShortEnd)
 		}
 
 	case nodeKindInlineParagraph:
-		_, err = w.Write([]byte("</p>"))
+		w.Write([]byte("</p>"))
 
 	case nodeKindTextBold, nodeKindUnconstrainedBold:
 		if node.HasStyle(styleTextBold) {
-			_, err = fmt.Fprintf(w, "</strong>")
+			fmt.Fprintf(w, "</strong>")
 		}
 	case nodeKindTextItalic, nodeKindUnconstrainedItalic:
 		if node.HasStyle(styleTextItalic) {
-			_, err = fmt.Fprintf(w, "</em>")
+			fmt.Fprintf(w, "</em>")
 		}
 	case nodeKindTextMono, nodeKindUnconstrainedMono:
 		if node.HasStyle(styleTextMono) {
-			_, err = fmt.Fprintf(w, "</code>")
+			fmt.Fprintf(w, "</code>")
 		}
 	case nodeKindURL:
-		err = htmlWriteURLEnd(w)
-	}
-	if err != nil {
-		return err
+		htmlWriteURLEnd(w)
 	}
 
 	if node.next != nil {
-		err = node.next.toHTML(doc, w, isForToC)
-		if err != nil {
-			return err
-		}
+		node.next.toHTML(doc, w, isForToC)
 	}
-
-	return nil
 }
 
-func (node *adocNode) toText() (text string, err error) {
+func (node *adocNode) toText() (text string) {
 	var buf bytes.Buffer
-	err = node.writeText(&buf)
-	if err != nil {
-		return "", err
-	}
-	return buf.String(), nil
+	node.writeText(&buf)
+	return buf.String()
 }
 
-func (node *adocNode) writeText(w io.Writer) (err error) {
+func (node *adocNode) writeText(w io.Writer) {
 	switch node.kind {
 	case nodeKindPassthrough:
-		_, err = w.Write(node.raw)
+		w.Write(node.raw)
 	case nodeKindPassthroughDouble:
-		_, err = w.Write(node.raw)
+		w.Write(node.raw)
 	case nodeKindPassthroughTriple:
-		_, err = w.Write(node.raw)
+		w.Write(node.raw)
 
 	case nodeKindSymbolQuoteDoubleBegin:
-		_, err = w.Write([]byte(symbolQuoteDoubleBegin))
-		if err != nil {
-			return err
-		}
-		_, err = w.Write(node.raw)
+		w.Write([]byte(symbolQuoteDoubleBegin))
+		w.Write(node.raw)
+
 	case nodeKindSymbolQuoteDoubleEnd:
-		_, err = w.Write([]byte(symbolQuoteDoubleEnd))
-		if err != nil {
-			return err
-		}
-		_, err = w.Write(node.raw)
+		w.Write([]byte(symbolQuoteDoubleEnd))
+		w.Write(node.raw)
 
 	case nodeKindSymbolQuoteSingleBegin:
-		_, err = w.Write([]byte(symbolQuoteSingleBegin))
-		if err != nil {
-			return err
-		}
-		_, err = w.Write(node.raw)
+		w.Write([]byte(symbolQuoteSingleBegin))
+		w.Write(node.raw)
 	case nodeKindSymbolQuoteSingleEnd:
-		_, err = w.Write([]byte(symbolQuoteSingleEnd))
-		if err != nil {
-			return err
-		}
-		_, err = w.Write(node.raw)
+		w.Write([]byte(symbolQuoteSingleEnd))
+		w.Write(node.raw)
 
 	case nodeKindText:
-		_, err = w.Write(node.raw)
+		w.Write(node.raw)
 	case nodeKindTextBold:
 		if !node.HasStyle(styleTextBold) {
-			_, err = w.Write([]byte("*"))
-			if err != nil {
-				return err
-			}
+			w.Write([]byte("*"))
 		}
-		_, err = w.Write(node.raw)
+		w.Write(node.raw)
 	case nodeKindUnconstrainedBold:
 		if !node.HasStyle(styleTextBold) {
-			_, err = w.Write([]byte("**"))
-			if err != nil {
-				return err
-			}
+			w.Write([]byte("**"))
 		}
-		_, err = w.Write(node.raw)
+		w.Write(node.raw)
 
 	case nodeKindTextItalic:
 		if !node.HasStyle(styleTextItalic) {
-			_, err = w.Write([]byte("_"))
-			if err != nil {
-				return err
-			}
+			w.Write([]byte("_"))
 		}
-		_, err = w.Write(node.raw)
+		w.Write(node.raw)
 	case nodeKindUnconstrainedItalic:
 		if !node.HasStyle(styleTextItalic) {
-			_, err = w.Write([]byte("__"))
-			if err != nil {
-				return err
-			}
+			w.Write([]byte("__"))
 		}
-		_, err = w.Write(node.raw)
+		w.Write(node.raw)
 
 	case nodeKindTextMono:
 		if !node.HasStyle(styleTextMono) {
-			_, err = w.Write([]byte("`"))
-			if err != nil {
-				return err
-			}
+			w.Write([]byte("`"))
 		}
-		_, err = w.Write(node.raw)
+		w.Write(node.raw)
 
 	case nodeKindUnconstrainedMono:
 		if !node.HasStyle(styleTextMono) {
-			_, err = w.Write([]byte("``"))
-			if err != nil {
-				return err
-			}
+			w.Write([]byte("``"))
 		}
-		_, err = w.Write(node.raw)
+		w.Write(node.raw)
 
 	case nodeKindURL:
-		_, err = w.Write(node.raw)
+		w.Write(node.raw)
 	case nodeKindTextSubscript:
-		_, err = w.Write(node.raw)
+		w.Write(node.raw)
 	case nodeKindTextSuperscript:
-		_, err = w.Write(node.raw)
-	}
-	if err != nil {
-		return err
+		w.Write(node.raw)
 	}
 
 	if node.child != nil {
-		err = node.child.writeText(w)
-		if err != nil {
-			return err
-		}
+		node.child.writeText(w)
 	}
 	if node.next != nil {
-		err = node.next.writeText(w)
-		if err != nil {
-			return err
-		}
+		node.next.writeText(w)
 	}
-	return nil
 }

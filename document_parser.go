@@ -31,7 +31,7 @@ type documentParser struct {
 //
 // Parse the content into a Document.
 //
-func Parse(content []byte) (doc *Document, err error) {
+func Parse(content []byte) (doc *Document) {
 	doc = &Document{
 		TOCLevel:   defTOCLevel,
 		tocTitle:   defTOCTitle,
@@ -53,19 +53,11 @@ func Parse(content []byte) (doc *Document, err error) {
 	docp.parseHeader()
 
 	doc.title = parseInlineMarkup(doc, []byte(doc.Title))
-
-	doc.Title, err = doc.title.toText()
-	if err != nil {
-		return nil, fmt.Errorf("Parse: %w", err)
-	}
+	doc.Title = doc.title.toText()
 
 	sectLevel, ok := doc.Attributes[attrNameSectnumlevels]
 	if ok {
-		doc.sectLevel, err = strconv.Atoi(sectLevel)
-		if err != nil {
-			return nil, fmt.Errorf("Parse %s %s: %s",
-				attrNameSectnumlevels, sectLevel, err)
-		}
+		doc.sectLevel, _ = strconv.Atoi(sectLevel)
 	}
 
 	preamble := &adocNode{
@@ -76,7 +68,7 @@ func Parse(content []byte) (doc *Document, err error) {
 
 	docp.parseBlock(preamble, 0)
 
-	return doc, nil
+	return doc
 }
 
 func (docp *documentParser) consumeLinesUntil(
@@ -497,8 +489,9 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 //
 // parseHeader document header consist of title and optional authors,
 // revision, and zero or more attributes.
-// The document attributes can be in any order, but the author and revision MUST
-// be in order.
+//
+// The document attributes can be in any order, but the author and revision
+// MUST be in order.
 //
 //	DOC_HEADER  = *(DOC_ATTRIBUTE / COMMENTS)
 //	              "=" SP *ADOC_WORD LF
@@ -573,7 +566,6 @@ func (docp *documentParser) parseHeader() {
 			return
 		}
 	}
-	return
 }
 
 //
