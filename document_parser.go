@@ -175,21 +175,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 				line = ""
 				continue
 			}
-			node.kind = nodeKindParagraph
-			node.WriteString(line)
-			node.WriteByte('\n')
-			line, _ = docp.consumeLinesUntil(
-				node,
-				lineKindEmpty,
-				[]int{
-					term,
-					nodeKindBlockListing,
-					nodeKindBlockListingNamed,
-					nodeKindBlockLiteral,
-					nodeKindBlockLiteralNamed,
-					lineKindListContinue,
-				})
-			node.parseInlineMarkup(docp.doc, nodeKindText)
+			line = docp.parseParagraph(parent, node, line, term)
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
@@ -202,21 +188,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 				line = ""
 				continue
 			}
-			node.kind = nodeKindParagraph
-			node.WriteString(line)
-			node.WriteByte('\n')
-			line, _ = docp.consumeLinesUntil(
-				node,
-				lineKindEmpty,
-				[]int{
-					term,
-					nodeKindBlockListing,
-					nodeKindBlockListingNamed,
-					nodeKindBlockLiteral,
-					nodeKindBlockLiteralNamed,
-					lineKindListContinue,
-				})
-			node.parseInlineMarkup(docp.doc, nodeKindText)
+			line = docp.parseParagraph(parent, node, line, term)
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
@@ -247,21 +219,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 				line = ""
 				continue
 			}
-			node.kind = nodeKindParagraph
-			node.WriteString(line)
-			node.WriteByte('\n')
-			line, _ = docp.consumeLinesUntil(
-				node,
-				lineKindEmpty,
-				[]int{
-					term,
-					nodeKindBlockListing,
-					nodeKindBlockListingNamed,
-					nodeKindBlockLiteral,
-					nodeKindBlockLiteralNamed,
-					lineKindListContinue,
-				})
-			node.parseInlineMarkup(docp.doc, nodeKindText)
+			line = docp.parseParagraph(parent, node, line, term)
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
@@ -290,21 +248,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 				line = ""
 				continue
 			}
-			node.kind = nodeKindParagraph
-			node.WriteString(line)
-			node.WriteByte('\n')
-			line, _ = docp.consumeLinesUntil(
-				node,
-				lineKindEmpty,
-				[]int{
-					term,
-					nodeKindBlockListing,
-					nodeKindBlockListingNamed,
-					nodeKindBlockLiteral,
-					nodeKindBlockLiteralNamed,
-					lineKindListContinue,
-				})
-			node.parseInlineMarkup(docp.doc, nodeKindText)
+			line = docp.parseParagraph(parent, node, line, term)
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
@@ -315,22 +259,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 			continue
 
 		case lineKindText, lineKindListContinue:
-			node.kind = nodeKindParagraph
-			node.WriteString(line)
-			node.WriteByte('\n')
-			line, _ = docp.consumeLinesUntil(
-				node,
-				lineKindEmpty,
-				[]int{
-					term,
-					nodeKindBlockListing,
-					nodeKindBlockListingNamed,
-					nodeKindBlockLiteral,
-					nodeKindBlockLiteralNamed,
-					lineKindListContinue,
-				})
-			node.postParseParagraph(parent)
-			node.parseInlineMarkup(docp.doc, nodeKindText)
+			line = docp.parseParagraph(parent, node, line, term)
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
@@ -364,21 +293,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 			nodeKindSectionL3, nodeKindSectionL4,
 			nodeKindSectionL5:
 			if term == nodeKindBlockOpen {
-				node.kind = nodeKindParagraph
-				node.WriteString(line)
-				node.WriteByte('\n')
-				line, _ = docp.consumeLinesUntil(
-					node,
-					lineKindEmpty,
-					[]int{
-						term,
-						nodeKindBlockListing,
-						nodeKindBlockListingNamed,
-						nodeKindBlockLiteral,
-						nodeKindBlockLiteralNamed,
-						lineKindListContinue,
-					})
-				node.parseInlineMarkup(docp.doc, nodeKindText)
+				line = docp.parseParagraph(parent, node, line, term)
 				parent.addChild(node)
 				node = new(adocNode)
 				continue
@@ -407,21 +322,8 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 
 		case nodeKindLiteralParagraph:
 			if node.IsStyleAdmonition() {
-				node.kind = nodeKindParagraph
-				node.WriteString(spaces + line)
-				node.WriteByte('\n')
-				line, _ = docp.consumeLinesUntil(
-					node,
-					lineKindEmpty,
-					[]int{
-						term,
-						nodeKindBlockListing,
-						nodeKindBlockListingNamed,
-						nodeKindBlockLiteral,
-						nodeKindBlockLiteralNamed,
-						lineKindListContinue,
-					})
-				node.parseInlineMarkup(docp.doc, nodeKindText)
+				line = docp.parseParagraph(parent, node,
+					spaces+line, term)
 			} else {
 				node.kind = docp.kind
 				node.classes = append(node.classes, classNameLiteralBlock)
@@ -519,21 +421,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 				node.kind = docp.kind
 				line = ""
 			} else {
-				node.kind = nodeKindParagraph
-				node.WriteString(line)
-				node.WriteByte('\n')
-				line, _ = docp.consumeLinesUntil(
-					node,
-					lineKindEmpty,
-					[]int{
-						term,
-						nodeKindBlockListing,
-						nodeKindBlockListingNamed,
-						nodeKindBlockLiteral,
-						nodeKindBlockLiteralNamed,
-						lineKindListContinue,
-					})
-				node.parseInlineMarkup(docp.doc, nodeKindText)
+				line = docp.parseParagraph(parent, node, line, term)
 			}
 			parent.addChild(node)
 			node = &adocNode{}
@@ -575,21 +463,8 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 				node.kind = docp.kind
 				line = ""
 			} else {
-				node.kind = nodeKindParagraph
-				node.WriteString("video::" + line)
-				node.WriteByte('\n')
-				line, _ = docp.consumeLinesUntil(
-					node,
-					lineKindEmpty,
-					[]int{
-						term,
-						nodeKindBlockListing,
-						nodeKindBlockListingNamed,
-						nodeKindBlockLiteral,
-						nodeKindBlockLiteralNamed,
-						lineKindListContinue,
-					})
-				node.parseInlineMarkup(docp.doc, nodeKindText)
+				line = docp.parseParagraph(parent, node,
+					"video::"+line, term)
 			}
 			parent.addChild(node)
 			node = new(adocNode)
@@ -600,21 +475,8 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 				node.kind = docp.kind
 				line = ""
 			} else {
-				node.kind = nodeKindParagraph
-				node.WriteString("audio::" + line)
-				node.WriteByte('\n')
-				line, _ = docp.consumeLinesUntil(
-					node,
-					lineKindEmpty,
-					[]int{
-						term,
-						nodeKindBlockListing,
-						nodeKindBlockListingNamed,
-						nodeKindBlockLiteral,
-						nodeKindBlockLiteralNamed,
-						lineKindListContinue,
-					})
-				node.parseInlineMarkup(docp.doc, nodeKindText)
+				line = docp.parseParagraph(parent, node,
+					"audio::"+line, term)
 			}
 			parent.addChild(node)
 			node = new(adocNode)
@@ -1407,4 +1269,26 @@ func (docp *documentParser) parseListUnordered(parent, node *adocNode, line stri
 	}
 	list.postParseList(docp.doc, nodeKindListUnorderedItem)
 	return line, c
+}
+
+func (docp *documentParser) parseParagraph(
+	parent, node *adocNode, line string, term int,
+) string {
+	node.kind = nodeKindParagraph
+	node.WriteString(line)
+	node.WriteByte('\n')
+	line, _ = docp.consumeLinesUntil(
+		node,
+		lineKindEmpty,
+		[]int{
+			term,
+			nodeKindBlockListing,
+			nodeKindBlockListingNamed,
+			nodeKindBlockLiteral,
+			nodeKindBlockLiteralNamed,
+			lineKindListContinue,
+		})
+	node.postParseParagraph(parent)
+	node.parseInlineMarkup(docp.doc, nodeKindText)
+	return line
 }
