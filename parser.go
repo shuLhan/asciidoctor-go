@@ -381,6 +381,48 @@ func isValidID(id string) bool {
 }
 
 //
+// parseAttribute parse document attribute and return its key and optional
+// value.
+//
+//	DOC_ATTRIBUTE  = ":" DOC_ATTR_KEY ":" *STRING LF
+//
+//	DOC_ATTR_KEY   = ( "toc" / "sectanchors" / "sectlinks"
+//	               /   "imagesdir" / "data-uri" / *META_KEY ) LF
+//
+//	META_KEY_CHAR  = (A..Z | a..z | 0..9 | '_')
+//
+//	META_KEY       = 1META_KEY_CHAR *(META_KEY_CHAR | '-')
+//
+func parseAttribute(line string, strict bool) (key, value string) {
+	var sb strings.Builder
+
+	if !(ascii.IsAlnum(line[1]) || line[1] == '_') {
+		return "", ""
+	}
+
+	sb.WriteByte(line[1])
+	x := 2
+	for ; x < len(line); x++ {
+		if line[x] == ':' {
+			break
+		}
+		if ascii.IsAlnum(line[x]) || line[x] == '_' ||
+			line[x] == '-' || line[x] == '!' {
+			sb.WriteByte(line[x])
+			continue
+		}
+		if strict {
+			return "", ""
+		}
+	}
+	if x == len(line) {
+		return "", ""
+	}
+
+	return sb.String(), strings.TrimSpace(line[x+1:])
+}
+
+//
 // parseAttributeElement parse list of attributes in between "[" "]".
 //
 //	BLOCK_ATTRS = BLOCK_ATTR *("," BLOCK_ATTR)
