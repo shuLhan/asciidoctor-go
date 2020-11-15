@@ -13,11 +13,6 @@ import (
 
 func TestParse_metaDocTitle(t *testing.T) {
 	expHTML := `
-<div id="header">
-<h1>Abc</h1>
-<div class="details">
-</div>
-</div>
 <div id="content">
 <div id="preamble">
 <div class="sectionbody">
@@ -44,11 +39,68 @@ func TestParse_metaDocTitle(t *testing.T) {
 	for _, c := range cases {
 		doc := Parse([]byte(c.content))
 		buf.Reset()
-		err := doc.ToHTMLBody(&buf)
+		err := doc.ToEmbeddedHTML(&buf)
 		if err != nil {
 			t.Fatal(err)
 		}
 		test.Assert(t, "", expHTML, buf.String(), true)
+	}
+}
+
+func TestParse_metaShowTitle(t *testing.T) {
+	cases := []struct {
+		desc    string
+		content string
+		expHTML string
+	}{{
+		desc:    "default",
+		content: `= Abc`,
+		expHTML: `
+<div id="header">
+<h1>Abc</h1>
+<div class="details">
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+</div>
+</div>`,
+	}, {
+		desc: "with showtitle!",
+		content: `= Abc
+:showtitle!:`,
+		expHTML: `
+<div id="header">
+<div class="details">
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+</div>
+</div>`,
+	}}
+
+	var buf bytes.Buffer
+	for _, c := range cases {
+		doc := Parse([]byte(c.content))
+		buf.Reset()
+		err := doc.ToHTMLBody(&buf)
+		if err != nil {
+			t.Fatal(err)
+		}
+		test.Assert(t, c.desc, c.expHTML, buf.String(), true)
 	}
 }
 

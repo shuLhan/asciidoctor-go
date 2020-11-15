@@ -102,24 +102,23 @@ func Open(file string) (doc *Document, err error) {
 }
 
 //
+// ToEmbeddedHTML convert the Document object into HTML with content only
+// (without header and footer).
+//
+func (doc *Document) ToEmbeddedHTML(out io.Writer) (err error) {
+	doc.generateClasses()
+	buf := &bytes.Buffer{}
+	doc.toHTMLBody(buf, false)
+	_, err = out.Write(buf.Bytes())
+	return err
+}
+
+//
 // ToHTML convert the asciidoc document into full HTML document, including
 // head and body.
 //
 func (doc *Document) ToHTML(out io.Writer) (err error) {
-	doc.classes = append(doc.classes, classNameArticle)
-
-	doc.tocPosition, doc.tocIsEnabled = doc.Attributes[metaNameTOC]
-
-	switch doc.tocPosition {
-	case metaValueLeft:
-		doc.classes = append(doc.classes, classNameToc2, classNameTocLeft)
-		doc.tocClasses = append(doc.tocClasses, classNameToc2)
-	case metaValueRight:
-		doc.classes = append(doc.classes, classNameToc2, classNameTocRight)
-		doc.tocClasses = append(doc.tocClasses, classNameToc2)
-	default:
-		doc.tocClasses = append(doc.tocClasses, classNameToc)
-	}
+	doc.generateClasses()
 
 	// Use *bytes.Buffer to minimize checking for error.
 	buf := &bytes.Buffer{}
@@ -149,14 +148,8 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 	bodyClasses := strings.Join(doc.classes, " ")
 	fmt.Fprintf(buf, _htmlBodyBegin, bodyClasses)
 
-	htmlWriteBody(doc, buf)
+	doc.toHTMLBody(buf, true)
 
-	fmt.Fprint(buf, _htmlFooterBegin)
-	if len(doc.RevNumber) > 0 {
-		fmt.Fprintf(buf, _htmlFooterVersion, doc.RevNumber)
-	}
-	fmt.Fprintf(buf, _htmlFooterLastUpdated, doc.LastUpdated)
-	fmt.Fprint(buf, _htmlFooterEnd)
 	fmt.Fprint(buf, _htmlBodyEnd)
 
 	_, err = out.Write(buf.Bytes())
@@ -165,11 +158,19 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 }
 
 //
-// ToHTMLBody convert the document object into HTML with content of body only.
+// ToHTMLBody convert the Document object body into HTML, this is including
+// header, content, and footer.
 //
 func (doc *Document) ToHTMLBody(out io.Writer) (err error) {
-	doc.classes = append(doc.classes, classNameArticle)
+	doc.generateClasses()
+	buf := &bytes.Buffer{}
+	doc.toHTMLBody(buf, true)
+	_, err = out.Write(buf.Bytes())
+	return err
+}
 
+func (doc *Document) generateClasses() {
+	doc.classes = append(doc.classes, classNameArticle)
 	doc.tocPosition, doc.tocIsEnabled = doc.Attributes[metaNameTOC]
 
 	switch doc.tocPosition {
@@ -182,12 +183,21 @@ func (doc *Document) ToHTMLBody(out io.Writer) (err error) {
 	default:
 		doc.tocClasses = append(doc.tocClasses, classNameToc)
 	}
+}
 
-	buf := &bytes.Buffer{}
+func (doc *Document) toHTMLBody(buf *bytes.Buffer, withHeaderFooter bool) {
+	if withHeaderFooter {
+		_, ok := doc.Attributes[metaNameNoHeader]
+		if !ok {
+			htmlWriteHeader(doc, buf)
+		}
+	}
+
 	htmlWriteBody(doc, buf)
-	_, err = out.Write(buf.Bytes())
 
-	return err
+	if withHeaderFooter {
+		htmlWriteFooter(doc, buf)
+	}
 }
 
 //

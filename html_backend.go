@@ -242,11 +242,6 @@ func htmlWriteBlockVideo(node *adocNode, out io.Writer) {
 }
 
 func htmlWriteBody(doc *Document, out *bytes.Buffer) {
-	_, ok := doc.Attributes[metaNameNoHeader]
-	if !ok {
-		htmlWriteHeader(doc, out)
-	}
-
 	fmt.Fprint(out, _htmlContentBegin)
 
 	if doc.content.child != nil {
@@ -257,6 +252,22 @@ func htmlWriteBody(doc *Document, out *bytes.Buffer) {
 	}
 
 	fmt.Fprint(out, _htmlContentEnd)
+}
+
+func htmlWriteFooter(doc *Document, out io.Writer) {
+	fmt.Fprint(out, `
+<div id="footer">
+<div id="footer-text">`)
+
+	if len(doc.RevNumber) > 0 {
+		fmt.Fprintf(out, "\nVersion %s<br>", doc.RevNumber)
+	}
+
+	if len(doc.LastUpdated) > 0 {
+		fmt.Fprintf(out, "\nLast updated %s", doc.LastUpdated)
+	}
+
+	fmt.Fprint(out, "\n</div>\n</div>")
 }
 
 func htmlWriteHeader(doc *Document, out io.Writer) {

@@ -37,20 +37,6 @@ const (
 </head>
 <body class="%s">`
 
-	_htmlFooterBegin = `
-<div id="footer">
-<div id="footer-text">`
-
-	_htmlFooterVersion = `
-Version %s<br>`
-
-	_htmlFooterLastUpdated = `
-Last updated %s`
-
-	_htmlFooterEnd = `
-</div>
-</div>`
-
 	_htmlBodyEnd = `
 </body>
 </html>`
@@ -62,10 +48,6 @@ Last updated %s`
 const (
 	_htmlHeaderBegin = `
 <div id="header">`
-
-	_htmlHeaderTitleBegin = `
-<h1>`
-	_htmlHeaderTitleEnd = `</h1>`
 
 	_htmlHeaderDetail = `
 <div class="details">`
