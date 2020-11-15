@@ -20,20 +20,20 @@ const (
 	defTOCLevel       = 2
 	defTOCTitle       = "Table of Contents"
 	defTitleSeparator = ':'
+	defVersionPrefix  = "version "
 )
 
 //
 // Document represent content of asciidoc that has been parsed.
 //
 type Document struct {
-	Title        DocumentTitle
-	Authors      []*Author
-	authors      string
-	RevNumber    string
-	RevSeparator string
-	RevDate      string
-	LastUpdated  string
-	Attributes   AttributeEntry
+	Title       DocumentTitle
+	Authors     []*Author
+	rawAuthors  string
+	Revision    Revision
+	rawRevision string
+	LastUpdated string
+	Attributes  AttributeEntry
 
 	TOCLevel     int
 	tocClasses   attributeClass
@@ -221,6 +221,7 @@ func (doc *Document) postParseHeader() {
 	doc.unpackTitleSeparator()
 	doc.unpackRawTitle()
 	doc.unpackRawAuthor()
+	doc.unpackRawRevision()
 }
 
 //
@@ -269,21 +270,21 @@ func (doc *Document) tocHTML(out io.Writer) {
 // unpackRawAuthor parse the authors field into one or more Author.
 //
 func (doc *Document) unpackRawAuthor() {
-	if len(doc.authors) == 0 {
+	if len(doc.rawAuthors) == 0 {
 		v := doc.Attributes[metaNameAuthor]
 		if len(v) > 0 {
-			doc.authors = v
+			doc.rawAuthors = v
 		}
 		v = doc.Attributes[metaNameEmail]
 		if len(v) > 0 {
-			doc.authors += " <" + v + ">"
+			doc.rawAuthors += " <" + v + ">"
 		}
-		if len(doc.authors) == 0 {
+		if len(doc.rawAuthors) == 0 {
 			return
 		}
 	}
 
-	rawAuthors := strings.Split(doc.authors, ";")
+	rawAuthors := strings.Split(doc.rawAuthors, ";")
 	for _, rawAuthor := range rawAuthors {
 		if len(rawAuthor) > 0 {
 			doc.Authors = append(doc.Authors, parseAuthor(rawAuthor))
@@ -320,6 +321,19 @@ func (doc *Document) unpackRawAuthor() {
 		doc.Attributes[middleNameKey] = author.MiddleName
 		doc.Attributes[lastNameKey] = author.LastName
 	}
+}
+
+func (doc *Document) unpackRawRevision() {
+	if len(doc.rawRevision) > 0 {
+		doc.Revision = parseRevision(doc.rawRevision)
+		doc.Attributes[metaNameRevNumber] = doc.Revision.Number
+		doc.Attributes[metaNameRevDate] = doc.Revision.Date
+		doc.Attributes[metaNameRevRemark] = doc.Revision.Remark
+		return
+	}
+	doc.Revision.Number = doc.Attributes[metaNameRevNumber]
+	doc.Revision.Date = doc.Attributes[metaNameRevDate]
+	doc.Revision.Remark = doc.Attributes[metaNameRevRemark]
 }
 
 func (doc *Document) unpackRawTitle() {

@@ -148,11 +148,15 @@ const (
 	metaNameLastName       = "lastname"
 	metaNameMiddleName     = "middlename"
 	metaNameNoHeader       = "noheader"
+	metaNameRevDate        = "revdate"
+	metaNameRevNumber      = "revnumber"
+	metaNameRevRemark      = "revremark"
 	metaNameShowTitle      = "showtitle"
 	metaNameTOC            = "toc"
 	metaNameTOCLevels      = "toclevels"
 	metaNameTOCTitle       = "toc-title"
 	metaNameTitleSeparator = "title-separator"
+	metaNameVersionLabel   = "version-label"
 )
 
 // List of possible metadata value.

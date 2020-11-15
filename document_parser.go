@@ -520,46 +520,21 @@ func (docp *documentParser) parseHeader() {
 				docp.doc.Title.raw = string(docp.doc.header.raw)
 				state = stateAuthor
 			} else {
-				docp.doc.authors = line
+				docp.doc.rawAuthors = line
 				state = stateRevision
 			}
 			continue
 		}
 		switch state {
 		case stateAuthor:
-			docp.doc.authors = line
+			docp.doc.rawAuthors = line
 			state = stateRevision
 
 		case stateRevision:
-			if !docp.parseHeaderRevision(line) {
-				return
-			}
+			docp.doc.rawRevision = line
 			state = stateEnd
 		}
 	}
-}
-
-//
-//	DOC_REVISION     = DOC_REV_VERSION [ "," DOC_REV_DATE ]
-//
-//	DOC_REV_VERSION  = "v" 1*DIGIT "." 1*DIGIT "." 1*DIGIT
-//
-//	DOC_REV_DATE     = 1*2DIGIT WSP 3*ALPHA WSP 4*DIGIT
-//
-func (docp *documentParser) parseHeaderRevision(line string) bool {
-	if line[0] != 'v' {
-		return false
-	}
-
-	idx := strings.IndexByte(line, ',')
-	if idx > 0 {
-		docp.doc.RevNumber = line[1:idx]
-		docp.doc.RevDate = strings.TrimSpace(line[idx+1:])
-		docp.doc.RevSeparator = ","
-	} else {
-		docp.doc.RevNumber = line[1:]
-	}
-	return true
 }
 
 func (docp *documentParser) parseIgnoreCommentBlock() {

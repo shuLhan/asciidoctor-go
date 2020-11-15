@@ -2,7 +2,7 @@
 :metadata key: value
 Author A <a@a.com>; Author mid_dle B <b@b.com>
 :unclosed metadata:
-v1.1.1, 18 July 2020
+v1.1.1, 18 July 2020: remark
 :sectnums:
 :toc:
 :toclevels: 3
@@ -10,6 +10,7 @@ v1.1.1, 18 July 2020
 :keywords: key, words
 :test-url: https://kilabit.info
 :image-sunset: sunset.jpg
+:version-label!:
 
 This is preamble.
 :other metadata:
@@ -24,14 +25,18 @@ a
 
   :indented-meta:
 
-== Author and emails
+== Metadata references
 
-* First author: {author} {firstname} {middlename} {lastname} {email}
-  {authorinitials}
-* First author: {author_1} {firstname_1} {middlename_1} {lastname_1} {email_1}
-  {authorinitials_1}
-* Second author: {author_2} {firstname_2} {middlename_2} {lastname_2}
-  {email_2} {authorinitials_2}
+First author: {author} {firstname} {middlename} {lastname} {email}
+{authorinitials}.
+
+First author: {author_1} {firstname_1} {middlename_1} {lastname_1} {email_1}
+{authorinitials_1}.
+
+Second author: {author_2} {firstname_2} {middlename_2} {lastname_2}
+{email_2} {authorinitials_2}.
+
+Revision: {revnumber}, {revdate}: {revremark}.
 
 == _Inline `formatting` on **section**_
 

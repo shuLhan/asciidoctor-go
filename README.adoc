@@ -79,7 +79,7 @@ https://asciidoctor.org/docs/user-manual/[AsciiDoc user manual]
 ** 40.2. Passthrough Blocks
 * 41. Open Blocks
 
-Supported meta,
+Supported metadata or attribute references,
 
 * `author(_x)`
 * `authorinitials(_x)`
@@ -89,16 +89,19 @@ Supported meta,
 * `lastname(_x)`
 * `middlename(_x)`
 * `noheader`
+* `revdate`
+* `revnumber`
+* `revremark`
 * `showtitle`
 * `title-separator`
+* `version-label`
+
 
 ==  TODO
 
 List of features which will need to be implemented,
 
 * 14. Header
-** 14.3. Revision remark
-** 14.4. Subtitle partitioning
 ** 14.5. Metadata, any others metadata
 * 16. Sections
 ** 16.5. Links
@@ -125,3 +128,11 @@ List of features which will need to be implemented,
 ** 37.8. Incremental Substitutions
 * 40. Passthroughs
 ** 40.1. Passthrough Macros
+
+== Not supported
+
+The following asciidoctor will not supported because its functionality is
+duplicate with others,
+
+* 14. Header
+** 14.4. Subtitle partitioning. Duplicate with 14.1.2 the "Main: sub" format.

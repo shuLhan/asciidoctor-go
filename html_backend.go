@@ -267,8 +267,8 @@ func htmlWriteFooter(doc *Document, out io.Writer) {
 <div id="footer">
 <div id="footer-text">`)
 
-	if len(doc.RevNumber) > 0 {
-		fmt.Fprintf(out, "\nVersion %s<br>", doc.RevNumber)
+	if len(doc.Revision.Number) > 0 {
+		fmt.Fprintf(out, "\nVersion %s<br>", doc.Revision.Number)
 	}
 
 	if len(doc.LastUpdated) > 0 {
@@ -310,13 +310,29 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 		}
 	}
 
-	if len(doc.RevNumber) > 0 {
-		fmt.Fprintf(out, "\n<span id=%q>version %s%s</span>",
-			attrValueRevNumber, doc.RevNumber, doc.RevSeparator)
+	if len(doc.Revision.Number) > 0 {
+		prefix, ok := doc.Attributes[metaNameVersionLabel]
+		if ok && len(prefix) == 0 {
+			prefix = defVersionPrefix
+		} else {
+			prefix = " "
+		}
+
+		sep := ""
+		if len(doc.Revision.Date) > 0 {
+			sep = ","
+		}
+
+		fmt.Fprintf(out, "\n<span id=%q>%s%s%s</span>",
+			attrValueRevNumber, prefix, doc.Revision.Number, sep)
 	}
-	if len(doc.RevDate) > 0 {
+	if len(doc.Revision.Date) > 0 {
 		fmt.Fprintf(out, "\n<span id=%q>%s</span>", attrValueRevDate,
-			doc.RevDate)
+			doc.Revision.Date)
+	}
+	if len(doc.Revision.Remark) > 0 {
+		fmt.Fprintf(out, "\n<br><span id=%q>%s</span>",
+			metaNameRevRemark, doc.Revision.Remark)
 	}
 	fmt.Fprint(out, "\n</div>")
 
