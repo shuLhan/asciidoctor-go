@@ -133,7 +133,7 @@ const (
 	attrValueNoopener    = "noopener"
 	attrValueRevDate     = "revdate"
 	attrValueRevNumber   = "revnumber"
-	attrValueTitle       = "title"
+	attrValueTitle       = attrNameTitle
 )
 
 // List of document metadata.
@@ -147,7 +147,10 @@ const (
 	metaNameKeywords       = "keywords"
 	metaNameLastName       = "lastname"
 	metaNameMiddleName     = "middlename"
+	metaNameNoFooter       = "nofooter"
 	metaNameNoHeader       = "noheader"
+	metaNameNoHeaderFooter = "no-header-footer"
+	metaNameNoTitle        = "notitle"
 	metaNameRevDate        = "revdate"
 	metaNameRevNumber      = "revnumber"
 	metaNameRevRemark      = "revremark"
@@ -155,6 +158,7 @@ const (
 	metaNameTOC            = "toc"
 	metaNameTOCLevels      = "toclevels"
 	metaNameTOCTitle       = "toc-title"
+	metaNameTitle          = attrNameTitle
 	metaNameTitleSeparator = "title-separator"
 	metaNameVersionLabel   = "version-label"
 )

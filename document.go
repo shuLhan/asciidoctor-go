@@ -159,7 +159,12 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 
 	fmt.Fprintf(buf, "\n</head>\n<body class=%q>", doc.classes.String())
 
-	doc.toHTMLBody(buf, true)
+	isWithHeaderFooter := true
+	_, ok := doc.Attributes[metaNameNoHeaderFooter]
+	if ok {
+		isWithHeaderFooter = false
+	}
+	doc.toHTMLBody(buf, isWithHeaderFooter)
 
 	fmt.Fprint(buf, "\n</body>\n</html>")
 
@@ -209,7 +214,10 @@ func (doc *Document) toHTMLBody(buf *bytes.Buffer, withHeaderFooter bool) {
 	htmlWriteBody(doc, buf)
 
 	if withHeaderFooter {
-		htmlWriteFooter(doc, buf)
+		_, ok := doc.Attributes[metaNameNoFooter]
+		if !ok {
+			htmlWriteFooter(doc, buf)
+		}
 	}
 }
 
@@ -345,7 +353,10 @@ func (doc *Document) unpackRawTitle() {
 	if len(doc.Title.raw) == 0 {
 		doc.Title.raw = doc.Attributes[metaNameDocTitle]
 		if len(doc.Title.raw) == 0 {
-			return
+			doc.Title.raw = doc.Attributes[metaNameTitle]
+			if len(doc.Title.raw) == 0 {
+				return
+			}
 		}
 	}
 
