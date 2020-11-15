@@ -33,6 +33,7 @@ const (
 	nodeKindSectionL3                  // Line started with "===="
 	nodeKindSectionL4                  // Line started with "====="
 	nodeKindSectionL5                  // Line started with "======"
+	nodeKindSectionDiscrete            // "[discrete]"
 	nodeKindParagraph                  // Wrapper.
 	nodeKindLiteralParagraph           // 10: Line start with space
 	nodeKindBlockAudio                 // "audio::"
@@ -95,6 +96,7 @@ const (
 const (
 	attrNameAlign       = "align"
 	attrNameAlt         = "alt"
+	attrNameDiscrete    = "discrete"
 	attrNameEnd         = "end"
 	attrNameFloat       = "float"
 	attrNameHeight      = "height"
@@ -201,6 +203,7 @@ const (
 	_                    int64 = iota
 	styleSectionColophon       = 1 << (iota - 1)
 	styleSectionAbstract
+	styleSectionDiscrete
 	styleSectionPreface
 	styleSectionDedication
 	styleSectionPartIntroduction
@@ -240,6 +243,7 @@ var adocStyles map[string]int64 = map[string]int64{
 	"abstract":          styleSectionAbstract,
 	"preface":           styleSectionPreface,
 	"dedication":        styleSectionDedication,
+	attrNameDiscrete:    styleSectionDiscrete,
 	"partintro":         styleSectionPartIntroduction,
 	"appendix":          styleSectionAppendix,
 	"glossary":          styleSectionGlossary,
@@ -652,6 +656,10 @@ func whatKindOfLine(line string) (kind int, spaces, got string) {
 	if line == "++++" {
 		return nodeKindBlockPassthrough, spaces, line
 	}
+	if line == "****" {
+		return nodeKindBlockSidebar, "", line
+	}
+
 	if line == "[listing]" {
 		return nodeKindBlockListingNamed, "", line
 	}
@@ -764,8 +772,6 @@ func whatKindOfLine(line string) (kind int, spaces, got string) {
 	} else if line[0] == '*' {
 		if len(line) <= 1 {
 			kind = lineKindText
-		} else if line == "****" {
-			kind = nodeKindBlockSidebar
 		} else {
 			x := 0
 			for ; x < len(line); x++ {

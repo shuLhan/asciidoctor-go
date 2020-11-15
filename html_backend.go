@@ -481,13 +481,38 @@ func htmlWriteSection(doc *Document, node *adocNode, out io.Writer, isForToC boo
 		fmt.Fprint(out, "</a>")
 	}
 	fmt.Fprintf(out, "</%s>", tag)
+
 	if node.kind == nodeKindSectionL1 {
 		fmt.Fprint(out, "\n<div class=\"sectionbody\">")
 	}
 }
 
+func hmltWriteSectionDiscrete(doc *Document, node *adocNode, out io.Writer) {
+	var (
+		tag string
+	)
+	switch node.level {
+	case nodeKindSectionL1:
+		tag = "h2"
+	case nodeKindSectionL2:
+		tag = "h3"
+	case nodeKindSectionL3:
+		tag = "h4"
+	case nodeKindSectionL4:
+		tag = "h5"
+	case nodeKindSectionL5:
+		tag = "h6"
+	}
+
+	fmt.Fprintf(out, "\n<%s id=%q class=%q>", tag, node.ID, attrNameDiscrete)
+	node.title.toHTML(doc, out, false)
+	fmt.Fprintf(out, "</%s>", tag)
+}
+
 func htmlWriteToC(doc *Document, node *adocNode, out io.Writer, level int) {
 	var sectClass string
+
+	isDiscrete := node.style&styleSectionDiscrete > 0
 
 	switch node.kind {
 	case nodeKindSectionL1:
@@ -505,7 +530,7 @@ func htmlWriteToC(doc *Document, node *adocNode, out io.Writer, level int) {
 		sectClass = ""
 	}
 
-	if len(sectClass) > 0 {
+	if len(sectClass) > 0 && !isDiscrete {
 		if level < node.level {
 			fmt.Fprintf(out, "\n<ul class=\"%s\">", sectClass)
 		} else if level > node.level {
@@ -529,7 +554,7 @@ func htmlWriteToC(doc *Document, node *adocNode, out io.Writer, level int) {
 	if node.child != nil {
 		htmlWriteToC(doc, node.child, out, node.level)
 	}
-	if len(sectClass) > 0 {
+	if len(sectClass) > 0 && !isDiscrete {
 		fmt.Fprint(out, "</li>")
 	}
 	if node.next != nil {

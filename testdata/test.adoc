@@ -191,7 +191,7 @@ _A `monospace between_ italic`.
 
 *bold _italic `mono end-bold* end-italic_ end-mono.
 
-A bold with * space *, with single non alnum *=*. 
+A bold with * space *, with single non alnum *=*.
 
 "` A double quote with space `".
 
@@ -857,5 +857,23 @@ ____
 </video>
 ++++
 
+== Section Discrete
+
+[discrete]
+=== Discrete
+
+This is content of discrete section.
+
+=== After discrete
+
+****
+Discrete headings are useful for making headings inside of other blocks, like
+this sidebar.
+
+[discrete]
+== Discrete Heading
+
+Discrete headings can be used where sections are not permitted.
+****
 
 END OF THE TEST.

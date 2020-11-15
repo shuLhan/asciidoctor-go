@@ -528,8 +528,10 @@ func (node *adocNode) parseListUnorderedItem(line string) {
 	node.WriteByte('\n')
 }
 
-func (node *adocNode) parseSection(doc *Document) {
-	node.level = (node.kind - nodeKindSectionL1) + 1
+func (node *adocNode) parseSection(doc *Document, isDiscrete bool) {
+	if !isDiscrete {
+		node.level = (node.kind - nodeKindSectionL1) + 1
+	}
 
 	container := parseInlineMarkup(doc, node.raw)
 
@@ -576,7 +578,7 @@ func (node *adocNode) parseSection(doc *Document) {
 	doc.titleID[node.Text] = node.ID
 
 	_, ok = doc.Attributes[metaNameSectNums]
-	if ok {
+	if ok && !isDiscrete {
 		node.sectnums = doc.sectnums.set(node.level)
 	}
 }
@@ -788,6 +790,9 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 
 	case nodeKindPreamble:
 		fmt.Fprint(w, _htmlPreambleBegin)
+
+	case nodeKindSectionDiscrete:
+		hmltWriteSectionDiscrete(doc, node, w)
 
 	case nodeKindSectionL1, nodeKindSectionL2, nodeKindSectionL3,
 		nodeKindSectionL4, nodeKindSectionL5:

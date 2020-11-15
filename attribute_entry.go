@@ -14,9 +14,9 @@ type AttributeEntry map[string]string
 
 func newAttributeEntry() AttributeEntry {
 	return AttributeEntry{
+		metaNameSectIDs:      "",
 		metaNameShowTitle:    "",
 		metaNameVersionLabel: "",
-		metaNameSectIDs:      "",
 	}
 }
 

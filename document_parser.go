@@ -278,10 +278,19 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 			}
 
 			node.kind = docp.kind
-			node.WriteString(
-				// BUG: "= =a" could become "a", it should be "=a"
-				strings.TrimLeft(line, "= \t"),
-			)
+			// BUG: "= =a" could become "a", it should be "=a"
+			node.WriteString(strings.TrimLeft(line, "= \t"))
+
+			isDiscrete := node.style&styleSectionDiscrete > 0
+			if isDiscrete {
+				node.kind = nodeKindSectionDiscrete
+				node.level = docp.kind
+				node.parseSection(docp.doc, isDiscrete)
+				parent.addChild(node)
+				node = new(adocNode)
+				line = ""
+				continue
+			}
 
 			var expParent = docp.kind - 1
 			for parent.kind != expParent {
@@ -291,7 +300,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 					break
 				}
 			}
-			node.parseSection(docp.doc)
+			node.parseSection(docp.doc, false)
 			parent.addChild(node)
 			parent = node
 			node = new(adocNode)
@@ -405,8 +414,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 			node = &adocNode{}
 			continue
 
-		case nodeKindBlockOpen, nodeKindBlockExample,
-			nodeKindBlockSidebar:
+		case nodeKindBlockOpen, nodeKindBlockExample, nodeKindBlockSidebar:
 			node.kind = docp.kind
 			docp.parseBlock(node, docp.kind)
 			parent.addChild(node)
