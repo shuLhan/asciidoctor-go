@@ -34,7 +34,7 @@ func newParserInline(doc *Document, content []byte) (pi *parserInline) {
 		container: &adocNode{
 			kind: nodeKindText,
 		},
-		content: bytes.TrimRight(content, "\n"),
+		content: content,
 		doc:     doc,
 		state:   &parserInlineState{},
 	}
@@ -82,6 +82,13 @@ func (pi *parserInline) do() {
 				if pi.parsePassthroughDouble() {
 					continue
 				}
+			}
+			if pi.prev == ' ' && pi.nextc == '\n' {
+				pi.current.backTrimSpace()
+				pi.current.WriteString("<br>\n")
+				pi.x += 2
+				pi.prev = 0
+				continue
 			}
 			if pi.parsePassthrough() {
 				continue
@@ -361,6 +368,12 @@ func (pi *parserInline) do() {
 		pi.prev = pi.c
 	}
 
+	// Remove any trailing spaces only if the node is not passthrough.
+	if !(pi.current.kind == nodeKindPassthrough ||
+		pi.current.kind == nodeKindPassthroughDouble ||
+		pi.current.kind == nodeKindPassthroughTriple) {
+		pi.current.backTrimSpace()
+	}
 	pi.container.removeLastIfEmpty()
 }
 
@@ -465,6 +478,7 @@ func (pi *parserInline) parseInlineID() bool {
 		ID:   id,
 		kind: nodeKindInlineID,
 	}
+	pi.current.backTrimSpace()
 	pi.current.addChild(node)
 	node = &adocNode{
 		kind: nodeKindText,
@@ -506,6 +520,7 @@ func (pi *parserInline) parseInlineIDShort() bool {
 		kind: nodeKindInlineIDShort,
 	}
 	pi.state.push(nodeKindInlineIDShort)
+	pi.current.backTrimSpace()
 	pi.current.addChild(node)
 	pi.current = node
 	pi.x += 2 + len(id) + 2

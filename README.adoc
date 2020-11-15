@@ -36,6 +36,8 @@ https://asciidoctor.org/docs/user-manual/[AsciiDoc user manual]
 ** 17.2. Metadata
 ** 17.3. Delimited blocks
 * 18. Paragraph
+** 18.1. Alignment
+** 18.2. Line breaks (" +\n")
 * 19. Text formatting
 ** 19.1. Bold and italic
 ** 19.2. Quotation Marks and Apostrophes
@@ -113,8 +115,9 @@ List of features which will need to be implemented,
 * 16. Sections
 ** 16.9. Section styles
 * 18. Paragraph
-** 18.1. Alignment
 ** 18.2. Line breaks
+*** Per block "[%hardbreaks]"
+*** All document ":hardbreaks:"
 ** 18.3. Lead style
 * 19. Text formatting
 ** 19.5. Custom Styling With Attributes

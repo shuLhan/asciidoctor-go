@@ -42,7 +42,12 @@
 <li><a href="#_section_two">Section Two</a></li>
 <li><a href="#_section_three">4. Section Three</a></li>
 <li><a href="#_comment">5. Comment</a></li>
-<li><a href="#_paragraph">6. Paragraph</a></li>
+<li><a href="#_paragraph">6. Paragraph</a>
+<ul class="sectlevel2">
+<li><a href="#_alignment">6.1. Alignment</a></li>
+<li><a href="#_line_break">6.2. Line break</a></li>
+</ul>
+</li>
 <li><a href="#_unconstrained_text_formatting">7. Unconstrained text formatting</a></li>
 <li><a href="#_single_quote">8. Single quote</a></li>
 <li><a href="#_subscript_and_superscript">9. Subscript and superscript</a></li>
@@ -74,9 +79,9 @@
 <li><a href="#_urls">21. URLs</a></li>
 <li><a href="#_anchors">22. Anchors</a>
 <ul class="sectlevel2">
-<li><a href="#version-4_9">22.1. Version 4.9 </a></li>
-<li><a href="#version-4_10">22.2. Version 4.10 </a></li>
-<li><a href="#which-one">22.3. Version 4.11 </a></li>
+<li><a href="#version-4_9">22.1. Version 4.9</a></li>
+<li><a href="#version-4_10">22.2. Version 4.10</a></li>
+<li><a href="#which-one">22.3. Version 4.11</a></li>
 </ul>
 </li>
 <li><a href="#_cross_references">23. Cross references</a>
@@ -273,6 +278,42 @@ This is next line in paragraph.</p>
 <div class="literalblock">
 <div class="content">
 <pre>This is literal</pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_alignment"><a class="anchor" href="#_alignment"></a><a class="link" href="#_alignment">6.1. Alignment</a></h3>
+<div class="paragraph text-left">
+<p>This text is left aligned.</p>
+</div>
+<div class="paragraph text-right">
+<p>This text is right aligned.</p>
+</div>
+<div class="paragraph text-center">
+<p>This text is center aligned.</p>
+</div>
+<div class="paragraph text-justify">
+<p>This text is justify aligned.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_line_break"><a class="anchor" href="#_line_break"></a><a class="link" href="#_line_break">6.2. Line break</a></h3>
+<div class="paragraph">
+<p>Rubies are red,<br>
+Topazes are blue.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>is this<br>
+line break</p>
+</li>
+<li>
+<p>too<br></p>
+</li>
+<li>
+<p>or not</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -1302,7 +1343,7 @@ Hard drive
 <p><a href="https://asciidoctor.org" class="bare">https://asciidoctor.org</a>.</p>
 </div>
 <div class="paragraph">
-<p><a href="https://asciidoctor.org" class="b a" target="_blank" rel="noopener">Asciidoctor</a>.</p>
+<p><a href="https://asciidoctor.org" class="a b" target="_blank" rel="noopener">Asciidoctor</a>.</p>
 </div>
 <div class="paragraph">
 <p><a href="https://kilabit.info" target="_blank" rel="noopener">Kilabit</a>.</p>
@@ -1353,13 +1394,13 @@ Hard drive
 </ul>
 </div>
 <div class="sect2">
-<h3 id="version-4_9"><a class="anchor" href="#version-4_9"></a><a class="link" href="#version-4_9">22.1. Version 4.9 </a></h3>
+<h3 id="version-4_9"><a class="anchor" href="#version-4_9"></a><a class="link" href="#version-4_9">22.1. Version 4.9</a></h3>
 </div>
 <div class="sect2">
-<h3 id="version-4_10"><a class="anchor" href="#version-4_10"></a><a class="link" href="#version-4_10">22.2. <a id="current"></a>Version 4.10 </a></h3>
+<h3 id="version-4_10"><a class="anchor" href="#version-4_10"></a><a class="link" href="#version-4_10">22.2. <a id="current"></a>Version 4.10</a></h3>
 </div>
 <div class="sect2">
-<h3 id="which-one"><a class="anchor" href="#which-one"></a><a class="link" href="#which-one">22.3. Version 4.11 <a id="version-4_11"></a></a></h3>
+<h3 id="which-one"><a class="anchor" href="#which-one"></a><a class="link" href="#which-one">22.3. Version 4.11<a id="version-4_11"></a></a></h3>
 </div>
 </div>
 </div>
@@ -1999,7 +2040,7 @@ this sidebar.</p>
 <div id="footer">
 <div id="footer-text">
  1.1.1<br>
-Last updated 2020-11-16 01:04:36 +0700
+Last updated 2020-11-16 01:17:55 +0700
 </div>
 </div>
 </body>

@@ -119,6 +119,30 @@ A paragraph followed by literal named
 [literal]
 This is literal
 
+=== Alignment
+
+[.text-left]
+This text is left aligned.
+
+[.text-right]
+This text is right aligned.
+
+[.text-center]
+This text is center aligned.
+
+[.text-justify]
+This text is justify aligned.
+
+=== Line break
+
+Rubies are red, +
+Topazes are blue.
+
+* is this +
+line break
+* too +
+* or not
+
 
 ==  Unconstrained text formatting
 

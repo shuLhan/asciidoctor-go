@@ -266,6 +266,18 @@ func (node *adocNode) addChild(child *adocNode) {
 	}
 }
 
+// backTrimSpace remove trailing white spaces on raw field.
+func (node *adocNode) backTrimSpace() {
+	x := len(node.raw) - 1
+	for ; x > 0; x-- {
+		if ascii.IsSpace(node.raw[x]) {
+			continue
+		}
+		break
+	}
+	node.raw = node.raw[:x+1]
+}
+
 func (node *adocNode) debug(n int) {
 	for x := 0; x < n; x++ {
 		fmt.Printf("\t")
