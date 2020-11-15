@@ -4,6 +4,8 @@ Author A <a@a.com>; Author mid_dle B <b@b.com>
 :unclosed metadata:
 v1.1.1, 18 July 2020: remark
 :sectnums:
+:sectlinks:
+:sectanchors:
 :toc:
 :toclevels: 3
 :description: meta description

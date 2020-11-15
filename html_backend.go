@@ -462,12 +462,24 @@ func htmlWriteSection(doc *Document, node *adocNode, out io.Writer, isForToC boo
 
 	fmt.Fprintf(out, "\n<div class=%q>\n<%s id=%q>", class, tag, node.ID)
 
+	_, withSectAnchors := doc.Attributes[metaNameSectAnchors]
+	if withSectAnchors {
+		fmt.Fprintf(out, `<a class="anchor" href="#%s"></a>`, node.ID)
+	}
+	_, withSectlinks := doc.Attributes[metaNameSectLinks]
+	if withSectlinks {
+		fmt.Fprintf(out, `<a class="link" href="#%s">`, node.ID)
+	}
+
 	if node.sectnums != nil && node.level <= doc.sectLevel {
 		fmt.Fprint(out, node.sectnums.String())
 	}
 
 	node.title.toHTML(doc, out, isForToC)
 
+	if withSectlinks {
+		fmt.Fprint(out, "</a>")
+	}
 	fmt.Fprintf(out, "</%s>", tag)
 	if node.kind == nodeKindSectionL1 {
 		fmt.Fprint(out, "\n<div class=\"sectionbody\">")

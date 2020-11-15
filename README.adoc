@@ -27,6 +27,8 @@ https://asciidoctor.org/docs/user-manual/[AsciiDoc user manual]
 ** 16.2. Auto-generated IDs
 ** 16.3. Custom IDs
 ** 16.4. Multiple Anchors
+** 16.5. Links
+** 16.6. Anchors
 ** 16.7. Numbering
 * 17. Blocks
 ** 17.1. Title
@@ -86,6 +88,8 @@ Supported metadata or attribute references,
 * `doctitle`
 * `email(_x)`
 * `firstname(_x)`
+* `idprefix`
+* `idseparator`
 * `lastname(_x)`
 * `middlename(_x)`
 * `nofooter`
@@ -93,6 +97,9 @@ Supported metadata or attribute references,
 * `revdate`
 * `revnumber`
 * `revremark`
+* `sectids`
+* `sectnumlevels`
+* `sectnums`
 * `showtitle`
 * `title-separator`
 * `version-label`
@@ -103,8 +110,6 @@ Supported metadata or attribute references,
 List of features which will need to be implemented,
 
 * 16. Sections
-** 16.5. Links
-** 16.6. Anchors
 ** 16.8. Discrete headings
 ** 16.9. Section styles
 * 18. Paragraph

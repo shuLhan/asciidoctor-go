@@ -36,7 +36,7 @@ func Parse(content []byte) (doc *Document) {
 	docp.parseHeader()
 	docp.doc.postParseHeader()
 
-	sectLevel, ok := doc.Attributes[attrNameSectnumlevels]
+	sectLevel, ok := doc.Attributes[metaNameSectNumLevel]
 	if ok {
 		doc.sectLevel, _ = strconv.Atoi(sectLevel)
 	}

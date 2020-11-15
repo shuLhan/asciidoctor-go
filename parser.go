@@ -93,32 +93,30 @@ const (
 )
 
 const (
-	attrNameAlign         = "align"
-	attrNameAlt           = "alt"
-	attrNameEnd           = "end"
-	attrNameFloat         = "float"
-	attrNameHeight        = "height"
-	attrNameHref          = "href"
-	attrNameIcons         = "icons"
-	attrNameLang          = "lang"
-	attrNameLink          = "link"
-	attrNameOptions       = "options"
-	attrNamePoster        = "poster"
-	attrNameRefText       = "reftext"
-	attrNameRel           = "rel"
-	attrNameRole          = "role"
-	attrNameSectnums      = "sectnums"
-	attrNameSectnumlevels = "sectnumlevels"
-	attrNameSrc           = "src"
-	attrNameStart         = "start"
-	attrNameTarget        = "target"
-	attrNameTheme         = "theme"
-	attrNameTitle         = "title"
-	attrNameVimeo         = "vimeo"
-	attrNameWidth         = "width"
-	attrNameWindow        = "window"
-	attrNameYoutube       = "youtube"
-	attrNameYoutubeLang   = "hl"
+	attrNameAlign       = "align"
+	attrNameAlt         = "alt"
+	attrNameEnd         = "end"
+	attrNameFloat       = "float"
+	attrNameHeight      = "height"
+	attrNameHref        = "href"
+	attrNameIcons       = "icons"
+	attrNameLang        = "lang"
+	attrNameLink        = "link"
+	attrNameOptions     = "options"
+	attrNamePoster      = "poster"
+	attrNameRefText     = "reftext"
+	attrNameRel         = "rel"
+	attrNameRole        = "role"
+	attrNameSrc         = "src"
+	attrNameStart       = "start"
+	attrNameTarget      = "target"
+	attrNameTheme       = "theme"
+	attrNameTitle       = "title"
+	attrNameVimeo       = "vimeo"
+	attrNameWidth       = "width"
+	attrNameWindow      = "window"
+	attrNameYoutube     = "youtube"
+	attrNameYoutubeLang = "hl"
 )
 
 const (
@@ -144,6 +142,8 @@ const (
 	metaNameDocTitle       = "doctitle"
 	metaNameEmail          = attrValueEmail
 	metaNameFirstName      = "firstname"
+	metaNameIDPrefix       = "idprefix"
+	metaNameIDSeparator    = "idseparator"
 	metaNameKeywords       = "keywords"
 	metaNameLastName       = "lastname"
 	metaNameMiddleName     = "middlename"
@@ -154,6 +154,11 @@ const (
 	metaNameRevDate        = "revdate"
 	metaNameRevNumber      = "revnumber"
 	metaNameRevRemark      = "revremark"
+	metaNameSectAnchors    = "sectanchors"
+	metaNameSectIDs        = "sectids"
+	metaNameSectLinks      = "sectlinks"
+	metaNameSectNumLevel   = "sectnumlevels"
+	metaNameSectNums       = "sectnums"
 	metaNameShowTitle      = "showtitle"
 	metaNameTOC            = "toc"
 	metaNameTOCLevels      = "toclevels"
@@ -292,19 +297,31 @@ func applySubstitutions(doc *Document, content []byte) []byte {
 	return buf.Bytes()
 }
 
-func generateID(str string) string {
+func generateID(doc *Document, str string) string {
+	idPrefix := "_"
+	v, ok := doc.Attributes[metaNameIDPrefix]
+	if ok {
+		idPrefix = strings.TrimSpace(v)
+	}
+
+	idSep := "_"
+	v, ok = doc.Attributes[metaNameIDSeparator]
+	if ok {
+		idSep = strings.TrimSpace(v)
+	}
+
 	id := make([]rune, 0, len(str)+1)
-	id = append(id, '_')
+	id = append(id, []rune(idPrefix)...)
 	for _, c := range strings.ToLower(str) {
 		if unicode.IsLetter(c) || unicode.IsDigit(c) {
 			id = append(id, c)
 		} else {
 			if id[len(id)-1] != '_' {
-				id = append(id, '_')
+				id = append(id, []rune(idSep)...)
 			}
 		}
 	}
-	return strings.TrimRight(string(id), "_")
+	return strings.TrimRight(string(id), idSep)
 }
 
 func isAdmonition(line string) bool {

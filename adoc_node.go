@@ -557,8 +557,11 @@ func (node *adocNode) parseSection(doc *Document) {
 	node.Text = container.toText()
 
 	if len(node.ID) == 0 {
-		node.ID = generateID(node.Text)
-		node.ID = doc.registerAnchor(node.ID, node.Text)
+		_, ok := doc.Attributes[metaNameSectIDs]
+		if ok {
+			node.ID = generateID(doc, node.Text)
+			node.ID = doc.registerAnchor(node.ID, node.Text)
+		}
 	}
 
 	refText, ok := node.Attrs[attrNameRefText]
@@ -572,7 +575,7 @@ func (node *adocNode) parseSection(doc *Document) {
 	}
 	doc.titleID[node.Text] = node.ID
 
-	_, ok = doc.Attributes[attrNameSectnums]
+	_, ok = doc.Attributes[metaNameSectNums]
 	if ok {
 		node.sectnums = doc.sectnums.set(node.level)
 	}
