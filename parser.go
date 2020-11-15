@@ -130,6 +130,7 @@ const (
 // List of document metadata.
 const (
 	metaNameDescription = "description"
+	metaNameDocTitle    = "doctitle"
 	metaNameKeywords    = "keywords"
 	metaNameTOC         = "toc"
 	metaNameTOCLevels   = "toclevels"
@@ -350,7 +351,7 @@ func isStyleVerse(style int64) bool {
 
 func isTitle(line string) bool {
 	if line[0] == '=' || line[0] == '#' {
-		if line[1] == ' ' || line[1] == '\t' {
+		if len(line) > 1 && (line[1] == ' ' || line[1] == '\t') {
 			return true
 		}
 	}
@@ -391,11 +392,11 @@ func isValidID(id string) bool {
 //
 //	META_KEY       = 1META_KEY_CHAR *(META_KEY_CHAR | '-')
 //
-func parseAttribute(line string, strict bool) (key, value string) {
+func parseAttribute(line string, strict bool) (key, value string, ok bool) {
 	var sb strings.Builder
 
 	if !(ascii.IsAlnum(line[1]) || line[1] == '_') {
-		return "", ""
+		return "", "", false
 	}
 
 	sb.WriteByte(line[1])
@@ -410,14 +411,14 @@ func parseAttribute(line string, strict bool) (key, value string) {
 			continue
 		}
 		if strict {
-			return "", ""
+			return "", "", false
 		}
 	}
 	if x == len(line) {
-		return "", ""
+		return "", "", false
 	}
 
-	return sb.String(), strings.TrimSpace(line[x+1:])
+	return sb.String(), strings.TrimSpace(line[x+1:]), true
 }
 
 //

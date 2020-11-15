@@ -13,6 +13,7 @@ https://asciidoctor.org/docs/user-manual/[AsciiDoc user manual]
 
 * 14. Header
 ** 14.1. Document title
+*** 14.1.1. doctitle attribute
 ** 14.2. Author and email
 ** 14.3. Revision number, date
 ** 14.5. Metadata
@@ -100,6 +101,8 @@ List of features which will need to be implemented,
 * 20. Unordered Lists
 ** 20.3. Custom Markers
 ** 20.4. Checklist
+* 22. Description List
+** Style on description label
 * 23. Tables
 * 27. Cross References
 ** 27.6. Inter-document Cross References

@@ -32,18 +32,7 @@ type documentParser struct {
 // Parse the content into a Document.
 //
 func Parse(content []byte) (doc *Document) {
-	doc = &Document{
-		TOCLevel:   defTOCLevel,
-		tocTitle:   defTOCTitle,
-		Attributes: newAttributeEntry(),
-		anchors:    make(map[string]*anchor),
-		titleID:    make(map[string]string),
-		sectnums:   &sectionCounters{},
-		sectLevel:  defSectnumlevels,
-		content: &adocNode{
-			kind: nodeKindDocContent,
-		},
-	}
+	doc = newDocument()
 
 	docp := &documentParser{
 		doc: doc,
@@ -51,9 +40,7 @@ func Parse(content []byte) (doc *Document) {
 	}
 
 	docp.parseHeader()
-
-	doc.title = parseInlineMarkup(doc, []byte(doc.Title))
-	doc.Title = doc.title.toText()
+	docp.postParseHeader()
 
 	sectLevel, ok := doc.Attributes[attrNameSectnumlevels]
 	if ok {
@@ -116,12 +103,14 @@ func (docp *documentParser) consumeLinesUntil(
 
 func (docp *documentParser) line() (spaces, line string, c rune) {
 	docp.prevKind = docp.kind
-	docp.lineNum++
 	line, c = docp.p.Line()
+	if len(line) > 0 || c > 0 {
+		docp.lineNum++
+	}
 	docp.kind, spaces, line = whatKindOfLine(line)
-	if debug.Value >= 2 {
-		fmt.Printf("line %3d: kind %3d: %s\n", docp.lineNum,
-			docp.kind, line)
+	if debug.Value >= 1 {
+		fmt.Printf("line %3d: kind %3d: c %3d: %s\n", docp.lineNum,
+			docp.kind, c, line)
 	}
 	return spaces, line, c
 }
@@ -196,8 +185,8 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 			continue
 
 		case lineKindAttribute:
-			key, value := parseAttribute(line, false)
-			if len(key) > 0 {
+			key, value, ok := parseAttribute(line, false)
+			if ok {
 				if key == attrNameIcons {
 					if node.Attrs == nil {
 						node.Attrs = make(map[string]string)
@@ -512,16 +501,11 @@ func (docp *documentParser) parseHeader() {
 	for {
 		_, line, c := docp.line()
 		if len(line) == 0 && c == 0 {
-			break
-		}
-		if len(line) == 0 {
-			// Only allow empty line if state is title.
-			if state == stateTitle {
-				continue
-			}
 			return
 		}
-
+		if len(line) == 0 {
+			return
+		}
 		if strings.HasPrefix(line, "////") {
 			docp.parseIgnoreCommentBlock()
 			continue
@@ -530,29 +514,24 @@ func (docp *documentParser) parseHeader() {
 			continue
 		}
 		if line[0] == ':' {
-			key, value := parseAttribute(line, false)
-			if len(key) > 0 {
+			key, value, ok := parseAttribute(line, false)
+			if ok {
 				docp.doc.Attributes.apply(key, value)
-				continue
 			}
-			if state != stateTitle {
-				return
+			continue
+		}
+		if state == stateTitle {
+			if isTitle(line) {
+				docp.doc.header.WriteString(strings.TrimSpace(line[2:]))
+				docp.doc.Title = string(docp.doc.header.raw)
+				state = stateAuthor
+			} else {
+				docp.doc.Author = line
+				state = stateRevision
 			}
-			// The line will be assumed either as author or
-			// revision.
+			continue
 		}
 		switch state {
-		case stateTitle:
-			if !isTitle(line) {
-				return
-			}
-			docp.doc.header = &adocNode{
-				kind: nodeKindDocHeader,
-			}
-			docp.doc.header.WriteString(strings.TrimSpace(line[2:]))
-			docp.doc.Title = string(docp.doc.header.raw)
-			state = stateAuthor
-
 		case stateAuthor:
 			docp.doc.Author = line
 			state = stateRevision
@@ -562,8 +541,6 @@ func (docp *documentParser) parseHeader() {
 				return
 			}
 			state = stateEnd
-		case stateEnd:
-			return
 		}
 	}
 }
@@ -1290,4 +1267,19 @@ func (docp *documentParser) parseParagraph(
 	node.postParseParagraph(parent)
 	node.parseInlineMarkup(docp.doc, nodeKindText)
 	return line
+}
+
+//
+// postParseHeader re-check the document title, substract the authors, and
+// revision number, date, and/or remark.
+//
+func (docp *documentParser) postParseHeader() {
+	if len(docp.doc.Title) == 0 {
+		docp.doc.Title = docp.doc.Attributes[metaNameDocTitle]
+	}
+	if len(docp.doc.Title) > 0 {
+		docp.doc.title = parseInlineMarkup(docp.doc, []byte(docp.doc.Title))
+		docp.doc.Title = docp.doc.title.toText()
+		docp.doc.Attributes[metaNameDocTitle] = docp.doc.Title
+	}
 }

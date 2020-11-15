@@ -53,6 +53,24 @@ type Document struct {
 	counterExample int
 }
 
+func newDocument() *Document {
+	return &Document{
+		TOCLevel:   defTOCLevel,
+		tocTitle:   defTOCTitle,
+		Attributes: newAttributeEntry(),
+		anchors:    make(map[string]*anchor),
+		titleID:    make(map[string]string),
+		sectnums:   &sectionCounters{},
+		sectLevel:  defSectnumlevels,
+		header: &adocNode{
+			kind: nodeKindDocHeader,
+		},
+		content: &adocNode{
+			kind: nodeKindDocContent,
+		},
+	}
+}
+
 //
 // Open the ascidoc file and parse it.
 //
