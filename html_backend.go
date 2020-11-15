@@ -242,7 +242,10 @@ func htmlWriteBlockVideo(node *adocNode, out io.Writer) {
 }
 
 func htmlWriteBody(doc *Document, out *bytes.Buffer) {
-	htmlWriteHeader(doc, out)
+	_, ok := doc.Attributes[metaNameNoHeader]
+	if !ok {
+		htmlWriteHeader(doc, out)
+	}
 
 	fmt.Fprint(out, _htmlContentBegin)
 

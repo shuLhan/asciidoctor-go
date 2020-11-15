@@ -81,6 +81,7 @@ https://asciidoctor.org/docs/user-manual/[AsciiDoc user manual]
 Supported meta,
 
 * `doctitle`
+* `noheader`
 * `title-separator`
 
 

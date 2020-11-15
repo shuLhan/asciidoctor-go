@@ -69,12 +69,16 @@ const (
 
 	_htmlHeaderDetail = `
 <div class="details">`
+
 	_htmlHeaderDetailAuthor = `
 <span id="author" class="author">%s</span><br>`
+
 	_htmlHeaderDetailRevNumber = `
 <span id="revnumber">version %s%s</span>`
+
 	_htmlHeaderDetailRevDate = `
 <span id="revdate">%s</span>`
+
 	_htmlHeaderDetailEnd = `
 </div>`
 
