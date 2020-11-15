@@ -13,7 +13,9 @@ import "strings"
 type AttributeEntry map[string]string
 
 func newAttributeEntry() AttributeEntry {
-	return AttributeEntry{}
+	return AttributeEntry{
+		metaNameShowTitle: "",
+	}
 }
 
 func (entry *AttributeEntry) apply(key, val string) {

@@ -273,9 +273,12 @@ func htmlWriteFooter(doc *Document, out io.Writer) {
 func htmlWriteHeader(doc *Document, out io.Writer) {
 	fmt.Fprint(out, _htmlHeaderBegin)
 
-	fmt.Fprint(out, _htmlHeaderTitleBegin)
-	doc.Title.node.toHTML(doc, out, false)
-	fmt.Fprint(out, _htmlHeaderTitleEnd)
+	_, ok := doc.Attributes[metaNameShowTitle]
+	if ok {
+		fmt.Fprint(out, "\n<h1>")
+		doc.Title.node.toHTML(doc, out, false)
+		fmt.Fprint(out, "</h1>")
+	}
 
 	fmt.Fprint(out, _htmlHeaderDetail)
 	if len(doc.Author) > 0 {

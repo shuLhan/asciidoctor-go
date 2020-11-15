@@ -133,6 +133,7 @@ const (
 	metaNameDocTitle       = "doctitle"
 	metaNameKeywords       = "keywords"
 	metaNameNoHeader       = "noheader"
+	metaNameShowTitle      = "showtitle"
 	metaNameTOC            = "toc"
 	metaNameTOCLevels      = "toclevels"
 	metaNameTOCTitle       = "toc-title"
