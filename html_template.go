@@ -15,78 +15,12 @@ const (
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="ciigo">`
-
-	_htmlMetaAuthor = `
-<meta name="author" content="%s">`
-
-	_htmlMetaDescription = `
-<meta name="description" content="%s">`
-
-	_htmlMetaKeywords = `
-<meta name="keywords" content="%s">`
-
-	_htmlHeadTitle = `
-<title>%s</title>`
-
-	_htmlHeadStyle = `
-<style>
-
-</style>`
-
-	_htmlBodyBegin = `
-</head>
-<body class="%s">`
-
-	_htmlBodyEnd = `
-</body>
-</html>`
-)
-
-//
-// HTML templates for document header.
-//
-const (
-	_htmlHeaderBegin = `
-<div id="header">`
-
-	_htmlHeaderDetail = `
-<div class="details">`
-
-	_htmlHeaderDetailAuthor = `
-<span id="author" class="author">%s</span><br>`
-
-	_htmlHeaderDetailRevNumber = `
-<span id="revnumber">version %s%s</span>`
-
-	_htmlHeaderDetailRevDate = `
-<span id="revdate">%s</span>`
-
-	_htmlHeaderDetailEnd = `
-</div>`
-
-	_htmlHeaderEnd = `
-</div>`
-)
-
-//
-// HTML templates for content.
-//
-const (
-	_htmlContentBegin = `
-<div id="content">`
-
-	_htmlContentEnd = `
-</div>`
 )
 
 const (
 	_htmlPreambleBegin = `
 <div id="preamble">
 <div class="sectionbody">`
-
-	_htmlSection = `
-<div class="%s">
-<%s id="%s">`
 )
 
 //
@@ -96,9 +30,6 @@ const (
 	_htmlToCBegin = `
 <div id="toc" class="%s">
 <div id="toctitle">%s</div>`
-
-	_htmlToCEnd = `
-</div>`
 )
 
 //
@@ -106,7 +37,7 @@ const (
 //
 const (
 	_htmlAdmonitionIconsFont = `
-<i class="fa icon-%s" title="%s"></i>`
+<i class="fa icon-%s" title=%q></i>`
 
 	_htmlAdmonitionContent = `
 </td>
@@ -136,35 +67,8 @@ Your browser does not support the audio tag.
 const (
 	_htmlBlockImage = `
 <div class="content">
-<img src="%s" alt="%s"%s%s>
+<img src=%q alt=%q%s%s>
 </div>`
-
-	_htmlBlockImageTitle = `
-<div class="title">Figure %d. %s</div>`
-
-	_htmlBlockImageEnd = `
-</div>`
-)
-
-const (
-	_htmlBlockQuoteBegin = `
-<blockquote>
-%s`
-
-	_htmlBlockQuoteEnd = `
-</blockquote>`
-
-	_htmlBlockVerse = `
-<pre class="content">%s`
-
-	_htmlBlockVerseEnd = `</pre>`
-
-	_htmlQuoteAuthor = `
-<div class="attribution">
-&#8212; %s`
-
-	_htmlQuoteCitation = `<br>
-<cite>%s</cite>`
 )
 
 // Block video.
@@ -191,28 +95,6 @@ const (
 <pre>%s</pre>
 </div>
 </div>`
-
-	_htmlBlockContent = `
-<div class="content">`
-
-	_htmlBlockExampleTitle = `
-<div class="title">Example %d. %s</div>`
-
-	_htmlBlockTitle = `
-<div class="title">%s</div>`
-
-	_htmlBlockEnd = `
-</div>
-</div>`
-)
-
-//
-// Inline image.
-//
-const (
-	_htmlInlineImage      = `<span class="%s">`
-	_htmlInlineImageLink  = `<a class="image" href="%s">`
-	_htmlInlineImageImage = `<img src="%s" alt="%s"%s%s>`
 )
 
 //
@@ -222,14 +104,10 @@ const (
 	_htmlListDescriptionItemBegin = `
 <dt class="hdlist1">%s</dt>
 <dd>`
-	_htmlListDescriptionItemEnd = `
-</dd>`
 
 	_htmlListDescriptionItemQandABegin = `
 <li>
 <p><em>%s</em></p>`
-	_htmlListDescriptionItemQandAEnd = `
-</li>`
 
 	_htmlListDescriptionItemHorizontalBegin = `
 <tr>
@@ -237,20 +115,4 @@ const (
 %s
 </td>
 <td class="hdlist2">`
-	_htmlListDescriptionItemHorizontalEnd = `
-</td>
-</tr>`
-)
-
-//
-// HTML templates for inline markup.
-//
-const (
-	_htmlCrossReference   = `<a href="#%s">%s</a>`
-	_htmlHorizontalRule   = "\n<hr>"
-	_htmlInlineID         = "<a id=\"%s\"></a>"
-	_htmlInlineIDShort    = `<span id="%s">%s`
-	_htmlInlineIDShortEnd = `</span>`
-	_htmlPageBreak        = `
-<div style="page-break-after: always;"></div>`
 )

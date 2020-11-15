@@ -127,30 +127,31 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 
 	metaValue := doc.Attributes[metaNameDescription]
 	if len(metaValue) > 0 {
-		fmt.Fprintf(buf, _htmlMetaDescription, metaValue)
+		fmt.Fprintf(buf, "\n<meta name=\"description\" content=%q>",
+			metaValue)
 	}
 
 	metaValue = doc.Attributes[metaNameKeywords]
 	if len(metaValue) > 0 {
-		fmt.Fprintf(buf, _htmlMetaKeywords, metaValue)
+		fmt.Fprintf(buf, "\n<meta name=\"keywords\" content=%q>", metaValue)
 	}
 
 	if len(doc.Author) > 0 {
-		fmt.Fprintf(buf, _htmlMetaAuthor, doc.Author)
+		fmt.Fprintf(buf, "\n<meta name=\"author\" content=%q>", doc.Author)
 	}
 
 	title := doc.Title.String()
 	if len(title) > 0 {
-		fmt.Fprintf(buf, _htmlHeadTitle, title)
+		fmt.Fprintf(buf, "\n<title>%s</title>", title)
 	}
-	fmt.Fprint(buf, _htmlHeadStyle)
+	fmt.Fprint(buf, "\n<style>\n\n</style>")
 
 	bodyClasses := strings.Join(doc.classes, " ")
-	fmt.Fprintf(buf, _htmlBodyBegin, bodyClasses)
+	fmt.Fprintf(buf, "\n</head>\n<body class=%q>", bodyClasses)
 
 	doc.toHTMLBody(buf, true)
 
-	fmt.Fprint(buf, _htmlBodyEnd)
+	fmt.Fprint(buf, "\n</body>\n</html>")
 
 	_, err = out.Write(buf.Bytes())
 
@@ -249,7 +250,7 @@ func (doc *Document) tocHTML(out io.Writer) {
 
 	fmt.Fprintf(out, _htmlToCBegin, tocClasses, doc.tocTitle)
 	htmlWriteToC(doc, doc.content, out, 0)
-	fmt.Fprint(out, _htmlToCEnd)
+	fmt.Fprint(out, "\n</div>")
 }
 
 func (doc *Document) unpackRawTitle() {

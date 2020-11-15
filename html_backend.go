@@ -59,7 +59,8 @@ func htmlWriteBlockBegin(node *adocNode, out io.Writer, addClass string) {
 		node.kind == nodeKindBlockSidebar) &&
 		len(node.rawTitle) > 0 {
 
-		fmt.Fprintf(out, _htmlBlockTitle, node.rawTitle)
+		fmt.Fprintf(out, "\n<div class=%q>%s</div>",
+			attrValueTitle, node.rawTitle)
 	}
 }
 
@@ -73,20 +74,22 @@ func htmlWriteBlockAdmonition(node *adocNode, out io.Writer) {
 		fmt.Fprintf(out, _htmlAdmonitionIconsFont,
 			strings.ToLower(node.Classes()), node.rawLabel.String())
 	} else {
-		fmt.Fprintf(out, _htmlBlockTitle, node.rawLabel.String())
+		fmt.Fprintf(out, "\n<div class=%q>%s</div>", attrValueTitle,
+			node.rawLabel.String())
 	}
 
 	fmt.Fprintf(out, _htmlAdmonitionContent, node.raw)
 
 	if len(node.rawTitle) > 0 {
-		fmt.Fprintf(out, _htmlBlockTitle, node.rawTitle)
+		fmt.Fprintf(out, "\n<div class=%q>%s</div>", attrValueTitle,
+			node.rawTitle)
 	}
 }
 
 func htmlWriteBlockAudio(node *adocNode, out io.Writer) {
 	htmlWriteBlockBegin(node, out, "audioblock")
 
-	fmt.Fprint(out, _htmlBlockContent)
+	fmt.Fprintf(out, "\n<div class=%q>", attrValueContent)
 
 	src := node.Attrs[attrNameSrc]
 
@@ -110,9 +113,10 @@ func htmlWriteBlockExample(doc *Document, node *adocNode, out io.Writer) {
 	htmlWriteBlockBegin(node, out, "exampleblock")
 	if len(node.rawTitle) > 0 {
 		doc.counterExample++
-		fmt.Fprintf(out, _htmlBlockExampleTitle, doc.counterExample, node.rawTitle)
+		fmt.Fprintf(out, "\n<div class=%q>Example %d. %s</div>",
+			attrValueTitle, doc.counterExample, node.rawTitle)
 	}
-	fmt.Fprint(out, _htmlBlockContent)
+	fmt.Fprintf(out, "\n<div class=%q>", attrValueContent)
 }
 
 func htmlWriteBlockImage(doc *Document, node *adocNode, out io.Writer) {
@@ -135,10 +139,11 @@ func htmlWriteBlockImage(doc *Document, node *adocNode, out io.Writer) {
 
 	if len(node.rawTitle) > 0 {
 		doc.counterImage++
-		fmt.Fprintf(out, _htmlBlockImageTitle, doc.counterImage, node.rawTitle)
+		fmt.Fprintf(out, "\n<div class=%q>Figure %d. %s</div>",
+			attrValueTitle, doc.counterImage, node.rawTitle)
 	}
 
-	fmt.Fprint(out, _htmlBlockImageEnd)
+	fmt.Fprint(out, "\n</div>")
 }
 
 func htmlWriteBlockLiteral(node *adocNode, out io.Writer) {
@@ -148,47 +153,50 @@ func htmlWriteBlockLiteral(node *adocNode, out io.Writer) {
 
 func htmlWriteBlockOpenBegin(node *adocNode, out io.Writer) {
 	htmlWriteBlockBegin(node, out, "openblock")
-	_, _ = fmt.Fprint(out, _htmlBlockContent)
+	fmt.Fprintf(out, "\n<div class=%q>", attrValueContent)
 }
 
 func htmlWriteBlockQuote(node *adocNode, out io.Writer) {
 	htmlWriteBlockBegin(node, out, "quoteblock")
-	_, _ = fmt.Fprintf(out, _htmlBlockQuoteBegin, node.raw)
+	fmt.Fprintf(out, "\n<blockquote>\n%s", node.raw)
 }
 
 func htmlWriteBlockQuoteEnd(node *adocNode, out io.Writer) {
-	_, _ = fmt.Fprint(out, _htmlBlockQuoteEnd)
+	fmt.Fprint(out, "\n</blockquote>")
 	if len(node.key) > 0 {
-		_, _ = fmt.Fprintf(out, _htmlQuoteAuthor, node.key)
+		fmt.Fprintf(out, "\n<div class=%q>\n&#8212; %s",
+			attrValueAttribution, node.key)
 	}
 	if len(node.value) > 0 {
-		_, _ = fmt.Fprintf(out, _htmlQuoteCitation, node.value)
+		fmt.Fprintf(out, "<br>\n<cite>%s</cite>", node.value)
 	}
-	_, _ = fmt.Fprint(out, _htmlBlockEnd)
+	fmt.Fprint(out, "\n</div>\n</div>")
 }
 
 func htmlWriteBlockSidebar(node *adocNode, out io.Writer) {
 	htmlWriteBlockBegin(node, out, "sidebarblock")
-	_, _ = fmt.Fprint(out, _htmlBlockContent)
+	fmt.Fprintf(out, "\n<div class=%q>", attrValueContent)
 	if len(node.rawTitle) > 0 {
-		_, _ = fmt.Fprintf(out, _htmlBlockTitle, node.rawTitle)
+		fmt.Fprintf(out, "\n<div class=%q>%s</div>", attrValueTitle,
+			node.rawTitle)
 	}
 }
 
 func htmlWriteBlockVerse(node *adocNode, out io.Writer) {
 	htmlWriteBlockBegin(node, out, "verseblock")
-	_, _ = fmt.Fprintf(out, _htmlBlockVerse, node.raw)
+	fmt.Fprintf(out, "\n<pre class=%q>%s", attrValueContent, node.raw)
 }
 
 func htmlWriteBlockVerseEnd(node *adocNode, out io.Writer) {
-	_, _ = fmt.Fprint(out, _htmlBlockVerseEnd)
+	fmt.Fprint(out, "</pre>")
 	if len(node.key) > 0 {
-		_, _ = fmt.Fprintf(out, _htmlQuoteAuthor, node.key)
+		fmt.Fprintf(out, "\n<div class=%q>\n&#8212; %s",
+			attrValueAttribution, node.key)
 	}
 	if len(node.value) > 0 {
-		_, _ = fmt.Fprintf(out, _htmlQuoteCitation, node.value)
+		fmt.Fprintf(out, "<br>\n<cite>%s</cite>", node.value)
 	}
-	_, _ = fmt.Fprint(out, _htmlBlockEnd)
+	fmt.Fprint(out, "\n</div>\n</div>")
 }
 
 func htmlWriteBlockVideo(node *adocNode, out io.Writer) {
@@ -206,7 +214,7 @@ func htmlWriteBlockVideo(node *adocNode, out io.Writer) {
 
 	htmlWriteBlockBegin(node, out, "videoblock")
 
-	fmt.Fprint(out, _htmlBlockContent)
+	fmt.Fprintf(out, "\n<div class=%q>", attrValueContent)
 
 	if isYoutube {
 		optFullscreen, noFullscreen := node.Attrs[optVideoNofullscreen]
@@ -238,11 +246,11 @@ func htmlWriteBlockVideo(node *adocNode, out io.Writer) {
 			height, optPoster, optControls, optAutoplay, optLoop)
 	}
 
-	fmt.Fprint(out, _htmlBlockEnd)
+	fmt.Fprint(out, "\n</div>\n</div>")
 }
 
 func htmlWriteBody(doc *Document, out *bytes.Buffer) {
-	fmt.Fprint(out, _htmlContentBegin)
+	fmt.Fprint(out, "\n<div id=\"content\">")
 
 	if doc.content.child != nil {
 		doc.content.child.toHTML(doc, out, false)
@@ -251,7 +259,7 @@ func htmlWriteBody(doc *Document, out *bytes.Buffer) {
 		doc.content.next.toHTML(doc, out, false)
 	}
 
-	fmt.Fprint(out, _htmlContentEnd)
+	fmt.Fprint(out, "\n</div>")
 }
 
 func htmlWriteFooter(doc *Document, out io.Writer) {
@@ -271,7 +279,7 @@ func htmlWriteFooter(doc *Document, out io.Writer) {
 }
 
 func htmlWriteHeader(doc *Document, out io.Writer) {
-	fmt.Fprint(out, _htmlHeaderBegin)
+	fmt.Fprint(out, "\n<div id=\"header\">")
 
 	_, ok := doc.Attributes[metaNameShowTitle]
 	if ok {
@@ -280,18 +288,21 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 		fmt.Fprint(out, "</h1>")
 	}
 
-	fmt.Fprint(out, _htmlHeaderDetail)
+	fmt.Fprint(out, "\n<div class=\"details\">")
+
 	if len(doc.Author) > 0 {
-		fmt.Fprintf(out, _htmlHeaderDetailAuthor, doc.Author)
+		fmt.Fprintf(out, "\n<span id=%q class=%q>%s</span><br>",
+			attrValueAuthor, attrValueAuthor, doc.Author)
 	}
 	if len(doc.RevNumber) > 0 {
-		fmt.Fprintf(out, _htmlHeaderDetailRevNumber,
-			doc.RevNumber, doc.RevSeparator)
+		fmt.Fprintf(out, "\n<span id=%q>version %s%s</span>",
+			attrValueRevNumber, doc.RevNumber, doc.RevSeparator)
 	}
 	if len(doc.RevDate) > 0 {
-		fmt.Fprintf(out, _htmlHeaderDetailRevDate, doc.RevDate)
+		fmt.Fprintf(out, "\n<span id=%q>%s</span>", attrValueRevDate,
+			doc.RevDate)
 	}
-	fmt.Fprint(out, _htmlHeaderDetailEnd)
+	fmt.Fprint(out, "\n</div>")
 
 	if doc.tocIsEnabled && (doc.tocPosition == "" ||
 		doc.tocPosition == metaValueAuto ||
@@ -299,15 +310,15 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 		doc.tocPosition == metaValueRight) {
 		doc.tocHTML(out)
 	}
-	fmt.Fprint(out, _htmlHeaderEnd)
+	fmt.Fprint(out, "\n</div>")
 }
 
 func htmlWriteInlineImage(node *adocNode, out io.Writer) {
 	classes := strings.TrimSpace("image " + node.Classes())
-	fmt.Fprintf(out, _htmlInlineImage, classes)
+	fmt.Fprintf(out, "<span class=%q>", classes)
 	link, withLink := node.Attrs[attrNameLink]
 	if withLink {
-		fmt.Fprintf(out, _htmlInlineImageLink, link)
+		fmt.Fprintf(out, "<a class=%q href=%q>", attrValueImage, link)
 	}
 
 	src := node.Attrs[attrNameSrc]
@@ -322,7 +333,7 @@ func htmlWriteInlineImage(node *adocNode, out io.Writer) {
 		height = fmt.Sprintf(` height="%s"`, height)
 	}
 
-	fmt.Fprintf(out, _htmlInlineImageImage, src, alt, width, height)
+	fmt.Fprintf(out, "<img src=%q alt=%q%s%s>", src, alt, width, height)
 
 	if withLink {
 		fmt.Fprint(out, `</a>`)
@@ -407,7 +418,7 @@ func htmlWriteSection(doc *Document, node *adocNode, out io.Writer, isForToC boo
 		tag = "h6"
 	}
 
-	fmt.Fprintf(out, _htmlSection, class, tag, node.ID)
+	fmt.Fprintf(out, "\n<div class=%q>\n<%s id=%q>", class, tag, node.ID)
 
 	if node.sectnums != nil && node.level <= doc.sectLevel {
 		fmt.Fprint(out, node.sectnums.String())

@@ -122,9 +122,16 @@ const (
 )
 
 const (
-	attrValueBlank    = "_blank"
-	attrValueFont     = "font"
-	attrValueNoopener = "noopener"
+	attrValueAttribution = "attribution"
+	attrValueAuthor      = "author"
+	attrValueBlank       = "_blank"
+	attrValueContent     = "content"
+	attrValueFont        = "font"
+	attrValueImage       = "image"
+	attrValueNoopener    = "noopener"
+	attrValueRevDate     = "revdate"
+	attrValueRevNumber   = "revnumber"
+	attrValueTitle       = "title"
 )
 
 // List of document metadata.
@@ -137,7 +144,6 @@ const (
 	metaNameTOC            = "toc"
 	metaNameTOCLevels      = "toclevels"
 	metaNameTOCTitle       = "toc-title"
-	metaNameTitle          = "title"
 	metaNameTitleSeparator = "title-separator"
 )
 

@@ -776,7 +776,7 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 			}
 			href = doc.titleID[title]
 		}
-		fmt.Fprintf(w, _htmlCrossReference, href, node.raw)
+		fmt.Fprintf(w, "<a href=\"#%s\">%s</a>", href, node.raw)
 
 	case nodeKindMacroTOC:
 		if doc.tocIsEnabled && doc.tocPosition == metaValueMacro {
@@ -840,10 +840,10 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 		fmt.Fprintf(w, format, label.String())
 
 	case lineKindHorizontalRule:
-		fmt.Fprint(w, _htmlHorizontalRule)
+		fmt.Fprint(w, "\n<hr>")
 
 	case lineKindPageBreak:
-		fmt.Fprint(w, _htmlPageBreak)
+		fmt.Fprint(w, "\n<div style=\"page-break-after: always;\"></div>")
 
 	case nodeKindBlockExample:
 		if node.IsStyleAdmonition() {
@@ -887,12 +887,12 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 
 	case nodeKindInlineID:
 		if !isForToC {
-			fmt.Fprintf(w, _htmlInlineID, node.ID)
+			fmt.Fprintf(w, "<a id=%q></a>", node.ID)
 		}
 
 	case nodeKindInlineIDShort:
 		if !isForToC {
-			fmt.Fprintf(w, _htmlInlineIDShort, node.ID, node.raw)
+			fmt.Fprintf(w, "<span id=%q>%s", node.ID, node.raw)
 		}
 
 	case nodeKindInlineParagraph:
@@ -1011,11 +1011,11 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 	case nodeKindListDescriptionItem:
 		var format string
 		if node.IsStyleQandA() {
-			format = _htmlListDescriptionItemQandAEnd
+			format = "\n</li>"
 		} else if node.IsStyleHorizontal() {
-			format = _htmlListDescriptionItemHorizontalEnd
+			format = "\n</td>\n</tr>"
 		} else {
-			format = _htmlListDescriptionItemEnd
+			format = "\n</dd>"
 		}
 		fmt.Fprint(w, format)
 
@@ -1030,7 +1030,7 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 		if node.IsStyleAdmonition() {
 			fmt.Fprint(w, _htmlAdmonitionEnd)
 		} else {
-			fmt.Fprint(w, _htmlBlockEnd)
+			fmt.Fprint(w, "\n</div>\n</div>")
 		}
 
 	case nodeKindBlockOpen:
@@ -1041,7 +1041,7 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 		} else if node.IsStyleVerse() {
 			htmlWriteBlockVerseEnd(node, w)
 		} else {
-			fmt.Fprint(w, _htmlBlockEnd)
+			fmt.Fprint(w, "\n</div>\n</div>")
 		}
 	case nodeKindBlockExcerpts:
 		if node.IsStyleVerse() {
@@ -1051,11 +1051,11 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 		}
 
 	case nodeKindBlockSidebar:
-		fmt.Fprint(w, _htmlBlockEnd)
+		fmt.Fprint(w, "\n</div>\n</div>")
 
 	case nodeKindInlineIDShort:
 		if !isForToC {
-			fmt.Fprint(w, _htmlInlineIDShortEnd)
+			fmt.Fprint(w, "</span>")
 		}
 
 	case nodeKindInlineParagraph:
