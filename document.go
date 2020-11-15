@@ -15,12 +15,19 @@ import (
 	"time"
 )
 
+const (
+	defSectnumlevels  = 3
+	defTOCLevel       = 2
+	defTOCTitle       = "Table of Contents"
+	defTitleSeparator = ':'
+)
+
 //
 // Document represent content of asciidoc that has been parsed.
 //
 type Document struct {
 	Author       string
-	Title        string
+	Title        DocumentTitle
 	RevNumber    string
 	RevSeparator string
 	RevDate      string
@@ -45,7 +52,6 @@ type Document struct {
 	sectnums  *sectionCounters
 	sectLevel int
 
-	title   *adocNode
 	header  *adocNode
 	content *adocNode
 
@@ -55,6 +61,9 @@ type Document struct {
 
 func newDocument() *Document {
 	return &Document{
+		Title: DocumentTitle{
+			sep: defTitleSeparator,
+		},
 		TOCLevel:   defTOCLevel,
 		tocTitle:   defTOCTitle,
 		Attributes: newAttributeEntry(),
@@ -131,10 +140,7 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 		fmt.Fprintf(buf, _htmlMetaAuthor, doc.Author)
 	}
 
-	title := doc.Attributes[metaNameTitle]
-	if len(title) == 0 && len(doc.Title) > 0 {
-		title = doc.Title
-	}
+	title := doc.Title.String()
 	if len(title) > 0 {
 		fmt.Fprintf(buf, _htmlHeadTitle, title)
 	}
@@ -185,6 +191,15 @@ func (doc *Document) ToHTMLBody(out io.Writer) (err error) {
 }
 
 //
+// postParseHeader re-check the document title, substract the authors, and
+// revision number, date, and/or remark.
+//
+func (doc *Document) postParseHeader() {
+	doc.unpackTitleSeparator()
+	doc.unpackRawTitle()
+}
+
+//
 // registerAnchor register ID and its label.
 // If the ID is already exist it will generate new ID with additional suffix
 // "_x" added, where x is the counter of duplicate ID.
@@ -225,4 +240,50 @@ func (doc *Document) tocHTML(out io.Writer) {
 	fmt.Fprintf(out, _htmlToCBegin, tocClasses, doc.tocTitle)
 	htmlWriteToC(doc, doc.content, out, 0)
 	fmt.Fprint(out, _htmlToCEnd)
+}
+
+func (doc *Document) unpackRawTitle() {
+	var (
+		title string
+		prev  byte
+	)
+
+	if len(doc.Title.raw) == 0 {
+		doc.Title.raw = doc.Attributes[metaNameDocTitle]
+		if len(doc.Title.raw) == 0 {
+			return
+		}
+	}
+
+	doc.Title.node = parseInlineMarkup(doc, []byte(doc.Title.raw))
+	title = doc.Title.node.toText()
+	doc.Attributes[metaNameDocTitle] = title
+
+	for x := len(title) - 1; x > 0; x-- {
+		if title[x] == doc.Title.sep {
+			if prev == ' ' {
+				doc.Title.Sub = string(title[x+2:])
+				doc.Title.Main = string(title[:x])
+				break
+			}
+		}
+		prev = title[x]
+	}
+	if len(doc.Title.Main) == 0 {
+		doc.Title.Main = title
+	}
+}
+
+//
+// unpackTitleSeparator set the Title separator using the first character in
+// meta attribute "title-separator" value.
+//
+func (doc *Document) unpackTitleSeparator() {
+	v, ok := doc.Attributes[metaNameTitleSeparator]
+	if ok {
+		v = strings.TrimSpace(v)
+		if len(v) > 0 {
+			doc.Title.sep = v[0]
+		}
+	}
 }

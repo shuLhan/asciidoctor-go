@@ -51,3 +51,55 @@ func TestParse_metaDocTitle(t *testing.T) {
 		test.Assert(t, "", expHTML, buf.String(), true)
 	}
 }
+
+func TestParse_document_title(t *testing.T) {
+	cases := []struct {
+		content   string
+		exp       DocumentTitle
+		expString string
+	}{{
+		content: `= Main: sub`,
+		exp: DocumentTitle{
+			Main: "Main",
+			Sub:  "sub",
+			sep:  defTitleSeparator,
+		},
+		expString: "Main: sub",
+	}, {
+		// Without space after separator
+		content: `= Main:sub`,
+		exp: DocumentTitle{
+			Main: "Main:sub",
+			sep:  defTitleSeparator,
+		},
+		expString: "Main:sub",
+	}, {
+		// With multiple separator after separator
+		content: `= a: b: c`,
+		exp: DocumentTitle{
+			Main: "a: b",
+			Sub:  "c",
+			sep:  defTitleSeparator,
+		},
+		expString: "a: b: c",
+	}, {
+		// With custom separator.
+		content: `:title-separator: x
+= Mainx sub`,
+		exp: DocumentTitle{
+			Main: "Main",
+			Sub:  "sub",
+			sep:  'x',
+		},
+		expString: "Mainx sub",
+	}}
+
+	for _, c := range cases {
+		got := Parse([]byte(c.content))
+		test.Assert(t, "Main", c.exp.Main, got.Title.Main, true)
+		test.Assert(t, "Sub", c.exp.Sub, got.Title.Sub, true)
+		test.Assert(t, "sep", c.exp.sep, got.Title.sep, true)
+
+		test.Assert(t, "String", c.expString, got.Title.String(), true)
+	}
+}

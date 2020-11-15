@@ -14,6 +14,7 @@ https://asciidoctor.org/docs/user-manual/[AsciiDoc user manual]
 * 14. Header
 ** 14.1. Document title
 *** 14.1.1. doctitle attribute
+*** 14.1.2. Document subtitle
 ** 14.2. Author and email
 ** 14.3. Revision number, date
 ** 14.5. Metadata
@@ -76,6 +77,11 @@ https://asciidoctor.org/docs/user-manual/[AsciiDoc user manual]
 * 40. Passthroughs
 ** 40.2. Passthrough Blocks
 * 41. Open Blocks
+
+Supported meta,
+
+* `doctitle`
+* `title-separator`
 
 
 ==  TODO

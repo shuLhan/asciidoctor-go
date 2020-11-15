@@ -260,7 +260,7 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 	fmt.Fprint(out, _htmlHeaderBegin)
 
 	fmt.Fprint(out, _htmlHeaderTitleBegin)
-	doc.title.toHTML(doc, out, false)
+	doc.Title.node.toHTML(doc, out, false)
 	fmt.Fprint(out, _htmlHeaderTitleEnd)
 
 	fmt.Fprint(out, _htmlHeaderDetail)

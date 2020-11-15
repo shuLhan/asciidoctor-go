@@ -14,12 +14,6 @@ import (
 	"github.com/shuLhan/share/lib/parser"
 )
 
-const (
-	defSectnumlevels = 3
-	defTOCLevel      = 2
-	defTOCTitle      = "Table of Contents"
-)
-
 type documentParser struct {
 	doc      *Document
 	p        *parser.Parser
@@ -40,7 +34,7 @@ func Parse(content []byte) (doc *Document) {
 	}
 
 	docp.parseHeader()
-	docp.postParseHeader()
+	docp.doc.postParseHeader()
 
 	sectLevel, ok := doc.Attributes[attrNameSectnumlevels]
 	if ok {
@@ -523,7 +517,7 @@ func (docp *documentParser) parseHeader() {
 		if state == stateTitle {
 			if isTitle(line) {
 				docp.doc.header.WriteString(strings.TrimSpace(line[2:]))
-				docp.doc.Title = string(docp.doc.header.raw)
+				docp.doc.Title.raw = string(docp.doc.header.raw)
 				state = stateAuthor
 			} else {
 				docp.doc.Author = line
@@ -1267,19 +1261,4 @@ func (docp *documentParser) parseParagraph(
 	node.postParseParagraph(parent)
 	node.parseInlineMarkup(docp.doc, nodeKindText)
 	return line
-}
-
-//
-// postParseHeader re-check the document title, substract the authors, and
-// revision number, date, and/or remark.
-//
-func (docp *documentParser) postParseHeader() {
-	if len(docp.doc.Title) == 0 {
-		docp.doc.Title = docp.doc.Attributes[metaNameDocTitle]
-	}
-	if len(docp.doc.Title) > 0 {
-		docp.doc.title = parseInlineMarkup(docp.doc, []byte(docp.doc.Title))
-		docp.doc.Title = docp.doc.title.toText()
-		docp.doc.Attributes[metaNameDocTitle] = docp.doc.Title
-	}
 }

@@ -129,13 +129,14 @@ const (
 
 // List of document metadata.
 const (
-	metaNameDescription = "description"
-	metaNameDocTitle    = "doctitle"
-	metaNameKeywords    = "keywords"
-	metaNameTOC         = "toc"
-	metaNameTOCLevels   = "toclevels"
-	metaNameTOCTitle    = "toc-title"
-	metaNameTitle       = "title"
+	metaNameDescription    = "description"
+	metaNameDocTitle       = "doctitle"
+	metaNameKeywords       = "keywords"
+	metaNameTOC            = "toc"
+	metaNameTOCLevels      = "toclevels"
+	metaNameTOCTitle       = "toc-title"
+	metaNameTitle          = "title"
+	metaNameTitleSeparator = "title-separator"
 )
 
 // List of possible metadata value.
