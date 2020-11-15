@@ -26,8 +26,9 @@ const (
 // Document represent content of asciidoc that has been parsed.
 //
 type Document struct {
-	Author       string
 	Title        DocumentTitle
+	Authors      []*Author
+	authors      string
 	RevNumber    string
 	RevSeparator string
 	RevDate      string
@@ -138,8 +139,16 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 		fmt.Fprintf(buf, "\n<meta name=\"keywords\" content=%q>", metaValue)
 	}
 
-	if len(doc.Author) > 0 {
-		fmt.Fprintf(buf, "\n<meta name=\"author\" content=%q>", doc.Author)
+	var metaAuthors strings.Builder
+	for x, author := range doc.Authors {
+		if x > 0 {
+			metaAuthors.WriteString(", ")
+		}
+		metaAuthors.WriteString(author.FullName())
+	}
+	if metaAuthors.Len() > 0 {
+		fmt.Fprintf(buf, "\n<meta name=%q content=%q>",
+			attrValueAuthor, metaAuthors.String())
 	}
 
 	title := doc.Title.String()
@@ -211,6 +220,7 @@ func (doc *Document) toHTMLBody(buf *bytes.Buffer, withHeaderFooter bool) {
 func (doc *Document) postParseHeader() {
 	doc.unpackTitleSeparator()
 	doc.unpackRawTitle()
+	doc.unpackRawAuthor()
 }
 
 //
@@ -253,6 +263,63 @@ func (doc *Document) tocHTML(out io.Writer) {
 	fmt.Fprintf(out, _htmlToCBegin, doc.tocClasses.String(), doc.tocTitle)
 	htmlWriteToC(doc, doc.content, out, 0)
 	fmt.Fprint(out, "\n</div>")
+}
+
+//
+// unpackRawAuthor parse the authors field into one or more Author.
+//
+func (doc *Document) unpackRawAuthor() {
+	if len(doc.authors) == 0 {
+		v := doc.Attributes[metaNameAuthor]
+		if len(v) > 0 {
+			doc.authors = v
+		}
+		v = doc.Attributes[metaNameEmail]
+		if len(v) > 0 {
+			doc.authors += " <" + v + ">"
+		}
+		if len(doc.authors) == 0 {
+			return
+		}
+	}
+
+	rawAuthors := strings.Split(doc.authors, ";")
+	for _, rawAuthor := range rawAuthors {
+		if len(rawAuthor) > 0 {
+			doc.Authors = append(doc.Authors, parseAuthor(rawAuthor))
+		}
+	}
+
+	authorKey := metaNameAuthor
+	emailKey := metaNameEmail
+	initialsKey := metaNameAuthorInitials
+	firstNameKey := metaNameFirstName
+	middleNameKey := metaNameMiddleName
+	lastNameKey := metaNameLastName
+	for x, author := range doc.Authors {
+		if x == 0 {
+			doc.Attributes[authorKey] = author.FullName()
+			doc.Attributes[emailKey] = author.Email
+			doc.Attributes[initialsKey] = author.Initials
+			doc.Attributes[firstNameKey] = author.FirstName
+			doc.Attributes[middleNameKey] = author.MiddleName
+			doc.Attributes[lastNameKey] = author.LastName
+		}
+
+		authorKey = fmt.Sprintf("%s_%d", metaNameAuthor, x+1)
+		emailKey = fmt.Sprintf("%s_%d", metaNameEmail, x+1)
+		initialsKey = fmt.Sprintf("%s_%d", metaNameAuthorInitials, x+1)
+		firstNameKey = fmt.Sprintf("%s_%d", metaNameFirstName, x+1)
+		middleNameKey = fmt.Sprintf("%s_%d", metaNameMiddleName, x+1)
+		lastNameKey = fmt.Sprintf("%s_%d", metaNameLastName, x+1)
+
+		doc.Attributes[authorKey] = author.FullName()
+		doc.Attributes[emailKey] = author.Email
+		doc.Attributes[initialsKey] = author.Initials
+		doc.Attributes[firstNameKey] = author.FirstName
+		doc.Attributes[middleNameKey] = author.MiddleName
+		doc.Attributes[lastNameKey] = author.LastName
+	}
 }
 
 func (doc *Document) unpackRawTitle() {

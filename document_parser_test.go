@@ -155,3 +155,65 @@ func TestParse_document_title(t *testing.T) {
 		test.Assert(t, "String", c.expString, got.Title.String(), true)
 	}
 }
+
+func TestParse_author(t *testing.T) {
+	cases := []struct {
+		desc    string
+		content string
+		exp     []*Author
+	}{{
+		desc: "single author",
+		content: `= T
+A B`,
+		exp: []*Author{{
+			FirstName: "A",
+			LastName:  "B",
+			Initials:  "AB",
+		}},
+	}, {
+		desc: "single author with email",
+		content: `= T
+A B <a@b>`,
+		exp: []*Author{{
+			FirstName: "A",
+			LastName:  "B",
+			Initials:  "AB",
+			Email:     "a@b",
+		}},
+	}, {
+		desc: "multiple authors",
+		content: `= T
+A B <a@b>; C <c@c>; D e_f G <>;`,
+		exp: []*Author{{
+			FirstName: "A",
+			LastName:  "B",
+			Initials:  "AB",
+			Email:     "a@b",
+		}, {
+			FirstName: "C",
+			Initials:  "C",
+			Email:     "c@c",
+		}, {
+			FirstName:  "D",
+			MiddleName: "e f",
+			LastName:   "G",
+			Initials:   "DeG",
+		}},
+	}, {
+		desc: "meta author",
+		content: `= T
+:author: A B
+:email: a@b`,
+		exp: []*Author{{
+			FirstName: "A",
+			LastName:  "B",
+			Initials:  "AB",
+			Email:     "a@b",
+		}},
+	}}
+
+	for _, c := range cases {
+		got := Parse([]byte(c.content))
+		test.Assert(t, c.desc, c.exp, got.Authors, true)
+	}
+}

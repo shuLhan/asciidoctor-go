@@ -520,14 +520,14 @@ func (docp *documentParser) parseHeader() {
 				docp.doc.Title.raw = string(docp.doc.header.raw)
 				state = stateAuthor
 			} else {
-				docp.doc.Author = line
+				docp.doc.authors = line
 				state = stateRevision
 			}
 			continue
 		}
 		switch state {
 		case stateAuthor:
-			docp.doc.Author = line
+			docp.doc.authors = line
 			state = stateRevision
 
 		case stateRevision:

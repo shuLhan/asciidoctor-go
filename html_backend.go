@@ -290,10 +290,26 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 
 	fmt.Fprint(out, "\n<div class=\"details\">")
 
-	if len(doc.Author) > 0 {
+	var authorID, emailID string
+	for x, author := range doc.Authors {
+		if x == 0 {
+			authorID = attrValueAuthor
+			emailID = attrValueEmail
+		} else {
+			authorID = fmt.Sprintf("%s%d", attrValueAuthor, x+1)
+			emailID = fmt.Sprintf("%s%d", attrValueEmail, x+1)
+		}
+
 		fmt.Fprintf(out, "\n<span id=%q class=%q>%s</span><br>",
-			attrValueAuthor, attrValueAuthor, doc.Author)
+			authorID, attrValueAuthor, author.FullName())
+
+		if len(author.Email) > 0 {
+			fmt.Fprintf(out, "\n<span id=%q class=%q><a href=\"mailto:%s\">%s</a></span><br>",
+				emailID, attrValueEmail, author.Email,
+				author.Email)
+		}
 	}
+
 	if len(doc.RevNumber) > 0 {
 		fmt.Fprintf(out, "\n<span id=%q>version %s%s</span>",
 			attrValueRevNumber, doc.RevNumber, doc.RevSeparator)

@@ -81,18 +81,22 @@ https://asciidoctor.org/docs/user-manual/[AsciiDoc user manual]
 
 Supported meta,
 
+* `author(_x)`
+* `authorinitials(_x)`
 * `doctitle`
+* `email(_x)`
+* `firstname(_x)`
+* `lastname(_x)`
+* `middlename(_x)`
 * `noheader`
 * `showtitle`
 * `title-separator`
-
 
 ==  TODO
 
 List of features which will need to be implemented,
 
 * 14. Header
-** 14.2. Splitting author and email
 ** 14.3. Revision remark
 ** 14.4. Subtitle partitioning
 ** 14.5. Metadata, any others metadata

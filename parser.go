@@ -127,6 +127,7 @@ const (
 	attrValueBare        = "bare"
 	attrValueBlank       = "_blank"
 	attrValueContent     = "content"
+	attrValueEmail       = "email"
 	attrValueFont        = "font"
 	attrValueImage       = "image"
 	attrValueNoopener    = "noopener"
@@ -137,9 +138,15 @@ const (
 
 // List of document metadata.
 const (
+	metaNameAuthor         = attrValueAuthor
+	metaNameAuthorInitials = "authorinitials"
 	metaNameDescription    = "description"
 	metaNameDocTitle       = "doctitle"
+	metaNameEmail          = attrValueEmail
+	metaNameFirstName      = "firstname"
 	metaNameKeywords       = "keywords"
+	metaNameLastName       = "lastname"
+	metaNameMiddleName     = "middlename"
 	metaNameNoHeader       = "noheader"
 	metaNameShowTitle      = "showtitle"
 	metaNameTOC            = "toc"
