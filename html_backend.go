@@ -268,7 +268,14 @@ func htmlWriteFooter(doc *Document, out io.Writer) {
 <div id="footer-text">`)
 
 	if len(doc.Revision.Number) > 0 {
-		fmt.Fprintf(out, "\nVersion %s<br>", doc.Revision.Number)
+		prefix, ok := doc.Attributes[metaNameVersionLabel]
+		if ok && len(prefix) == 0 {
+			prefix = "Version "
+		} else {
+			prefix = " "
+		}
+
+		fmt.Fprintf(out, "\n%s%s<br>", prefix, doc.Revision.Number)
 	}
 
 	if len(doc.LastUpdated) > 0 {
