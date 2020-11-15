@@ -4,32 +4,22 @@
 
 package asciidoctor
 
-import "strings"
+import (
+	"strings"
 
-type attributeClass map[string]struct{}
+	libstrings "github.com/shuLhan/share/lib/strings"
+)
+
+type attributeClass []string
 
 func (aclass *attributeClass) add(c string) {
-	if *aclass == nil {
-		*aclass = attributeClass{}
-	}
-	(*aclass)[c] = struct{}{}
+	(*aclass) = libstrings.AppendUniq(*aclass, c)
 }
 
 //
-// String concat all the attribute class keys into string separated by single
+// String concat all the attribute class into string separated by single
 // space.
 //
 func (aclass attributeClass) String() string {
-	var (
-		sb strings.Builder
-		x  int
-	)
-	for k := range aclass {
-		if x > 0 {
-			sb.WriteByte(' ')
-		}
-		sb.WriteString(k)
-		x++
-	}
-	return sb.String()
+	return strings.Join(aclass, " ")
 }

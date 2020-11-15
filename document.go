@@ -186,20 +186,20 @@ func (doc *Document) ToHTMLBody(out io.Writer) (err error) {
 }
 
 func (doc *Document) generateClasses() {
-	doc.classes[classNameArticle] = struct{}{}
+	doc.classes.add(classNameArticle)
 	doc.tocPosition, doc.tocIsEnabled = doc.Attributes[metaNameTOC]
 
 	switch doc.tocPosition {
 	case metaValueLeft:
-		doc.classes[classNameToc2] = struct{}{}
-		doc.classes[classNameTocLeft] = struct{}{}
-		doc.tocClasses[classNameToc2] = struct{}{}
+		doc.classes.add(classNameToc2)
+		doc.classes.add(classNameTocLeft)
+		doc.tocClasses.add(classNameToc2)
 	case metaValueRight:
-		doc.classes[classNameToc2] = struct{}{}
-		doc.classes[classNameTocRight] = struct{}{}
-		doc.tocClasses[classNameToc2] = struct{}{}
+		doc.classes.add(classNameToc2)
+		doc.classes.add(classNameTocRight)
+		doc.tocClasses.add(classNameToc2)
 	default:
-		doc.tocClasses[classNameToc] = struct{}{}
+		doc.tocClasses.add(classNameToc)
 	}
 }
 
