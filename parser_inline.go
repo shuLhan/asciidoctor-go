@@ -905,7 +905,7 @@ func (pi *parserInline) parseURL(scheme string) (node *adocNode) {
 	}
 	if c != '[' {
 		if scheme == macroHTTP || scheme == macroHTTPS {
-			node.classes = append(node.classes, "bare")
+			node.classes.add(attrValueBare)
 		}
 		if c == '.' || c == ',' || c == ';' {
 			uri = uri[:len(uri)-1]
@@ -960,7 +960,11 @@ func (pi *parserInline) parseURL(scheme string) (node *adocNode) {
 				}
 			case attrNameRole:
 				classes := strings.Split(attrTarget[1], ",")
-				node.classes = append(node.classes, classes...)
+				for _, c := range classes {
+					if len(c) > 0 {
+						node.classes.add(c)
+					}
+				}
 			}
 		}
 	}
@@ -970,7 +974,11 @@ func (pi *parserInline) parseURL(scheme string) (node *adocNode) {
 			switch attrRole[0] {
 			case attrNameRole:
 				classes := strings.Split(attrRole[1], ",")
-				node.classes = append(node.classes, classes...)
+				for _, c := range classes {
+					if len(c) > 0 {
+						node.classes.add(c)
+					}
+				}
 			}
 		}
 	}

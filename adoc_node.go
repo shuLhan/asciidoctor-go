@@ -28,7 +28,7 @@ type adocNode struct {
 	rawLabel bytes.Buffer
 	rawTitle string
 	style    int64
-	classes  []string
+	classes  attributeClass
 
 	// The key and value for attribute (lineKindAttribute).
 	key   string
@@ -53,7 +53,7 @@ func (node *adocNode) Classes() string {
 	if len(node.classes) == 0 {
 		return ""
 	}
-	return strings.Join(node.classes, " ")
+	return node.classes.String()
 }
 
 func (node *adocNode) Content() string {
@@ -404,7 +404,7 @@ func (node *adocNode) parseBlockImage(doc *Document, line string) bool {
 			if val == "center" {
 				val = "text-center"
 			}
-			node.classes = append(node.classes, val)
+			node.classes.add(val)
 		default:
 			node.Attrs[key] = val
 		}
@@ -442,7 +442,7 @@ func (node *adocNode) parseInlineMarkup(doc *Document, kind int) {
 func (node *adocNode) parseLineAdmonition(line string) {
 	sep := strings.IndexByte(line, ':')
 	class := strings.ToLower(line[:sep])
-	node.classes = append(node.classes, class)
+	node.classes.add(class)
 	node.rawLabel.WriteString(strings.Title(class))
 	line = strings.TrimSpace(line[sep+1:])
 	node.WriteString(line)
@@ -584,7 +584,7 @@ func (node *adocNode) parseStyleClass(line string) {
 	for _, class := range parts {
 		class = strings.TrimSpace(class)
 		if len(class) > 0 {
-			node.classes = append(node.classes, class)
+			node.classes.add(class)
 		}
 	}
 }
@@ -758,7 +758,7 @@ func (node *adocNode) setQuoteOpts(opts []string) {
 
 func (node *adocNode) setStyleAdmonition(admName string) {
 	admName = strings.ToLower(admName)
-	node.classes = append(node.classes, admName)
+	node.classes.add(admName)
 	node.rawLabel.WriteString(strings.Title(admName))
 }
 

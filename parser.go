@@ -124,6 +124,7 @@ const (
 const (
 	attrValueAttribution = "attribution"
 	attrValueAuthor      = "author"
+	attrValueBare        = "bare"
 	attrValueBlank       = "_blank"
 	attrValueContent     = "content"
 	attrValueFont        = "font"

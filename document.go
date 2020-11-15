@@ -35,13 +35,13 @@ type Document struct {
 	Attributes   AttributeEntry
 
 	TOCLevel     int
-	tocClasses   []string
+	tocClasses   attributeClass
 	tocPosition  string
 	tocTitle     string
 	tocIsEnabled bool
 
 	file    string
-	classes []string
+	classes attributeClass
 
 	// anchors contains mapping between unique ID and its label.
 	anchors map[string]*anchor
@@ -65,8 +65,10 @@ func newDocument() *Document {
 			sep: defTitleSeparator,
 		},
 		TOCLevel:   defTOCLevel,
+		tocClasses: attributeClass{},
 		tocTitle:   defTOCTitle,
 		Attributes: newAttributeEntry(),
+		classes:    attributeClass{},
 		anchors:    make(map[string]*anchor),
 		titleID:    make(map[string]string),
 		sectnums:   &sectionCounters{},
@@ -146,8 +148,7 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 	}
 	fmt.Fprint(buf, "\n<style>\n\n</style>")
 
-	bodyClasses := strings.Join(doc.classes, " ")
-	fmt.Fprintf(buf, "\n</head>\n<body class=%q>", bodyClasses)
+	fmt.Fprintf(buf, "\n</head>\n<body class=%q>", doc.classes.String())
 
 	doc.toHTMLBody(buf, true)
 
@@ -171,18 +172,20 @@ func (doc *Document) ToHTMLBody(out io.Writer) (err error) {
 }
 
 func (doc *Document) generateClasses() {
-	doc.classes = append(doc.classes, classNameArticle)
+	doc.classes[classNameArticle] = struct{}{}
 	doc.tocPosition, doc.tocIsEnabled = doc.Attributes[metaNameTOC]
 
 	switch doc.tocPosition {
 	case metaValueLeft:
-		doc.classes = append(doc.classes, classNameToc2, classNameTocLeft)
-		doc.tocClasses = append(doc.tocClasses, classNameToc2)
+		doc.classes[classNameToc2] = struct{}{}
+		doc.classes[classNameTocLeft] = struct{}{}
+		doc.tocClasses[classNameToc2] = struct{}{}
 	case metaValueRight:
-		doc.classes = append(doc.classes, classNameToc2, classNameTocRight)
-		doc.tocClasses = append(doc.tocClasses, classNameToc2)
+		doc.classes[classNameToc2] = struct{}{}
+		doc.classes[classNameTocRight] = struct{}{}
+		doc.tocClasses[classNameToc2] = struct{}{}
 	default:
-		doc.tocClasses = append(doc.tocClasses, classNameToc)
+		doc.tocClasses[classNameToc] = struct{}{}
 	}
 }
 
@@ -242,13 +245,12 @@ func (doc *Document) tocHTML(out io.Writer) {
 		}
 	}
 
-	tocClasses := strings.Join(doc.tocClasses, " ")
 	v, ok = doc.Attributes[metaNameTOCTitle]
 	if ok && len(v) > 0 {
 		doc.tocTitle = v
 	}
 
-	fmt.Fprintf(out, _htmlToCBegin, tocClasses, doc.tocTitle)
+	fmt.Fprintf(out, _htmlToCBegin, doc.tocClasses.String(), doc.tocTitle)
 	htmlWriteToC(doc, doc.content, out, 0)
 	fmt.Fprint(out, "\n</div>")
 }
