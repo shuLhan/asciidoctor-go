@@ -526,6 +526,61 @@ What is the answer to the Ultimate Question?:: 42
 A new paragraph.
 
 
+==  Table
+
+|===
+A | B
+
+| C
+D | E
+|===
+
+With row columns less than header,
+
+|===
+| A | B
+
+| C
+
+| D | E
+|===
+
+With row columns greater than header,
+
+|===
+| A | B
+
+| C | D | E
+|===
+
+=== Column Formatting
+
+[cols="3*"]
+|===
+|Cell in column 1, row 1
+|Cell in column 2, row 1
+|Cell in column 3, row 1
+
+|Cell in column 1, row 2
+|Cell in column 2, row 2
+|Cell in column 3, row 2
+|===
+
+
+=== Column width
+
+[cols="<.<,^.^3,>.>6"]
+|===
+|Cell in column 1, row 1
+|Cell in column 2, row 1
+|Cell in column 3, row 1
+
+|Cell in column 1, row 2
+|Cell in column 2, row 2
+|Cell in column 3, row 2
+|===
+
+
 ==  Horizontal rules
 
 '''

@@ -43,6 +43,8 @@ type adocNode struct {
 	// It will be set only if attribute "sectnums" is on.
 	sectnums *sectionCounters
 
+	table *adocTable
+
 	parent *adocNode
 	child  *adocNode
 	next   *adocNode
@@ -738,6 +740,15 @@ func (node *adocNode) postParseParagraphAsQuote(lines [][]byte) bool {
 	return true
 }
 
+//
+// postConsumeTable after we get all raw tables contents, we split them into
+// multiple rows, based on empty line between row.
+//
+func (node *adocNode) postConsumeTable() (table *adocTable) {
+	node.table = newTable(node.Attrs[attrNameCols], node.raw)
+	return node.table
+}
+
 func (node *adocNode) removeLastIfEmpty() {
 	if node.child == nil {
 		return
@@ -993,6 +1004,9 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 		fmt.Fprintf(w, "<sub>%s</sub>", node.raw)
 	case nodeKindTextSuperscript:
 		fmt.Fprintf(w, "<sup>%s</sup>", node.raw)
+
+	case nodeKindTable:
+		htmlWriteTable(node, w)
 	}
 
 	if node.child != nil {

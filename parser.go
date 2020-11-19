@@ -67,6 +67,7 @@ const (
 	nodeKindSymbolQuoteDoubleEnd       // The (`")
 	nodeKindSymbolQuoteSingleBegin     // 40: The ('`)
 	nodeKindSymbolQuoteSingleEnd       // The (`')
+	nodeKindTable                      // "|==="
 	nodeKindText                       //
 	nodeKindTextBold                   // Text wrapped by "*"
 	nodeKindTextItalic                 // Text wrapped by "_"
@@ -74,8 +75,8 @@ const (
 	nodeKindTextSubscript              // Word wrapped by '~'
 	nodeKindTextSuperscript            // Word wrapped by '^'
 	nodeKindUnconstrainedBold          // Text wrapped by "**"
-	nodeKindUnconstrainedItalic        // Text wrapped by "__"
-	nodeKindUnconstrainedMono          // 50: Text wrapped by "``"
+	nodeKindUnconstrainedItalic        // 50: Text wrapped by "__"
+	nodeKindUnconstrainedMono          // Text wrapped by "``"
 	nodeKindURL                        // Anchor text.
 	lineKindAdmonition                 // "LABEL: WSP"
 	lineKindAttribute                  // ":" ATTR_NAME ":" (ATTR_VALUE)
@@ -84,8 +85,8 @@ const (
 	lineKindBlockTitle                 // Line start with ".<alnum>"
 	lineKindComment                    // Line start with "//"
 	lineKindEmpty                      // LF
-	lineKindHorizontalRule             // "'''", "---", "- - -", "***", "* * *"
-	lineKindID                         // 60: "[[" REF_ID "]]"
+	lineKindHorizontalRule             // 60: "'''", "---", "- - -", "***", "* * *"
+	lineKindID                         // "[[" REF_ID "]]"
 	lineKindIDShort                    // "[#" REF_ID "]#" TEXT "#"
 	lineKindListContinue               // "+" LF
 	lineKindPageBreak                  // "<<<"
@@ -96,6 +97,7 @@ const (
 const (
 	attrNameAlign       = "align"
 	attrNameAlt         = "alt"
+	attrNameCols        = "cols"
 	attrNameDiscrete    = "discrete"
 	attrNameEnd         = "end"
 	attrNameFloat       = "float"
@@ -659,6 +661,9 @@ func whatKindOfLine(line string) (kind int, spaces, got string) {
 	if line == "****" {
 		return nodeKindBlockSidebar, "", line
 	}
+	if line == "|===" {
+		return nodeKindTable, "", line
+	}
 
 	if line == "[listing]" {
 		return nodeKindBlockListingNamed, "", line
@@ -721,14 +726,17 @@ func whatKindOfLine(line string) (kind int, spaces, got string) {
 			return lineKindText, "", line
 		}
 		if l >= 5 {
+			// [[x]]
 			if newline[1] == '[' && newline[l-2] == ']' {
 				return lineKindID, "", line
 			}
 		}
 		if l >= 4 {
+			// [#x]
 			if line[1] == '#' {
 				return lineKindIDShort, "", line
 			}
+			// [.x]
 			if line[1] == '.' {
 				return lineKindStyleClass, "", line
 			}

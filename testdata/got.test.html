@@ -74,54 +74,60 @@
 </ul>
 </li>
 <li><a href="#_question_and_answers">18. Question and Answers</a></li>
-<li><a href="#_horizontal_rules">19. Horizontal rules</a></li>
-<li><a href="#_page_break">20. Page break</a></li>
-<li><a href="#_urls">21. URLs</a></li>
-<li><a href="#_anchors">22. Anchors</a>
+<li><a href="#_table">19. Table</a>
 <ul class="sectlevel2">
-<li><a href="#version-4_9">22.1. Version 4.9</a></li>
-<li><a href="#version-4_10">22.2. Version 4.10</a></li>
-<li><a href="#which-one">22.3. Version 4.11</a></li>
+<li><a href="#_column_formatting">19.1. Column Formatting</a></li>
+<li><a href="#_column_width">19.2. Column width</a></li>
 </ul>
 </li>
-<li><a href="#_cross_references">23. Cross references</a>
+<li><a href="#_horizontal_rules">20. Horizontal rules</a></li>
+<li><a href="#_page_break">21. Page break</a></li>
+<li><a href="#_urls">22. URLs</a></li>
+<li><a href="#_anchors">23. Anchors</a>
 <ul class="sectlevel2">
-<li><a href="#_internal">23.1. Internal</a></li>
+<li><a href="#version-4_9">23.1. Version 4.9</a></li>
+<li><a href="#version-4_10">23.2. Version 4.10</a></li>
+<li><a href="#which-one">23.3. Version 4.11</a></li>
 </ul>
 </li>
-<li><a href="#_images">24. Images</a>
+<li><a href="#_cross_references">24. Cross references</a>
 <ul class="sectlevel2">
-<li><a href="#_block_images">24.1. Block images</a></li>
-<li><a href="#_float_group">24.2. Float group</a></li>
-<li><a href="#_inline_image">24.3. Inline image</a></li>
+<li><a href="#_internal">24.1. Internal</a></li>
 </ul>
 </li>
-<li><a href="#_block_open">25. Block open</a></li>
-<li><a href="#_video">26. Video</a></li>
-<li><a href="#_audio">27. Audio</a></li>
-<li><a href="#_admonition">28. Admonition</a>
+<li><a href="#_images">25. Images</a>
 <ul class="sectlevel2">
-<li><a href="#_line_admonition">28.1. Line admonition</a></li>
-<li><a href="#_style_admonition">28.2. Style admonition</a></li>
-<li><a href="#_icons">28.3. Icons</a></li>
+<li><a href="#_block_images">25.1. Block images</a></li>
+<li><a href="#_float_group">25.2. Float group</a></li>
+<li><a href="#_inline_image">25.3. Inline image</a></li>
 </ul>
 </li>
-<li><a href="#_sidebar">29. Sidebar</a></li>
-<li><a href="#_example">30. Example</a></li>
-<li><a href="#_quote">31. Quote</a>
+<li><a href="#_block_open">26. Block open</a></li>
+<li><a href="#_video">27. Video</a></li>
+<li><a href="#_audio">28. Audio</a></li>
+<li><a href="#_admonition">29. Admonition</a>
 <ul class="sectlevel2">
-<li><a href="#_quoted_paragraph">31.1. Quoted paragraph</a></li>
+<li><a href="#_line_admonition">29.1. Line admonition</a></li>
+<li><a href="#_style_admonition">29.2. Style admonition</a></li>
+<li><a href="#_icons">29.3. Icons</a></li>
 </ul>
 </li>
-<li><a href="#_verse">32. Verse</a></li>
-<li><a href="#_passthrough">33. Passthrough</a>
+<li><a href="#_sidebar">30. Sidebar</a></li>
+<li><a href="#_example">31. Example</a></li>
+<li><a href="#_quote">32. Quote</a>
 <ul class="sectlevel2">
-<li><a href="#_block_passthrough">33.1. Block passthrough</a></li>
+<li><a href="#_quoted_paragraph">32.1. Quoted paragraph</a></li>
 </ul>
 </li>
-<li><a href="#_section_discrete">34. Section Discrete</a>
+<li><a href="#_verse">33. Verse</a></li>
+<li><a href="#_passthrough">34. Passthrough</a>
 <ul class="sectlevel2">
-<li><a href="#_after_discrete">34.1. After discrete</a></li>
+<li><a href="#_block_passthrough">34.1. Block passthrough</a></li>
+</ul>
+</li>
+<li><a href="#_section_discrete">35. Section Discrete</a>
+<ul class="sectlevel2">
+<li><a href="#_after_discrete">35.1. After discrete</a></li>
 </ul>
 </li>
 </ul>
@@ -1303,7 +1309,116 @@ Hard drive
 </div>
 </div>
 <div class="sect1">
-<h2 id="_horizontal_rules"><a class="anchor" href="#_horizontal_rules"></a><a class="link" href="#_horizontal_rules">19. Horizontal rules</a></h2>
+<h2 id="_table"><a class="anchor" href="#_table"></a><a class="link" href="#_table">19. Table</a></h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">A</th>
+<th class="tableblock halign-left valign-top">B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">C</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">D</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>With row columns less than header,</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">A</th>
+<th class="tableblock halign-left valign-top">B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">C</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">D</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>With row columns greater than header,</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">A</th>
+<th class="tableblock halign-left valign-top">B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">C</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">D</p></td>
+</tr>
+</tbody>
+</table>
+<div class="sect2">
+<h3 id="_column_formatting"><a class="anchor" href="#_column_formatting"></a><a class="link" href="#_column_formatting">19.1. Column Formatting</a></h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 1, row 1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 2, row 1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 3, row 1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 1, row 2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 2, row 2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 3, row 2</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_column_width"><a class="anchor" href="#_column_width"></a><a class="link" href="#_column_width">19.2. Column width</a></h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 10%;">
+<col style="width: 30%;">
+<col style="width: 60%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 1, row 1</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">Cell in column 2, row 1</p></td>
+<td class="tableblock halign-right valign-bottom"><p class="tableblock">Cell in column 3, row 1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 1, row 2</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">Cell in column 2, row 2</p></td>
+<td class="tableblock halign-right valign-bottom"><p class="tableblock">Cell in column 3, row 2</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_horizontal_rules"><a class="anchor" href="#_horizontal_rules"></a><a class="link" href="#_horizontal_rules">20. Horizontal rules</a></h2>
 <div class="sectionbody">
 <hr>
 <div class="paragraph">
@@ -1325,7 +1440,7 @@ Hard drive
 </div>
 </div>
 <div class="sect1">
-<h2 id="_page_break"><a class="anchor" href="#_page_break"></a><a class="link" href="#_page_break">20. Page break</a></h2>
+<h2 id="_page_break"><a class="anchor" href="#_page_break"></a><a class="link" href="#_page_break">21. Page break</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Before page break.</p>
@@ -1337,7 +1452,7 @@ Hard drive
 </div>
 </div>
 <div class="sect1">
-<h2 id="_urls"><a class="anchor" href="#_urls"></a><a class="link" href="#_urls">21. URLs</a></h2>
+<h2 id="_urls"><a class="anchor" href="#_urls"></a><a class="link" href="#_urls">22. URLs</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p><a href="https://asciidoctor.org" class="bare">https://asciidoctor.org</a>.</p>
@@ -1366,7 +1481,7 @@ Hard drive
 </div>
 </div>
 <div class="sect1">
-<h2 id="_anchors"><a class="anchor" href="#_anchors"></a><a class="link" href="#_anchors">22. Anchors</a></h2>
+<h2 id="_anchors"><a class="anchor" href="#_anchors"></a><a class="link" href="#_anchors">23. Anchors</a></h2>
 <div class="sectionbody">
 <div id="notice" class="paragraph">
 <p>This paragraph gets a lot of attention.</p>
@@ -1394,21 +1509,21 @@ Hard drive
 </ul>
 </div>
 <div class="sect2">
-<h3 id="version-4_9"><a class="anchor" href="#version-4_9"></a><a class="link" href="#version-4_9">22.1. Version 4.9</a></h3>
+<h3 id="version-4_9"><a class="anchor" href="#version-4_9"></a><a class="link" href="#version-4_9">23.1. Version 4.9</a></h3>
 </div>
 <div class="sect2">
-<h3 id="version-4_10"><a class="anchor" href="#version-4_10"></a><a class="link" href="#version-4_10">22.2. <a id="current"></a>Version 4.10</a></h3>
+<h3 id="version-4_10"><a class="anchor" href="#version-4_10"></a><a class="link" href="#version-4_10">23.2. <a id="current"></a>Version 4.10</a></h3>
 </div>
 <div class="sect2">
-<h3 id="which-one"><a class="anchor" href="#which-one"></a><a class="link" href="#which-one">22.3. Version 4.11<a id="version-4_11"></a></a></h3>
+<h3 id="which-one"><a class="anchor" href="#which-one"></a><a class="link" href="#which-one">23.3. Version 4.11<a id="version-4_11"></a></a></h3>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_cross_references"><a class="anchor" href="#_cross_references"></a><a class="link" href="#_cross_references">23. Cross references</a></h2>
+<h2 id="_cross_references"><a class="anchor" href="#_cross_references"></a><a class="link" href="#_cross_references">24. Cross references</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_internal"><a class="anchor" href="#_internal"></a><a class="link" href="#_internal">23.1. Internal</a></h3>
+<h3 id="_internal"><a class="anchor" href="#_internal"></a><a class="link" href="#_internal">24.1. Internal</a></h3>
 <div class="paragraph">
 <p>Cross reference with ID <a href="#_anchors">This is anchor</a>.</p>
 </div>
@@ -1425,10 +1540,10 @@ Hard drive
 </div>
 </div>
 <div class="sect1">
-<h2 id="_images"><a class="anchor" href="#_images"></a><a class="link" href="#_images">24. Images</a></h2>
+<h2 id="_images"><a class="anchor" href="#_images"></a><a class="link" href="#_images">25. Images</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_block_images"><a class="anchor" href="#_block_images"></a><a class="link" href="#_block_images">24.1. Block images</a></h3>
+<h3 id="_block_images"><a class="anchor" href="#_block_images"></a><a class="link" href="#_block_images">25.1. Block images</a></h3>
 <div class="imageblock">
 <div class="content">
 <img src="sunset.jpg" alt="sunset">
@@ -1508,7 +1623,7 @@ This is become paragraph.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_float_group"><a class="anchor" href="#_float_group"></a><a class="link" href="#_float_group">24.2. Float group</a></h3>
+<h3 id="_float_group"><a class="anchor" href="#_float_group"></a><a class="link" href="#_float_group">25.2. Float group</a></h3>
 <div class="openblock float-group">
 <div class="content">
 <div class="imageblock left">
@@ -1530,7 +1645,7 @@ This is become paragraph.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_inline_image"><a class="anchor" href="#_inline_image"></a><a class="link" href="#_inline_image">24.3. Inline image</a></h3>
+<h3 id="_inline_image"><a class="anchor" href="#_inline_image"></a><a class="link" href="#_inline_image">25.3. Inline image</a></h3>
 <div class="paragraph">
 <p><span class="image"><img src="https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg" alt="Linux" width="25" height="35"></span></p>
 </div>
@@ -1548,7 +1663,7 @@ You can find Linux everywhere these days!</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_block_open"><a class="anchor" href="#_block_open"></a><a class="link" href="#_block_open">25. Block open</a></h2>
+<h2 id="_block_open"><a class="anchor" href="#_block_open"></a><a class="link" href="#_block_open">26. Block open</a></h2>
 <div class="sectionbody">
 <div class="openblock">
 <div class="title">Section inside</div>
@@ -1561,7 +1676,7 @@ You can find Linux everywhere these days!</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_video"><a class="anchor" href="#_video"></a><a class="link" href="#_video">26. Video</a></h2>
+<h2 id="_video"><a class="anchor" href="#_video"></a><a class="link" href="#_video">27. Video</a></h2>
 <div class="sectionbody">
 <div class="videoblock">
 <div class="title">Video without options</div>
@@ -1608,7 +1723,7 @@ Your browser does not support the video tag.
 </div>
 </div>
 <div class="sect1">
-<h2 id="_audio"><a class="anchor" href="#_audio"></a><a class="link" href="#_audio">27. Audio</a></h2>
+<h2 id="_audio"><a class="anchor" href="#_audio"></a><a class="link" href="#_audio">28. Audio</a></h2>
 <div class="sectionbody">
 <div class="audioblock">
 <div class="content">
@@ -1620,10 +1735,10 @@ Your browser does not support the audio tag.
 </div>
 </div>
 <div class="sect1">
-<h2 id="_admonition"><a class="anchor" href="#_admonition"></a><a class="link" href="#_admonition">28. Admonition</a></h2>
+<h2 id="_admonition"><a class="anchor" href="#_admonition"></a><a class="link" href="#_admonition">29. Admonition</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_line_admonition"><a class="anchor" href="#_line_admonition"></a><a class="link" href="#_line_admonition">28.1. Line admonition</a></h3>
+<h3 id="_line_admonition"><a class="anchor" href="#_line_admonition"></a><a class="link" href="#_line_admonition">29.1. Line admonition</a></h3>
 <div class="paragraph">
 <p>Admonition between a paragraph.
 WARNING: Wolpertingers are known to nest in server racks.
@@ -1710,7 +1825,7 @@ admonition followed by list
 </div>
 </div>
 <div class="sect2">
-<h3 id="_style_admonition"><a class="anchor" href="#_style_admonition"></a><a class="link" href="#_style_admonition">28.2. Style admonition</a></h3>
+<h3 id="_style_admonition"><a class="anchor" href="#_style_admonition"></a><a class="link" href="#_style_admonition">29.2. Style admonition</a></h3>
 <div class="admonitionblock important">
 <table>
 <tr>
@@ -1796,7 +1911,7 @@ Admonition with paragraph.
 </div>
 </div>
 <div class="sect2">
-<h3 id="_icons"><a class="anchor" href="#_icons"></a><a class="link" href="#_icons">28.3. Icons</a></h3>
+<h3 id="_icons"><a class="anchor" href="#_icons"></a><a class="link" href="#_icons">29.3. Icons</a></h3>
 <div class="admonitionblock warning">
 <table>
 <tr>
@@ -1814,7 +1929,7 @@ Enter at your own risk.
 </div>
 </div>
 <div class="sect1">
-<h2 id="_sidebar"><a class="anchor" href="#_sidebar"></a><a class="link" href="#_sidebar">29. Sidebar</a></h2>
+<h2 id="_sidebar"><a class="anchor" href="#_sidebar"></a><a class="link" href="#_sidebar">30. Sidebar</a></h2>
 <div class="sectionbody">
 <div class="sidebarblock">
 <div class="content">
@@ -1844,7 +1959,7 @@ for producing professional documents like DocBook and LaTeX.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_example"><a class="anchor" href="#_example"></a><a class="link" href="#_example">30. Example</a></h2>
+<h2 id="_example"><a class="anchor" href="#_example"></a><a class="link" href="#_example">31. Example</a></h2>
 <div class="sectionbody">
 <div class="exampleblock">
 <div class="title">Example 1. Sample document</div>
@@ -1869,7 +1984,7 @@ This guide provides...</pre>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_quote"><a class="anchor" href="#_quote"></a><a class="link" href="#_quote">31. Quote</a></h2>
+<h2 id="_quote"><a class="anchor" href="#_quote"></a><a class="link" href="#_quote">32. Quote</a></h2>
 <div class="sectionbody">
 <div class="quoteblock">
 <blockquote>
@@ -1908,7 +2023,7 @@ Everybody remember where we parked.
 </div>
 </div>
 <div class="sect2">
-<h3 id="_quoted_paragraph"><a class="anchor" href="#_quoted_paragraph"></a><a class="link" href="#_quoted_paragraph">31.1. Quoted paragraph</a></h3>
+<h3 id="_quoted_paragraph"><a class="anchor" href="#_quoted_paragraph"></a><a class="link" href="#_quoted_paragraph">32.1. Quoted paragraph</a></h3>
 <div class="quoteblock">
 <blockquote>
 I hold it that a little rebellion now and then is a good thing,
@@ -1970,7 +2085,7 @@ a quote
 </div>
 </div>
 <div class="sect1">
-<h2 id="_verse"><a class="anchor" href="#_verse"></a><a class="link" href="#_verse">32. Verse</a></h2>
+<h2 id="_verse"><a class="anchor" href="#_verse"></a><a class="link" href="#_verse">33. Verse</a></h2>
 <div class="sectionbody">
 <div class="verseblock">
 <pre class="content">The fog comes
@@ -1996,13 +2111,13 @@ and then moves on.</pre>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_passthrough"><a class="anchor" href="#_passthrough"></a><a class="link" href="#_passthrough">33. Passthrough</a></h2>
+<h2 id="_passthrough"><a class="anchor" href="#_passthrough"></a><a class="link" href="#_passthrough">34. Passthrough</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p><code><em>A <strong>B</strong></em>+</code></p>
 </div>
 <div class="sect2">
-<h3 id="_block_passthrough"><a class="anchor" href="#_block_passthrough"></a><a class="link" href="#_block_passthrough">33.1. Block passthrough</a></h3>
+<h3 id="_block_passthrough"><a class="anchor" href="#_block_passthrough"></a><a class="link" href="#_block_passthrough">34.1. Block passthrough</a></h3>
 <video poster="images/movie-reel.png">
   <source src="videos/writing-zen.webm" type="video/webm">
 </video>
@@ -2010,14 +2125,14 @@ and then moves on.</pre>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_section_discrete"><a class="anchor" href="#_section_discrete"></a><a class="link" href="#_section_discrete">34. Section Discrete</a></h2>
+<h2 id="_section_discrete"><a class="anchor" href="#_section_discrete"></a><a class="link" href="#_section_discrete">35. Section Discrete</a></h2>
 <div class="sectionbody">
 <h3 id="_discrete" class="discrete">Discrete</h3>
 <div class="paragraph">
 <p>This is content of discrete section.</p>
 </div>
 <div class="sect2">
-<h3 id="_after_discrete"><a class="anchor" href="#_after_discrete"></a><a class="link" href="#_after_discrete">34.1. After discrete</a></h3>
+<h3 id="_after_discrete"><a class="anchor" href="#_after_discrete"></a><a class="link" href="#_after_discrete">35.1. After discrete</a></h3>
 <div class="sidebarblock">
 <div class="content">
 <div class="paragraph">
@@ -2040,7 +2155,7 @@ this sidebar.</p>
 <div id="footer">
 <div id="footer-text">
  1.1.1<br>
-Last updated 2020-11-16 01:17:55 +0700
+Last updated 2020-11-23 00:19:13 +0700
 </div>
 </div>
 </body>

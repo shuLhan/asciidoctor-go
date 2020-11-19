@@ -13,13 +13,20 @@ import (
 
 const (
 	classNameArticle      = "article"
+	classNameHalignCenter = "halign-center"
+	classNameHalignLeft   = "halign-left"
+	classNameHalignRight  = "halign-right"
 	classNameListingBlock = "listingblock"
 	classNameLiteralBlock = "literalblock"
+	classNameTableBlock   = "tableblock"
 	classNameToc          = "toc"
 	classNameToc2         = "toc2"
 	classNameTocLeft      = "toc-left"
 	classNameTocRight     = "toc-right"
 	classNameUlist        = "ulist"
+	classNameValignBottom = "valign-bottom"
+	classNameValignMiddle = "valign-middle"
+	classNameValignTop    = "valign-top"
 )
 
 const (
@@ -507,6 +514,57 @@ func hmltWriteSectionDiscrete(doc *Document, node *adocNode, out io.Writer) {
 	fmt.Fprintf(out, "\n<%s id=%q class=%q>", tag, node.ID, attrNameDiscrete)
 	node.title.toHTML(doc, out, false)
 	fmt.Fprintf(out, "</%s>", tag)
+}
+
+func htmlWriteTable(node *adocNode, out io.Writer) {
+	if node.table == nil {
+		return
+	}
+	fmt.Fprint(out, "\n<table class=\"tableblock frame-all grid-all stretch\">")
+
+	fmt.Fprint(out, "\n<colgroup>")
+	for _, format := range node.table.formats {
+		fmt.Fprintf(out, "\n<col style=\"width: %s%%;\">",
+			format.width)
+	}
+	fmt.Fprint(out, "\n</colgroup>")
+
+	if len(node.table.header) > 0 {
+		htmlWriteTableHeader(node.table.header, out)
+	}
+
+	fmt.Fprint(out, "\n<tbody>")
+	for _, row := range node.table.rows {
+		htmlWriteTableRow(node.table, row, out)
+	}
+	fmt.Fprint(out, "\n</tbody>")
+
+	fmt.Fprint(out, "\n</table>")
+}
+
+func htmlWriteTableHeader(header tableRow, out io.Writer) {
+	classRow := "tableblock halign-left valign-top"
+
+	fmt.Fprint(out, "\n<thead>\n<tr>")
+	for _, col := range header {
+		fmt.Fprintf(out, "\n<th class=%q>%s</th>", classRow, col)
+	}
+	fmt.Fprint(out, "\n</tr>\n</thead>")
+}
+
+func htmlWriteTableRow(table *adocTable, row tableRow, out io.Writer) {
+	classP := "tableblock"
+
+	fmt.Fprint(out, "\n<tr>")
+	for x, col := range row {
+		if x == table.ncols {
+			break
+		}
+		format := table.formats[x]
+		fmt.Fprintf(out, "\n<td class=%q><p class=%q>%s</p></td>",
+			format.htmlClasses(), classP, col)
+	}
+	fmt.Fprint(out, "\n</tr>")
 }
 
 func htmlWriteToC(doc *Document, node *adocNode, out io.Writer, level int) {

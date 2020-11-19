@@ -85,7 +85,9 @@ func (docp *documentParser) consumeLinesUntil(
 		if node.kind == nodeKindBlockPassthrough ||
 			node.kind == nodeKindBlockListing ||
 			node.kind == nodeKindBlockLiteral {
-			node.WriteString(spaces)
+			if node.kind != nodeKindTable {
+				node.WriteString(spaces)
+			}
 		} else if node.kind == nodeKindParagraph && len(spaces) > 0 {
 			node.WriteByte(' ')
 		}
@@ -219,6 +221,14 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 				continue
 			}
 			if key == attrNameRefText {
+				if node.Attrs == nil {
+					node.Attrs = make(map[string]string)
+				}
+				node.Attrs[key] = val
+				line = ""
+				continue
+			}
+			if key == attrNameCols {
 				if node.Attrs == nil {
 					node.Attrs = make(map[string]string)
 				}
@@ -472,6 +482,14 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 			node.kind = docp.kind
 			parent.addChild(node)
 			node = new(adocNode)
+
+		case nodeKindTable:
+			node.kind = docp.kind
+			line = docp.consumeLinesUntil(node, docp.kind, nil)
+			parent.addChild(node)
+			node.postConsumeTable()
+			node = &adocNode{}
+			continue
 		}
 		line = ""
 	}
