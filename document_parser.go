@@ -121,7 +121,7 @@ func (docp *documentParser) line() (spaces, line string, c rune) {
 		docp.lineNum++
 	}
 	docp.kind, spaces, line = whatKindOfLine(line)
-	if debug.Value >= 1 {
+	if debug.Value == 2 {
 		fmt.Printf("line %3d: kind %3d: c %3d: %s\n", docp.lineNum,
 			docp.kind, c, line)
 	}
