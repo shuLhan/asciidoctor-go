@@ -51,6 +51,9 @@ https://asciidoctor.org/docs/user-manual/[AsciiDoc user manual]
 ** 21.2. Numbering Styles
 * 22. Description List
 ** 22.1. Question and Answer Style List
+* 23. Tables
+** 23.1. Columns
+** 23.2. Column formatting
 * 24. Horizontal Rules
 ** 24.1. Markdown-style horizontal rules
 * 25. Page Break

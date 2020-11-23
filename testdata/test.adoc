@@ -566,8 +566,7 @@ With row columns greater than header,
 |Cell in column 3, row 2
 |===
 
-
-=== Column width
+With horizontal and vertical alignment; and width,
 
 [cols="<.<,^.^3,>.>6"]
 |===
@@ -578,6 +577,15 @@ With row columns greater than header,
 |Cell in column 1, row 2
 |Cell in column 2, row 2
 |Cell in column 3, row 2
+|===
+
+With column styles,
+
+[cols="a,e,h,l,m,d,s,v"]
+|===
+|Asciidoc | `emphasis` | header | literal | mono | default | strong | verse
+
+|Asciidoc | emphasis | header | literal | mono | default | strong | verse
 |===
 
 

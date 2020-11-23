@@ -77,7 +77,6 @@
 <li><a href="#_table">19. Table</a>
 <ul class="sectlevel2">
 <li><a href="#_column_formatting">19.1. Column Formatting</a></li>
-<li><a href="#_column_width">19.2. Column width</a></li>
 </ul>
 </li>
 <li><a href="#_horizontal_rules">20. Horizontal rules</a></li>
@@ -1396,9 +1395,9 @@ D</p></td>
 </tr>
 </tbody>
 </table>
+<div class="paragraph">
+<p>With horizontal and vertical alignment; and width,</p>
 </div>
-<div class="sect2">
-<h3 id="_column_width"><a class="anchor" href="#_column_width"></a><a class="link" href="#_column_width">19.2. Column width</a></h3>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 10%;">
@@ -1415,6 +1414,47 @@ D</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 1, row 2</p></td>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">Cell in column 2, row 2</p></td>
 <td class="tableblock halign-right valign-bottom"><p class="tableblock">Cell in column 3, row 2</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>With column styles,</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Asciidoc</th>
+<th class="tableblock halign-left valign-top"><code>emphasis</code></th>
+<th class="tableblock halign-left valign-top">header</th>
+<th class="tableblock halign-left valign-top">literal</th>
+<th class="tableblock halign-left valign-top">mono</th>
+<th class="tableblock halign-left valign-top">default</th>
+<th class="tableblock halign-left valign-top">strong</th>
+<th class="tableblock halign-left valign-top">verse</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Asciidoc</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>emphasis</em></p></td>
+<th class="tableblock halign-left valign-top"><p class="tableblock">header</p></th>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre> literal</pre></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mono</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">default</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>strong</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">verse</p></td>
 </tr>
 </tbody>
 </table>
@@ -2156,7 +2196,7 @@ this sidebar.</p>
 <div id="footer">
 <div id="footer-text">
  1.1.1<br>
-Last updated 2020-11-23 00:19:13 +0700
+Last updated 2020-11-24 02:04:52 +0700
 </div>
 </div>
 </body>

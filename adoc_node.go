@@ -1006,7 +1006,7 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 		fmt.Fprintf(w, "<sup>%s</sup>", node.raw)
 
 	case nodeKindTable:
-		htmlWriteTable(node, w)
+		htmlWriteTable(doc, node, w)
 	}
 
 	if node.child != nil {

@@ -52,6 +52,23 @@ func Parse(content []byte) (doc *Document) {
 	return doc
 }
 
+func parseSub(parentDoc *Document, content []byte) (subdoc *Document) {
+	subdoc = newDocument()
+
+	for k, v := range parentDoc.Attributes {
+		subdoc.Attributes[k] = v
+	}
+
+	docp := &documentParser{
+		doc: subdoc,
+		p:   parser.New(string(content), "\n"),
+	}
+
+	docp.parseBlock(subdoc.content, 0)
+
+	return subdoc
+}
+
 func (docp *documentParser) consumeLinesUntil(
 	node *adocNode, term int, terms []int,
 ) (

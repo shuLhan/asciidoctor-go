@@ -30,7 +30,7 @@ func newTable(attrCols string, content []byte) (table *adocTable) {
 	var (
 		row tableRow
 	)
-	if len(rawRows) == 1 || (len(rawRows[0]) > 0 && len(rawRows[1]) == 0) {
+	if len(rawRows) >= 2 && len(rawRows[0]) > 1 && len(rawRows[1]) == 0 {
 		table.header = parseTableRow(rawRows[0])
 		if table.ncols == 0 {
 			table.ncols = len(table.header)
