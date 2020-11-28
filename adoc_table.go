@@ -12,43 +12,37 @@ import (
 )
 
 type adocTable struct {
-	ncols   int
-	header  tableRow
-	rows    []tableRow
-	formats []*columnFormat
+	ncols     int
+	rows      []*tableRow
+	formats   []*columnFormat
+	hasHeader bool
 }
 
 func newTable(attrCols string, content []byte) (table *adocTable) {
+	var (
+		row *tableRow
+	)
+
 	table = &adocTable{}
 	table.ncols, table.formats = parseAttrCols(attrCols)
-	rawRows := parseToRawRows(content)
 
-	if len(rawRows) == 0 {
-		return table
-	}
+	pt := newParserTable(content)
 
-	var (
-		row tableRow
-	)
-	if len(rawRows) >= 2 && len(rawRows[0]) > 1 && len(rawRows[1]) == 0 {
-		table.header = parseTableRow(rawRows[0])
-		if table.ncols == 0 {
-			table.ncols = len(table.header)
+	if table.ncols == 0 {
+		row = pt.firstRow()
+		if row.ncell == 0 {
+			return table
 		}
-		if len(rawRows) == 1 {
-			rawRows = rawRows[1:]
-		} else {
-			rawRows = rawRows[2:]
-		}
+		table.ncols = row.ncell
+	} else {
+		row = pt.row(table.ncols)
 	}
-	for len(rawRows) > 0 {
-		row, rawRows = parseTableRows(table.ncols, rawRows)
-		if len(row) > 0 {
-			table.rows = append(table.rows, row)
-			if table.ncols == 0 {
-				table.ncols = len(row)
-			}
-		}
+	if pt.nrow == 1 && !row.cells[0].endWithLF() {
+		table.hasHeader = true
+	}
+	for row.ncell == table.ncols {
+		table.rows = append(table.rows, row)
+		row = pt.row(table.ncols)
 	}
 
 	if len(table.formats) == 0 {

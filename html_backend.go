@@ -530,12 +530,14 @@ func htmlWriteTable(doc *Document, node *adocNode, out io.Writer) {
 	}
 	fmt.Fprint(out, "\n</colgroup>")
 
-	if len(node.table.header) > 0 {
-		htmlWriteTableHeader(doc, node.table.header, out)
+	rows := node.table.rows
+	if node.table.hasHeader {
+		htmlWriteTableHeader(doc, rows[0], out)
+		rows = rows[1:]
 	}
 
 	fmt.Fprint(out, "\n<tbody>")
-	for _, row := range node.table.rows {
+	for _, row := range rows {
 		htmlWriteTableRow(doc, node.table, row, out)
 	}
 	fmt.Fprint(out, "\n</tbody>")
@@ -543,64 +545,68 @@ func htmlWriteTable(doc *Document, node *adocNode, out io.Writer) {
 	fmt.Fprint(out, "\n</table>")
 }
 
-func htmlWriteTableHeader(doc *Document, header tableRow, out io.Writer) {
+func htmlWriteTableHeader(doc *Document, header *tableRow, out io.Writer) {
 	classRow := "tableblock halign-left valign-top"
 
 	fmt.Fprint(out, "\n<thead>\n<tr>")
-	for _, col := range header {
+	for _, cell := range header.cells {
 		fmt.Fprintf(out, "\n<th class=%q>", classRow)
-		cont := parseInlineMarkup(doc, []byte(col))
+		cont := parseInlineMarkup(doc, bytes.TrimSpace(cell.content))
 		cont.toHTML(doc, out, false)
 		fmt.Fprint(out, "</th>")
 	}
 	fmt.Fprint(out, "\n</tr>\n</thead>")
 }
 
-func htmlWriteTableRow(doc *Document, table *adocTable, row tableRow, out io.Writer) {
+func htmlWriteTableRow(doc *Document, table *adocTable, row *tableRow, out io.Writer) {
 	fmt.Fprint(out, "\n<tr>")
-	for x, col := range row {
-		if x == table.ncols {
-			break
-		}
-
+	for x, cell := range row.cells {
 		format := table.formats[x]
 		tag := "td"
+		colspan := ""
+
 		if format.style == colStyleHeader {
 			tag = "th"
 		}
+		if cell.format.nspanCol > 0 {
+			colspan = fmt.Sprintf(` colspan="%d"`, cell.format.nspanCol)
+		}
 
-		fmt.Fprintf(out, "\n<%s class=%q>", tag, format.htmlClasses())
+		fmt.Fprintf(out, "\n<%s class=%q%s>", tag,
+			format.htmlClasses(), colspan)
+
+		contentTrimmed := bytes.TrimSpace(cell.content)
 
 		switch format.style {
 		case colStyleAsciidoc:
-			subdoc := parseSub(doc, []byte(col))
+			subdoc := parseSub(doc, contentTrimmed)
 			_ = subdoc.ToEmbeddedHTML(out)
 
 		case colStyleDefault:
 			fmt.Fprintf(out, "<p class=%q>", classNameTableBlock)
-			container := parseInlineMarkup(doc, []byte(col))
+			container := parseInlineMarkup(doc, contentTrimmed)
 			container.toHTML(doc, out, false)
 			fmt.Fprint(out, "</p>")
 
 		case colStyleHeader, colStyleVerse:
 			fmt.Fprintf(out, "<p class=%q>%s</p>",
-				classNameTableBlock, col)
+				classNameTableBlock, contentTrimmed)
 
 		case colStyleEmphasis:
 			fmt.Fprintf(out, "<p class=%q><em>%s</em></p>",
-				classNameTableBlock, col)
+				classNameTableBlock, contentTrimmed)
 
 		case colStyleLiteral:
 			fmt.Fprintf(out, "<div class=%q><pre>%s</pre></div>",
-				classNameLiteral, col)
+				classNameLiteral, cell.content)
 
 		case colStyleMonospaced:
 			fmt.Fprintf(out, "<p class=%q><code>%s</code></p>",
-				classNameTableBlock, col)
+				classNameTableBlock, contentTrimmed)
 
 		case colStyleStrong:
 			fmt.Fprintf(out, "<p class=%q><strong>%s</strong></p>",
-				classNameTableBlock, col)
+				classNameTableBlock, contentTrimmed)
 		}
 
 		fmt.Fprintf(out, "</%s>", tag)

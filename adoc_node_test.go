@@ -39,11 +39,18 @@ func TestAdocNode_postConsumeTable(t *testing.T) {
 		raw  string
 		exp  adocTable
 	}{{
-		desc: "without header",
+		desc: "single row, multiple lines",
 		raw:  "|A\n|B",
 		exp: adocTable{
 			ncols: 2,
-			rows:  []tableRow{{"A", "B"}},
+			rows: []*tableRow{{
+				cells: []*tableCell{{
+					content: []byte("A\n"),
+				}, {
+					content: []byte("B"),
+				}},
+				ncell: 2,
+			}},
 			formats: []*columnFormat{{
 				width: big.NewRat(50),
 				classes: []string{
@@ -59,14 +66,28 @@ func TestAdocNode_postConsumeTable(t *testing.T) {
 					classNameValignTop,
 				},
 			}},
+			hasHeader: false,
 		},
 	}, {
 		desc: "with header",
-		raw:  "A|B\n\n|r1-c1\n|r1-c2",
+		raw:  "A1|B1\n\n|A2\n|B2",
 		exp: adocTable{
-			ncols:  2,
-			header: tableRow{"A", "B"},
-			rows:   []tableRow{{"r1-c1", "r1-c2"}},
+			ncols: 2,
+			rows: []*tableRow{{
+				cells: []*tableCell{{
+					content: []byte("A1"),
+				}, {
+					content: []byte("B1"),
+				}},
+				ncell: 2,
+			}, {
+				cells: []*tableCell{{
+					content: []byte("A2\n"),
+				}, {
+					content: []byte("B2"),
+				}},
+				ncell: 2,
+			}},
 			formats: []*columnFormat{{
 				width: big.NewRat(50),
 				classes: []string{
@@ -82,32 +103,55 @@ func TestAdocNode_postConsumeTable(t *testing.T) {
 					classNameValignTop,
 				},
 			}},
+			hasHeader: true,
 		},
 	}, {
 		desc: "with multiple rows",
 		raw:  "A|B|\n\n|r1c1\n|r1c2|\n\n|r2c1 | r2c2",
 		exp: adocTable{
-			ncols:  2,
-			header: tableRow{"A", "B"},
-			rows: []tableRow{
-				{"r1c1", "r1c2"},
-				{"r2c1", "r2c2"},
-			},
+			ncols: 3,
+			rows: []*tableRow{{
+				cells: []*tableCell{{
+					content: []byte("A"),
+				}, {
+					content: []byte("B"),
+				}, {
+					content: []byte(""),
+				}},
+				ncell: 3,
+			}, {
+				cells: []*tableCell{{
+					content: []byte("r1c1\n"),
+				}, {
+					content: []byte("r1c2"),
+				}, {
+					content: []byte(""),
+				}},
+				ncell: 3,
+			}},
 			formats: []*columnFormat{{
-				width: big.NewRat(50),
+				width: big.NewRat("33.3333"),
 				classes: []string{
 					classNameTableBlock,
 					classNameHalignLeft,
 					classNameValignTop,
 				},
 			}, {
-				width: big.NewRat(50),
+				width: big.NewRat("33.3333"),
+				classes: []string{
+					classNameTableBlock,
+					classNameHalignLeft,
+					classNameValignTop,
+				},
+			}, {
+				width: big.NewRat("33.3333"),
 				classes: []string{
 					classNameTableBlock,
 					classNameHalignLeft,
 					classNameValignTop,
 				},
 			}},
+			hasHeader: true,
 		},
 	}}
 

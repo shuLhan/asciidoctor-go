@@ -542,7 +542,11 @@ With row columns less than header,
 
 | C
 
-| D | E
+D
+
+E
+
+| F | G
 |===
 
 With row columns greater than header,
@@ -586,6 +590,37 @@ With column styles,
 |Asciidoc | `emphasis` | header | literal | mono | default | strong | verse
 
 |Asciidoc | emphasis | header | literal | mono | default | strong | verse
+|===
+
+===  Cell formatting
+
+Cell duplicated across three columns,
+
+|===
+
+|A1 |B1 |C1
+
+3*|A2-B2-C2
+
+|A3
+|B3
+|C3
+
+|===
+
+
+Cell spanning three columns,
+
+|===
+
+|A1 |B1 |C1
+
+3+|A2...C2
+
+|A3
+|B3
+|C3
+
 |===
 
 
