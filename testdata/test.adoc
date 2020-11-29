@@ -642,6 +642,21 @@ Cell spanning three columns,
 |B2
 |===
 
+=== Footer row
+
+[options="footer"]
+|===
+|A1 |B1
+
+|A2
+|B2
+|===
+
+[options="header,footer"]
+|===
+|A1 |B1
+|===
+
 
 ==  Horizontal rules
 

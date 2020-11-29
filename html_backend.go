@@ -518,6 +518,8 @@ func hmltWriteSectionDiscrete(doc *Document, node *adocNode, out io.Writer) {
 }
 
 func htmlWriteTable(doc *Document, node *adocNode, out io.Writer) {
+	var footer *tableRow
+
 	if node.table == nil {
 		return
 	}
@@ -535,14 +537,31 @@ func htmlWriteTable(doc *Document, node *adocNode, out io.Writer) {
 		htmlWriteTableHeader(doc, rows[0], out)
 		rows = rows[1:]
 	}
-
-	fmt.Fprint(out, "\n<tbody>")
-	for _, row := range rows {
-		htmlWriteTableRow(doc, node.table, row, out)
+	if node.table.hasFooter && len(rows) > 0 {
+		footer = rows[len(rows)-1]
+		rows = rows[:len(rows)-1]
 	}
-	fmt.Fprint(out, "\n</tbody>")
+
+	if len(rows) > 0 {
+		fmt.Fprint(out, "\n<tbody>")
+		for _, row := range rows {
+			htmlWriteTableRow(doc, node.table, row, out)
+		}
+		fmt.Fprint(out, "\n</tbody>")
+	}
+
+	if node.table.hasFooter && footer != nil {
+		htmlWriteTableFooter(doc, node.table, footer, out)
+	}
 
 	fmt.Fprint(out, "\n</table>")
+}
+
+func htmlWriteTableFooter(doc *Document, table *adocTable, footer *tableRow, out io.Writer) {
+	fmt.Fprint(out, "\n<tfoot>")
+	htmlWriteTableRow(doc, table, footer, out)
+	fmt.Fprint(out, "\n</tfoot>")
+
 }
 
 func htmlWriteTableHeader(doc *Document, header *tableRow, out io.Writer) {

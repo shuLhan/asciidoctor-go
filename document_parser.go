@@ -254,9 +254,8 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 				line = ""
 				continue
 			}
-			line = docp.parseParagraph(parent, node, line, term)
-			parent.addChild(node)
-			node = &adocNode{}
+			node.addOptions(opts)
+			line = ""
 			continue
 
 		case lineKindStyleClass:

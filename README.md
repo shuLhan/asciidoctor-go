@@ -56,6 +56,8 @@ numbered based on
   * 23.1. Columns
   * 23.2. Column formatting
   * 23.3. Cell formatting
+  * 23.4. Header row
+  * 23.5. Footer row
 * 24. Horizontal Rules
   * 24.1. Markdown-style horizontal rules
 * 25. Page Break

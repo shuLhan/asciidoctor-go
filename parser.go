@@ -131,6 +131,7 @@ const (
 	attrValueContent     = "content"
 	attrValueEmail       = "email"
 	attrValueFont        = "font"
+	attrValueFooter      = "footer"
 	attrValueHeader      = "header"
 	attrValueImage       = "image"
 	attrValueNoopener    = "noopener"

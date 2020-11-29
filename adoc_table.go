@@ -16,6 +16,7 @@ type adocTable struct {
 	rows      []*tableRow
 	formats   []*columnFormat
 	hasHeader bool
+	hasFooter bool
 }
 
 func newTable(attrs, opts map[string]string, content []byte) (table *adocTable) {
@@ -98,6 +99,8 @@ func (table *adocTable) parseOptions(opts map[string]string) {
 		switch key {
 		case attrValueHeader:
 			table.hasHeader = true
+		case attrValueFooter:
+			table.hasFooter = true
 		}
 	}
 }
