@@ -623,6 +623,25 @@ Cell spanning three columns,
 
 |===
 
+=== Header row
+
+[cols=2*,options="header"]
+|===
+|A1
+|B1
+
+|A2
+|B2
+|===
+
+[cols=2*,options="noheader"]
+|===
+|A1: noheader |B1
+
+|A2
+|B2
+|===
+
 
 ==  Horizontal rules
 

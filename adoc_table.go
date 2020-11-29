@@ -18,13 +18,18 @@ type adocTable struct {
 	hasHeader bool
 }
 
-func newTable(attrCols string, content []byte) (table *adocTable) {
+func newTable(attrs, opts map[string]string, content []byte) (table *adocTable) {
 	var (
 		row *tableRow
 	)
 
 	table = &adocTable{}
-	table.ncols, table.formats = parseAttrCols(attrCols)
+	attrValue := attrs[attrNameCols]
+	if len(attrValue) > 0 {
+		table.ncols, table.formats = parseAttrCols(attrValue)
+	}
+
+	table.parseOptions(opts)
 
 	pt := newParserTable(content)
 
@@ -38,8 +43,12 @@ func newTable(attrCols string, content []byte) (table *adocTable) {
 		row = pt.row(table.ncols)
 	}
 	if pt.nrow == 1 && !row.cells[0].endWithLF() {
-		table.hasHeader = true
+		_, ok := opts[attrValueNoHeader]
+		if !ok {
+			table.hasHeader = true
+		}
 	}
+
 	for row.ncell == table.ncols {
 		table.rows = append(table.rows, row)
 		row = pt.row(table.ncols)
@@ -78,6 +87,18 @@ func (table *adocTable) initializeFormats() {
 			classes = append(classes, classNameValignBottom)
 		}
 		format.classes = classes
+	}
+}
+
+func (table *adocTable) parseOptions(opts map[string]string) {
+	if opts == nil {
+		return
+	}
+	for key := range opts {
+		switch key {
+		case attrValueHeader:
+			table.hasHeader = true
+		}
 	}
 }
 

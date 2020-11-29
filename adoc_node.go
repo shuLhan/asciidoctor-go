@@ -268,6 +268,33 @@ func (node *adocNode) addChild(child *adocNode) {
 	}
 }
 
+func (node *adocNode) addOptions(opts []string) {
+	if len(opts) == 0 {
+		return
+	}
+	if node.Opts == nil {
+		node.Opts = make(map[string]string)
+	}
+	for _, opt := range opts {
+		kv := strings.Split(opt, "=")
+		if len(kv) == 0 {
+			continue
+		}
+		key := strings.TrimSpace(kv[0])
+		if len(kv) == 1 {
+			node.Opts[key] = ""
+		} else {
+			val := strings.TrimSpace(kv[1])
+
+			if key == attrNameOptions {
+				node.Opts[val] = ""
+			} else {
+				node.Opts[key] = val
+			}
+		}
+	}
+}
+
 // backTrimSpace remove trailing white spaces on raw field.
 func (node *adocNode) backTrimSpace() {
 	x := len(node.raw) - 1
@@ -745,7 +772,7 @@ func (node *adocNode) postParseParagraphAsQuote(lines [][]byte) bool {
 // multiple rows, based on empty line between row.
 //
 func (node *adocNode) postConsumeTable() (table *adocTable) {
-	node.table = newTable(node.Attrs[attrNameCols], node.raw)
+	node.table = newTable(node.Attrs, node.Opts, node.raw)
 	return node.table
 }
 

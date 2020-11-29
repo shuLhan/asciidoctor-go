@@ -250,6 +250,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 					node.Attrs = make(map[string]string)
 				}
 				node.Attrs[key] = val
+				node.addOptions(opts)
 				line = ""
 				continue
 			}
