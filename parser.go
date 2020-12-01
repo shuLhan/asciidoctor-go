@@ -10,7 +10,6 @@ import (
 	"unicode"
 
 	"github.com/shuLhan/share/lib/ascii"
-	"github.com/shuLhan/share/lib/parser"
 )
 
 const (
@@ -97,6 +96,8 @@ const (
 const (
 	attrNameAlign       = "align"
 	attrNameAlt         = "alt"
+	attrNameAttribution = "attribution"
+	attrNameCitation    = "citation"
 	attrNameCols        = "cols"
 	attrNameDiscrete    = "discrete"
 	attrNameEnd         = "end"
@@ -107,6 +108,7 @@ const (
 	attrNameLang        = "lang"
 	attrNameLink        = "link"
 	attrNameOptions     = "options"
+	attrNameOpts        = "opts"
 	attrNamePoster      = "poster"
 	attrNameRefText     = "reftext"
 	attrNameRel         = "rel"
@@ -124,21 +126,20 @@ const (
 )
 
 const (
-	attrValueAttribution = "attribution"
-	attrValueAuthor      = "author"
-	attrValueBare        = "bare"
-	attrValueBlank       = "_blank"
-	attrValueContent     = "content"
-	attrValueEmail       = "email"
-	attrValueFont        = "font"
-	attrValueFooter      = "footer"
-	attrValueHeader      = "header"
-	attrValueImage       = "image"
-	attrValueNoopener    = "noopener"
-	attrValueNoHeader    = "noheader"
-	attrValueRevDate     = "revdate"
-	attrValueRevNumber   = "revnumber"
-	attrValueTitle       = attrNameTitle
+	attrValueAuthor    = "author"
+	attrValueBare      = "bare"
+	attrValueBlank     = "_blank"
+	attrValueContent   = "content"
+	attrValueEmail     = "email"
+	attrValueFont      = "font"
+	attrValueFooter    = "footer"
+	attrValueHeader    = "header"
+	attrValueImage     = "image"
+	attrValueNoopener  = "noopener"
+	attrValueNoHeader  = "noheader"
+	attrValueRevDate   = "revdate"
+	attrValueRevNumber = "revnumber"
+	attrValueTitle     = attrNameTitle
 )
 
 // List of document metadata.
@@ -218,6 +219,7 @@ const (
 	styleSectionIndex
 	styleParagraphLead
 	styleParagraphNormal
+	styleLink
 	styleNumberingArabic
 	styleNumberingDecimal
 	styleNumberingLoweralpha
@@ -473,88 +475,6 @@ func parseAttribute(line string, strict bool) (key, value string, ok bool) {
 }
 
 //
-// parseAttributeElement parse list of attributes in between "[" "]".
-//
-//	BLOCK_ATTRS = BLOCK_ATTR *("," BLOCK_ATTR)
-//
-//	BLOCK_ATTR  = ATTR_NAME ( "=" (DQUOTE) ATTR_VALUE (DQUOTE) )
-//
-//	ATTR_NAME   = WORD
-//
-//	ATTR_VALUE  = STRING
-//
-// The attribute may not have a value.
-//
-// If the attribute value contains space or comma, it must be wrapped with
-// double quote.
-// The double quote on value will be removed when stored on opts.
-//
-// It will return nil if input is not a valid block attribute.
-//
-func parseAttributeElement(in string) (attrName, attrValue string, opts []string) {
-	p := parser.New(in, `[,="]`)
-	tok, c := p.Token()
-	if c != '[' {
-		return "", "", nil
-	}
-	if len(tok) > 0 {
-		return "", "", nil
-	}
-
-	for c != 0 {
-		tok, c = p.Token()
-		tok = strings.TrimSpace(tok)
-		if c == '"' && len(tok) == 0 {
-			tok, c = p.ReadEnclosed('"', '"')
-			tok = strings.TrimSpace(tok)
-			opts = append(opts, tok)
-			continue
-		}
-		if c == ',' || c == ']' {
-			if len(tok) > 0 {
-				opts = append(opts, tok)
-			}
-			if c == ']' {
-				break
-			}
-			continue
-		}
-		if c != '=' {
-			// Ignore invalid attribute.
-			for c != ',' && c != 0 {
-				_, c = p.Token()
-			}
-			continue
-		}
-		key := tok
-		tok, c = p.Token()
-		tok = strings.TrimSpace(tok)
-		if c == '"' {
-			tok, c = p.ReadEnclosed('"', '"')
-			tok = strings.TrimSpace(tok)
-			opts = append(opts, key+"="+tok)
-		} else {
-			opts = append(opts, key+"="+tok)
-		}
-
-		for c != ',' && c != 0 {
-			_, c = p.Token()
-		}
-	}
-	if len(opts) == 0 {
-		return "", "", nil
-	}
-
-	nameValue := strings.Split(opts[0], "=")
-	attrName = nameValue[0]
-	if len(nameValue) >= 2 {
-		attrValue = strings.Join(nameValue[1:], "=")
-	}
-
-	return attrName, attrValue, opts
-}
-
-//
 // parseAttrRef parse the attribute reference, an attribute key wrapped by
 // "{" "}".  If the attribute reference exist, replace the content with the
 // attribute value and reset the parser state to zero.
@@ -583,7 +503,7 @@ func parseAttrRef(doc *Document, content []byte, x int) (
 }
 
 //
-// parseIDLabel parse the s "ID (,LABEL)" into ID and label.
+// parseIDLabel parse the string "ID (,LABEL)" into ID and label.
 // It will return empty id and label if ID is not valid.
 //
 func parseIDLabel(s string) (id, label string) {
@@ -605,7 +525,7 @@ func parseInlineMarkup(doc *Document, content []byte) (container *adocNode) {
 }
 
 //
-// parseStyle parse line that start with "[" and end with "]".
+// parseStyle get the style based on string value.
 //
 func parseStyle(styleName string) (styleKind int64) {
 	// Check for admonition label first...

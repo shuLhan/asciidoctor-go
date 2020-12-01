@@ -18,17 +18,14 @@ import (
 // adocNode is the building block of asciidoc document.
 //
 type adocNode struct {
-	ID       string
-	Attrs    map[string]string
-	Opts     map[string]string
+	elementAttribute
+
 	Text     string // The content of node without inline formatting.
 	kind     int
-	level    int    // The number of dot for ordered list, or star '*' for unordered list.
+	level    int    // The number of dot for ordered list, or '*' for unordered list.
 	raw      []byte // unparsed content of node.
 	rawLabel bytes.Buffer
 	rawTitle string
-	style    int64
-	classes  attributeClass
 
 	// The key and value for attribute (lineKindAttribute).
 	key   string
@@ -43,19 +40,11 @@ type adocNode struct {
 	// It will be set only if attribute "sectnums" is on.
 	sectnums *sectionCounters
 
-	table *adocTable
-
+	table  *adocTable
 	parent *adocNode
 	child  *adocNode
 	next   *adocNode
 	prev   *adocNode
-}
-
-func (node *adocNode) Classes() string {
-	if len(node.classes) == 0 {
-		return ""
-	}
-	return node.classes.String()
 }
 
 func (node *adocNode) Content() string {
@@ -96,16 +85,23 @@ func (node *adocNode) getListOrderedType() string {
 //
 func (node *adocNode) GetVideoSource() string {
 	var (
-		u        = new(url.URL)
-		q        []string
-		fragment string
+		u         = new(url.URL)
+		q         []string
+		fragment  string
+		isYoutube bool
+		isVimeo   bool
 	)
 
-	src := node.Attrs[attrNameSrc]
-	opts := strings.Split(node.Attrs[attrNameOptions], ",")
+	if node.rawStyle == attrNameYoutube {
+		isYoutube = true
+	}
+	if node.rawStyle == attrNameVimeo {
+		isVimeo = true
+	}
 
-	_, ok := node.Attrs[attrNameYoutube]
-	if ok {
+	src := node.Attrs[attrNameSrc]
+
+	if isYoutube {
 		u.Scheme = "https"
 		u.Host = "www.youtube.com"
 		u.Path = "/embed/" + src
@@ -120,8 +116,7 @@ func (node *adocNode) GetVideoSource() string {
 		if ok {
 			q = append(q, attrNameEnd+"="+v)
 		}
-		for _, opt := range opts {
-			opt = strings.TrimSpace(opt)
+		for _, opt := range node.options {
 			switch opt {
 			case optNameAutoplay, optNameLoop:
 				q = append(q, opt+"=1")
@@ -144,13 +139,12 @@ func (node *adocNode) GetVideoSource() string {
 			q = append(q, attrNameYoutubeLang+"="+v)
 		}
 
-	} else if _, ok = node.Attrs[attrNameVimeo]; ok {
+	} else if isVimeo {
 		u.Scheme = "https"
 		u.Host = "player.vimeo.com"
 		u.Path = "/video/" + src
 
-		for _, opt := range opts {
-			opt = strings.TrimSpace(opt)
+		for _, opt := range node.options {
 			switch opt {
 			case optNameAutoplay, optNameLoop:
 				q = append(q, opt+"=1")
@@ -161,8 +155,7 @@ func (node *adocNode) GetVideoSource() string {
 			fragment = "at=" + v
 		}
 	} else {
-		for _, opt := range opts {
-			opt = strings.TrimSpace(opt)
+		for _, opt := range node.options {
 			switch opt {
 			case optNameAutoplay, optNameLoop:
 				node.Attrs[optNameNocontrols] = ""
@@ -268,33 +261,6 @@ func (node *adocNode) addChild(child *adocNode) {
 	}
 }
 
-func (node *adocNode) addOptions(opts []string) {
-	if len(opts) == 0 {
-		return
-	}
-	if node.Opts == nil {
-		node.Opts = make(map[string]string)
-	}
-	for _, opt := range opts {
-		kv := strings.Split(opt, "=")
-		if len(kv) == 0 {
-			continue
-		}
-		key := strings.TrimSpace(kv[0])
-		if len(kv) == 1 {
-			node.Opts[key] = ""
-		} else {
-			val := strings.TrimSpace(kv[1])
-
-			if key == attrNameOptions {
-				node.Opts[val] = ""
-			} else {
-				node.Opts[key] = val
-			}
-		}
-	}
-}
-
 // backTrimSpace remove trailing white spaces on raw field.
 func (node *adocNode) backTrimSpace() {
 	x := len(node.raw) - 1
@@ -345,41 +311,14 @@ func (node *adocNode) parseBlockAudio(doc *Document, line string) bool {
 	}
 
 	src := strings.TrimRight(line[:attrBegin], " \t")
-	_, _, attrs := parseAttributeElement(line[attrBegin : attrEnd+1])
-	node.Attrs = make(map[string]string, len(attrs)+1)
+	if node.Attrs == nil {
+		node.Attrs = make(map[string]string)
+	}
+	node.parseElementAttribute(line[attrBegin : attrEnd+1])
 
 	src = string(applySubstitutions(doc, []byte(src)))
 	node.Attrs[attrNameSrc] = src
 
-	var key, val string
-	for _, attr := range attrs {
-		kv := strings.Split(attr, "=")
-
-		key = strings.ToLower(kv[0])
-		if len(kv) >= 2 {
-			val = kv[1]
-		} else {
-			val = "1"
-		}
-
-		if key == attrNameOptions {
-			node.Attrs[key] = val
-			opts := strings.Split(val, ",")
-			node.Opts = make(map[string]string, len(opts))
-			node.Opts[optNameControls] = "1"
-
-			for _, opt := range opts {
-				switch opt {
-				case optNameNocontrols:
-					node.Opts[optNameControls] = "0"
-				case optNameControls:
-					node.Opts[optNameControls] = "1"
-				default:
-					node.Opts[opt] = "1"
-				}
-			}
-		}
-	}
 	return true
 }
 
@@ -445,7 +384,7 @@ func (node *adocNode) parseBlockImage(doc *Document, line string) bool {
 			if val == "center" {
 				val = "text-center"
 			}
-			node.classes.add(val)
+			node.addRole(val)
 		default:
 			node.Attrs[key] = val
 		}
@@ -483,7 +422,7 @@ func (node *adocNode) parseInlineMarkup(doc *Document, kind int) {
 func (node *adocNode) parseLineAdmonition(line string) {
 	sep := strings.IndexByte(line, ':')
 	class := strings.ToLower(line[:sep])
-	node.classes.add(class)
+	node.addRole(class)
 	node.rawLabel.WriteString(strings.Title(class))
 	line = strings.TrimSpace(line[sep+1:])
 	node.WriteString(line)
@@ -630,7 +569,7 @@ func (node *adocNode) parseStyleClass(line string) {
 	for _, class := range parts {
 		class = strings.TrimSpace(class)
 		if len(class) > 0 {
-			node.classes.add(class)
+			node.addRole(class)
 		}
 	}
 }
@@ -645,39 +584,16 @@ func (node *adocNode) parseBlockVideo(doc *Document, line string) bool {
 		return false
 	}
 
-	videoSrc := strings.TrimRight(line[:attrBegin], " \t")
-	key, _, attrs := parseAttributeElement(line[attrBegin : attrEnd+1])
-
 	if node.Attrs == nil {
-		node.Attrs = make(map[string]string, len(attrs)+1)
+		node.Attrs = make(map[string]string)
 	}
+
+	videoSrc := strings.TrimRight(line[:attrBegin], " \t")
 	videoSrc = string(applySubstitutions(doc, []byte(videoSrc)))
 	node.Attrs[attrNameSrc] = videoSrc
 
-	start := 0
-	if key == attrNameYoutube || key == attrNameVimeo {
-		node.Attrs[key] = ""
-		start = 1
-	}
+	node.parseElementAttribute(line[attrBegin : attrEnd+1])
 
-	var val string
-	for _, attr := range attrs[start:] {
-		kv := strings.Split(attr, "=")
-
-		key = strings.ToLower(kv[0])
-		if len(kv) >= 2 {
-			val = kv[1]
-		} else {
-			val = ""
-		}
-
-		switch key {
-		case attrNameWidth, attrNameHeight,
-			attrNameOptions, attrNamePoster, attrNameStart,
-			attrNameEnd, attrNameTheme, attrNameLang:
-			node.Attrs[key] = val
-		}
-	}
 	return true
 }
 
@@ -762,7 +678,15 @@ func (node *adocNode) postParseParagraphAsQuote(lines [][]byte) bool {
 
 	node.kind = nodeKindBlockExcerpts
 	opts := strings.SplitN(string(lastLine[3:]), `,`, 2)
-	node.setQuoteOpts(opts)
+	if node.Attrs == nil {
+		node.Attrs = make(map[string]string)
+	}
+	if len(opts) >= 1 {
+		node.Attrs[attrNameAttribution] = strings.TrimSpace(opts[0])
+	}
+	if len(opts) >= 2 {
+		node.Attrs[attrNameCitation] = strings.TrimSpace(opts[1])
+	}
 
 	return true
 }
@@ -772,7 +696,7 @@ func (node *adocNode) postParseParagraphAsQuote(lines [][]byte) bool {
 // multiple rows, based on empty line between row.
 //
 func (node *adocNode) postConsumeTable() (table *adocTable) {
-	node.table = newTable(node.Attrs, node.Opts, node.raw)
+	node.table = newTable(node.Attrs, node.options, node.raw)
 	return node.table
 }
 
@@ -802,18 +726,9 @@ func (node *adocNode) removeLastIfEmpty() {
 	c.parent = nil
 }
 
-func (node *adocNode) setQuoteOpts(opts []string) {
-	if len(opts) >= 1 {
-		node.key = strings.TrimSpace(opts[0])
-	}
-	if len(opts) >= 2 {
-		node.value = strings.TrimSpace(opts[1])
-	}
-}
-
 func (node *adocNode) setStyleAdmonition(admName string) {
 	admName = strings.ToLower(admName)
-	node.classes.add(admName)
+	node.addRole(admName)
 	node.rawLabel.WriteString(strings.Title(admName))
 }
 

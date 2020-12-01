@@ -439,12 +439,14 @@ func (pi *parserInline) parseCrossRef() bool {
 	// The ID field will we non-empty if href is empty, it will be
 	// revalidated later when rendered.
 	nodeCrossRef := &adocNode{
+		elementAttribute: elementAttribute{
+			Attrs: map[string]string{
+				attrNameHref:  href,
+				attrNameTitle: title,
+			},
+		},
 		kind: nodeKindCrossReference,
 		raw:  []byte(label),
-		Attrs: map[string]string{
-			attrNameHref:  href,
-			attrNameTitle: title,
-		},
 	}
 	pi.current.addChild(nodeCrossRef)
 	node := &adocNode{
@@ -475,7 +477,9 @@ func (pi *parserInline) parseInlineID() bool {
 	id = pi.doc.registerAnchor(id, label)
 
 	node := &adocNode{
-		ID:   id,
+		elementAttribute: elementAttribute{
+			ID: id,
+		},
 		kind: nodeKindInlineID,
 	}
 	pi.current.backTrimSpace()
@@ -516,7 +520,9 @@ func (pi *parserInline) parseInlineIDShort() bool {
 	stringID = pi.doc.registerAnchor(stringID, "")
 
 	node := &adocNode{
-		ID:   stringID,
+		elementAttribute: elementAttribute{
+			ID: stringID,
+		},
 		kind: nodeKindInlineIDShort,
 	}
 	pi.state.push(nodeKindInlineIDShort)
@@ -672,8 +678,10 @@ func (pi *parserInline) parseInlineImage() *adocNode {
 
 	lineImage := content[:idx+1]
 	nodeImage := &adocNode{
-		kind:  nodeKindInlineImage,
-		Attrs: make(map[string]string),
+		elementAttribute: elementAttribute{
+			Attrs: make(map[string]string),
+		},
+		kind: nodeKindInlineImage,
 	}
 	if nodeImage.parseBlockImage(pi.doc, string(lineImage)) {
 		pi.x += idx + 2
@@ -906,8 +914,10 @@ func (pi *parserInline) parseURL(scheme string) (node *adocNode) {
 	}
 
 	node = &adocNode{
-		kind:  nodeKindURL,
-		Attrs: make(map[string]string),
+		elementAttribute: elementAttribute{
+			Attrs: make(map[string]string),
+		},
+		kind: nodeKindURL,
 	}
 
 	content := pi.content[pi.x+1:]
@@ -920,7 +930,7 @@ func (pi *parserInline) parseURL(scheme string) (node *adocNode) {
 	}
 	if c != '[' {
 		if scheme == macroHTTP || scheme == macroHTTPS {
-			node.classes.add(attrValueBare)
+			node.addRole(attrValueBare)
 		}
 		if c == '.' || c == ',' || c == ';' {
 			uri = uri[:len(uri)-1]
@@ -949,53 +959,22 @@ func (pi *parserInline) parseURL(scheme string) (node *adocNode) {
 	pi.prev = 0
 
 	attr := string(content[x : x+idx+1])
-	key, _, attrs := parseAttributeElement(attr)
-	if len(attrs) == 0 {
+	node.style = styleLink
+	node.parseElementAttribute(attr)
+	if len(node.Attrs) == 0 {
 		// empty "[]"
 		node.raw = uri
 		return node
 	}
-	if len(attrs) >= 1 {
-		if key[len(key)-1] == '^' {
+	if len(node.rawStyle) >= 1 {
+		l := len(node.rawStyle)
+		if node.rawStyle[l-1] == '^' {
 			node.Attrs[attrNameTarget] = attrValueBlank
-			key = strings.TrimRight(key, "^")
+			node.rawStyle = node.rawStyle[:l-1]
 			node.Attrs[attrNameRel] = attrValueNoopener
 		}
-		child := parseInlineMarkup(pi.doc, []byte(key))
+		child := parseInlineMarkup(pi.doc, []byte(node.rawStyle))
 		node.addChild(child)
-	}
-	if len(attrs) >= 2 {
-		attrTarget := strings.Split(attrs[1], "=")
-		if len(attrTarget) == 2 {
-			switch attrTarget[0] {
-			case attrNameWindow:
-				node.Attrs[attrNameTarget] = attrTarget[1]
-				if attrTarget[1] == attrValueBlank {
-					node.Attrs[attrNameRel] = attrValueNoopener
-				}
-			case attrNameRole:
-				classes := strings.Split(attrTarget[1], ",")
-				for _, c := range classes {
-					if len(c) > 0 {
-						node.classes.add(c)
-					}
-				}
-			}
-		}
-	}
-	if len(attrs) >= 3 {
-		attrRole := strings.Split(attrs[2], "=")
-		if len(attrRole) == 2 {
-			switch attrRole[0] {
-			case attrNameRole:
-				classes := strings.Split(attrRole[1], ",")
-				for _, c := range classes {
-					if len(c) > 0 {
-						node.classes.add(c)
-					}
-				}
-			}
-		}
 	}
 	return node
 }

@@ -42,8 +42,10 @@ func Parse(content []byte) (doc *Document) {
 	}
 
 	preamble := &adocNode{
-		kind:  nodeKindPreamble,
-		Attrs: make(map[string]string),
+		elementAttribute: elementAttribute{
+			Attrs: make(map[string]string),
+		},
+		kind: nodeKindPreamble,
 	}
 	doc.content.addChild(preamble)
 
@@ -222,39 +224,12 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 			continue
 
 		case lineKindAttributeElement:
-			key, val, opts := parseAttributeElement(line)
-
-			styleKind := parseStyle(key)
-			if styleKind > 0 {
-				node.style |= styleKind
-				if isStyleAdmonition(styleKind) {
-					node.setStyleAdmonition(key)
-				} else if isStyleQuote(styleKind) {
-					node.setQuoteOpts(opts[1:])
-				} else if isStyleVerse(styleKind) {
-					node.setQuoteOpts(opts[1:])
+			node.parseElementAttribute(line)
+			if node.style > 0 {
+				if isStyleAdmonition(node.style) {
+					node.setStyleAdmonition(node.rawStyle)
 				}
-				line = ""
-				continue
 			}
-			if key == attrNameRefText {
-				if node.Attrs == nil {
-					node.Attrs = make(map[string]string)
-				}
-				node.Attrs[key] = val
-				line = ""
-				continue
-			}
-			if key == attrNameCols {
-				if node.Attrs == nil {
-					node.Attrs = make(map[string]string)
-				}
-				node.Attrs[key] = val
-				node.addOptions(opts)
-				line = ""
-				continue
-			}
-			node.addOptions(opts)
 			line = ""
 			continue
 
@@ -340,7 +315,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 					spaces+line, term)
 			} else {
 				node.kind = docp.kind
-				node.classes.add(classNameLiteralBlock)
+				node.addRole(classNameLiteralBlock)
 				node.WriteString(line)
 				node.WriteByte('\n')
 				line = docp.consumeLinesUntil(
@@ -361,7 +336,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 
 		case nodeKindBlockLiteral:
 			node.kind = docp.kind
-			node.classes.add(classNameLiteralBlock)
+			node.addRole(classNameLiteralBlock)
 			line = docp.consumeLinesUntil(node, docp.kind, nil)
 			node.raw = applySubstitutions(docp.doc, node.raw)
 			parent.addChild(node)
@@ -370,7 +345,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 
 		case nodeKindBlockLiteralNamed:
 			node.kind = docp.kind
-			node.classes.add(classNameLiteralBlock)
+			node.addRole(classNameLiteralBlock)
 			line = docp.consumeLinesUntil(node, lineKindEmpty, nil)
 			node.raw = applySubstitutions(docp.doc, node.raw)
 			parent.addChild(node)
@@ -379,7 +354,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 
 		case nodeKindBlockListing:
 			node.kind = docp.kind
-			node.classes.add(classNameListingBlock)
+			node.addRole(classNameListingBlock)
 			line = docp.consumeLinesUntil(node, docp.kind, nil)
 			node.raw = applySubstitutions(docp.doc, node.raw)
 			parent.addChild(node)
@@ -388,7 +363,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 
 		case nodeKindBlockListingNamed:
 			node.kind = docp.kind
-			node.classes.add(classNameListingBlock)
+			node.addRole(classNameListingBlock)
 			line = docp.consumeLinesUntil(
 				node,
 				lineKindEmpty,
@@ -606,8 +581,10 @@ func (docp *documentParser) parseListBlock() (node *adocNode, line string) {
 
 		if docp.kind == lineKindAdmonition {
 			node = &adocNode{
-				kind:  nodeKindParagraph,
-				style: styleAdmonition,
+				elementAttribute: elementAttribute{
+					style: styleAdmonition,
+				},
+				kind: nodeKindParagraph,
 			}
 			node.parseLineAdmonition(line)
 			line = docp.consumeLinesUntil(
@@ -638,8 +615,10 @@ func (docp *documentParser) parseListBlock() (node *adocNode, line string) {
 		}
 		if docp.kind == nodeKindLiteralParagraph {
 			node = &adocNode{
-				kind:    docp.kind,
-				classes: attributeClass{classNameLiteralBlock},
+				elementAttribute: elementAttribute{
+					roles: []string{classNameLiteralBlock},
+				},
+				kind: docp.kind,
 			}
 			node.WriteString(strings.TrimLeft(line, " \t"))
 			node.WriteByte('\n')
@@ -674,8 +653,10 @@ func (docp *documentParser) parseListBlock() (node *adocNode, line string) {
 		}
 		if docp.kind == nodeKindBlockListing {
 			node = &adocNode{
-				kind:    docp.kind,
-				classes: attributeClass{classNameListingBlock},
+				elementAttribute: elementAttribute{
+					roles: []string{classNameListingBlock},
+				},
+				kind: docp.kind,
 			}
 			docp.consumeLinesUntil(node, docp.kind, nil)
 			node.raw = applySubstitutions(docp.doc, node.raw)
@@ -699,13 +680,17 @@ func (docp *documentParser) parseListDescription(parent, node *adocNode, line st
 	got string,
 ) {
 	list := &adocNode{
+		elementAttribute: elementAttribute{
+			style: node.style,
+		},
 		kind:     nodeKindListDescription,
 		rawTitle: node.rawTitle,
-		style:    node.style,
 	}
 	listItem := &adocNode{
-		kind:  nodeKindListDescriptionItem,
-		style: list.style,
+		elementAttribute: elementAttribute{
+			style: list.style,
+		},
+		kind: nodeKindListDescriptionItem,
 	}
 	listItem.parseListDescriptionItem(line)
 	list.level = listItem.level
@@ -754,8 +739,10 @@ func (docp *documentParser) parseListDescription(parent, node *adocNode, line st
 		}
 		if docp.kind == nodeKindListDescriptionItem {
 			node := &adocNode{
-				kind:  nodeKindListDescriptionItem,
-				style: list.style,
+				elementAttribute: elementAttribute{
+					style: list.style,
+				},
+				kind: nodeKindListDescriptionItem,
 			}
 			node.parseListDescriptionItem(line)
 			if listItem.level == node.level {
@@ -782,8 +769,10 @@ func (docp *documentParser) parseListDescription(parent, node *adocNode, line st
 				break
 			}
 			node := &adocNode{
-				kind:    docp.kind,
-				classes: attributeClass{classNameListingBlock},
+				elementAttribute: elementAttribute{
+					roles: []string{classNameListingBlock},
+				},
+				kind: docp.kind,
 			}
 			line = docp.consumeLinesUntil(node,
 				lineKindEmpty,
@@ -800,8 +789,10 @@ func (docp *documentParser) parseListDescription(parent, node *adocNode, line st
 				break
 			}
 			node := &adocNode{
-				kind:    docp.kind,
-				classes: attributeClass{classNameLiteralBlock},
+				elementAttribute: elementAttribute{
+					roles: []string{classNameLiteralBlock},
+				},
+				kind: docp.kind,
 			}
 			line = docp.consumeLinesUntil(node,
 				lineKindEmpty,
@@ -968,8 +959,10 @@ func (docp *documentParser) parseListOrdered(parent *adocNode, title, line strin
 		if docp.kind == nodeKindLiteralParagraph {
 			if docp.prevKind == lineKindEmpty {
 				node := &adocNode{
-					kind:    docp.kind,
-					classes: attributeClass{classNameLiteralBlock},
+					elementAttribute: elementAttribute{
+						roles: []string{classNameLiteralBlock},
+					},
+					kind: docp.kind,
 				}
 				node.WriteString(strings.TrimLeft(line, " \t"))
 				node.WriteByte('\n')
@@ -991,8 +984,10 @@ func (docp *documentParser) parseListOrdered(parent *adocNode, title, line strin
 				break
 			}
 			node := &adocNode{
-				kind:    docp.kind,
-				classes: attributeClass{classNameListingBlock},
+				elementAttribute: elementAttribute{
+					roles: []string{classNameListingBlock},
+				},
+				kind: docp.kind,
 			}
 			line = docp.consumeLinesUntil(node,
 				lineKindEmpty,
@@ -1009,8 +1004,10 @@ func (docp *documentParser) parseListOrdered(parent *adocNode, title, line strin
 				break
 			}
 			node := &adocNode{
-				kind:    docp.kind,
-				classes: attributeClass{classNameLiteralBlock},
+				elementAttribute: elementAttribute{
+					roles: []string{classNameLiteralBlock},
+				},
+				kind: docp.kind,
 			}
 			line = docp.consumeLinesUntil(node,
 				lineKindEmpty,
@@ -1055,8 +1052,10 @@ func (docp *documentParser) parseListUnordered(parent, node *adocNode, line stri
 	got string,
 ) {
 	list := &adocNode{
+		elementAttribute: elementAttribute{
+			roles: []string{classNameUlist},
+		},
 		kind:     nodeKindListUnordered,
-		classes:  attributeClass{classNameUlist},
 		rawTitle: node.rawTitle,
 	}
 	listItem := &adocNode{
@@ -1176,8 +1175,10 @@ func (docp *documentParser) parseListUnordered(parent, node *adocNode, line stri
 		if docp.kind == nodeKindLiteralParagraph {
 			if docp.prevKind == lineKindEmpty {
 				node = &adocNode{
-					kind:    docp.kind,
-					classes: attributeClass{classNameLiteralBlock},
+					elementAttribute: elementAttribute{
+						roles: []string{classNameLiteralBlock},
+					},
+					kind: docp.kind,
 				}
 				node.WriteString(strings.TrimLeft(line, " \t"))
 				node.WriteByte('\n')
@@ -1199,8 +1200,10 @@ func (docp *documentParser) parseListUnordered(parent, node *adocNode, line stri
 				break
 			}
 			node := &adocNode{
-				kind:    docp.kind,
-				classes: attributeClass{classNameListingBlock},
+				elementAttribute: elementAttribute{
+					roles: []string{classNameListingBlock},
+				},
+				kind: docp.kind,
 			}
 			line = docp.consumeLinesUntil(node,
 				lineKindEmpty,
@@ -1217,8 +1220,10 @@ func (docp *documentParser) parseListUnordered(parent, node *adocNode, line stri
 				break
 			}
 			node := &adocNode{
-				kind:    docp.kind,
-				classes: attributeClass{classNameLiteralBlock},
+				elementAttribute: elementAttribute{
+					roles: []string{classNameLiteralBlock},
+				},
+				kind: docp.kind,
 			}
 			line = docp.consumeLinesUntil(node,
 				lineKindEmpty,

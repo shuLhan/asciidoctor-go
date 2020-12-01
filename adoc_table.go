@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/shuLhan/share/lib/math/big"
+	libstrings "github.com/shuLhan/share/lib/strings"
 )
 
 type adocTable struct {
@@ -19,7 +20,7 @@ type adocTable struct {
 	hasFooter bool
 }
 
-func newTable(attrs, opts map[string]string, content []byte) (table *adocTable) {
+func newTable(attrs map[string]string, opts []string, content []byte) (table *adocTable) {
 	var (
 		row *tableRow
 	)
@@ -44,8 +45,7 @@ func newTable(attrs, opts map[string]string, content []byte) (table *adocTable) 
 		row = pt.row(table.ncols)
 	}
 	if pt.nrow == 1 && !row.cells[0].endWithLF() {
-		_, ok := opts[attrValueNoHeader]
-		if !ok {
+		if !libstrings.IsContain(opts, attrValueNoHeader) {
 			table.hasHeader = true
 		}
 	}
@@ -91,11 +91,11 @@ func (table *adocTable) initializeFormats() {
 	}
 }
 
-func (table *adocTable) parseOptions(opts map[string]string) {
+func (table *adocTable) parseOptions(opts []string) {
 	if opts == nil {
 		return
 	}
-	for key := range opts {
+	for _, key := range opts {
 		switch key {
 		case attrValueHeader:
 			table.hasHeader = true

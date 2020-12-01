@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"io"
 	"strings"
+
+	libstrings "github.com/shuLhan/share/lib/strings"
 )
 
 const (
@@ -53,7 +55,7 @@ func htmlWriteBlockBegin(node *adocNode, out io.Writer, addClass string) {
 		fmt.Fprintf(out, ` id="%s"`, node.ID)
 	}
 
-	classes := node.Classes()
+	classes := node.htmlClasses()
 	c := strings.TrimSpace(addClass + " " + classes)
 	if len(c) > 0 {
 		fmt.Fprintf(out, ` class="%s">`, c)
@@ -80,7 +82,7 @@ func htmlWriteBlockAdmonition(node *adocNode, out io.Writer) {
 	iconsFont := node.Attrs[attrNameIcons]
 	if iconsFont == attrValueFont {
 		fmt.Fprintf(out, _htmlAdmonitionIconsFont,
-			strings.ToLower(node.Classes()), node.rawLabel.String())
+			strings.ToLower(node.htmlClasses()), node.rawLabel.String())
 	} else {
 		fmt.Fprintf(out, "\n<div class=%q>%s</div>", attrValueTitle,
 			node.rawLabel.String())
@@ -95,22 +97,25 @@ func htmlWriteBlockAdmonition(node *adocNode, out io.Writer) {
 }
 
 func htmlWriteBlockAudio(node *adocNode, out io.Writer) {
+	var (
+		optAutoplay string
+		optControls = " controls"
+		optLoop     string
+	)
+
 	htmlWriteBlockBegin(node, out, "audioblock")
 
 	fmt.Fprintf(out, "\n<div class=%q>", attrValueContent)
 
 	src := node.Attrs[attrNameSrc]
 
-	optAutoplay, ok := node.Opts[optNameAutoplay]
-	if ok {
+	if libstrings.IsContain(node.options, optNameAutoplay) {
 		optAutoplay = " autoplay"
 	}
-	optControls, ok := node.Opts[optNameControls]
-	if ok {
-		optControls = " controls"
+	if libstrings.IsContain(node.options, optNameNocontrols) {
+		optControls = ""
 	}
-	optLoop, ok := node.Opts[optNameLoop]
-	if ok {
+	if libstrings.IsContain(node.options, optNameLoop) {
 		optLoop = " loop"
 	}
 
@@ -171,12 +176,12 @@ func htmlWriteBlockQuote(node *adocNode, out io.Writer) {
 
 func htmlWriteBlockQuoteEnd(node *adocNode, out io.Writer) {
 	fmt.Fprint(out, "\n</blockquote>")
-	if len(node.key) > 0 {
+	if v, ok := node.Attrs[attrNameAttribution]; ok {
 		fmt.Fprintf(out, "\n<div class=%q>\n&#8212; %s",
-			attrValueAttribution, node.key)
+			attrNameAttribution, v)
 	}
-	if len(node.value) > 0 {
-		fmt.Fprintf(out, "<br>\n<cite>%s</cite>", node.value)
+	if v, ok := node.Attrs[attrNameCitation]; ok {
+		fmt.Fprintf(out, "<br>\n<cite>%s</cite>", v)
 	}
 	fmt.Fprint(out, "\n</div>\n</div>")
 }
@@ -197,17 +202,22 @@ func htmlWriteBlockVerse(node *adocNode, out io.Writer) {
 
 func htmlWriteBlockVerseEnd(node *adocNode, out io.Writer) {
 	fmt.Fprint(out, "</pre>")
-	if len(node.key) > 0 {
+	if v, ok := node.Attrs[attrNameAttribution]; ok {
 		fmt.Fprintf(out, "\n<div class=%q>\n&#8212; %s",
-			attrValueAttribution, node.key)
+			attrNameAttribution, v)
 	}
-	if len(node.value) > 0 {
-		fmt.Fprintf(out, "<br>\n<cite>%s</cite>", node.value)
+	if v, ok := node.Attrs[attrNameCitation]; ok {
+		fmt.Fprintf(out, "<br>\n<cite>%s</cite>", v)
 	}
 	fmt.Fprint(out, "\n</div>\n</div>")
 }
 
 func htmlWriteBlockVideo(node *adocNode, out io.Writer) {
+	var (
+		isYoutube bool
+		isVimeo   bool
+	)
+
 	src := node.GetVideoSource()
 	width, withWidth := node.Attrs[attrNameWidth]
 	if withWidth {
@@ -217,8 +227,13 @@ func htmlWriteBlockVideo(node *adocNode, out io.Writer) {
 	if withHeight {
 		height = fmt.Sprintf(` height="%s"`, height)
 	}
-	_, isYoutube := node.Attrs[attrNameYoutube]
-	_, isVimeo := node.Attrs[attrNameVimeo]
+
+	if node.rawStyle == attrNameYoutube {
+		isYoutube = true
+	}
+	if node.rawStyle == attrNameVimeo {
+		isVimeo = true
+	}
 
 	htmlWriteBlockBegin(node, out, "videoblock")
 
@@ -233,20 +248,24 @@ func htmlWriteBlockVideo(node *adocNode, out io.Writer) {
 	} else if isVimeo {
 		fmt.Fprintf(out, _htmlBlockVideoVimeo, width, height, src)
 	} else {
+		var (
+			optControls = " controls"
+			optAutoplay string
+			optLoop     string
+		)
+
 		optPoster, withPoster := node.Attrs[attrNamePoster]
 		if withPoster {
 			optPoster = fmt.Sprintf(` poster="%s"`, optPoster)
 		}
-		optControls, ok := node.Attrs[optNameNocontrols]
-		if !ok {
-			optControls = " controls"
+
+		if libstrings.IsContain(node.options, optNameNocontrols) {
+			optControls = ""
 		}
-		optAutoplay, ok := node.Attrs[optNameAutoplay]
-		if ok {
+		if libstrings.IsContain(node.options, optNameAutoplay) {
 			optAutoplay = " autoplay"
 		}
-		optLoop, ok := node.Attrs[optNameLoop]
-		if ok {
+		if libstrings.IsContain(node.options, optNameLoop) {
 			optLoop = " loop"
 		}
 
@@ -364,7 +383,7 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 }
 
 func htmlWriteInlineImage(node *adocNode, out io.Writer) {
-	classes := strings.TrimSpace("image " + node.Classes())
+	classes := strings.TrimSpace("image " + node.htmlClasses())
 	fmt.Fprintf(out, "<span class=%q>", classes)
 	link, withLink := node.Attrs[attrNameLink]
 	if withLink {
@@ -692,7 +711,7 @@ func htmlWriteToC(doc *Document, node *adocNode, out io.Writer, level int) {
 
 func htmlWriteURLBegin(node *adocNode, out io.Writer) {
 	fmt.Fprintf(out, "<a href=\"%s\"", node.Attrs[attrNameHref])
-	classes := node.Classes()
+	classes := node.htmlClasses()
 	if len(classes) > 0 {
 		fmt.Fprintf(out, ` class="%s"`, classes)
 	}
