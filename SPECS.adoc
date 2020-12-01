@@ -458,6 +458,32 @@ The CROSS_REF_NATURAL only works if the text contains at least one uppercase
 or space.
 
 
+== Table
+
+----
+TABLE  = "|===" LF *ROW LF "|==="
+
+ROW    = 1*CELL
+
+CELL   = CELL_FORMAT "|" TEXT (LF)
+
+CELL_FORMAT    = CELL_DUP / CELL_SPAN_COL/ CELL_SPAN_ROW
+               / CELL_ALIGN_HOR / CELL_ALIGN_VER / CELL_STYLE
+
+CELL_DUP       = 1*DIGIT "*"
+
+CELL_SPAN_COL  = 1*DIGIT "+"
+
+CELL_SPAN_ROW  = "." 1*DIGIT "+"
+
+CELL_ALIGN_HOR = "<" / "^" / ">"
+
+CELL_ALIGN_VER = "." ("<" / "^" / ">")
+
+CELL_STYLE     = "a" / "d" / "e" / "h" / "l" / "m" / "s" / "v"
+----
+
+
 == Inconsistencies and bugs on asciidoctor
 
 Listing style "[listing]" followed by "...." is become listing block.
@@ -487,4 +513,18 @@ mailto:me@example.com.
 Block image with "link" option does not work as expected,
 ----
 image::{image-sunset}[Block image with attribute ref, link={test-url}].
+----
+
+First table row with multiple lines does not considered as header, even
+thought it separated by empty line.
+Example,
+
+----
+|===
+|A1
+|B1
+
+|A2
+|B2
+|===
 ----
