@@ -310,7 +310,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 			continue
 
 		case nodeKindLiteralParagraph:
-			if node.IsStyleAdmonition() {
+			if node.isStyleAdmonition() {
 				line = docp.parseParagraph(parent, node,
 					spaces+line, term)
 			} else {
@@ -426,7 +426,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 
 		case nodeKindBlockExcerpts:
 			node.kind = docp.kind
-			if node.IsStyleVerse() {
+			if node.isStyleVerse() {
 				line = docp.consumeLinesUntil(
 					node,
 					docp.kind,

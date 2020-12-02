@@ -47,11 +47,6 @@ type adocNode struct {
 	prev   *adocNode
 }
 
-func (node *adocNode) Content() string {
-	node.raw = bytes.TrimRight(node.raw, "\n")
-	return string(node.raw)
-}
-
 func (node *adocNode) getListOrderedClass() string {
 	switch node.level {
 	case 2:
@@ -81,9 +76,9 @@ func (node *adocNode) getListOrderedType() string {
 }
 
 //
-// GetVideoSource generate video full URL for HTML attribute "src".
+// getVideoSource generate video full URL for HTML attribute "src".
 //
-func (node *adocNode) GetVideoSource() string {
+func (node *adocNode) getVideoSource() string {
 	var (
 		u         = new(url.URL)
 		q         []string
@@ -185,44 +180,28 @@ func (node *adocNode) GetVideoSource() string {
 	return u.String()
 }
 
-func (node *adocNode) HasStyle(s int64) bool {
+func (node *adocNode) hasStyle(s int64) bool {
 	return node.style&s > 0
 }
 
-func (node *adocNode) IsStyleAdmonition() bool {
+func (node *adocNode) isStyleAdmonition() bool {
 	return isStyleAdmonition(node.style)
 }
 
-func (node *adocNode) IsStyleHorizontal() bool {
+func (node *adocNode) isStyleHorizontal() bool {
 	return node.style&styleDescriptionHorizontal > 0
 }
 
-func (node *adocNode) IsStyleListing() bool {
-	return node.style&styleBlockListing > 0
-}
-
-func (node *adocNode) IsStyleQandA() bool {
+func (node *adocNode) isStyleQandA() bool {
 	return node.style&styleDescriptionQandA > 0
 }
 
-func (node *adocNode) IsStyleQuote() bool {
+func (node *adocNode) isStyleQuote() bool {
 	return isStyleQuote(node.style)
 }
 
-func (node *adocNode) IsStyleVerse() bool {
+func (node *adocNode) isStyleVerse() bool {
 	return isStyleVerse(node.style)
-}
-
-func (node *adocNode) Label() string {
-	return node.rawLabel.String()
-}
-
-func (node *adocNode) Title() string {
-	return node.rawTitle
-}
-
-func (node *adocNode) URLTarget() string {
-	return node.value
 }
 
 func (node *adocNode) Write(b []byte) {
@@ -618,7 +597,7 @@ func (node *adocNode) postParseList(doc *Document, kind int) {
 // ('"'), and the last line start with "-- ".
 //
 func (node *adocNode) postParseParagraph(parent *adocNode) {
-	if node.IsStyleQuote() {
+	if node.isStyleQuote() {
 		return
 	}
 	if parent != nil && parent.kind == nodeKindBlockExcerpts {
@@ -764,11 +743,11 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 		htmlWriteSection(doc, node, w, isForToC)
 
 	case nodeKindParagraph:
-		if node.IsStyleAdmonition() {
+		if node.isStyleAdmonition() {
 			htmlWriteBlockAdmonition(node, w)
-		} else if node.IsStyleQuote() {
+		} else if node.isStyleQuote() {
 			htmlWriteBlockQuote(node, w)
-		} else if node.IsStyleVerse() {
+		} else if node.isStyleVerse() {
 			htmlWriteBlockVerse(node, w)
 		} else {
 			htmlWriteParagraphBegin(node, w)
@@ -803,9 +782,9 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 			label.Write(node.rawLabel.Bytes())
 		}
 
-		if node.IsStyleQandA() {
+		if node.isStyleQandA() {
 			format = _htmlListDescriptionItemQandABegin
-		} else if node.IsStyleHorizontal() {
+		} else if node.isStyleHorizontal() {
 			format = _htmlListDescriptionItemHorizontalBegin
 		} else {
 			format = _htmlListDescriptionItemBegin
@@ -819,7 +798,7 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 		fmt.Fprint(w, "\n<div style=\"page-break-after: always;\"></div>")
 
 	case nodeKindBlockExample:
-		if node.IsStyleAdmonition() {
+		if node.isStyleAdmonition() {
 			htmlWriteBlockAdmonition(node, w)
 		} else {
 			htmlWriteBlockExample(doc, node, w)
@@ -829,11 +808,11 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 		htmlWriteBlockImage(doc, node, w)
 
 	case nodeKindBlockOpen:
-		if node.IsStyleAdmonition() {
+		if node.isStyleAdmonition() {
 			htmlWriteBlockAdmonition(node, w)
-		} else if node.IsStyleQuote() {
+		} else if node.isStyleQuote() {
 			htmlWriteBlockQuote(node, w)
-		} else if node.IsStyleVerse() {
+		} else if node.isStyleVerse() {
 			htmlWriteBlockVerse(node, w)
 		} else {
 			htmlWriteBlockOpenBegin(node, w)
@@ -843,7 +822,7 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 		fmt.Fprintf(w, "\n%s", node.raw)
 
 	case nodeKindBlockExcerpts:
-		if node.IsStyleVerse() {
+		if node.isStyleVerse() {
 			htmlWriteBlockVerse(node, w)
 		} else {
 			htmlWriteBlockQuote(node, w)
@@ -892,7 +871,7 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 		fmt.Fprint(w, string(node.raw))
 
 	case nodeKindTextBold:
-		if node.HasStyle(styleTextBold) {
+		if node.hasStyle(styleTextBold) {
 			fmt.Fprint(w, "<strong>")
 		} else if len(node.raw) > 0 {
 			fmt.Fprint(w, "*")
@@ -900,7 +879,7 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 		fmt.Fprint(w, string(node.raw))
 
 	case nodeKindUnconstrainedBold:
-		if node.HasStyle(styleTextBold) {
+		if node.hasStyle(styleTextBold) {
 			fmt.Fprint(w, "<strong>")
 		} else if len(node.raw) > 0 {
 			fmt.Fprint(w, "**")
@@ -908,7 +887,7 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 		fmt.Fprint(w, string(node.raw))
 
 	case nodeKindTextItalic:
-		if node.HasStyle(styleTextItalic) {
+		if node.hasStyle(styleTextItalic) {
 			fmt.Fprint(w, "<em>")
 		} else if len(node.raw) > 0 {
 			fmt.Fprint(w, "_")
@@ -916,7 +895,7 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 		fmt.Fprint(w, string(node.raw))
 
 	case nodeKindUnconstrainedItalic:
-		if node.HasStyle(styleTextItalic) {
+		if node.hasStyle(styleTextItalic) {
 			fmt.Fprint(w, "<em>")
 		} else if len(node.raw) > 0 {
 			fmt.Fprint(w, "__")
@@ -924,7 +903,7 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 		fmt.Fprint(w, string(node.raw))
 
 	case nodeKindTextMono:
-		if node.HasStyle(styleTextMono) {
+		if node.hasStyle(styleTextMono) {
 			fmt.Fprint(w, "<code>")
 		} else if len(node.raw) > 0 {
 			fmt.Fprint(w, "`")
@@ -932,7 +911,7 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 		fmt.Fprint(w, string(node.raw))
 
 	case nodeKindUnconstrainedMono:
-		if node.HasStyle(styleTextMono) {
+		if node.hasStyle(styleTextMono) {
 			fmt.Fprint(w, "<code>")
 		} else if len(node.raw) > 0 {
 			fmt.Fprint(w, "``")
@@ -971,11 +950,11 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 		fmt.Fprint(w, "\n</div>")
 
 	case nodeKindParagraph:
-		if node.IsStyleAdmonition() {
+		if node.isStyleAdmonition() {
 			fmt.Fprint(w, _htmlAdmonitionEnd)
-		} else if node.IsStyleQuote() {
+		} else if node.isStyleQuote() {
 			htmlWriteBlockQuoteEnd(node, w)
-		} else if node.IsStyleVerse() {
+		} else if node.isStyleVerse() {
 			htmlWriteBlockVerseEnd(node, w)
 		} else {
 			fmt.Fprint(w, "</p>\n</div>")
@@ -986,9 +965,9 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 
 	case nodeKindListDescriptionItem:
 		var format string
-		if node.IsStyleQandA() {
+		if node.isStyleQandA() {
 			format = "\n</li>"
-		} else if node.IsStyleHorizontal() {
+		} else if node.isStyleHorizontal() {
 			format = "\n</td>\n</tr>"
 		} else {
 			format = "\n</dd>"
@@ -1003,24 +982,24 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 		htmlWriteListUnorderedEnd(w)
 
 	case nodeKindBlockExample:
-		if node.IsStyleAdmonition() {
+		if node.isStyleAdmonition() {
 			fmt.Fprint(w, _htmlAdmonitionEnd)
 		} else {
 			fmt.Fprint(w, "\n</div>\n</div>")
 		}
 
 	case nodeKindBlockOpen:
-		if node.IsStyleAdmonition() {
+		if node.isStyleAdmonition() {
 			fmt.Fprint(w, _htmlAdmonitionEnd)
-		} else if node.IsStyleQuote() {
+		} else if node.isStyleQuote() {
 			htmlWriteBlockQuoteEnd(node, w)
-		} else if node.IsStyleVerse() {
+		} else if node.isStyleVerse() {
 			htmlWriteBlockVerseEnd(node, w)
 		} else {
 			fmt.Fprint(w, "\n</div>\n</div>")
 		}
 	case nodeKindBlockExcerpts:
-		if node.IsStyleVerse() {
+		if node.isStyleVerse() {
 			htmlWriteBlockVerseEnd(node, w)
 		} else {
 			htmlWriteBlockQuoteEnd(node, w)
@@ -1038,15 +1017,15 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 		fmt.Fprint(w, "</p>")
 
 	case nodeKindTextBold, nodeKindUnconstrainedBold:
-		if node.HasStyle(styleTextBold) {
+		if node.hasStyle(styleTextBold) {
 			fmt.Fprint(w, "</strong>")
 		}
 	case nodeKindTextItalic, nodeKindUnconstrainedItalic:
-		if node.HasStyle(styleTextItalic) {
+		if node.hasStyle(styleTextItalic) {
 			fmt.Fprint(w, "</em>")
 		}
 	case nodeKindTextMono, nodeKindUnconstrainedMono:
-		if node.HasStyle(styleTextMono) {
+		if node.hasStyle(styleTextMono) {
 			fmt.Fprint(w, "</code>")
 		}
 	case nodeKindURL:
@@ -1088,37 +1067,37 @@ func (node *adocNode) writeText(w io.Writer) {
 		fmt.Fprint(w, string(node.raw))
 
 	case nodeKindTextBold:
-		if !node.HasStyle(styleTextBold) {
+		if !node.hasStyle(styleTextBold) {
 			fmt.Fprint(w, "*")
 		}
 		fmt.Fprint(w, string(node.raw))
 
 	case nodeKindUnconstrainedBold:
-		if !node.HasStyle(styleTextBold) {
+		if !node.hasStyle(styleTextBold) {
 			fmt.Fprint(w, "**")
 		}
 		fmt.Fprint(w, string(node.raw))
 
 	case nodeKindTextItalic:
-		if !node.HasStyle(styleTextItalic) {
+		if !node.hasStyle(styleTextItalic) {
 			fmt.Fprint(w, "_")
 		}
 		fmt.Fprint(w, string(node.raw))
 
 	case nodeKindUnconstrainedItalic:
-		if !node.HasStyle(styleTextItalic) {
+		if !node.hasStyle(styleTextItalic) {
 			fmt.Fprint(w, "__")
 		}
 		fmt.Fprint(w, string(node.raw))
 
 	case nodeKindTextMono:
-		if !node.HasStyle(styleTextMono) {
+		if !node.hasStyle(styleTextMono) {
 			fmt.Fprint(w, "`")
 		}
 		fmt.Fprint(w, string(node.raw))
 
 	case nodeKindUnconstrainedMono:
-		if !node.HasStyle(styleTextMono) {
+		if !node.hasStyle(styleTextMono) {
 			fmt.Fprint(w, "``")
 		}
 		fmt.Fprint(w, string(node.raw))

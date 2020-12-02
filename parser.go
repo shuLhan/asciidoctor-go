@@ -120,7 +120,6 @@ const (
 	attrNameTitle       = "title"
 	attrNameVimeo       = "vimeo"
 	attrNameWidth       = "width"
-	attrNameWindow      = "window"
 	attrNameYoutube     = "youtube"
 	attrNameYoutubeLang = "hl"
 )

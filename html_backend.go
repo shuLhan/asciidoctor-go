@@ -63,7 +63,7 @@ func htmlWriteBlockBegin(node *adocNode, out io.Writer, addClass string) {
 		fmt.Fprint(out, ">")
 	}
 
-	if !(node.IsStyleAdmonition() ||
+	if !(node.isStyleAdmonition() ||
 		node.kind == nodeKindBlockImage ||
 		node.kind == nodeKindBlockExample ||
 		node.kind == nodeKindBlockSidebar) &&
@@ -218,7 +218,7 @@ func htmlWriteBlockVideo(node *adocNode, out io.Writer) {
 		isVimeo   bool
 	)
 
-	src := node.GetVideoSource()
+	src := node.getVideoSource()
 	width, withWidth := node.Attrs[attrNameWidth]
 	if withWidth {
 		width = fmt.Sprintf(` width="%s"`, width)
@@ -413,10 +413,10 @@ func htmlWriteInlineImage(node *adocNode, out io.Writer) {
 
 func htmlWriteListDescription(node *adocNode, out io.Writer) {
 	var openTag string
-	if node.IsStyleQandA() {
+	if node.isStyleQandA() {
 		htmlWriteBlockBegin(node, out, "qlist qanda")
 		openTag = "\n<ol>"
-	} else if node.IsStyleHorizontal() {
+	} else if node.isStyleHorizontal() {
 		htmlWriteBlockBegin(node, out, "hdlist")
 		openTag = "\n<table>"
 	} else {
@@ -428,9 +428,9 @@ func htmlWriteListDescription(node *adocNode, out io.Writer) {
 }
 
 func htmlWriteListDescriptionEnd(node *adocNode, out io.Writer) {
-	if node.IsStyleQandA() {
+	if node.isStyleQandA() {
 		fmt.Fprintf(out, "\n</ol>\n</div>")
-	} else if node.IsStyleHorizontal() {
+	} else if node.isStyleHorizontal() {
 		fmt.Fprintf(out, "\n</table>\n</div>")
 	} else {
 		fmt.Fprintf(out, "\n</dl>\n</div>")
