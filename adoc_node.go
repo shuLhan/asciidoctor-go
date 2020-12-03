@@ -675,7 +675,7 @@ func (node *adocNode) postParseParagraphAsQuote(lines [][]byte) bool {
 // multiple rows, based on empty line between row.
 //
 func (node *adocNode) postConsumeTable() (table *adocTable) {
-	node.table = newTable(node.Attrs, node.options, node.raw)
+	node.table = newTable(&node.elementAttribute, node.raw)
 	return node.table
 }
 

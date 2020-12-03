@@ -657,6 +657,40 @@ Cell spanning three columns,
 |A1 |B1
 |===
 
+=== Table width
+
+[width=75%]
+|===
+|A1|B1
+
+|A2|B2
+|===
+
+Table with autowidth,
+
+[%autowidth]
+|===
+|auto|width
+
+|Cell in column 1, row 2
+|Cell in column 2, row 2
+|Cell in column 3, row 2
+|===
+
+[%autowidth.stretch]
+|===
+|Name of Column 1 |Name of Column 2 |Name of Column 3
+
+|Cell in column 1, row 1
+|Cell in column 2, row 1
+|Cell in column 3, row 1
+|===
+
+[cols="25h,~,~"]
+|===
+|small |as big as the column needs to be |the rest
+|===
+
 
 ==  Horizontal rules
 

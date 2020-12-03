@@ -6,6 +6,7 @@ package asciidoctor
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 
 	"github.com/shuLhan/share/lib/math/big"
@@ -16,22 +17,33 @@ type adocTable struct {
 	ncols     int
 	rows      []*tableRow
 	formats   []*columnFormat
+	classes   attributeClass
+	styles    map[string]string
 	hasHeader bool
 	hasFooter bool
 }
 
-func newTable(attrs map[string]string, opts []string, content []byte) (table *adocTable) {
+func newTable(ea *elementAttribute, content []byte) (table *adocTable) {
 	var (
 		row *tableRow
 	)
 
-	table = &adocTable{}
-	attrValue := attrs[attrNameCols]
+	table = &adocTable{
+		classes: attributeClass{
+			classNameTableblock,
+			classNameFrameAll,
+			classNameGridAll,
+			classNameStretch,
+		},
+		styles: make(map[string]string),
+	}
+
+	attrValue := ea.Attrs[attrNameCols]
 	if len(attrValue) > 0 {
 		table.ncols, table.formats = parseAttrCols(attrValue)
 	}
 
-	table.parseOptions(opts)
+	table.parseOptions(ea.options)
 
 	pt := newParserTable(content)
 
@@ -45,7 +57,7 @@ func newTable(attrs map[string]string, opts []string, content []byte) (table *ad
 		row = pt.row(table.ncols)
 	}
 	if pt.nrow == 1 && !row.cells[0].endWithLF() {
-		if !libstrings.IsContain(opts, attrValueNoHeader) {
+		if !libstrings.IsContain(ea.options, attrValueNoHeader) {
 			table.hasHeader = true
 		}
 	}
@@ -53,6 +65,11 @@ func newTable(attrs map[string]string, opts []string, content []byte) (table *ad
 	for row.ncell == table.ncols {
 		table.rows = append(table.rows, row)
 		row = pt.row(table.ncols)
+	}
+	if len(table.rows) == 1 {
+		if !libstrings.IsContain(ea.options, attrValueHeader) {
+			table.hasHeader = false
+		}
 	}
 
 	if len(table.formats) == 0 {
@@ -63,6 +80,7 @@ func newTable(attrs map[string]string, opts []string, content []byte) (table *ad
 
 	table.recalculateWidth()
 	table.initializeFormats()
+	table.initializeClassAndStyles(ea)
 
 	return table
 }
@@ -91,6 +109,35 @@ func (table *adocTable) initializeFormats() {
 	}
 }
 
+func (table *adocTable) initializeClassAndStyles(ea *elementAttribute) {
+	for k, v := range ea.Attrs {
+		switch k {
+		case attrNameWidth:
+			if len(v) == 0 {
+				continue
+			}
+			if v[len(v)-1] != '%' {
+				v += "%"
+			}
+			table.styles[k] = v
+			table.classes.delete(classNameStretch)
+		}
+	}
+	for _, k := range ea.options {
+		switch k {
+		case optNameAutowidth:
+			table.classes.delete(classNameStretch)
+			table.classes.add(classNameFitContent)
+			for _, f := range table.formats {
+				f.width = nil
+			}
+		}
+	}
+	for _, k := range ea.roles {
+		table.classes.add(k)
+	}
+}
+
 func (table *adocTable) parseOptions(opts []string) {
 	if opts == nil {
 		return
@@ -107,14 +154,30 @@ func (table *adocTable) parseOptions(opts []string) {
 
 func (table *adocTable) recalculateWidth() {
 	var (
-		totalWidth = big.NewRat(0)
+		totalWidth   = big.NewRat(0)
+		hasAutowidth bool
 	)
 	for _, format := range table.formats {
-		totalWidth.Add(format.width)
+		if format.isAutowidth {
+			hasAutowidth = true
+			format.width = nil
+		} else {
+			totalWidth.Add(format.width)
+		}
 	}
 	for _, format := range table.formats {
-		format.width = big.QuoRat(format.width, totalWidth).Mul(100)
+		if !hasAutowidth {
+			format.width = big.QuoRat(format.width, totalWidth).Mul(100)
+		}
 	}
+}
+
+func (table *adocTable) htmlStyle() string {
+	var buf bytes.Buffer
+	for k, v := range table.styles {
+		fmt.Fprintf(&buf, "%s: %s;", k, v)
+	}
+	return buf.String()
 }
 
 //

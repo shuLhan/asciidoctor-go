@@ -537,26 +537,40 @@ func hmltWriteSectionDiscrete(doc *Document, node *adocNode, out io.Writer) {
 }
 
 func htmlWriteTable(doc *Document, node *adocNode, out io.Writer) {
-	var footer *tableRow
+	var (
+		footer *tableRow
+		table  = node.table
+	)
 
-	if node.table == nil {
+	if table == nil {
 		return
 	}
-	fmt.Fprint(out, "\n<table class=\"tableblock frame-all grid-all stretch\">")
+
+	fmt.Fprintf(out, "\n<table class=%q", table.classes.String())
+
+	style := table.htmlStyle()
+	if len(style) > 0 {
+		fmt.Fprintf(out, " style=%q", style)
+	}
+	fmt.Fprint(out, ">")
 
 	fmt.Fprint(out, "\n<colgroup>")
-	for _, format := range node.table.formats {
-		fmt.Fprintf(out, "\n<col style=\"width: %s%%;\">",
-			format.width)
+	for _, format := range table.formats {
+		if format.width != nil {
+			fmt.Fprintf(out, "\n<col style=\"width: %s%%;\">",
+				format.width)
+		} else {
+			fmt.Fprint(out, "\n<col>")
+		}
 	}
 	fmt.Fprint(out, "\n</colgroup>")
 
-	rows := node.table.rows
-	if node.table.hasHeader {
+	rows := table.rows
+	if table.hasHeader {
 		htmlWriteTableHeader(doc, rows[0], out)
 		rows = rows[1:]
 	}
-	if node.table.hasFooter && len(rows) > 0 {
+	if table.hasFooter && len(rows) > 0 {
 		footer = rows[len(rows)-1]
 		rows = rows[:len(rows)-1]
 	}
@@ -564,13 +578,13 @@ func htmlWriteTable(doc *Document, node *adocNode, out io.Writer) {
 	if len(rows) > 0 {
 		fmt.Fprint(out, "\n<tbody>")
 		for _, row := range rows {
-			htmlWriteTableRow(doc, node.table, row, out)
+			htmlWriteTableRow(doc, table, row, out)
 		}
 		fmt.Fprint(out, "\n</tbody>")
 	}
 
-	if node.table.hasFooter && footer != nil {
-		htmlWriteTableFooter(doc, node.table, footer, out)
+	if table.hasFooter && footer != nil {
+		htmlWriteTableFooter(doc, table, footer, out)
 	}
 
 	fmt.Fprint(out, "\n</table>")

@@ -80,6 +80,7 @@
 <li><a href="#_cell_formatting">19.2. Cell formatting</a></li>
 <li><a href="#_header_row">19.3. Header row</a></li>
 <li><a href="#_footer_row">19.4. Footer row</a></li>
+<li><a href="#_table_width">19.5. Table width</a></li>
 </ul>
 </li>
 <li><a href="#_horizontal_rules">20. Horizontal rules</a></li>
@@ -1591,6 +1592,83 @@ E</p></td>
 </thead>
 </table>
 </div>
+<div class="sect2">
+<h3 id="_table_width"><a class="anchor" href="#_table_width"></a><a class="link" href="#_table_width">19.5. Table width</a></h3>
+<table class="tableblock frame-all grid-all" style="width: 75%;">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">A1</th>
+<th class="tableblock halign-left valign-top">B1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">B2</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Table with autowidth,</p>
+</div>
+<table class="tableblock frame-all grid-all fit-content">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">auto</th>
+<th class="tableblock halign-left valign-top">width</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 1, row 2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 2, row 2</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all fit-content stretch">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name of Column 1</th>
+<th class="tableblock halign-left valign-top">Name of Column 2</th>
+<th class="tableblock halign-left valign-top">Name of Column 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 1, row 1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 2, row 1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cell in column 3, row 1</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col>
+<col>
+</colgroup>
+<tbody>
+<tr>
+<th class="tableblock halign-left valign-top"><p class="tableblock">small</p></th>
+<td class="tableblock halign-left valign-top"><p class="tableblock">as big as the column needs to be</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">the rest</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -2331,7 +2409,7 @@ this sidebar.</p>
 <div id="footer">
 <div id="footer-text">
  1.1.1<br>
-Last updated 2020-11-30 00:49:13 +0700
+Last updated 2020-12-04 03:18:39 +0700
 </div>
 </div>
 </body>

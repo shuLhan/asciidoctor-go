@@ -47,6 +47,8 @@ type columnFormat struct {
 
 	// isDefault will true if its contains '*'.
 	isDefault bool
+	// isAutowidth will true if its contains '~'.
+	isAutowidth bool
 }
 
 func newColumnFormat() *columnFormat {
@@ -117,6 +119,8 @@ func parseColumnFormat(s string) (ncols int, format *columnFormat) {
 			} else {
 				format.alignHor = colAlignBottom
 			}
+		case '~':
+			format.isAutowidth = true
 		case 'a', 'e', 'h', 'l', 'm', 's', 'v':
 			format.style = _colStyles[s[x]]
 		default:

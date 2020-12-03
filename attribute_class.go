@@ -16,6 +16,10 @@ func (aclass *attributeClass) add(c string) {
 	(*aclass) = libstrings.AppendUniq(*aclass, c)
 }
 
+func (aclass *attributeClass) delete(c string) {
+	(*aclass), _ = libstrings.Delete(*aclass, c)
+}
+
 //
 // String concat all the attribute class into string separated by single
 // space.

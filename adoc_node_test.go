@@ -43,6 +43,12 @@ func TestAdocNode_postConsumeTable(t *testing.T) {
 		raw:  "|A\n|B",
 		exp: adocTable{
 			ncols: 2,
+			classes: attributeClass{
+				classNameTableblock,
+				classNameFrameAll,
+				classNameGridAll,
+				classNameStretch,
+			},
 			rows: []*tableRow{{
 				cells: []*tableCell{{
 					content: []byte("A\n"),
@@ -73,6 +79,12 @@ func TestAdocNode_postConsumeTable(t *testing.T) {
 		raw:  "A1|B1\n\n|A2\n|B2",
 		exp: adocTable{
 			ncols: 2,
+			classes: attributeClass{
+				classNameTableblock,
+				classNameFrameAll,
+				classNameGridAll,
+				classNameStretch,
+			},
 			rows: []*tableRow{{
 				cells: []*tableCell{{
 					content: []byte("A1"),
@@ -110,6 +122,12 @@ func TestAdocNode_postConsumeTable(t *testing.T) {
 		raw:  "A|B|\n\n|r1c1\n|r1c2|\n\n|r2c1 | r2c2",
 		exp: adocTable{
 			ncols: 3,
+			classes: attributeClass{
+				classNameTableblock,
+				classNameFrameAll,
+				classNameGridAll,
+				classNameStretch,
+			},
 			rows: []*tableRow{{
 				cells: []*tableCell{{
 					content: []byte("A"),

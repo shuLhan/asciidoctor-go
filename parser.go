@@ -141,6 +141,14 @@ const (
 	attrValueTitle     = attrNameTitle
 )
 
+const (
+	classNameFitContent = "fit-content"
+	classNameFrameAll   = "frame-all"
+	classNameGridAll    = "grid-all"
+	classNameStretch    = "stretch"
+	classNameTableblock = "tableblock"
+)
+
 // List of document metadata.
 const (
 	metaNameAuthor         = attrValueAuthor
@@ -186,6 +194,7 @@ const (
 
 const (
 	optNameAutoplay               = "autoplay"
+	optNameAutowidth              = "autowidth"
 	optNameControls               = "controls"
 	optNameLoop                   = "loop"
 	optNameNocontrols             = "nocontrols"
