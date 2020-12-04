@@ -635,10 +635,16 @@ func htmlWriteTableRow(doc *Document, table *adocTable, row *tableRow, out io.Wr
 			_ = subdoc.ToEmbeddedHTML(out)
 
 		case colStyleDefault:
-			fmt.Fprintf(out, "<p class=%q>", classNameTableBlock)
-			container := parseInlineMarkup(doc, contentTrimmed)
-			container.toHTML(doc, out, false)
-			fmt.Fprint(out, "</p>")
+			rawParagraphs := bytes.Split(contentTrimmed, []byte("\n\n"))
+			for x, p := range rawParagraphs {
+				if x > 0 {
+					fmt.Fprint(out, "\n")
+				}
+				fmt.Fprintf(out, "<p class=%q>", classNameTableBlock)
+				container := parseInlineMarkup(doc, p)
+				container.toHTML(doc, out, false)
+				fmt.Fprint(out, "</p>")
+			}
 
 		case colStyleHeader, colStyleVerse:
 			fmt.Fprintf(out, "<p class=%q>%s</p>",
