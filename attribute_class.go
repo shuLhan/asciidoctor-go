@@ -20,6 +20,17 @@ func (aclass *attributeClass) delete(c string) {
 	(*aclass), _ = libstrings.Delete(*aclass, c)
 }
 
+func (aclass *attributeClass) replace(old, new string) {
+	for x, v := range *aclass {
+		if v == old {
+			(*aclass)[x] = new
+			return
+		}
+	}
+	// Add class if not found.
+	aclass.add(new)
+}
+
 //
 // String concat all the attribute class into string separated by single
 // space.

@@ -121,6 +121,30 @@ func (table *adocTable) initializeClassAndStyles(ea *elementAttribute) {
 			}
 			table.styles[k] = v
 			table.classes.delete(classNameStretch)
+		case attrNameFrame:
+			switch v {
+			case attrValueTopbot:
+				table.classes.replace(classNameFrameAll,
+					classNameFrameEnds)
+			case attrValueSides:
+				table.classes.replace(classNameFrameAll,
+					classNameFrameSides)
+			case attrValueNone:
+				table.classes.replace(classNameFrameAll,
+					classNameFrameNone)
+			}
+		case attrNameGrid:
+			switch v {
+			case attrValueCols:
+				table.classes.replace(classNameGridAll,
+					classNameGridCols)
+			case attrValueNone:
+				table.classes.replace(classNameGridAll,
+					classNameGridNone)
+			case attrValueRows:
+				table.classes.replace(classNameGridAll,
+					classNameGridRows)
+			}
 		}
 	}
 	for _, k := range ea.options {

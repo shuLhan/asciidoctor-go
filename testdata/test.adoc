@@ -691,6 +691,55 @@ Table with autowidth,
 |small |as big as the column needs to be |the rest
 |===
 
+=== Table borders
+
+====  Frame
+
+[frame=topbot]
+|===
+|A1|B1|C1
+
+|A2|B2|C2
+|===
+
+[frame=sides]
+|===
+|A1|B1|C1
+
+|A2|B2|C2
+|===
+
+[frame=none]
+|===
+|A1|B1|C1
+
+|A2|B2|C2
+|===
+
+====  Grids
+
+[grid=rows]
+|===
+|A1|B1|C1
+
+|A2|B2|C2
+|===
+
+[grid=cols]
+|===
+|A1|B1|C1
+
+|A2|B2|C2
+|===
+
+[grid=none]
+|===
+|A1|B1|C1
+
+|A2|B2|C2
+|===
+
+
 
 ==  Horizontal rules
 

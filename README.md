@@ -59,6 +59,7 @@ numbered based on
   * 23.4. Header row
   * 23.5. Footer row
   * 23.6. Table width
+  * 23.7. Table borders
 * 24. Horizontal Rules
   * 24.1. Markdown-style horizontal rules
 * 25. Page Break

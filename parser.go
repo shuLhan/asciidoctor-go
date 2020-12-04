@@ -102,6 +102,8 @@ const (
 	attrNameDiscrete    = "discrete"
 	attrNameEnd         = "end"
 	attrNameFloat       = "float"
+	attrNameFrame       = "frame"
+	attrNameGrid        = "grid"
 	attrNameHeight      = "height"
 	attrNameHref        = "href"
 	attrNameIcons       = "icons"
@@ -128,6 +130,7 @@ const (
 	attrValueAuthor    = "author"
 	attrValueBare      = "bare"
 	attrValueBlank     = "_blank"
+	attrValueCols      = "cols"
 	attrValueContent   = "content"
 	attrValueEmail     = "email"
 	attrValueFont      = "font"
@@ -136,15 +139,25 @@ const (
 	attrValueImage     = "image"
 	attrValueNoopener  = "noopener"
 	attrValueNoHeader  = "noheader"
+	attrValueNone      = "none"
 	attrValueRevDate   = "revdate"
 	attrValueRevNumber = "revnumber"
+	attrValueRows      = "rows"
+	attrValueSides     = "sides"
 	attrValueTitle     = attrNameTitle
+	attrValueTopbot    = "topbot"
 )
 
 const (
 	classNameFitContent = "fit-content"
 	classNameFrameAll   = "frame-all"
+	classNameFrameEnds  = "frame-ends"
+	classNameFrameSides = "frame-sides"
+	classNameFrameNone  = "frame-none"
 	classNameGridAll    = "grid-all"
+	classNameGridCols   = "grid-cols"
+	classNameGridNone   = "grid-none"
+	classNameGridRows   = "grid-rows"
 	classNameStretch    = "stretch"
 	classNameTableblock = "tableblock"
 )
