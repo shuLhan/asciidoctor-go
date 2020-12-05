@@ -162,7 +162,7 @@ func TestAdocNode_postConsumeTable(t *testing.T) {
 					classNameValignTop,
 				},
 			}, {
-				width: big.NewRat("33.3333"),
+				width: big.NewRat("33.3334"),
 				classes: []string{
 					classNameTableBlock,
 					classNameHalignLeft,

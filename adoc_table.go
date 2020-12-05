@@ -195,6 +195,7 @@ func (table *adocTable) parseOptions(opts []string) {
 func (table *adocTable) recalculateWidth() {
 	var (
 		totalWidth   = big.NewRat(0)
+		lastWidth    = big.NewRat(100)
 		hasAutowidth bool
 	)
 	for _, format := range table.formats {
@@ -205,9 +206,15 @@ func (table *adocTable) recalculateWidth() {
 			totalWidth.Add(format.width)
 		}
 	}
-	for _, format := range table.formats {
-		if !hasAutowidth {
+	for x, format := range table.formats {
+		if hasAutowidth {
+			continue
+		}
+		if x == len(table.formats)-1 {
+			format.width = lastWidth
+		} else {
 			format.width = big.QuoRat(format.width, totalWidth).Mul(100)
+			lastWidth.Sub(format.width)
 		}
 	}
 }
