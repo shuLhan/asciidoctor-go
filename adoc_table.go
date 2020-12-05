@@ -33,7 +33,6 @@ func newTable(ea *elementAttribute, content []byte) (table *adocTable) {
 			classNameTableblock,
 			classNameFrameAll,
 			classNameGridAll,
-			classNameStretch,
 		},
 		styles: make(map[string]string),
 	}
@@ -110,6 +109,9 @@ func (table *adocTable) initializeFormats() {
 }
 
 func (table *adocTable) initializeClassAndStyles(ea *elementAttribute) {
+	var (
+		withWidth bool
+	)
 	for k, v := range ea.Attrs {
 		switch k {
 		case attrNameWidth:
@@ -120,7 +122,7 @@ func (table *adocTable) initializeClassAndStyles(ea *elementAttribute) {
 				v += "%"
 			}
 			table.styles[k] = v
-			table.classes.delete(classNameStretch)
+			withWidth = true
 		case attrNameFrame:
 			switch v {
 			case attrValueTopbot:
@@ -145,12 +147,23 @@ func (table *adocTable) initializeClassAndStyles(ea *elementAttribute) {
 				table.classes.replace(classNameGridAll,
 					classNameGridRows)
 			}
+		case attrNameStripes:
+			switch v {
+			case attrValueAll:
+				table.classes.add(classNameStripesAll)
+			case attrValueEven:
+				table.classes.add(classNameStripesEven)
+			case attrValueHover:
+				table.classes.add(classNameStripesHover)
+			case attrValueOdd:
+				table.classes.add(classNameStripesOdd)
+			}
 		}
 	}
 	for _, k := range ea.options {
 		switch k {
 		case optNameAutowidth:
-			table.classes.delete(classNameStretch)
+			withWidth = true
 			table.classes.add(classNameFitContent)
 			for _, f := range table.formats {
 				f.width = nil
@@ -159,6 +172,9 @@ func (table *adocTable) initializeClassAndStyles(ea *elementAttribute) {
 	}
 	for _, k := range ea.roles {
 		table.classes.add(k)
+	}
+	if !withWidth {
+		table.classes.add(classNameStretch)
 	}
 }
 

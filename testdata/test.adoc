@@ -739,6 +739,43 @@ Table with autowidth,
 |A2|B2|C2
 |===
 
+=== Striping
+
+[stripes=even]
+|===
+|A1|B1|C1
+
+|A2|B2|C2
+
+|A3|B3|C3
+|===
+
+[stripes=odd]
+|===
+|A1|B1|C1
+
+|A2|B2|C2
+
+|A3|B3|C3
+|===
+
+[stripes=all]
+|===
+|A1|B1|C1
+
+|A2|B2|C2
+
+|A3|B3|C3
+|===
+
+[stripes=hover]
+|===
+|A1|B1|C1
+
+|A2|B2|C2
+
+|A3|B3|C3
+|===
 
 
 ==  Horizontal rules

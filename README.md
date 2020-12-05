@@ -60,6 +60,7 @@ numbered based on
   * 23.5. Footer row
   * 23.6. Table width
   * 23.7. Table borders
+  * 24.8. Striping
 * 24. Horizontal Rules
   * 24.1. Markdown-style horizontal rules
 * 25. Page Break
@@ -148,8 +149,8 @@ List of features which will be implemented,
 
 ## Not supported
 
-The following asciidoctor markup will not supported because its functionality
-is duplicate with others markup,
+The following markup will not supported because its functionality is duplicate
+with others markup,
 
 * 14. Header
   * 14.4. Subtitle partitioning. Duplicate with 14.1.2 the "Main: sub" format.
