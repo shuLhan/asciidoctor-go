@@ -56,8 +56,9 @@ type Document struct {
 	header  *adocNode
 	content *adocNode
 
-	counterImage   int
 	counterExample int
+	counterImage   int
+	counterTable   int
 }
 
 func newDocument() *Document {

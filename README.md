@@ -62,6 +62,8 @@ numbered based on
   * 23.7. Table borders
   * 24.8. Striping
   * 24.9. Orientation
+  * ~~24.10. Nested tables~~
+  * 24.11. Table caption
 * 24. Horizontal Rules
   * 24.1. Markdown-style horizontal rules
 * 25. Page Break
@@ -115,6 +117,7 @@ Supported metadata or attribute references,
 * `sectnumlevels`
 * `sectnums`
 * `showtitle`
+* `table-caption`
 * `title-separator`
 * `version-label`
 

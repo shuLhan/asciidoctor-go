@@ -791,6 +791,39 @@ Table with autowidth,
 |c |d
 |===
 
+=== Table caption
+
+.A formal table
+|===
+|Name of Column 1 |Name of Column 2
+
+|Cell in column 1, row 1
+|Cell in column 2, row 1
+|===
+
+[caption="Table A. "]
+.A formal table
+|===
+|Name of Column 1 |Name of Column 2
+
+|Cell in column 1, row 1
+|Cell in column 2, row 1
+|===
+
+:table-caption!:
+
+[caption="Table A. "]
+.A formal table
+|===
+|Name of Column 1 |Name of Column 2
+
+|Cell in column 1, row 1
+|Cell in column 2, row 1
+|===
+
+:table-caption:
+
+
 ==  Horizontal rules
 
 '''

@@ -554,6 +554,25 @@ func htmlWriteTable(doc *Document, node *adocNode, out io.Writer) {
 	}
 	fmt.Fprint(out, ">")
 
+	if len(node.rawTitle) > 0 {
+		var (
+			caption string
+			ok      bool
+		)
+
+		doc.counterTable++
+		_, withTableCaption := doc.Attributes[metaNameTableCaption]
+
+		if withTableCaption {
+			caption, ok = node.Attrs[attrNameCaption]
+			if !ok {
+				caption = fmt.Sprintf("Table %d.", doc.counterTable)
+			}
+		}
+		fmt.Fprintf(out, "\n<caption class=%q>%s %s</caption>",
+			attrValueTitle, caption, node.rawTitle)
+	}
+
 	fmt.Fprint(out, "\n<colgroup>")
 	for _, format := range table.formats {
 		if format.width != nil {

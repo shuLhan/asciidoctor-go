@@ -129,9 +129,17 @@ func (ea *elementAttribute) parseElementAttribute(raw string) {
 }
 
 func (ea *elementAttribute) parseNamedValue(prevc byte, str string) {
+	if ea.Attrs == nil {
+		ea.Attrs = make(map[string]string)
+	}
+
 	kv := strings.Split(str, "=")
 	key := kv[0]
 	val := strings.TrimSpace(kv[1])
+	if len(val) == 0 {
+		ea.Attrs[key] = ""
+		return
+	}
 	if val[0] == '"' {
 		val = val[1:]
 	}
@@ -155,9 +163,6 @@ func (ea *elementAttribute) parseNamedValue(prevc byte, str string) {
 	case attrNameRole:
 		ea.roles = append(ea.roles, vals...)
 	default:
-		if ea.Attrs == nil {
-			ea.Attrs = make(map[string]string)
-		}
 		ea.Attrs[key] = val
 	}
 }

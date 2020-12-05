@@ -16,6 +16,7 @@ func newAttributeEntry() AttributeEntry {
 	return AttributeEntry{
 		metaNameSectIDs:      "",
 		metaNameShowTitle:    "",
+		metaNameTableCaption: "",
 		metaNameVersionLabel: "",
 	}
 }

@@ -97,6 +97,7 @@ const (
 	attrNameAlign       = "align"
 	attrNameAlt         = "alt"
 	attrNameAttribution = "attribution"
+	attrNameCaption     = "caption"
 	attrNameCitation    = "citation"
 	attrNameCols        = "cols"
 	attrNameDiscrete    = "discrete"
@@ -200,6 +201,7 @@ const (
 	metaNameTOC            = "toc"
 	metaNameTOCLevels      = "toclevels"
 	metaNameTOCTitle       = "toc-title"
+	metaNameTableCaption   = "table-caption"
 	metaNameTitle          = attrNameTitle
 	metaNameTitleSeparator = "title-separator"
 	metaNameVersionLabel   = "version-label"
