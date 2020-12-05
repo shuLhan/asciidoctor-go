@@ -64,6 +64,7 @@ numbered based on
   * 24.9. Orientation
   * ~~24.10. Nested tables~~
   * 24.11. Table caption
+  * 24.12. Escaping the Cell Separator
 * 24. Horizontal Rules
   * 24.1. Markdown-style horizontal rules
 * 25. Page Break
@@ -119,6 +120,7 @@ Supported metadata or attribute references,
 * `showtitle`
 * `table-caption`
 * `title-separator`
+* `vbar`
 * `version-label`
 
 
@@ -141,6 +143,7 @@ List of features which will be implemented,
 * 22. Description List
   * Style on description label
 * 23. Tables
+  * 23.13. Delimiter-Separated Values
 * 27. Cross References
   * 27.6. Inter-document Cross References
 * 28. Include Directive
@@ -163,3 +166,4 @@ with others markup,
 * 23. Tables
   * 23.10. Nested tables.  Reason: nested table is not a good way to present
     information.  Never should it be.
+  * Using different cell separator

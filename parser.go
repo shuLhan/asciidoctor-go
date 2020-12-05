@@ -309,6 +309,10 @@ var adocStyles map[string]int64 = map[string]int64{
 	"verse":             styleVerse,
 }
 
+var _attrRef map[string]string = map[string]string{
+	"vbar": "|",
+}
+
 func applySubstitutions(doc *Document, content []byte) []byte {
 	var (
 		raw    = bytes.TrimRight(content, " \n")
@@ -520,11 +524,13 @@ func parseAttrRef(doc *Document, content []byte, x int) (
 		return nil, false
 	}
 
-	attrName = bytes.TrimSpace(bytes.ToLower(attrName))
-
-	attrValue, ok := doc.Attributes[string(attrName)]
+	name := string(bytes.TrimSpace(bytes.ToLower(attrName)))
+	attrValue, ok := _attrRef[name]
 	if !ok {
-		return nil, false
+		attrValue, ok = doc.Attributes[name]
+		if !ok {
+			return nil, false
+		}
 	}
 
 	rest := content[x+idx+2:]

@@ -824,6 +824,20 @@ Table with autowidth,
 :table-caption:
 
 
+=== Escaping the Cell separator
+
+[cols=2*]
+|===
+|The default separator in PSV tables is the \| character.
+|The \| character is often referred to as a "`pipe`".
+|===
+
+[cols=2*]
+|===
+|The default separator in PSV tables is the {vbar} character.
+|The {vbar} character is often referred to as a "`pipe`".
+|===
+
 ==  Horizontal rules
 
 '''
