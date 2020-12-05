@@ -57,7 +57,9 @@ func newTable(ea *elementAttribute, content []byte) (table *adocTable) {
 	}
 	if pt.nrow == 1 && !row.cells[0].endWithLF() {
 		if !libstrings.IsContain(ea.options, attrValueNoHeader) {
-			table.hasHeader = true
+			if pt.x < len(pt.cells) && pt.cells[pt.x] == nil {
+				table.hasHeader = true
+			}
 		}
 	}
 

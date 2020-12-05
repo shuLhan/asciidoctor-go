@@ -61,6 +61,7 @@ numbered based on
   * 23.6. Table width
   * 23.7. Table borders
   * 24.8. Striping
+  * 24.9. Orientation
 * 24. Horizontal Rules
   * 24.1. Markdown-style horizontal rules
 * 25. Page Break
@@ -153,4 +154,9 @@ The following markup will not supported because its functionality is duplicate
 with others markup,
 
 * 14. Header
-  * 14.4. Subtitle partitioning. Duplicate with 14.1.2 the "Main: sub" format.
+  * 14.4. Subtitle partitioning. Reason: duplicate with 14.1.2 the "Main: sub"
+    format
+
+* 23. Tables
+  * 23.10. Nested tables.  Reason: nested table is not a good way to present
+    information.  Never should it be.

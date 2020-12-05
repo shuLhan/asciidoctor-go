@@ -134,10 +134,20 @@ func (pt *parserTable) firstRow() (row *tableRow) {
 		pt.nrow++
 	}
 	for ; pt.x < len(pt.cells); pt.x++ {
-		if pt.cells[pt.x] == nil {
+		cell := pt.cells[pt.x]
+		if cell == nil {
+			// Row with empty line.
 			break
 		}
-		row.add(pt.cells[pt.x])
+
+		row.add(cell)
+
+		if cell.endWithLF() && row.ncell > 1 {
+			// Row with multiple columns in single line.
+			pt.x++
+			break
+		}
+
 	}
 	pt.nrow++
 	return row

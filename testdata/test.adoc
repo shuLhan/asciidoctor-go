@@ -777,6 +777,19 @@ Table with autowidth,
 |A3|B3|C3
 |===
 
+=== Orientation
+
+[%rotate]
+|===
+|a |b
+|c |d
+|===
+
+[orientation=landscape]
+|===
+|a |b
+|c |d
+|===
 
 ==  Horizontal rules
 
