@@ -461,7 +461,9 @@ or space.
 == Table
 
 ----
-TABLE  = "|===" LF *ROW LF "|==="
+TABLE     = TABLE_SEP LF *ROW LF TABLE_SEP
+
+TABLE_SEP = "|" 3*"="
 
 ROW    = 1*CELL
 

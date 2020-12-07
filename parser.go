@@ -622,7 +622,7 @@ func whatKindOfLine(line string) (kind int, spaces, got string) {
 	if line == "****" {
 		return nodeKindBlockSidebar, "", line
 	}
-	if line == "|===" {
+	if strings.HasPrefix(line, "|===") {
 		return nodeKindTable, "", line
 	}
 
