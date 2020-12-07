@@ -155,6 +155,7 @@ const (
 )
 
 const (
+	classNameChecklist    = "checklist"
 	classNameFitContent   = "fit-content"
 	classNameFrameAll     = "frame-all"
 	classNameFrameEnds    = "frame-ends"
@@ -275,6 +276,8 @@ const (
 	symbolQuoteDoubleEnd   = "&#8221;"
 	symbolQuoteSingleBegin = "&#8216;"
 	symbolQuoteSingleEnd   = "&#8217;"
+	symbolChecked          = "&#10003;"
+	symbolUnchecked        = "&#10063;"
 )
 
 var adocStyles map[string]int64 = map[string]int64{

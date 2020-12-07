@@ -483,6 +483,23 @@ func (node *adocNode) parseListUnorderedItem(line string) {
 		}
 		break
 	}
+	if len(line[x:]) > 3 {
+		var (
+			checklist = line[x : x+3]
+			sym       string
+		)
+		if checklist == "[ ]" {
+			sym = symbolUnchecked
+		} else if checklist == "[x]" || checklist == "[*]" {
+			sym = symbolChecked
+		}
+		if len(sym) > 0 {
+			node.WriteString(sym)
+			node.WriteByte(' ')
+			line = line[x+2:]
+			node.addRole(classNameChecklist)
+		}
+	}
 	node.WriteString(line[x:])
 	node.WriteByte('\n')
 }

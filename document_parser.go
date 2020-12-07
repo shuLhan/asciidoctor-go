@@ -1071,6 +1071,12 @@ func (docp *documentParser) parseListUnordered(parent, node *adocNode, line stri
 	listItem.parseListUnorderedItem(line)
 	list.level = listItem.level
 	list.addChild(listItem)
+	for _, role := range listItem.roles {
+		list.addRole(role)
+		if role == classNameChecklist {
+			list.rawStyle = role
+		}
+	}
 	parent.addChild(list)
 
 	var c rune
@@ -1136,6 +1142,12 @@ func (docp *documentParser) parseListUnordered(parent, node *adocNode, line stri
 			node.parseListUnorderedItem(line)
 			if listItem.level == node.level {
 				list.addChild(node)
+				for _, role := range listItem.roles {
+					list.addRole(role)
+					if role == classNameChecklist {
+						list.rawStyle = role
+					}
+				}
 				listItem = node
 				line = ""
 				continue

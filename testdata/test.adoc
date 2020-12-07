@@ -449,6 +449,13 @@ This line separated by comment.
 * what one
 * what two
 
+=== Checklist
+
+* [*] checked
+* [x] also checked
+* [ ] not checked
+*     normal list item
+
 
 ==  Mixed list
 
