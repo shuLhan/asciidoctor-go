@@ -419,6 +419,37 @@ This line separated by comment.
     ** Sub 2.2
   * List indented with space
 
+===  Custom markers
+
+[square]
+* square one
+* square two
+
+[circle]
+* circle one
+* circle two
+
+[disc]
+* disc one
+* disc two
+
+[none]
+* none one
+* none two
+
+[no-bullet]
+* no bullet one
+* no bullet two
+
+[unstyled]
+* unstyled one
+* unstyled two
+
+[what.is]
+* what one
+* what two
+
+
 ==  Mixed list
 
 . Orderer 1

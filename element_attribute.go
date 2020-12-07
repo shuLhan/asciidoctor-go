@@ -22,6 +22,10 @@ type elementAttribute struct {
 }
 
 func (ea *elementAttribute) addRole(role string) {
+	role = strings.TrimSpace(role)
+	if len(role) == 0 {
+		return
+	}
 	ea.roles = libstrings.AppendUniq(ea.roles, role)
 }
 

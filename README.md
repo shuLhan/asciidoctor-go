@@ -47,6 +47,7 @@ numbered based on
 * 20. Unordered Lists
   * 20.1. Nested
   * 20.2. Complex List Content
+  * 20.3. Custom Markers
 * 21. Ordered Lists
   * 21.1. Nested
   * 21.2. Numbering Styles
@@ -138,7 +139,6 @@ List of features which will be implemented,
 * 19. Text formatting
   * 19.5. Custom Styling With Attributes
 * 20. Unordered Lists
-  * 20.3. Custom Markers
   * 20.4. Checklist
 * 22. Description List
   * Style on description label

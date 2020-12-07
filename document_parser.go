@@ -1058,6 +1058,13 @@ func (docp *documentParser) parseListUnordered(parent, node *adocNode, line stri
 		kind:     nodeKindListUnordered,
 		rawTitle: node.rawTitle,
 	}
+	if len(node.rawStyle) > 0 {
+		list.addRole(node.rawStyle)
+		list.rawStyle = node.rawStyle
+	}
+	for _, role := range node.roles {
+		list.addRole(role)
+	}
 	listItem := &adocNode{
 		kind: nodeKindListUnorderedItem,
 	}

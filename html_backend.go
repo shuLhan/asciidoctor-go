@@ -454,8 +454,12 @@ func htmlWriteListOrderedEnd(out io.Writer) {
 }
 
 func htmlWriteListUnordered(node *adocNode, out io.Writer) {
+	var classes string
+	if len(node.rawStyle) != 0 {
+		classes = fmt.Sprintf(" class=%q", node.rawStyle)
+	}
 	htmlWriteBlockBegin(node, out, "")
-	fmt.Fprintf(out, "\n<ul>")
+	fmt.Fprintf(out, "\n<ul%s>", classes)
 }
 
 func htmlWriteListUnorderedEnd(out io.Writer) {
