@@ -279,24 +279,25 @@ func (node *adocNode) lastSuccessor() (last *adocNode) {
 	return last
 }
 
-func (node *adocNode) parseBlockAudio(doc *Document, line string) bool {
-	attrBegin := strings.IndexByte(line, '[')
+func (node *adocNode) parseBlockAudio(doc *Document, line []byte) bool {
+	line = bytes.TrimRight(line[7:], " \t")
+	attrBegin := bytes.IndexByte(line, '[')
 	if attrBegin < 0 {
 		return false
 	}
-	attrEnd := strings.IndexByte(line, ']')
+	attrEnd := bytes.IndexByte(line, ']')
 	if attrEnd < 0 {
 		return false
 	}
 
-	src := strings.TrimRight(line[:attrBegin], " \t")
+	src := bytes.TrimRight(line[:attrBegin], " \t")
 	if node.Attrs == nil {
 		node.Attrs = make(map[string]string)
 	}
 	node.parseElementAttribute(line[attrBegin : attrEnd+1])
 
-	src = string(applySubstitutions(doc, []byte(src)))
-	node.Attrs[attrNameSrc] = src
+	src = applySubstitutions(doc, []byte(src))
+	node.Attrs[attrNameSrc] = string(src)
 
 	return true
 }
@@ -305,51 +306,52 @@ func (node *adocNode) parseBlockAudio(doc *Document, line string) bool {
 // parseBlockImage parse the image block or line.
 // The line parameter must not have "image::" block or "image:" macro prefix.
 //
-func (node *adocNode) parseBlockImage(doc *Document, line string) bool {
-	attrBegin := strings.IndexByte(line, '[')
+func (node *adocNode) parseBlockImage(doc *Document, line []byte) bool {
+	attrBegin := bytes.IndexByte(line, '[')
 	if attrBegin < 0 {
 		return false
 	}
-	attrEnd := strings.IndexByte(line, ']')
+	attrEnd := bytes.IndexByte(line, ']')
 	if attrEnd < 0 {
 		return false
 	}
 
-	src := strings.TrimRight(line[:attrBegin], " \t")
+	src := bytes.TrimRight(line[:attrBegin], " \t")
 
 	if node.Attrs == nil {
 		node.Attrs = make(map[string]string)
 	}
-	src = string(applySubstitutions(doc, []byte(src)))
-	node.Attrs[attrNameSrc] = src
+	src = applySubstitutions(doc, src)
+	node.Attrs[attrNameSrc] = string(src)
 
-	attrs := strings.Split(line[attrBegin+1:attrEnd], ",")
+	attrs := bytes.Split(line[attrBegin+1:attrEnd], []byte(","))
 	if node.Attrs == nil {
 		node.Attrs = make(map[string]string)
 	}
 	var hasWidth bool
-	for x, attr := range attrs {
+	for x, battr := range attrs {
+		attr := string(battr)
 		if x == 0 {
-			alt := strings.TrimSpace(attrs[0])
+			alt := bytes.TrimSpace(attrs[0])
 			if len(alt) == 0 {
-				dot := strings.IndexByte(src, '.')
+				dot := bytes.IndexByte(src, '.')
 				if dot > 0 {
 					alt = src[:dot]
 				}
 			}
-			node.Attrs[attrNameAlt] = alt
+			node.Attrs[attrNameAlt] = string(alt)
 			continue
 		}
 		if x == 1 {
-			if ascii.IsDigits([]byte(attrs[1])) {
-				node.Attrs[attrNameWidth] = attrs[1]
+			if ascii.IsDigits(attrs[1]) {
+				node.Attrs[attrNameWidth] = string(attrs[1])
 				hasWidth = true
 				continue
 			}
 		}
 		if hasWidth && x == 2 {
-			if ascii.IsDigits([]byte(attrs[2])) {
-				node.Attrs[attrNameHeight] = attrs[2]
+			if ascii.IsDigits(attrs[2]) {
+				node.Attrs[attrNameHeight] = string(attrs[2])
 			}
 		}
 		kv := strings.SplitN(attr, "=", 2)
@@ -398,22 +400,24 @@ func (node *adocNode) parseInlineMarkup(doc *Document, kind int) {
 	node.raw = nil
 }
 
-func (node *adocNode) parseLineAdmonition(line string) {
-	sep := strings.IndexByte(line, ':')
-	class := strings.ToLower(line[:sep])
-	node.addRole(class)
-	node.rawLabel.WriteString(strings.Title(class))
-	line = strings.TrimSpace(line[sep+1:])
-	node.WriteString(line)
+func (node *adocNode) parseLineAdmonition(line []byte) {
+	sep := bytes.IndexByte(line, ':')
+	class := bytes.ToLower(line[:sep])
+	node.addRole(string(class))
+	node.rawLabel.Write(bytes.Title(class))
+	line = bytes.TrimSpace(line[sep+1:])
+	node.Write(line)
 	node.WriteByte('\n')
 }
 
-func (node *adocNode) parseListDescriptionItem(line string) {
+func (node *adocNode) parseListDescriptionItem(line []byte) {
 	var (
-		c rune
+		label []byte
+		x     int
+		c     byte
 	)
 
-	label, x := indexUnescape([]byte(line), []byte("::"))
+	label, x = indexUnescape(line, []byte("::"))
 	node.rawLabel.Write(label)
 
 	line = line[x+2:]
@@ -429,7 +433,7 @@ func (node *adocNode) parseListDescriptionItem(line string) {
 	if x < len(line)-1 {
 		line = line[x:]
 	} else {
-		line = ""
+		line = nil
 	}
 	for x, c = range line {
 		if c == ' ' || c == '\t' {
@@ -438,11 +442,11 @@ func (node *adocNode) parseListDescriptionItem(line string) {
 		break
 	}
 	if len(line) > 0 {
-		node.WriteString(line[x:])
+		node.Write(line[x:])
 	}
 }
 
-func (node *adocNode) parseListOrderedItem(line string) {
+func (node *adocNode) parseListOrderedItem(line []byte) {
 	x := 0
 	for ; x < len(line); x++ {
 		if line[x] == '.' {
@@ -459,11 +463,11 @@ func (node *adocNode) parseListOrderedItem(line string) {
 		}
 		break
 	}
-	node.WriteString(line[x:])
+	node.Write(line[x:])
 	node.WriteByte('\n')
 }
 
-func (node *adocNode) parseListUnorderedItem(line string) {
+func (node *adocNode) parseListUnorderedItem(line []byte) {
 	x := 0
 	for ; x < len(line); x++ {
 		if line[x] == '*' {
@@ -485,9 +489,10 @@ func (node *adocNode) parseListUnorderedItem(line string) {
 			checklist = line[x : x+3]
 			sym       string
 		)
-		if checklist == "[ ]" {
+		if bytes.Equal(checklist, []byte("[ ]")) {
 			sym = symbolUnchecked
-		} else if checklist == "[x]" || checklist == "[*]" {
+		} else if bytes.Equal(checklist, []byte("[x]")) ||
+			bytes.Equal(checklist, []byte("[*]")) {
 			sym = symbolChecked
 		}
 		if len(sym) > 0 {
@@ -497,7 +502,7 @@ func (node *adocNode) parseListUnorderedItem(line string) {
 			node.addRole(classNameChecklist)
 		}
 	}
-	node.WriteString(line[x:])
+	node.Write(line[x:])
 	node.WriteByte('\n')
 }
 
@@ -556,23 +561,25 @@ func (node *adocNode) parseSection(doc *Document, isDiscrete bool) {
 	}
 }
 
-func (node *adocNode) parseStyleClass(line string) {
-	line = strings.Trim(line, "[]")
-	parts := strings.Split(line, ".")
+func (node *adocNode) parseStyleClass(line []byte) {
+	line = bytes.Trim(line, "[]")
+	parts := bytes.Split(line, []byte("."))
 	for _, class := range parts {
-		class = strings.TrimSpace(class)
+		class = bytes.TrimSpace(class)
 		if len(class) > 0 {
-			node.addRole(class)
+			node.addRole(string(class))
 		}
 	}
 }
 
-func (node *adocNode) parseBlockVideo(doc *Document, line string) bool {
-	attrBegin := strings.IndexByte(line, '[')
+func (node *adocNode) parseBlockVideo(doc *Document, line []byte) bool {
+	line = bytes.TrimRight(line[7:], " \t")
+
+	attrBegin := bytes.IndexByte(line, '[')
 	if attrBegin < 0 {
 		return false
 	}
-	attrEnd := strings.IndexByte(line, ']')
+	attrEnd := bytes.IndexByte(line, ']')
 	if attrEnd < 0 {
 		return false
 	}
@@ -581,9 +588,9 @@ func (node *adocNode) parseBlockVideo(doc *Document, line string) bool {
 		node.Attrs = make(map[string]string)
 	}
 
-	videoSrc := strings.TrimRight(line[:attrBegin], " \t")
-	videoSrc = string(applySubstitutions(doc, []byte(videoSrc)))
-	node.Attrs[attrNameSrc] = videoSrc
+	videoSrc := bytes.TrimRight(line[:attrBegin], " \t")
+	videoSrc = applySubstitutions(doc, []byte(videoSrc))
+	node.Attrs[attrNameSrc] = string(videoSrc)
 
 	node.parseElementAttribute(line[attrBegin : attrEnd+1])
 

@@ -33,8 +33,8 @@ const (
 	nodeKindSectionL4                  // Line started with "====="
 	nodeKindSectionL5                  // Line started with "======"
 	nodeKindSectionDiscrete            // "[discrete]"
-	nodeKindParagraph                  // Wrapper.
-	nodeKindLiteralParagraph           // 10: Line start with space
+	nodeKindParagraph                  // 10: Wrapper.
+	nodeKindLiteralParagraph           // Line start with space
 	nodeKindBlockAudio                 // "audio::"
 	nodeKindBlockExample               // "===="
 	nodeKindBlockExcerpts              // "____"
@@ -43,8 +43,8 @@ const (
 	nodeKindBlockListingNamed          // "[listing]"
 	nodeKindBlockLiteral               // "...."
 	nodeKindBlockLiteralNamed          // "[literal]"
-	nodeKindBlockOpen                  // Block wrapped with "--"
-	nodeKindBlockPassthrough           // 20: Block wrapped with "++++"
+	nodeKindBlockOpen                  // 20: Block wrapped with "--"
+	nodeKindBlockPassthrough           // Block wrapped with "++++"
 	nodeKindBlockSidebar               // "****"
 	nodeKindBlockVideo                 // "video::"
 	nodeKindCrossReference             // "<<" REF ("," LABEL) ">>"
@@ -53,8 +53,8 @@ const (
 	nodeKindInlineImage                // Inline macro for "image:"
 	nodeKindInlineParagraph            //
 	nodeKindListOrdered                // Wrapper.
-	nodeKindListOrderedItem            // Line start with ". "
-	nodeKindListUnordered              // 30: Wrapper.
+	nodeKindListOrderedItem            // 30: Line start with ". "
+	nodeKindListUnordered              // Wrapper.
 	nodeKindListUnorderedItem          // Line start with "* "
 	nodeKindListDescription            // Wrapper.
 	nodeKindListDescriptionItem        // Line that has "::" + WSP
@@ -63,8 +63,8 @@ const (
 	nodeKindPassthroughDouble          // Text wrapped inside "++"
 	nodeKindPassthroughTriple          // Text wrapped inside "+++"
 	nodeKindSymbolQuoteDoubleBegin     // The ("`)
-	nodeKindSymbolQuoteDoubleEnd       // The (`")
-	nodeKindSymbolQuoteSingleBegin     // 40: The ('`)
+	nodeKindSymbolQuoteDoubleEnd       // 40: The (`")
+	nodeKindSymbolQuoteSingleBegin     // The ('`)
 	nodeKindSymbolQuoteSingleEnd       // The (`')
 	nodeKindTable                      // "|==="
 	nodeKindText                       //
@@ -73,8 +73,8 @@ const (
 	nodeKindTextMono                   // Text wrapped by "`"
 	nodeKindTextSubscript              // Word wrapped by '~'
 	nodeKindTextSuperscript            // Word wrapped by '^'
-	nodeKindUnconstrainedBold          // Text wrapped by "**"
-	nodeKindUnconstrainedItalic        // 50: Text wrapped by "__"
+	nodeKindUnconstrainedBold          // 50: Text wrapped by "**"
+	nodeKindUnconstrainedItalic        // Text wrapped by "__"
 	nodeKindUnconstrainedMono          // Text wrapped by "``"
 	nodeKindURL                        // Anchor text.
 	lineKindAdmonition                 // "LABEL: WSP"
@@ -83,8 +83,8 @@ const (
 	lineKindBlockComment               // Block start and end with "////"
 	lineKindBlockTitle                 // Line start with ".<alnum>"
 	lineKindComment                    // Line start with "//"
-	lineKindEmpty                      // LF
-	lineKindHorizontalRule             // 60: "'''", "---", "- - -", "***", "* * *"
+	lineKindEmpty                      // 60: LF
+	lineKindHorizontalRule             // "'''", "---", "- - -", "***", "* * *"
 	lineKindID                         // "[[" REF_ID "]]"
 	lineKindIDShort                    // "[#" REF_ID "]#" TEXT "#"
 	lineKindInclude                    // "include::"
@@ -379,17 +379,17 @@ func generateID(doc *Document, str string) string {
 	return strings.TrimRight(string(id), idSep)
 }
 
-func isAdmonition(line string) bool {
+func isAdmonition(line []byte) bool {
 	var x int
-	if strings.HasPrefix(line, admonitionCaution) {
+	if bytes.HasPrefix(line, []byte(admonitionCaution)) {
 		x = len(admonitionCaution)
-	} else if strings.HasPrefix(line, admonitionImportant) {
+	} else if bytes.HasPrefix(line, []byte(admonitionImportant)) {
 		x = len(admonitionImportant)
-	} else if strings.HasPrefix(line, admonitionNote) {
+	} else if bytes.HasPrefix(line, []byte(admonitionNote)) {
 		x = len(admonitionNote)
-	} else if strings.HasPrefix(line, admonitionTip) {
+	} else if bytes.HasPrefix(line, []byte(admonitionTip)) {
 		x = len(admonitionTip)
-	} else if strings.HasPrefix(line, admonitionWarning) {
+	} else if bytes.HasPrefix(line, []byte(admonitionWarning)) {
 		x = len(admonitionWarning)
 	} else {
 		return false
@@ -409,24 +409,23 @@ func isAdmonition(line string) bool {
 	return false
 }
 
-func isLineDescriptionItem(line string) bool {
-	bline := []byte(line)
-	_, x := indexUnescape(bline, []byte(":: "))
+func isLineDescriptionItem(line []byte) bool {
+	_, x := indexUnescape(line, []byte(":: "))
 	if x > 0 {
 		return true
 	}
-	_, x = indexUnescape(bline, []byte("::\t"))
+	_, x = indexUnescape(line, []byte("::\t"))
 	if x > 0 {
 		return true
 	}
-	_, x = indexUnescape(bline, []byte("::"))
+	_, x = indexUnescape(line, []byte("::"))
 	return x > 0
 }
 
 // isRefTitle will return true if one of character is upper case or white
 // space.
-func isRefTitle(s string) bool {
-	for _, r := range s {
+func isRefTitle(s []byte) bool {
+	for _, r := range string(s) {
 		if unicode.IsUpper(r) || unicode.IsSpace(r) {
 			return true
 		}
@@ -446,7 +445,7 @@ func isStyleVerse(style int64) bool {
 	return style&styleVerse > 0
 }
 
-func isTitle(line string) bool {
+func isTitle(line []byte) bool {
 	if line[0] == '=' || line[0] == '#' {
 		if len(line) > 1 && (line[1] == ' ' || line[1] == '\t') {
 			return true
@@ -459,8 +458,8 @@ func isTitle(line string) bool {
 // isValidID will return true if id is valid XML ID, where the first character
 // is '-', '_', or letter; and the rest is either '-', '_', letter or digits.
 //
-func isValidID(id string) bool {
-	for x, r := range id {
+func isValidID(id []byte) bool {
+	for x, r := range string(id) {
 		if x == 0 {
 			if !(r == '-' || r == '_' || unicode.IsLetter(r)) {
 				return false
@@ -489,7 +488,7 @@ func isValidID(id string) bool {
 //
 //	META_KEY       = 1META_KEY_CHAR *(META_KEY_CHAR | '-')
 //
-func parseAttribute(line string, strict bool) (key, value string, ok bool) {
+func parseAttribute(line []byte, strict bool) (key, value string, ok bool) {
 	var sb strings.Builder
 
 	if !(ascii.IsAlnum(line[1]) || line[1] == '_') {
@@ -515,7 +514,9 @@ func parseAttribute(line string, strict bool) (key, value string, ok bool) {
 		return "", "", false
 	}
 
-	return sb.String(), strings.TrimSpace(line[x+1:]), true
+	valb := bytes.TrimSpace(line[x+1:])
+
+	return sb.String(), string(valb), true
 }
 
 //
@@ -552,8 +553,8 @@ func parseAttrRef(doc *Document, content []byte, x int) (
 // parseIDLabel parse the string "ID (,LABEL)" into ID and label.
 // It will return empty id and label if ID is not valid.
 //
-func parseIDLabel(s string) (id, label string) {
-	idLabel := strings.Split(s, ",")
+func parseIDLabel(s []byte) (id, label []byte) {
+	idLabel := bytes.Split(s, []byte(","))
 	id = idLabel[0]
 	if len(idLabel) >= 2 {
 		label = idLabel[1]
@@ -561,7 +562,7 @@ func parseIDLabel(s string) (id, label string) {
 	if isValidID(idLabel[0]) {
 		return id, label
 	}
-	return "", ""
+	return nil, nil
 }
 
 func parseInlineMarkup(doc *Document, content []byte) (container *adocNode) {
@@ -593,77 +594,82 @@ func parseStyle(styleName string) (styleKind int64) {
 // whatKindOfLine return the kind of line.
 // It will return lineKindText if the line does not match with known syntax.
 //
-func whatKindOfLine(line []byte) (kind int, spaces, got string) {
+func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 	kind = lineKindText
 	if len(line) == 0 {
-		return lineKindEmpty, spaces, line
+		return lineKindEmpty, nil, line
 	}
-	if strings.HasPrefix(line, "////") {
+	if bytes.HasPrefix(line, []byte("////")) {
 		// Check for comment block first, since we use HasPrefix to
 		// check for single line comment.
 		return lineKindBlockComment, spaces, line
 	}
-	if strings.HasPrefix(line, "//") {
+	if bytes.HasPrefix(line, []byte("//")) {
 		// Use HasPrefix to allow single line comment without space,
 		// for example "//comment".
 		return lineKindComment, spaces, line
 	}
-	if line == "'''" || line == "---" || line == "- - -" ||
-		line == "***" || line == "* * *" {
+	if bytes.Equal(line, []byte("'''")) ||
+		bytes.Equal(line, []byte("---")) ||
+		bytes.Equal(line, []byte("- - -")) ||
+		bytes.Equal(line, []byte("***")) ||
+		bytes.Equal(line, []byte("* * *")) {
 		return lineKindHorizontalRule, spaces, line
 	}
-	if line == "<<<" {
+	if bytes.Equal(line, []byte("<<<")) {
 		return lineKindPageBreak, spaces, line
 	}
-	if line == "--" {
+	if bytes.Equal(line, []byte("--")) {
 		return nodeKindBlockOpen, spaces, line
 	}
-	if line == "____" {
+	if bytes.Equal(line, []byte("____")) {
 		return nodeKindBlockExcerpts, spaces, line
 	}
-	if line == "...." {
-		return nodeKindBlockLiteral, "", line
+	if bytes.Equal(line, []byte("....")) {
+		return nodeKindBlockLiteral, nil, line
 	}
-	if line == "++++" {
+	if bytes.Equal(line, []byte("++++")) {
 		return nodeKindBlockPassthrough, spaces, line
 	}
-	if line == "****" {
-		return nodeKindBlockSidebar, "", line
+	if bytes.Equal(line, []byte("****")) {
+		return nodeKindBlockSidebar, nil, line
 	}
-	if strings.HasPrefix(line, "|===") {
-		return nodeKindTable, "", line
+	if bytes.Equal(line, []byte("====")) {
+		return nodeKindBlockExample, spaces, line
 	}
 
-	if line == "[listing]" {
-		return nodeKindBlockListingNamed, "", line
+	if bytes.HasPrefix(line, []byte("|===")) {
+		return nodeKindTable, nil, line
 	}
-	if line == "[literal]" {
-		return nodeKindBlockLiteralNamed, "", line
+
+	if bytes.Equal(line, []byte("[listing]")) {
+		return nodeKindBlockListingNamed, nil, line
 	}
-	if line == "toc::[]" {
+	if bytes.Equal(line, []byte("[literal]")) {
+		return nodeKindBlockLiteralNamed, nil, line
+	}
+	if bytes.Equal(line, []byte("toc::[]")) {
 		return nodeKindMacroTOC, spaces, line
 	}
-	if strings.HasPrefix(line, "image::") {
+	if bytes.HasPrefix(line, []byte("image::")) {
 		return nodeKindBlockImage, spaces, line
 	}
-	if strings.HasPrefix(line, "include::") {
-		return lineKindInclude, "", line
+	if bytes.HasPrefix(line, []byte("include::")) {
+		return lineKindInclude, nil, line
 	}
-	if strings.HasPrefix(line, "video::") {
-		line = strings.TrimRight(line[7:], " \t")
-		return nodeKindBlockVideo, "", line
+	if bytes.HasPrefix(line, []byte("video::")) {
+		return nodeKindBlockVideo, nil, line
 	}
-	if strings.HasPrefix(line, "audio::") {
-		line = strings.TrimRight(line[7:], " \t")
-		return nodeKindBlockAudio, "", line
+	if bytes.HasPrefix(line, []byte("audio::")) {
+		return nodeKindBlockAudio, nil, line
 	}
 	if isAdmonition(line) {
-		return lineKindAdmonition, "", line
+		return lineKindAdmonition, nil, line
 	}
 
 	var (
 		x        int
-		r        rune
+		r        byte
 		hasSpace bool
 	)
 	for x, r = range line {
@@ -692,44 +698,39 @@ func whatKindOfLine(line []byte) (kind int, spaces, got string) {
 	if line[0] == ':' {
 		kind = lineKindAttribute
 	} else if line[0] == '[' {
-		newline := strings.TrimRight(line, " \t")
+		newline := bytes.TrimRight(line, " \t")
 		l := len(newline)
 		if newline[l-1] != ']' {
-			return lineKindText, "", line
+			return lineKindText, nil, line
 		}
 		if l >= 5 {
 			// [[x]]
 			if newline[1] == '[' && newline[l-2] == ']' {
-				return lineKindID, "", line
+				return lineKindID, nil, line
 			}
 		}
 		if l >= 4 {
 			// [#x]
 			if line[1] == '#' {
-				return lineKindIDShort, "", line
+				return lineKindIDShort, nil, line
 			}
 			// [.x]
 			if line[1] == '.' {
-				return lineKindStyleClass, "", line
+				return lineKindStyleClass, nil, line
 			}
 		}
 		return lineKindAttributeElement, spaces, line
 	} else if line[0] == '=' {
-		if line == "====" {
-			return nodeKindBlockExample, spaces, line
-		}
-
-		subs := strings.Fields(line)
-		switch subs[0] {
-		case "==":
+		subs := bytes.Fields(line)
+		if bytes.Equal(subs[0], []byte("==")) {
 			kind = nodeKindSectionL1
-		case "===":
+		} else if bytes.Equal(subs[0], []byte("===")) {
 			kind = nodeKindSectionL2
-		case "====":
+		} else if bytes.Equal(subs[0], []byte("====")) {
 			kind = nodeKindSectionL3
-		case "=====":
+		} else if bytes.Equal(subs[0], []byte("=====")) {
 			kind = nodeKindSectionL4
-		case "======":
+		} else if bytes.Equal(subs[0], []byte("======")) {
 			kind = nodeKindSectionL5
 		}
 	} else if line[0] == '.' {
@@ -766,9 +767,9 @@ func whatKindOfLine(line []byte) (kind int, spaces, got string) {
 				return kind, spaces, line
 			}
 		}
-	} else if line == "+" {
+	} else if bytes.Equal(line, []byte("+")) {
 		kind = lineKindListContinue
-	} else if line == "----" {
+	} else if bytes.Equal(line, []byte("----")) {
 		kind = nodeKindBlockListing
 	} else if isLineDescriptionItem(line) {
 		kind = nodeKindListDescriptionItem

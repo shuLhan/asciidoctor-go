@@ -2267,9 +2267,24 @@ D</p></td>
 <div class="sect1">
 <h2 id="_include"><a class="anchor" href="#_include"></a><a class="link" href="#_include">25. Include</a></h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>This is inside the fragment1.adoc.</p>
+</div>
 <div class="listingblock">
 <div class="content">
-<pre>include::.go[]</pre>
+<pre>// Copyright 2020, Shulhan &lt;ms@kilabit.info&gt;. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+package asciidoctor
+
+//
+// anchor contains label and counter for duplicate ID.
+//
+type anchor struct {
+	label   string
+	counter int
+}</pre>
 </div>
 </div>
 </div>
@@ -2639,7 +2654,7 @@ Admonition with paragraph.
 <div class="title">Warning</div>
 </td>
 <td class="content">
-  Literal paragraph with admonition.
+Literal paragraph with admonition.
 </td>
 </tr>
 </table>

@@ -8,15 +8,13 @@ import (
 	"bytes"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/shuLhan/share/lib/debug"
-	"github.com/shuLhan/share/lib/parser"
 )
 
 type documentParser struct {
 	doc      *Document
-	p        *parser.Parser
+	lines    [][]byte
 	lineNum  int
 	prevKind int
 	kind     int
@@ -34,8 +32,10 @@ func Parse(content []byte) (doc *Document) {
 func parse(doc *Document, content []byte) {
 	docp := &documentParser{
 		doc: doc,
-		p:   parser.New(string(content), "\n"),
 	}
+
+	content = bytes.ReplaceAll(content, []byte("\r\n"), []byte("\n"))
+	docp.lines = bytes.Split(content, []byte("\n"))
 
 	docp.parseHeader()
 	docp.doc.postParseHeader()
@@ -64,8 +64,8 @@ func parseSub(parentDoc *Document, content []byte) (subdoc *Document) {
 	}
 
 	docp := &documentParser{
-		doc: subdoc,
-		p:   parser.New(string(content), "\n"),
+		doc:   subdoc,
+		lines: bytes.Split(content, []byte("\n")),
 	}
 
 	docp.parseBlock(subdoc.content, 0)
@@ -76,15 +76,20 @@ func parseSub(parentDoc *Document, content []byte) (subdoc *Document) {
 func (docp *documentParser) consumeLinesUntil(
 	node *adocNode, term int, terms []int,
 ) (
-	line string,
+	line []byte,
 ) {
 	var (
-		c      rune
-		spaces string
+		ok           bool
+		allowComment bool
+		spaces       []byte
 	)
+	if term == nodeKindBlockListing || term == nodeKindBlockListingNamed ||
+		term == nodeKindLiteralParagraph {
+		allowComment = true
+	}
 	for {
-		spaces, line, c = docp.line()
-		if len(line) == 0 && c == 0 {
+		spaces, line, ok = docp.line()
+		if !ok {
 			break
 		}
 		if docp.kind == lineKindBlockComment {
@@ -92,44 +97,83 @@ func (docp *documentParser) consumeLinesUntil(
 			continue
 		}
 		if docp.kind == lineKindComment {
+			if allowComment {
+				node.Write(line)
+				node.WriteByte('\n')
+			}
 			continue
 		}
 		if docp.kind == term {
 			node.raw = bytes.TrimRight(node.raw, " \n")
-			return ""
+			return nil
 		}
 		for _, t := range terms {
 			if t == docp.kind {
 				return line
 			}
 		}
+		if docp.kind == lineKindInclude {
+			elInclude := parseInclude(docp.doc, line)
+			if elInclude == nil {
+				node.Write(line)
+				node.WriteByte('\n')
+				line = nil
+				continue
+			}
+			// Include the content of file into the current
+			// document.
+			docp.include(elInclude)
+			line = nil
+			continue
+		}
 		if node.kind == nodeKindBlockPassthrough ||
 			node.kind == nodeKindBlockListing ||
 			node.kind == nodeKindBlockLiteral {
 			if node.kind != nodeKindTable {
-				node.WriteString(spaces)
+				node.Write(spaces)
 			}
 		} else if node.kind == nodeKindParagraph && len(spaces) > 0 {
 			node.WriteByte(' ')
 		}
-		node.WriteString(line)
+		node.Write(line)
 		node.WriteByte('\n')
 	}
 	return line
 }
 
-func (docp *documentParser) line() (spaces, line string, c rune) {
+func (docp *documentParser) include(el *elementInclude) {
+	content := bytes.ReplaceAll(el.content, []byte("\r\n"), []byte("\n"))
+	content = bytes.TrimRight(content, "\n")
+	includedLines := bytes.Split(content, []byte("\n"))
+	newLines := make([][]byte, 0, len(docp.lines)+len(includedLines))
+
+	// Do not add the "include" directive
+	docp.lineNum--
+	newLines = append(newLines, docp.lines[:docp.lineNum]...)
+	newLines = append(newLines, includedLines...)
+	newLines = append(newLines, docp.lines[docp.lineNum+1:]...)
+	docp.lines = newLines
+}
+
+//
+// line return the next line in the content of raw document.
+// It will return ok as false if there are no more line.
+//
+func (docp *documentParser) line() (spaces, line []byte, ok bool) {
 	docp.prevKind = docp.kind
-	line, c = docp.p.Line()
-	if len(line) > 0 || c > 0 {
-		docp.lineNum++
+
+	if docp.lineNum >= len(docp.lines) {
+		return nil, nil, false
 	}
+
+	line = docp.lines[docp.lineNum]
+	docp.lineNum++
+
 	docp.kind, spaces, line = whatKindOfLine(line)
 	if debug.Value == 2 {
-		fmt.Printf("line %3d: kind %3d: c %3d: %s\n", docp.lineNum,
-			docp.kind, c, line)
+		fmt.Printf("line %3d: kind %3d: %s\n", docp.lineNum, docp.kind, line)
 	}
-	return spaces, line, c
+	return spaces, line, true
 }
 
 func (docp *documentParser) parseBlock(parent *adocNode, term int) {
@@ -137,13 +181,13 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 		kind: nodeKindUnknown,
 	}
 	var (
-		spaces, line string
-		c            rune
+		line []byte
+		ok   bool
 	)
 	for {
 		if len(line) == 0 {
-			spaces, line, c = docp.line()
-			if len(line) == 0 && c == 0 {
+			_, line, ok = docp.line()
+			if !ok {
 				return
 			}
 		}
@@ -152,28 +196,29 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 		case term:
 			return
 		case lineKindEmpty:
-			line = ""
+			line = nil
 			continue
 		case lineKindBlockComment:
 			docp.parseIgnoreCommentBlock()
-			line = ""
+			line = nil
 			continue
 		case lineKindComment:
-			line = ""
+			line = nil
 			continue
 		case lineKindHorizontalRule:
 			node.kind = docp.kind
 			parent.addChild(node)
 			node = &adocNode{}
-			line = ""
+			line = nil
 			continue
 
 		case lineKindID:
 			idLabel := line[2 : len(line)-2]
 			id, label := parseIDLabel(idLabel)
 			if len(id) > 0 {
-				node.ID = docp.doc.registerAnchor(id, label)
-				line = ""
+				node.ID = docp.doc.registerAnchor(
+					string(id), string(label))
+				line = nil
 				continue
 			}
 			line = docp.parseParagraph(parent, node, line, term)
@@ -185,8 +230,9 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 			id := line[2 : len(line)-1]
 			id, label := parseIDLabel(id)
 			if len(id) > 0 {
-				node.ID = docp.doc.registerAnchor(id, label)
-				line = ""
+				node.ID = docp.doc.registerAnchor(
+					string(id), string(label))
+				line = nil
 				continue
 			}
 			line = docp.parseParagraph(parent, node, line, term)
@@ -197,21 +243,22 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 		case lineKindInclude:
 			elInclude := parseInclude(docp.doc, []byte(line))
 			if elInclude == nil {
-				node.WriteString(line)
+				node.Write(line)
 				node.WriteByte('\n')
-				line = ""
+				line = nil
 				continue
 			}
-			// Merge the content of include file into the current
-			// content.
-			line = ""
+			// Include the content of file into the current
+			// document.
+			docp.include(elInclude)
+			line = nil
 			continue
 
 		case lineKindPageBreak:
 			node.kind = docp.kind
 			parent.addChild(node)
 			node = &adocNode{}
-			line = ""
+			line = nil
 			continue
 
 		case lineKindAttribute:
@@ -230,7 +277,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 						value: value,
 					})
 				}
-				line = ""
+				line = nil
 				continue
 			}
 			line = docp.parseParagraph(parent, node, line, term)
@@ -245,12 +292,12 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 					node.setStyleAdmonition(node.rawStyle)
 				}
 			}
-			line = ""
+			line = nil
 			continue
 
 		case lineKindStyleClass:
 			node.parseStyleClass(line)
-			line = ""
+			line = nil
 			continue
 
 		case lineKindText, lineKindListContinue:
@@ -260,8 +307,8 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 			continue
 
 		case lineKindBlockTitle:
-			node.rawTitle = line[1:]
-			line = ""
+			node.rawTitle = string(line[1:])
+			line = nil
 			continue
 
 		case lineKindAdmonition:
@@ -296,7 +343,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 
 			node.kind = docp.kind
 			// BUG: "= =a" could become "a", it should be "=a"
-			node.WriteString(strings.TrimLeft(line, "= \t"))
+			node.Write(bytes.TrimLeft(line, "= \t"))
 
 			isDiscrete := node.style&styleSectionDiscrete > 0
 			if isDiscrete {
@@ -305,7 +352,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 				node.parseSection(docp.doc, isDiscrete)
 				parent.addChild(node)
 				node = new(adocNode)
-				line = ""
+				line = nil
 				continue
 			}
 
@@ -321,17 +368,17 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 			parent.addChild(node)
 			parent = node
 			node = new(adocNode)
-			line = ""
+			line = nil
 			continue
 
 		case nodeKindLiteralParagraph:
 			if node.isStyleAdmonition() {
 				line = docp.parseParagraph(parent, node,
-					spaces+line, term)
+					line, term)
 			} else {
 				node.kind = docp.kind
 				node.addRole(classNameLiteralBlock)
-				node.WriteString(line)
+				node.Write(line)
 				node.WriteByte('\n')
 				line = docp.consumeLinesUntil(
 					node,
@@ -420,10 +467,10 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 			continue
 
 		case nodeKindBlockImage:
-			lineImage := strings.TrimRight(line[7:], " \t")
+			lineImage := bytes.TrimRight(line[7:], " \t")
 			if node.parseBlockImage(docp.doc, lineImage) {
 				node.kind = docp.kind
-				line = ""
+				line = nil
 			} else {
 				line = docp.parseParagraph(parent, node, line, term)
 			}
@@ -436,7 +483,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 			docp.parseBlock(node, docp.kind)
 			parent.addChild(node)
 			node = new(adocNode)
-			line = ""
+			line = nil
 			continue
 
 		case nodeKindBlockExcerpts:
@@ -455,7 +502,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 					})
 			} else {
 				docp.parseBlock(node, docp.kind)
-				line = ""
+				line = nil
 			}
 			parent.addChild(node)
 			node = new(adocNode)
@@ -464,10 +511,9 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 		case nodeKindBlockVideo:
 			if node.parseBlockVideo(docp.doc, line) {
 				node.kind = docp.kind
-				line = ""
+				line = nil
 			} else {
-				line = docp.parseParagraph(parent, node,
-					"video::"+line, term)
+				line = docp.parseParagraph(parent, node, line, term)
 			}
 			parent.addChild(node)
 			node = new(adocNode)
@@ -476,10 +522,9 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 		case nodeKindBlockAudio:
 			if node.parseBlockAudio(docp.doc, line) {
 				node.kind = docp.kind
-				line = ""
+				line = nil
 			} else {
-				line = docp.parseParagraph(parent, node,
-					"audio::"+line, term)
+				line = docp.parseParagraph(parent, node, line, term)
 			}
 			parent.addChild(node)
 			node = new(adocNode)
@@ -498,7 +543,7 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 			node = &adocNode{}
 			continue
 		}
-		line = ""
+		line = nil
 	}
 }
 
@@ -526,18 +571,18 @@ func (docp *documentParser) parseHeader() {
 	)
 	state := stateTitle
 	for {
-		_, line, c := docp.line()
-		if len(line) == 0 && c == 0 {
+		_, line, ok := docp.line()
+		if !ok {
 			return
 		}
 		if len(line) == 0 {
 			return
 		}
-		if strings.HasPrefix(line, "////") {
+		if bytes.HasPrefix(line, []byte("////")) {
 			docp.parseIgnoreCommentBlock()
 			continue
 		}
-		if strings.HasPrefix(line, "//") {
+		if bytes.HasPrefix(line, []byte("//")) {
 			continue
 		}
 		if line[0] == ':' {
@@ -549,22 +594,22 @@ func (docp *documentParser) parseHeader() {
 		}
 		if state == stateTitle {
 			if isTitle(line) {
-				docp.doc.header.WriteString(strings.TrimSpace(line[2:]))
+				docp.doc.header.Write(bytes.TrimSpace(line[2:]))
 				docp.doc.Title.raw = string(docp.doc.header.raw)
 				state = stateAuthor
 			} else {
-				docp.doc.rawAuthors = line
+				docp.doc.rawAuthors = string(line)
 				state = stateRevision
 			}
 			continue
 		}
 		switch state {
 		case stateAuthor:
-			docp.doc.rawAuthors = line
+			docp.doc.rawAuthors = string(line)
 			state = stateRevision
 
 		case stateRevision:
-			docp.doc.rawRevision = line
+			docp.doc.rawRevision = string(line)
 			state = stateEnd
 		}
 	}
@@ -572,11 +617,11 @@ func (docp *documentParser) parseHeader() {
 
 func (docp *documentParser) parseIgnoreCommentBlock() {
 	for {
-		line, c := docp.p.Line()
-		if len(line) == 0 && c == 0 {
+		_, line, ok := docp.line()
+		if !ok {
 			return
 		}
-		if strings.HasPrefix(line, "////") {
+		if bytes.HasPrefix(line, []byte("////")) {
 			return
 		}
 	}
@@ -586,11 +631,11 @@ func (docp *documentParser) parseIgnoreCommentBlock() {
 // parseListBlock parse block after list continuation "+" until we found
 // empty line or non-list line.
 //
-func (docp *documentParser) parseListBlock() (node *adocNode, line string) {
-	var c rune
+func (docp *documentParser) parseListBlock() (node *adocNode, line []byte) {
+	var ok bool
 	for {
-		_, line, c = docp.line()
-		if len(line) == 0 && c == 0 {
+		_, line, ok = docp.line()
+		if !ok {
 			break
 		}
 
@@ -635,7 +680,7 @@ func (docp *documentParser) parseListBlock() (node *adocNode, line string) {
 				},
 				kind: docp.kind,
 			}
-			node.WriteString(strings.TrimLeft(line, " \t"))
+			node.Write(bytes.TrimLeft(line, " \t"))
 			node.WriteByte('\n')
 			line = docp.consumeLinesUntil(
 				node,
@@ -652,7 +697,7 @@ func (docp *documentParser) parseListBlock() (node *adocNode, line string) {
 			node = &adocNode{
 				kind: nodeKindParagraph,
 			}
-			node.WriteString(line)
+			node.Write(line)
 			node.WriteByte('\n')
 			line = docp.consumeLinesUntil(node,
 				lineKindEmpty,
@@ -675,7 +720,7 @@ func (docp *documentParser) parseListBlock() (node *adocNode, line string) {
 			}
 			docp.consumeLinesUntil(node, docp.kind, nil)
 			node.raw = applySubstitutions(docp.doc, node.raw)
-			line = ""
+			line = nil
 			break
 		}
 		if docp.kind == nodeKindListOrderedItem {
@@ -691,8 +736,10 @@ func (docp *documentParser) parseListBlock() (node *adocNode, line string) {
 	return node, line
 }
 
-func (docp *documentParser) parseListDescription(parent, node *adocNode, line string) (
-	got string,
+func (docp *documentParser) parseListDescription(
+	parent, node *adocNode, line []byte,
+) (
+	got []byte,
 ) {
 	list := &adocNode{
 		elementAttribute: elementAttribute{
@@ -712,24 +759,22 @@ func (docp *documentParser) parseListDescription(parent, node *adocNode, line st
 	list.addChild(listItem)
 	parent.addChild(list)
 
-	var (
-		c rune
-	)
-	line = ""
+	line = nil
+	var ok bool
 	for {
 		if len(line) == 0 {
-			_, line, c = docp.line()
-			if len(line) == 0 && c == 0 {
+			_, line, ok = docp.line()
+			if !ok {
 				break
 			}
 		}
 		if docp.kind == lineKindBlockComment {
 			docp.parseIgnoreCommentBlock()
-			line = ""
+			line = nil
 			continue
 		}
 		if docp.kind == lineKindComment {
-			line = ""
+			line = nil
 			continue
 		}
 		if docp.kind == lineKindListContinue {
@@ -763,7 +808,7 @@ func (docp *documentParser) parseListDescription(parent, node *adocNode, line st
 			if listItem.level == node.level {
 				list.addChild(node)
 				listItem = node
-				line = ""
+				line = nil
 				continue
 			}
 			parentListItem := parent
@@ -839,9 +884,9 @@ func (docp *documentParser) parseListDescription(parent, node *adocNode, line st
 			}
 		}
 
-		listItem.WriteString(strings.TrimSpace(line))
+		listItem.Write(bytes.TrimSpace(line))
 		listItem.WriteByte('\n')
-		line = ""
+		line = nil
 	}
 	list.postParseList(docp.doc, nodeKindListDescriptionItem)
 	return line
@@ -852,8 +897,10 @@ func (docp *documentParser) parseListDescription(parent, node *adocNode, line st
 // list-item.
 // On success it will return non-empty line and terminator character.
 //
-func (docp *documentParser) parseListOrdered(parent *adocNode, title, line string) (
-	got string,
+func (docp *documentParser) parseListOrdered(
+	parent *adocNode, title string, line []byte,
+) (
+	got []byte,
 ) {
 	list := &adocNode{
 		kind:     nodeKindListOrdered,
@@ -867,23 +914,23 @@ func (docp *documentParser) parseListOrdered(parent *adocNode, title, line strin
 	list.addChild(listItem)
 	parent.addChild(list)
 
-	var c rune
-	line = ""
+	var ok bool
+	line = nil
 	for {
 		if len(line) == 0 {
-			_, line, c = docp.line()
-			if len(line) == 0 && c == 0 {
+			_, line, ok = docp.line()
+			if !ok {
 				break
 			}
 		}
 
 		if docp.kind == lineKindBlockComment {
 			docp.parseIgnoreCommentBlock()
-			line = ""
+			line = nil
 			continue
 		}
 		if docp.kind == lineKindComment {
-			line = ""
+			line = nil
 			continue
 		}
 		if docp.kind == lineKindListContinue {
@@ -906,7 +953,7 @@ func (docp *documentParser) parseListOrdered(parent *adocNode, title, line strin
 			if listItem.level == node.level {
 				list.addChild(node)
 				listItem = node
-				line = ""
+				line = nil
 				continue
 			}
 
@@ -979,7 +1026,7 @@ func (docp *documentParser) parseListOrdered(parent *adocNode, title, line strin
 					},
 					kind: docp.kind,
 				}
-				node.WriteString(strings.TrimLeft(line, " \t"))
+				node.Write(bytes.TrimLeft(line, " \t"))
 				node.WriteByte('\n')
 				line = docp.consumeLinesUntil(
 					node,
@@ -1055,16 +1102,18 @@ func (docp *documentParser) parseListOrdered(parent *adocNode, title, line strin
 			}
 		}
 
-		listItem.WriteString(strings.TrimSpace(line))
+		listItem.Write(bytes.TrimSpace(line))
 		listItem.WriteByte('\n')
-		line = ""
+		line = nil
 	}
 	list.postParseList(docp.doc, nodeKindListOrderedItem)
 	return line
 }
 
-func (docp *documentParser) parseListUnordered(parent, node *adocNode, line string) (
-	got string,
+func (docp *documentParser) parseListUnordered(
+	parent, node *adocNode, line []byte,
+) (
+	got []byte,
 ) {
 	list := &adocNode{
 		elementAttribute: elementAttribute{
@@ -1094,23 +1143,23 @@ func (docp *documentParser) parseListUnordered(parent, node *adocNode, line stri
 	}
 	parent.addChild(list)
 
-	var c rune
-	line = ""
+	var ok bool
+	line = nil
 	for {
 		if len(line) == 0 {
-			_, line, c = docp.line()
-			if len(line) == 0 && c == 0 {
+			_, line, ok = docp.line()
+			if !ok {
 				break
 			}
 		}
 
 		if docp.kind == lineKindBlockComment {
 			docp.parseIgnoreCommentBlock()
-			line = ""
+			line = nil
 			continue
 		}
 		if docp.kind == lineKindComment {
-			line = ""
+			line = nil
 			continue
 		}
 		if docp.kind == lineKindListContinue {
@@ -1164,7 +1213,7 @@ func (docp *documentParser) parseListUnordered(parent, node *adocNode, line stri
 					}
 				}
 				listItem = node
-				line = ""
+				line = nil
 				continue
 			}
 
@@ -1214,7 +1263,7 @@ func (docp *documentParser) parseListUnordered(parent, node *adocNode, line stri
 					},
 					kind: docp.kind,
 				}
-				node.WriteString(strings.TrimLeft(line, " \t"))
+				node.Write(bytes.TrimLeft(line, " \t"))
 				node.WriteByte('\n')
 				line = docp.consumeLinesUntil(
 					node,
@@ -1290,19 +1339,19 @@ func (docp *documentParser) parseListUnordered(parent, node *adocNode, line stri
 			}
 		}
 
-		listItem.WriteString(strings.TrimSpace(line))
+		listItem.Write(bytes.TrimSpace(line))
 		listItem.WriteByte('\n')
-		line = ""
+		line = nil
 	}
 	list.postParseList(docp.doc, nodeKindListUnorderedItem)
 	return line
 }
 
 func (docp *documentParser) parseParagraph(
-	parent, node *adocNode, line string, term int,
-) string {
+	parent, node *adocNode, line []byte, term int,
+) []byte {
 	node.kind = nodeKindParagraph
-	node.WriteString(line)
+	node.Write(line)
 	node.WriteByte('\n')
 	line = docp.consumeLinesUntil(
 		node,

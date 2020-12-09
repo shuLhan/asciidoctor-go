@@ -25,7 +25,7 @@ func TestAdocNode_parseListDescriptionItem(t *testing.T) {
 
 	for _, c := range cases {
 		node := &adocNode{}
-		node.parseListDescriptionItem(c.line)
+		node.parseListDescriptionItem([]byte(c.line))
 
 		test.Assert(t, "adocNode.Level", c.expLevel, node.level, true)
 		test.Assert(t, "adocNode.rawLabel", c.expRawTerm, node.rawLabel.String(), true)

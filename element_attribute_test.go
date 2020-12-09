@@ -69,7 +69,7 @@ func Test_parseElementAttribute(t *testing.T) {
 
 	for _, c := range cases {
 		got := elementAttribute{}
-		got.parseElementAttribute(c.raw)
+		got.parseElementAttribute([]byte(c.raw))
 		test.Assert(t, c.raw, c.exp, got, false)
 	}
 }

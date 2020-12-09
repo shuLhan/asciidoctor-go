@@ -6,7 +6,6 @@ package asciidoctor
 
 import (
 	"bytes"
-	"strings"
 
 	"github.com/shuLhan/share/lib/ascii"
 )
@@ -404,28 +403,30 @@ func (pi *parserInline) parseCrossRef() bool {
 	}
 
 	var (
-		href, label, title string
-		ok                 bool
+		href  string
+		label string
+		title string
+		ok    bool
 	)
 
-	parts := strings.Split(string(raw), ",")
+	parts := bytes.Split(raw, []byte(","))
 	if len(parts) >= 2 {
-		label = strings.TrimSpace(parts[1])
+		label = string(bytes.TrimSpace(parts[1]))
 	}
 
 	if isRefTitle(parts[0]) {
 		// Get ID by title.
-		href, ok = pi.doc.titleID[parts[0]]
+		href, ok = pi.doc.titleID[string(parts[0])]
 		if ok {
 			if len(label) == 0 {
-				label = parts[0]
+				label = string(parts[0])
 			}
 		} else {
 			// Store the label for cross reference later.
-			title = parts[0]
+			title = string(parts[0])
 		}
 	} else if isValidID(parts[0]) {
-		href = parts[0]
+		href = string(parts[0])
 		if len(label) == 0 {
 			anchor := pi.doc.anchors[href]
 			if anchor != nil {
@@ -469,16 +470,16 @@ func (pi *parserInline) parseInlineID() bool {
 	if idx < 0 {
 		return false
 	}
-	id, label := parseIDLabel(string(raw))
+	id, label := parseIDLabel(raw)
 	if len(id) == 0 {
 		return false
 	}
 
-	id = pi.doc.registerAnchor(id, label)
+	stringID := pi.doc.registerAnchor(string(id), string(label))
 
 	node := &adocNode{
 		elementAttribute: elementAttribute{
-			ID: id,
+			ID: stringID,
 		},
 		kind: nodeKindInlineID,
 	}
@@ -506,8 +507,7 @@ func (pi *parserInline) parseInlineIDShort() bool {
 		return false
 	}
 
-	stringID := string(id)
-	if !isValidID(stringID) {
+	if !isValidID(id) {
 		return false
 	}
 
@@ -517,7 +517,7 @@ func (pi *parserInline) parseInlineIDShort() bool {
 		return false
 	}
 
-	stringID = pi.doc.registerAnchor(stringID, "")
+	stringID := pi.doc.registerAnchor(string(id), "")
 
 	node := &adocNode{
 		elementAttribute: elementAttribute{
@@ -683,7 +683,7 @@ func (pi *parserInline) parseInlineImage() *adocNode {
 		},
 		kind: nodeKindInlineImage,
 	}
-	if nodeImage.parseBlockImage(pi.doc, string(lineImage)) {
+	if nodeImage.parseBlockImage(pi.doc, lineImage) {
 		pi.x += idx + 2
 		pi.prev = 0
 		return nodeImage
@@ -958,7 +958,7 @@ func (pi *parserInline) parseURL(scheme string) (node *adocNode) {
 	pi.x += x + idx + 2
 	pi.prev = 0
 
-	attr := string(content[x : x+idx+1])
+	attr := content[x : x+idx+1]
 	node.style = styleLink
 	node.parseElementAttribute(attr)
 	if len(node.Attrs) == 0 {

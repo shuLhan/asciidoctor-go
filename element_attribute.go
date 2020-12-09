@@ -53,8 +53,8 @@ func (ea *elementAttribute) htmlClasses() string {
 // double quote.
 // The double quote on value will be removed when stored on options.
 //
-func (ea *elementAttribute) parseElementAttribute(raw string) {
-	raw = strings.TrimSpace(raw)
+func (ea *elementAttribute) parseElementAttribute(raw []byte) {
+	raw = bytes.TrimSpace(raw)
 	if len(raw) == 0 {
 		return
 	}
