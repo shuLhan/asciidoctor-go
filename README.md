@@ -77,6 +77,10 @@ numbered based on
   * 27.2. Defining an Anchor
   * 27.3. Internal Cross References
   * 27.5. Customizing the Cross Reference Text
+* 28. Include Directive
+  * 28.1. Anatomy
+  * 28.2. Processing
+  * 28.3. File resolution
 * 29. Images
 * 30. Video
   * 30.1. YouTube and Vimeo videos
@@ -154,13 +158,22 @@ List of features which will be implemented,
 ## Not supported
 
 The following markup will not supported because its functionality is duplicate
-with others markup,
+with others markup or not secure,
 
 * 14. Header
-  * 14.4. Subtitle partitioning. Reason: duplicate with 14.1.2 the "Main: sub"
-    format
+  * 14.4. Subtitle partitioning.
+    Rationale: duplicate with 14.1.2 the "Main: sub" format
 
 * 23. Tables
-  * 23.10. Nested tables.  Reason: nested table is not a good way to present
-    information.  Never should it be.
+  * 23.10. Nested tables.
+    Rationale: nested table is not a good way to present information.  Never
+    should it be.
   * Using different cell separator
+
+* 28. Include Directive
+  * 28.6. Select Portions of a Document to Include.
+    Rationale: the parser would need to know the language to be included and
+    parse the whole source code to check for comments and tags.
+  * 28.8. Include Content from a URI.
+    Rationale: security and unreliable network connections.
+  * 28.9. Caching URI Content
