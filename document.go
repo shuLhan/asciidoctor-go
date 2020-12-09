@@ -10,6 +10,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -42,6 +43,7 @@ type Document struct {
 	tocIsEnabled bool
 
 	file    string
+	fpath   string
 	classes attributeClass
 
 	// anchors contains mapping between unique ID and its label.
@@ -95,12 +97,20 @@ func Open(file string) (doc *Document, err error) {
 
 	raw, err := ioutil.ReadFile(file)
 	if err != nil {
-		return nil, fmt.Errorf("ciigo.Open %s: %w", file, err)
+		return nil, fmt.Errorf("Open %s: %w", file, err)
 	}
 
-	doc = Parse(raw)
+	wd, err := os.Getwd()
+	if err != nil {
+		return nil, fmt.Errorf("Open %s: %w", file, err)
+	}
+
+	doc = newDocument()
+	doc.fpath = filepath.Join(wd, file)
 	doc.file = file
 	doc.LastUpdated = fi.ModTime().Round(time.Second).Format("2006-01-02 15:04:05 Z0700")
+
+	parse(doc, raw)
 
 	return doc, nil
 }

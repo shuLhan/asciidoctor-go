@@ -27,7 +27,11 @@ type documentParser struct {
 //
 func Parse(content []byte) (doc *Document) {
 	doc = newDocument()
+	parse(doc, content)
+	return doc
+}
 
+func parse(doc *Document, content []byte) {
 	docp := &documentParser{
 		doc: doc,
 		p:   parser.New(string(content), "\n"),
@@ -50,8 +54,6 @@ func Parse(content []byte) (doc *Document) {
 	doc.content.addChild(preamble)
 
 	docp.parseBlock(preamble, 0)
-
-	return doc
 }
 
 func parseSub(parentDoc *Document, content []byte) (subdoc *Document) {
