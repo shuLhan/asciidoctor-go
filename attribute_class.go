@@ -16,10 +16,6 @@ func (aclass *attributeClass) add(c string) {
 	(*aclass) = libstrings.AppendUniq(*aclass, c)
 }
 
-func (aclass *attributeClass) delete(c string) {
-	(*aclass), _ = libstrings.Delete(*aclass, c)
-}
-
 func (aclass *attributeClass) replace(old, new string) {
 	for x, v := range *aclass {
 		if v == old {
