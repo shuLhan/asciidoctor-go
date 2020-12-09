@@ -139,8 +139,6 @@ List of features which will be implemented,
   * 18.3. Lead style
 * 19. Text formatting
   * 19.5. Custom Styling With Attributes
-* 22. Description List
-  * Style on description label
 * 23. Tables
   * 23.13. Delimiter-Separated Values
 * 27. Cross References

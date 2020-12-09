@@ -410,16 +410,13 @@ func (node *adocNode) parseLineAdmonition(line string) {
 
 func (node *adocNode) parseListDescriptionItem(line string) {
 	var (
-		x int
 		c rune
 	)
-	for x, c = range line {
-		if c == ':' {
-			break
-		}
-		node.rawLabel.WriteRune(c)
-	}
-	line = line[x:]
+
+	label, x := indexUnescape([]byte(line), []byte("::"))
+	node.rawLabel.Write(label)
+
+	line = line[x+2:]
 	for x, c = range line {
 		if c == ':' {
 			node.level++
@@ -427,6 +424,7 @@ func (node *adocNode) parseListDescriptionItem(line string) {
 		}
 		break
 	}
+
 	// Skip leading spaces...
 	if x < len(line)-1 {
 		line = line[x:]
@@ -439,7 +437,6 @@ func (node *adocNode) parseListDescriptionItem(line string) {
 		}
 		break
 	}
-	node.level -= 2
 	if len(line) > 0 {
 		node.WriteString(line[x:])
 	}

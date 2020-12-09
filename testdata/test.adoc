@@ -480,24 +480,24 @@ toc::[]
 `CPU`:: The brain of the computer.
 Hard drive:: Permanent storage for operating system and/or user files.
 
-===  With [horizontal]
+With `[horizontal]` style,
 
 [horizontal]
 CPU:: The brain of the computer.
 Hard drive:: Permanent storage for operating system and/or user files.
 
-=== With title
+With title,
 
 .A title
 CPU:: The brain of the computer.
 Hard drive:: Permanent storage for operating system and/or user files.
 
-=== Indented with space
+Indented with space
 
   CPU:: The brain of the computer.
   Hard drive:: Permanent storage for operating system and/or user files.
 
-=== With "+"
+With continuation "+",
 
 CPU::
 +
@@ -507,7 +507,7 @@ Permanent storage for operating system and/or
 +
 user files.
 
-=== Mixed with list
+Mixed with list,
 
 Dairy::
 * Milk
@@ -517,7 +517,7 @@ Bakery::
 Produce::
 * Bananas
 
-=== Spread
+Spread,
 
 Dairy::
 
@@ -532,7 +532,7 @@ Produce::
 
 * Bananas
 
-===  Mixed with ordered and unordered list
+Mixed with ordered and unordered list,
 
 Operating Systems::
   Linux:::
@@ -552,6 +552,11 @@ Cloud Providers::
   IaaS:::
     . Amazon EC2
     . Rackspace
+
+With link on label,
+
+https://pkg.go.dev/git.sr.ht/~shulhan/asciidoctor-go[asciidoctor-go]::
+    Native asciidoc markup language for Go.
 
 
 == Question and Answers
