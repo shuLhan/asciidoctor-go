@@ -194,6 +194,19 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 			node = &adocNode{}
 			continue
 
+		case lineKindInclude:
+			elInclude := parseInclude(docp.doc, []byte(line))
+			if elInclude == nil {
+				node.WriteString(line)
+				node.WriteByte('\n')
+				line = ""
+				continue
+			}
+			// Merge the content of include file into the current
+			// content.
+			line = ""
+			continue
+
 		case lineKindPageBreak:
 			node.kind = docp.kind
 			parent.addChild(node)

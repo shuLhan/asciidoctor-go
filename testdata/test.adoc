@@ -961,6 +961,19 @@ Cross reference with reftext <<This is anchor>>.
 Cross reference with custom label <<_anchors,custom anchor label>>.
 
 
+== Include
+
+:includedir: _includes
+:sourcedir: ..
+
+include::{includedir}/fragment1.adoc[]
+
+[source,go]
+----
+include::{sourcedir}/anchor.go[]
+----
+
+
 == Images
 
 ===  Block images

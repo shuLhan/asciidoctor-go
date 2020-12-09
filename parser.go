@@ -87,6 +87,7 @@ const (
 	lineKindHorizontalRule             // 60: "'''", "---", "- - -", "***", "* * *"
 	lineKindID                         // "[[" REF_ID "]]"
 	lineKindIDShort                    // "[#" REF_ID "]#" TEXT "#"
+	lineKindInclude                    // "include::"
 	lineKindListContinue               // "+" LF
 	lineKindPageBreak                  // "<<<"
 	lineKindStyleClass                 // "[.x.y]"
@@ -228,6 +229,10 @@ const (
 	optVideoNofullscreen          = "nofullscreen"
 	optVideoPlaylist              = "playlist"
 	optVideoYoutubeModestbranding = "modestbranding"
+)
+
+const (
+	prefixInclude = "include::"
 )
 
 const (
@@ -588,7 +593,7 @@ func parseStyle(styleName string) (styleKind int64) {
 // whatKindOfLine return the kind of line.
 // It will return lineKindText if the line does not match with known syntax.
 //
-func whatKindOfLine(line string) (kind int, spaces, got string) {
+func whatKindOfLine(line []byte) (kind int, spaces, got string) {
 	kind = lineKindText
 	if len(line) == 0 {
 		return lineKindEmpty, spaces, line
@@ -640,6 +645,9 @@ func whatKindOfLine(line string) (kind int, spaces, got string) {
 	}
 	if strings.HasPrefix(line, "image::") {
 		return nodeKindBlockImage, spaces, line
+	}
+	if strings.HasPrefix(line, "include::") {
+		return lineKindInclude, "", line
 	}
 	if strings.HasPrefix(line, "video::") {
 		line = strings.TrimRight(line[7:], " \t")

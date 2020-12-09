@@ -272,7 +272,19 @@ Substitution rules,
 * callouts
 
 
-==  Image
+== Include Directive
+
+----
+INCLUDE_DIRECTIVE = "include::" PATH "[" ELEMENT_ATTRIBUTE "]"
+
+PATH              = ABSOLUTE_PATH / RELATIVE_PATH
+
+ABSOLUTE_PATH     = "/" WORD *( "/" WORD )
+
+RELATIVE_PATH     = ( "." / ".." ) "/" WORD * ( "/" WORD )
+----
+
+==  Images
 
 ===  Inline image
 
