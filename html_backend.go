@@ -161,7 +161,16 @@ func htmlWriteBlockImage(doc *Document, node *adocNode, out io.Writer) {
 
 func htmlWriteBlockLiteral(node *adocNode, out io.Writer) {
 	htmlWriteBlockBegin(node, out, "")
-	fmt.Fprintf(out, _htmlBlockLiteralContent, node.raw)
+	source, ok := node.Attrs[attrNameSource]
+	if ok {
+		class := "language-" + source
+		fmt.Fprint(out, "\n<pre class=\"highlight\">")
+		fmt.Fprintf(out, `<code class=%q data-lang=%q>%s</code></pre>`,
+			class, source, node.raw)
+		fmt.Fprint(out, "\n</div>\n</div>")
+	} else {
+		fmt.Fprintf(out, _htmlBlockLiteralContent, node.raw)
+	}
 }
 
 func htmlWriteBlockOpenBegin(node *adocNode, out io.Writer) {

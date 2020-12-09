@@ -199,6 +199,8 @@ func (ea *elementAttribute) setByPreviousChar(prevc byte, str string) {
 				switch ea.style {
 				case styleQuote, styleVerse:
 					ea.Attrs[attrNameAttribution] = str
+				case styleSource:
+					ea.Attrs[attrNameSource] = str
 				default:
 					ea.Attrs[str] = ""
 				}

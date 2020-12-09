@@ -117,6 +117,7 @@ const (
 	attrNameRefText     = "reftext"
 	attrNameRel         = "rel"
 	attrNameRole        = "role"
+	attrNameSource      = "source"
 	attrNameSrc         = "src"
 	attrNameStart       = "start"
 	attrNameStripes     = "stripes"
@@ -270,6 +271,7 @@ const (
 	styleAdmonition
 	styleBlockListing
 	styleQuote
+	styleSource
 	styleTextBold
 	styleTextItalic
 	styleTextMono
@@ -314,6 +316,7 @@ var adocStyles map[string]int64 = map[string]int64{
 	admonitionWarning:   styleAdmonition,
 	"listing":           styleBlockListing,
 	"quote":             styleQuote,
+	"source":            styleSource,
 	"verse":             styleVerse,
 }
 
