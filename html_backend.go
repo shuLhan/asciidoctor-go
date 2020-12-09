@@ -164,7 +164,7 @@ func htmlWriteBlockLiteral(node *adocNode, out io.Writer) {
 	source, ok := node.Attrs[attrNameSource]
 	if ok {
 		class := "language-" + source
-		fmt.Fprint(out, "\n<pre class=\"highlight\">")
+		fmt.Fprint(out, "\n<div class=\"content\">\n<pre class=\"highlight\">")
 		fmt.Fprintf(out, `<code class=%q data-lang=%q>%s</code></pre>`,
 			class, source, node.raw)
 		fmt.Fprint(out, "\n</div>\n</div>")
