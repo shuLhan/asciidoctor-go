@@ -532,6 +532,23 @@ Produce::
 
 * Bananas
 
+Description:: Description body with open block.
++
+--
+Paragraph A.
+
+* List item 1
+* List item 2
+
+Paragraph B.
+
+|===
+| Look | a | table
+
+| This | should | work
+|===
+--
+
 Mixed with ordered and unordered list,
 
 Operating Systems::

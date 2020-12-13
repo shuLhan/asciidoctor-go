@@ -723,6 +723,14 @@ func (docp *documentParser) parseListBlock() (node *adocNode, line []byte) {
 			line = nil
 			break
 		}
+		if docp.kind == nodeKindBlockOpen {
+			node = &adocNode{
+				kind: docp.kind,
+			}
+			docp.parseBlock(node, docp.kind)
+			line = nil
+			break
+		}
 		if docp.kind == nodeKindListOrderedItem {
 			break
 		}
