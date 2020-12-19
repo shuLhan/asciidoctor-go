@@ -449,19 +449,19 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 			continue
 
 		case nodeKindListOrderedItem:
-			line = docp.parseListOrdered(parent, node.rawTitle, line)
+			line = docp.parseListOrdered(parent, node.rawTitle, line, term)
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
 
 		case nodeKindListUnorderedItem:
-			line = docp.parseListUnordered(parent, node, line)
+			line = docp.parseListUnordered(parent, node, line, term)
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
 
 		case nodeKindListDescriptionItem:
-			line = docp.parseListDescription(parent, node, line)
+			line = docp.parseListDescription(parent, node, line, term)
 			parent.addChild(node)
 			node = &adocNode{}
 			continue
@@ -745,7 +745,7 @@ func (docp *documentParser) parseListBlock() (node *adocNode, line []byte) {
 }
 
 func (docp *documentParser) parseListDescription(
-	parent, node *adocNode, line []byte,
+	parent, node *adocNode, line []byte, term int,
 ) (
 	got []byte,
 ) {
@@ -776,6 +776,9 @@ func (docp *documentParser) parseListDescription(
 				break
 			}
 		}
+		if docp.kind == term {
+			break
+		}
 		if docp.kind == lineKindBlockComment {
 			docp.parseIgnoreCommentBlock()
 			line = nil
@@ -798,11 +801,11 @@ func (docp *documentParser) parseListDescription(
 			continue
 		}
 		if docp.kind == nodeKindListOrderedItem {
-			line = docp.parseListOrdered(listItem, "", line)
+			line = docp.parseListOrdered(listItem, "", line, term)
 			continue
 		}
 		if docp.kind == nodeKindListUnorderedItem {
-			line = docp.parseListUnordered(listItem, node, line)
+			line = docp.parseListUnordered(listItem, node, line, term)
 			continue
 		}
 		if docp.kind == nodeKindListDescriptionItem {
@@ -829,7 +832,7 @@ func (docp *documentParser) parseListDescription(
 				}
 				parentListItem = parentListItem.parent
 			}
-			line = docp.parseListDescription(listItem, node, line)
+			line = docp.parseListDescription(listItem, node, line, term)
 			continue
 		}
 		if docp.kind == nodeKindBlockListingNamed {
@@ -906,7 +909,7 @@ func (docp *documentParser) parseListDescription(
 // On success it will return non-empty line and terminator character.
 //
 func (docp *documentParser) parseListOrdered(
-	parent *adocNode, title string, line []byte,
+	parent *adocNode, title string, line []byte, term int,
 ) (
 	got []byte,
 ) {
@@ -932,6 +935,9 @@ func (docp *documentParser) parseListOrdered(
 			}
 		}
 
+		if docp.kind == term {
+			break
+		}
 		if docp.kind == lineKindBlockComment {
 			docp.parseIgnoreCommentBlock()
 			line = nil
@@ -979,7 +985,7 @@ func (docp *documentParser) parseListOrdered(
 				parentListItem = parentListItem.parent
 			}
 
-			line = docp.parseListOrdered(listItem, "", line)
+			line = docp.parseListOrdered(listItem, "", line, term)
 			continue
 		}
 		if docp.kind == nodeKindListUnorderedItem {
@@ -1003,7 +1009,7 @@ func (docp *documentParser) parseListOrdered(
 				parentListItem = parentListItem.parent
 			}
 
-			line = docp.parseListUnordered(listItem, node, line)
+			line = docp.parseListUnordered(listItem, node, line, term)
 			continue
 		}
 		if docp.kind == nodeKindListDescriptionItem {
@@ -1023,7 +1029,7 @@ func (docp *documentParser) parseListOrdered(
 				parentListItem = parentListItem.parent
 			}
 
-			line = docp.parseListDescription(listItem, node, line)
+			line = docp.parseListDescription(listItem, node, line, term)
 			continue
 		}
 		if docp.kind == nodeKindLiteralParagraph {
@@ -1119,7 +1125,7 @@ func (docp *documentParser) parseListOrdered(
 }
 
 func (docp *documentParser) parseListUnordered(
-	parent, node *adocNode, line []byte,
+	parent, node *adocNode, line []byte, term int,
 ) (
 	got []byte,
 ) {
@@ -1161,6 +1167,11 @@ func (docp *documentParser) parseListUnordered(
 			}
 		}
 
+		if docp.kind == term {
+			fmt.Printf("parseListUnordered: line %d terminate by %d\n",
+				docp.lineNum, term)
+			break
+		}
 		if docp.kind == lineKindBlockComment {
 			docp.parseIgnoreCommentBlock()
 			line = nil
@@ -1203,7 +1214,7 @@ func (docp *documentParser) parseListUnordered(
 				parentListItem = parentListItem.parent
 			}
 
-			line = docp.parseListOrdered(listItem, "", line)
+			line = docp.parseListOrdered(listItem, "", line, term)
 			continue
 		}
 
@@ -1240,7 +1251,7 @@ func (docp *documentParser) parseListUnordered(
 				parentListItem = parentListItem.parent
 			}
 
-			line = docp.parseListUnordered(listItem, node, line)
+			line = docp.parseListUnordered(listItem, node, line, term)
 			continue
 		}
 		if docp.kind == nodeKindListDescriptionItem {
@@ -1260,7 +1271,7 @@ func (docp *documentParser) parseListUnordered(
 				parentListItem = parentListItem.parent
 			}
 
-			line = docp.parseListDescription(listItem, node, line)
+			line = docp.parseListDescription(listItem, node, line, term)
 			continue
 		}
 		if docp.kind == nodeKindLiteralParagraph {

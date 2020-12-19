@@ -547,6 +547,8 @@ Paragraph B.
 
 | This | should | work
 |===
+
+* End with list item
 --
 
 Mixed with ordered and unordered list,
