@@ -443,6 +443,7 @@ func (node *adocNode) parseListDescriptionItem(line []byte) {
 	}
 	if len(line) > 0 {
 		node.Write(line[x:])
+		node.WriteByte('\n')
 	}
 }
 

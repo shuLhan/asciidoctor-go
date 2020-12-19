@@ -477,7 +477,10 @@ This line separated by comment.
 ==  Description list
 toc::[]
 
-`CPU`:: The brain of the computer.
+`CPU`:: The brain
+of
+the
+computer.
 Hard drive:: Permanent storage for operating system and/or user files.
 
 With `[horizontal]` style,
