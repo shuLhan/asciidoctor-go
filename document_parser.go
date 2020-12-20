@@ -29,13 +29,19 @@ func Parse(content []byte) (doc *Document) {
 	return doc
 }
 
-func parse(doc *Document, content []byte) {
-	docp := &documentParser{
+func newDocumentParser(doc *Document, content []byte) (docp *documentParser) {
+	docp = &documentParser{
 		doc: doc,
 	}
 
 	content = bytes.ReplaceAll(content, []byte("\r\n"), []byte("\n"))
 	docp.lines = bytes.Split(content, []byte("\n"))
+
+	return docp
+}
+
+func parse(doc *Document, content []byte) {
+	docp := newDocumentParser(doc, content)
 
 	docp.parseHeader()
 	docp.doc.postParseHeader()
@@ -63,10 +69,7 @@ func parseSub(parentDoc *Document, content []byte) (subdoc *Document) {
 		subdoc.Attributes[k] = v
 	}
 
-	docp := &documentParser{
-		doc:   subdoc,
-		lines: bytes.Split(content, []byte("\n")),
-	}
+	docp := newDocumentParser(subdoc, content)
 
 	docp.parseBlock(subdoc.content, 0)
 

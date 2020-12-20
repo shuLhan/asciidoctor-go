@@ -13,14 +13,8 @@ import (
 
 func TestParse_metaDocTitle(t *testing.T) {
 	expHTML := `
-<div id="content">
-<div id="preamble">
-<div class="sectionbody">
 <div class="paragraph">
 <p>Abc begins on a bleary Monday morning.</p>
-</div>
-</div>
-</div>
 </div>`
 
 	cases := []struct {
@@ -233,9 +227,6 @@ Paragraph C.
 `)
 
 	exp := `
-<div id="content">
-<div id="preamble">
-<div class="sectionbody">
 <div class="dlist">
 <dl>
 <dt class="hdlist1">Description</dt>
@@ -263,15 +254,15 @@ Paragraph C.
 </div>
 <div class="paragraph">
 <p>Paragraph C.</p>
-</div>
-</div>
-</div>
 </div>`
 
 	doc := Parse(content)
 	got := bytes.Buffer{}
 
-	doc.ToEmbeddedHTML(&got)
+	err := doc.ToEmbeddedHTML(&got)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	test.Assert(t, "parseListDescription with open block", exp, got.String(), false)
 }

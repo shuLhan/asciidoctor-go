@@ -61,6 +61,8 @@ type Document struct {
 	counterExample int
 	counterImage   int
 	counterTable   int
+
+	isEmbedded bool
 }
 
 func newDocument() *Document {
@@ -120,9 +122,11 @@ func Open(file string) (doc *Document, err error) {
 // (without header and footer).
 //
 func (doc *Document) ToEmbeddedHTML(out io.Writer) (err error) {
+	doc.isEmbedded = true
 	doc.generateClasses()
 	buf := &bytes.Buffer{}
 	doc.toHTMLBody(buf, false)
+	doc.isEmbedded = false
 	_, err = out.Write(buf.Bytes())
 	return err
 }

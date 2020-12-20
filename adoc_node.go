@@ -755,7 +755,9 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 		}
 
 	case nodeKindPreamble:
-		fmt.Fprint(w, _htmlPreambleBegin)
+		if !doc.isEmbedded {
+			fmt.Fprint(w, _htmlPreambleBegin)
+		}
 
 	case nodeKindSectionDiscrete:
 		hmltWriteSectionDiscrete(doc, node, w)
@@ -958,11 +960,15 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 
 	switch node.kind {
 	case nodeKindPreamble:
-		fmt.Fprint(w, "\n</div>")
+		if !doc.isEmbedded {
+			fmt.Fprint(w, "\n</div>")
+		}
 		if doc.tocIsEnabled && doc.tocPosition == metaValuePreamble {
 			doc.tocHTML(w)
 		}
-		fmt.Fprint(w, "\n</div>")
+		if !doc.isEmbedded {
+			fmt.Fprint(w, "\n</div>")
+		}
 
 	case nodeKindSectionL1, nodeKindSectionL2, nodeKindSectionL3,
 		nodeKindSectionL4, nodeKindSectionL5:

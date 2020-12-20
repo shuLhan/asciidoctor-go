@@ -286,7 +286,9 @@ func htmlWriteBlockVideo(node *adocNode, out io.Writer) {
 }
 
 func htmlWriteBody(doc *Document, out *bytes.Buffer) {
-	fmt.Fprint(out, "\n<div id=\"content\">")
+	if !doc.isEmbedded {
+		fmt.Fprint(out, "\n<div id=\"content\">")
+	}
 
 	if doc.content.child != nil {
 		doc.content.child.toHTML(doc, out, false)
@@ -295,7 +297,9 @@ func htmlWriteBody(doc *Document, out *bytes.Buffer) {
 		doc.content.next.toHTML(doc, out, false)
 	}
 
-	fmt.Fprint(out, "\n</div>")
+	if !doc.isEmbedded {
+		fmt.Fprint(out, "\n</div>")
+	}
 }
 
 func htmlWriteFooter(doc *Document, out io.Writer) {
@@ -327,7 +331,7 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 	_, ok := doc.Attributes[metaNameShowTitle]
 	if ok {
 		_, ok = doc.Attributes[metaNameNoTitle]
-		if !ok {
+		if !ok && doc.Title.node != nil {
 			fmt.Fprint(out, "\n<h1>")
 			doc.Title.node.toHTML(doc, out, false)
 			fmt.Fprint(out, "</h1>")
@@ -664,7 +668,9 @@ func htmlWriteTableRow(doc *Document, table *adocTable, row *tableRow, out io.Wr
 		switch format.style {
 		case colStyleAsciidoc:
 			subdoc := parseSub(doc, contentTrimmed)
+			fmt.Fprint(out, "\n<div id=\"content\">")
 			_ = subdoc.ToEmbeddedHTML(out)
+			fmt.Fprint(out, "\n</div>")
 
 		case colStyleDefault:
 			rawParagraphs := bytes.Split(contentTrimmed, []byte("\n\n"))
