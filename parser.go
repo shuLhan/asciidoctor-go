@@ -569,7 +569,7 @@ func parseIDLabel(s []byte) (id, label []byte) {
 }
 
 func parseInlineMarkup(doc *Document, content []byte) (container *adocNode) {
-	pi := newParserInline(doc, content)
+	pi := newInlineParser(doc, content)
 	pi.do()
 	return pi.container
 }

@@ -1,14 +1,14 @@
 package asciidoctor
 
-type parserInlineState struct {
+type inlineParserState struct {
 	stack []int
 }
 
-func (pis *parserInlineState) push(c int) {
+func (pis *inlineParserState) push(c int) {
 	pis.stack = append(pis.stack, c)
 }
 
-func (pis *parserInlineState) pop() (c int) {
+func (pis *inlineParserState) pop() (c int) {
 	size := len(pis.stack)
 	if size > 0 {
 		c = pis.stack[size-1]
@@ -17,7 +17,7 @@ func (pis *parserInlineState) pop() (c int) {
 	return c
 }
 
-func (pis *parserInlineState) has(c int) bool {
+func (pis *inlineParserState) has(c int) bool {
 	for _, r := range pis.stack {
 		if r == c {
 			return true

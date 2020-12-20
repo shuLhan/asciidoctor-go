@@ -10,7 +10,7 @@ import (
 	"github.com/shuLhan/share/lib/test"
 )
 
-func TestParserTable_new(t *testing.T) {
+func TestTableParser_new(t *testing.T) {
 	cases := []struct {
 		desc    string
 		content string
@@ -83,7 +83,7 @@ func TestParserTable_new(t *testing.T) {
 	}}
 
 	for _, c := range cases {
-		pt := newParserTable([]byte(c.content))
+		pt := newTableParser([]byte(c.content))
 		test.Assert(t, c.desc, c.exp, pt.cells, false)
 	}
 }

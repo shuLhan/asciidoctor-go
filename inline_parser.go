@@ -11,16 +11,16 @@ import (
 )
 
 //
-// parserInline is the one that responsible to parse text that contains inline
+// inlineParser is the one that responsible to parse text that contains inline
 // markup (bold, italic, etc.) into tree.
 //
-type parserInline struct {
+type inlineParser struct {
 	container *adocNode
 	current   *adocNode
 	content   []byte
 	doc       *Document
 	x         int
-	state     *parserInlineState
+	state     *inlineParserState
 	prev      byte
 	c         byte
 	nextc     byte
@@ -28,21 +28,21 @@ type parserInline struct {
 	isEscaped bool
 }
 
-func newParserInline(doc *Document, content []byte) (pi *parserInline) {
-	pi = &parserInline{
+func newInlineParser(doc *Document, content []byte) (pi *inlineParser) {
+	pi = &inlineParser{
 		container: &adocNode{
 			kind: nodeKindText,
 		},
 		content: content,
 		doc:     doc,
-		state:   &parserInlineState{},
+		state:   &inlineParserState{},
 	}
 	pi.current = pi.container
 
 	return pi
 }
 
-func (pi *parserInline) do() {
+func (pi *inlineParser) do() {
 	for pi.x < len(pi.content) {
 		pi.c = pi.content[pi.x]
 		if pi.x+1 == len(pi.content) {
@@ -376,14 +376,14 @@ func (pi *parserInline) do() {
 	pi.container.removeLastIfEmpty()
 }
 
-func (pi *parserInline) escape() {
+func (pi *inlineParser) escape() {
 	pi.isEscaped = false
 	pi.current.WriteByte(pi.c)
 	pi.x++
 	pi.prev = pi.c
 }
 
-func (pi *parserInline) getBackMacroName() (macroName string, lastc byte) {
+func (pi *inlineParser) getBackMacroName() (macroName string, lastc byte) {
 	raw := pi.current.raw
 	start := len(raw) - 1
 	for start >= 0 {
@@ -395,7 +395,7 @@ func (pi *parserInline) getBackMacroName() (macroName string, lastc byte) {
 	return string(raw), 0
 }
 
-func (pi *parserInline) parseCrossRef() bool {
+func (pi *inlineParser) parseCrossRef() bool {
 	raw := pi.content[pi.x+2:]
 	raw, idx := indexUnescape(raw, []byte(">>"))
 	if idx < 0 {
@@ -463,7 +463,7 @@ func (pi *parserInline) parseCrossRef() bool {
 //
 // parseInlineID parse the ID and optional label between "[[" "]]".
 //
-func (pi *parserInline) parseInlineID() bool {
+func (pi *inlineParser) parseInlineID() bool {
 	// Check if we have term at the end.
 	raw := pi.content[pi.x+2:]
 	raw, idx := indexUnescape(raw, []byte("]]"))
@@ -499,7 +499,7 @@ func (pi *parserInline) parseInlineID() bool {
 // parseInlineIDShort parse the ID and optional label between "[#", "]#", and
 // "#".
 //
-func (pi *parserInline) parseInlineIDShort() bool {
+func (pi *inlineParser) parseInlineIDShort() bool {
 	// Check if we have term at the end.
 	raw := pi.content[pi.x+2:]
 	id, idx := indexUnescape(raw, []byte("]#"))
@@ -537,7 +537,7 @@ func (pi *parserInline) parseInlineIDShort() bool {
 // parseQuoteBegin check if the double quote curve ("`) is valid (does not
 // followed by space) and has an end (`").
 //
-func (pi *parserInline) parseQuoteBegin(quoteEnd []byte, kind int) bool {
+func (pi *inlineParser) parseQuoteBegin(quoteEnd []byte, kind int) bool {
 	if pi.x+2 >= len(pi.content) {
 		return false
 	}
@@ -563,7 +563,7 @@ func (pi *parserInline) parseQuoteBegin(quoteEnd []byte, kind int) bool {
 	return true
 }
 
-func (pi *parserInline) parseQuoteEnd(quoteEnd []byte, kind int) bool {
+func (pi *inlineParser) parseQuoteEnd(quoteEnd []byte, kind int) bool {
 	if ascii.IsSpace(pi.prev) {
 		// This is not the end that we looking for.
 		return false
@@ -578,7 +578,7 @@ func (pi *parserInline) parseQuoteEnd(quoteEnd []byte, kind int) bool {
 	return true
 }
 
-func (pi *parserInline) parseFormat(kind int, style int64) bool {
+func (pi *inlineParser) parseFormat(kind int, style int64) bool {
 	// Do we have the beginning?
 	if isEndFormat(pi.prev, pi.nextc) {
 		if pi.state.has(kind) {
@@ -630,7 +630,7 @@ func (pi *parserInline) parseFormat(kind int, style int64) bool {
 	return true
 }
 
-func (pi *parserInline) parseFormatUnconstrained(
+func (pi *inlineParser) parseFormatUnconstrained(
 	terms []byte,
 	kindUnconstrained int,
 	kind int,
@@ -669,7 +669,7 @@ func (pi *parserInline) parseFormatUnconstrained(
 	return false
 }
 
-func (pi *parserInline) parseInlineImage() *adocNode {
+func (pi *inlineParser) parseInlineImage() *adocNode {
 	content := pi.content[pi.x+1:]
 	_, idx := indexByteUnescape(content, ']')
 	if idx < 0 {
@@ -691,7 +691,7 @@ func (pi *parserInline) parseInlineImage() *adocNode {
 	return nil
 }
 
-func (pi *parserInline) parseMacro() bool {
+func (pi *inlineParser) parseMacro() bool {
 	name, lastc := pi.getBackMacroName()
 	if lastc == '\\' || len(name) == 0 {
 		return false
@@ -734,7 +734,7 @@ func (pi *parserInline) parseMacro() bool {
 	return false
 }
 
-func (pi *parserInline) parsePassthrough() bool {
+func (pi *inlineParser) parsePassthrough() bool {
 	if !isBeginFormat(pi.prev, pi.nextc) {
 		return false
 	}
@@ -789,7 +789,7 @@ func (pi *parserInline) parsePassthrough() bool {
 	return true
 }
 
-func (pi *parserInline) parsePassthroughDouble() bool {
+func (pi *inlineParser) parsePassthroughDouble() bool {
 	raw := pi.content[pi.x+2:]
 
 	// Check if we have "++" at the end.
@@ -809,7 +809,7 @@ func (pi *parserInline) parsePassthroughDouble() bool {
 	return false
 }
 
-func (pi *parserInline) parsePassthroughTriple() bool {
+func (pi *inlineParser) parsePassthroughTriple() bool {
 	raw := pi.content[pi.x+3:]
 
 	// Check if we have "+++" at the end.
@@ -828,7 +828,7 @@ func (pi *parserInline) parsePassthroughTriple() bool {
 	return false
 }
 
-func (pi *parserInline) parseSubscript() bool {
+func (pi *inlineParser) parseSubscript() bool {
 	var (
 		prev byte
 		raw  = pi.content[pi.x+1:]
@@ -862,7 +862,7 @@ func (pi *parserInline) parseSubscript() bool {
 	return false
 }
 
-func (pi *parserInline) parseSuperscript() bool {
+func (pi *inlineParser) parseSuperscript() bool {
 	var (
 		prev byte
 		raw  = pi.content[pi.x+1:]
@@ -902,7 +902,7 @@ func (pi *parserInline) parseSuperscript() bool {
 //
 // The current state of p.x is equal to ":".
 //
-func (pi *parserInline) parseURL(scheme string) (node *adocNode) {
+func (pi *inlineParser) parseURL(scheme string) (node *adocNode) {
 	var (
 		x   int
 		c   byte
@@ -979,9 +979,9 @@ func (pi *parserInline) parseURL(scheme string) (node *adocNode) {
 	return node
 }
 
-func (pi *parserInline) terminate(kind int, style int64) {
+func (pi *inlineParser) terminate(kind int, style int64) {
 	node := pi.current
-	stateTmp := &parserInlineState{}
+	stateTmp := &inlineParserState{}
 	for node.parent != nil {
 		if node.kind == kind {
 			pi.state.pop()

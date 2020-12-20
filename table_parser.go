@@ -11,15 +11,15 @@ import (
 	"github.com/shuLhan/share/lib/parser"
 )
 
-type parserTable struct {
+type tableParser struct {
 	p     *parser.Parser
 	cells []*tableCell
 	nrow  int
 	x     int
 }
 
-func newParserTable(content []byte) (pt *parserTable) {
-	pt = &parserTable{
+func newTableParser(content []byte) (pt *tableParser) {
+	pt = &tableParser{
 		p: parser.New(string(content), "|\n"),
 	}
 	pt.toCells()
@@ -29,7 +29,7 @@ func newParserTable(content []byte) (pt *parserTable) {
 //
 // toCells parse the raw table content into cells.
 //
-func (pt *parserTable) toCells() {
+func (pt *tableParser) toCells() {
 	var (
 		token, c  = pt.p.TokenEscaped('\\')
 		tokenTrim = strings.TrimSpace(token)
@@ -108,7 +108,7 @@ func (pt *parserTable) toCells() {
 	}
 }
 
-func (pt *parserTable) addCell(cell *tableCell) {
+func (pt *tableParser) addCell(cell *tableCell) {
 	var (
 		emptyLine        = []byte("\n\n")
 		endWithEmptyLine = bytes.HasSuffix(cell.content, emptyLine)
@@ -126,7 +126,7 @@ func (pt *parserTable) addCell(cell *tableCell) {
 //
 // firstRow get the first row of the table to get the number of columns.
 //
-func (pt *parserTable) firstRow() (row *tableRow) {
+func (pt *tableParser) firstRow() (row *tableRow) {
 	row = &tableRow{}
 
 	// Skip empty lines..
@@ -156,7 +156,7 @@ func (pt *parserTable) firstRow() (row *tableRow) {
 //
 // row get n number of cells as row, skip any nil cell if exist on list.
 //
-func (pt *parserTable) row(ncols int) (row *tableRow) {
+func (pt *tableParser) row(ncols int) (row *tableRow) {
 	row = &tableRow{}
 	for ; pt.x < len(pt.cells); pt.x++ {
 		if pt.cells[pt.x] == nil {

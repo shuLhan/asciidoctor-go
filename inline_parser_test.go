@@ -12,7 +12,7 @@ import (
 	"github.com/shuLhan/share/lib/test"
 )
 
-func TestParserInline_do(t *testing.T) {
+func TestInlineParser_do(t *testing.T) {
 	_testDoc := &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
@@ -48,7 +48,7 @@ func TestParserInline_do(t *testing.T) {
 	}
 }
 
-func TestParserInline_parseAttrRef(t *testing.T) {
+func TestInlineParser_parseAttrRef(t *testing.T) {
 	_testDoc := &Document{
 		Attributes: map[string]string{
 			"x": "https://kilabit.info",
@@ -88,7 +88,7 @@ func TestParserInline_parseAttrRef(t *testing.T) {
 	}
 }
 
-func TestParserInline_parseCrossReference(t *testing.T) {
+func TestInlineParser_parseCrossReference(t *testing.T) {
 	_testDoc := &Document{
 		anchors: map[string]*anchor{
 			"x": &anchor{
@@ -133,7 +133,7 @@ func TestParserInline_parseCrossReference(t *testing.T) {
 	}
 }
 
-func TestParserInline_parseFormat(t *testing.T) {
+func TestInlineParser_parseFormat(t *testing.T) {
 	_testDoc := &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
@@ -190,7 +190,7 @@ func TestParserInline_parseFormat(t *testing.T) {
 	}
 }
 
-func TestParserInline_parseFormatUnconstrained(t *testing.T) {
+func TestInlineParser_parseFormatUnconstrained(t *testing.T) {
 	_testDoc := &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
@@ -235,7 +235,7 @@ func TestParserInline_parseFormatUnconstrained(t *testing.T) {
 	}
 }
 
-func TestParserInline_parseInlineID(t *testing.T) {
+func TestInlineParser_parseInlineID(t *testing.T) {
 	_testDoc := &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
@@ -285,7 +285,7 @@ func TestParserInline_parseInlineID(t *testing.T) {
 	}
 }
 
-func TestParserInline_parseInlineIDShort(t *testing.T) {
+func TestInlineParser_parseInlineIDShort(t *testing.T) {
 	_testDoc := &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
@@ -330,7 +330,7 @@ func TestParserInline_parseInlineIDShort(t *testing.T) {
 	}
 }
 
-func TestParserInline_parseInlineImage(t *testing.T) {
+func TestInlineParser_parseInlineImage(t *testing.T) {
 	_testDoc := &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
@@ -373,7 +373,7 @@ image:linux.png[2]`,
 	}
 }
 
-func TestParserInline_parsePassthrough(t *testing.T) {
+func TestInlineParser_parsePassthrough(t *testing.T) {
 	_testDoc := &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
@@ -415,7 +415,7 @@ func TestParserInline_parsePassthrough(t *testing.T) {
 	}
 }
 
-func TestParserInline_parsePassthroughDouble(t *testing.T) {
+func TestInlineParser_parsePassthroughDouble(t *testing.T) {
 	_testDoc := &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
@@ -463,7 +463,7 @@ func TestParserInline_parsePassthroughDouble(t *testing.T) {
 	}
 }
 
-func TestParserInline_parsePassthroughTriple(t *testing.T) {
+func TestInlineParser_parsePassthroughTriple(t *testing.T) {
 	_testDoc := &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
@@ -517,7 +517,7 @@ func TestParserInline_parsePassthroughTriple(t *testing.T) {
 	}
 }
 
-func TestParserInline_parseQuote(t *testing.T) {
+func TestInlineParser_parseQuote(t *testing.T) {
 	_testDoc := &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
@@ -568,7 +568,7 @@ func TestParserInline_parseQuote(t *testing.T) {
 	}
 }
 
-func TestParserInline_parseSubscsript(t *testing.T) {
+func TestInlineParser_parseSubscsript(t *testing.T) {
 	_testDoc := &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
@@ -610,7 +610,7 @@ func TestParserInline_parseSubscsript(t *testing.T) {
 	}
 }
 
-func TestParserInline_parseSuperscript(t *testing.T) {
+func TestInlineParser_parseSuperscript(t *testing.T) {
 	_testDoc := &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
@@ -652,7 +652,7 @@ func TestParserInline_parseSuperscript(t *testing.T) {
 	}
 }
 
-func TestParserInline_parseURL(t *testing.T) {
+func TestInlineParser_parseURL(t *testing.T) {
 	_testDoc := &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),

@@ -44,7 +44,7 @@ func newTable(ea *elementAttribute, content []byte) (table *adocTable) {
 
 	table.parseOptions(ea.options)
 
-	pt := newParserTable(content)
+	pt := newTableParser(content)
 
 	if table.ncols == 0 {
 		row = pt.firstRow()
