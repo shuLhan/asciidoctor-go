@@ -39,6 +39,7 @@ numbered based on
 * 18. Paragraph
   * 18.1. Alignment
   * 18.2. Line breaks (" +\n")
+  * 18.3. Lead style
 * 19. Text formatting
   * 19.1. Bold and italic
   * 19.2. Quotation Marks and Apostrophes
@@ -140,7 +141,6 @@ List of features which will be implemented,
   * 18.2. Line breaks
     * Per block "[%hardbreaks]"
     * All document ":hardbreaks:"
-  * 18.3. Lead style
 * 19. Text formatting
   * 19.5. Custom Styling With Attributes
 * 23. Tables
