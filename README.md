@@ -148,6 +148,11 @@ List of features which will be implemented,
 * 27. Cross References
   * 27.6. Inter-document Cross References
 * 28. Include Directive
+  * 28.4. Partitioning large documents and using leveloffset
+  * 28.5. AsciiDoc vs non-AsciiDoc files
+  * 28.7. Normalize Block Indentation
+  * 28.10. Include a File Multiple Times in the Same Document
+  * 28.11. Using an Include in a List Item
 * 37. Text Substitutions
   * 37.5. Macros
   * 37.8. Incremental Substitutions
