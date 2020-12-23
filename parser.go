@@ -157,22 +157,27 @@ const (
 )
 
 const (
+	classNameArabic       = "arabic"
 	classNameChecklist    = "checklist"
 	classNameFitContent   = "fit-content"
 	classNameFrameAll     = "frame-all"
 	classNameFrameEnds    = "frame-ends"
-	classNameFrameSides   = "frame-sides"
 	classNameFrameNone    = "frame-none"
+	classNameFrameSides   = "frame-sides"
 	classNameGridAll      = "grid-all"
 	classNameGridCols     = "grid-cols"
 	classNameGridNone     = "grid-none"
 	classNameGridRows     = "grid-rows"
+	classNameLoweralpha   = "loweralpha"
+	classNameLowerroman   = "lowerroman"
 	classNameStretch      = "stretch"
 	classNameStripesAll   = "stripes-all"
 	classNameStripesEven  = "stripes-even"
 	classNameStripesHover = "stripes-hover"
 	classNameStripesOdd   = "stripes-odd"
 	classNameTableblock   = "tableblock"
+	classNameUpperalpha   = "upperalpha"
+	classNameUpperroman   = "upperroman"
 )
 
 // List of document metadata.

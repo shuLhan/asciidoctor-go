@@ -50,15 +50,15 @@ type element struct {
 func (el *element) getListOrderedClass() string {
 	switch el.level {
 	case 2:
-		return "loweralpha"
+		return classNameLoweralpha
 	case 3:
-		return "lowerroman"
+		return classNameLowerroman
 	case 4:
-		return "upperalpha"
+		return classNameUpperalpha
 	case 5:
-		return "upperroman"
+		return classNameUpperroman
 	}
-	return "arabic"
+	return classNameArabic
 }
 
 func (el *element) getListOrderedType() string {
