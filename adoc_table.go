@@ -13,7 +13,7 @@ import (
 	libstrings "github.com/shuLhan/share/lib/strings"
 )
 
-type adocTable struct {
+type elementTable struct {
 	ncols     int
 	rows      []*tableRow
 	formats   []*columnFormat
@@ -23,12 +23,12 @@ type adocTable struct {
 	hasFooter bool
 }
 
-func newTable(ea *elementAttribute, content []byte) (table *adocTable) {
+func newTable(ea *elementAttribute, content []byte) (table *elementTable) {
 	var (
 		row *tableRow
 	)
 
-	table = &adocTable{
+	table = &elementTable{
 		classes: attributeClass{
 			classNameTableblock,
 			classNameFrameAll,
@@ -86,7 +86,7 @@ func newTable(ea *elementAttribute, content []byte) (table *adocTable) {
 	return table
 }
 
-func (table *adocTable) initializeFormats() {
+func (table *elementTable) initializeFormats() {
 	for _, format := range table.formats {
 		classes := []string{classNameTableBlock}
 
@@ -110,7 +110,7 @@ func (table *adocTable) initializeFormats() {
 	}
 }
 
-func (table *adocTable) initializeClassAndStyles(ea *elementAttribute) {
+func (table *elementTable) initializeClassAndStyles(ea *elementAttribute) {
 	var (
 		withWidth bool
 	)
@@ -180,7 +180,7 @@ func (table *adocTable) initializeClassAndStyles(ea *elementAttribute) {
 	}
 }
 
-func (table *adocTable) parseOptions(opts []string) {
+func (table *elementTable) parseOptions(opts []string) {
 	if opts == nil {
 		return
 	}
@@ -194,7 +194,7 @@ func (table *adocTable) parseOptions(opts []string) {
 	}
 }
 
-func (table *adocTable) recalculateWidth() {
+func (table *elementTable) recalculateWidth() {
 	var (
 		totalWidth   = big.NewRat(0)
 		lastWidth    = big.NewRat(100)
@@ -221,7 +221,7 @@ func (table *adocTable) recalculateWidth() {
 	}
 }
 
-func (table *adocTable) htmlStyle() string {
+func (table *elementTable) htmlStyle() string {
 	var buf bytes.Buffer
 	for k, v := range table.styles {
 		fmt.Fprintf(&buf, "%s: %s;", k, v)

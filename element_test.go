@@ -37,11 +37,11 @@ func TestAdocNode_postConsumeTable(t *testing.T) {
 	cases := []struct {
 		desc string
 		raw  string
-		exp  adocTable
+		exp  elementTable
 	}{{
 		desc: "single row, multiple lines",
 		raw:  "|A\n|B",
-		exp: adocTable{
+		exp: elementTable{
 			ncols: 2,
 			classes: attributeClass{
 				classNameTableblock,
@@ -77,7 +77,7 @@ func TestAdocNode_postConsumeTable(t *testing.T) {
 	}, {
 		desc: "with header",
 		raw:  "A1|B1\n\n|A2\n|B2",
-		exp: adocTable{
+		exp: elementTable{
 			ncols: 2,
 			classes: attributeClass{
 				classNameTableblock,
@@ -120,7 +120,7 @@ func TestAdocNode_postConsumeTable(t *testing.T) {
 	}, {
 		desc: "with multiple rows",
 		raw:  "A|B|\n\n|r1c1\n|r1c2|\n\n|r2c1 | r2c2",
-		exp: adocTable{
+		exp: elementTable{
 			ncols: 3,
 			classes: attributeClass{
 				classNameTableblock,

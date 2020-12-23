@@ -626,7 +626,7 @@ func htmlWriteTable(doc *Document, el *element, out io.Writer) {
 	fmt.Fprint(out, "\n</table>")
 }
 
-func htmlWriteTableFooter(doc *Document, table *adocTable, footer *tableRow, out io.Writer) {
+func htmlWriteTableFooter(doc *Document, table *elementTable, footer *tableRow, out io.Writer) {
 	fmt.Fprint(out, "\n<tfoot>")
 	htmlWriteTableRow(doc, table, footer, out)
 	fmt.Fprint(out, "\n</tfoot>")
@@ -646,7 +646,7 @@ func htmlWriteTableHeader(doc *Document, header *tableRow, out io.Writer) {
 	fmt.Fprint(out, "\n</tr>\n</thead>")
 }
 
-func htmlWriteTableRow(doc *Document, table *adocTable, row *tableRow, out io.Writer) {
+func htmlWriteTableRow(doc *Document, table *elementTable, row *tableRow, out io.Writer) {
 	fmt.Fprint(out, "\n<tr>")
 	for x, cell := range row.cells {
 		format := table.formats[x]

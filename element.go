@@ -40,7 +40,7 @@ type element struct {
 	// It will be set only if attribute "sectnums" is on.
 	sectnums *sectionCounters
 
-	table  *adocTable
+	table  *elementTable
 	parent *element
 	child  *element
 	next   *element
@@ -696,7 +696,7 @@ func (el *element) postParseParagraphAsQuote(lines [][]byte) bool {
 // postConsumeTable after we get all raw tables contents, we split them into
 // multiple rows, based on empty line between row.
 //
-func (el *element) postConsumeTable() (table *adocTable) {
+func (el *element) postConsumeTable() (table *elementTable) {
 	el.table = newTable(&el.elementAttribute, el.raw)
 	return el.table
 }
