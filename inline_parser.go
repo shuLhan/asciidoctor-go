@@ -15,8 +15,8 @@ import (
 // markup (bold, italic, etc.) into tree.
 //
 type inlineParser struct {
-	container *adocNode
-	current   *adocNode
+	container *element
+	current   *element
 	content   []byte
 	doc       *Document
 	x         int
@@ -30,8 +30,8 @@ type inlineParser struct {
 
 func newInlineParser(doc *Document, content []byte) (pi *inlineParser) {
 	pi = &inlineParser{
-		container: &adocNode{
-			kind: nodeKindText,
+		container: &element{
+			kind: elKindText,
 		},
 		content: content,
 		doc:     doc,
@@ -125,7 +125,7 @@ func (pi *inlineParser) do() {
 			}
 			if pi.nextc == '`' {
 				ok := pi.parseQuoteBegin([]byte("`\""),
-					nodeKindSymbolQuoteDoubleBegin)
+					elKindSymbolQuoteDoubleBegin)
 				if ok {
 					continue
 				}
@@ -137,7 +137,7 @@ func (pi *inlineParser) do() {
 			}
 			if pi.nextc == '`' {
 				ok := pi.parseQuoteBegin([]byte("`'"),
-					nodeKindSymbolQuoteSingleBegin)
+					elKindSymbolQuoteSingleBegin)
 				if ok {
 					continue
 				}
@@ -156,13 +156,13 @@ func (pi *inlineParser) do() {
 			if pi.nextc == '*' {
 				if pi.parseFormatUnconstrained(
 					[]byte("**"),
-					nodeKindUnconstrainedBold,
-					nodeKindTextBold,
+					elKindUnconstrainedBold,
+					elKindTextBold,
 					styleTextBold) {
 					continue
 				}
 			}
-			if pi.parseFormat(nodeKindTextBold, styleTextBold) {
+			if pi.parseFormat(elKindTextBold, styleTextBold) {
 				continue
 			}
 		} else if pi.c == '_' {
@@ -173,13 +173,13 @@ func (pi *inlineParser) do() {
 			if pi.nextc == '_' {
 				if pi.parseFormatUnconstrained(
 					[]byte("__"),
-					nodeKindUnconstrainedItalic,
-					nodeKindTextItalic,
+					elKindUnconstrainedItalic,
+					elKindTextItalic,
 					styleTextItalic) {
 					continue
 				}
 			}
-			if pi.parseFormat(nodeKindTextItalic, styleTextItalic) {
+			if pi.parseFormat(elKindTextItalic, styleTextItalic) {
 				continue
 			}
 		} else if pi.c == '`' {
@@ -190,21 +190,21 @@ func (pi *inlineParser) do() {
 			if pi.nextc == '`' {
 				if pi.parseFormatUnconstrained(
 					[]byte("``"),
-					nodeKindUnconstrainedMono,
-					nodeKindTextMono,
+					elKindUnconstrainedMono,
+					elKindTextMono,
 					styleTextMono) {
 					continue
 				}
 			}
 			if pi.nextc == '"' {
 				if pi.parseQuoteEnd([]byte("`\""),
-					nodeKindSymbolQuoteDoubleEnd) {
+					elKindSymbolQuoteDoubleEnd) {
 					continue
 				}
 			}
 			if pi.nextc == '\'' {
 				if pi.parseQuoteEnd([]byte("`'"),
-					nodeKindSymbolQuoteSingleEnd) {
+					elKindSymbolQuoteSingleEnd) {
 					continue
 				}
 
@@ -214,7 +214,7 @@ func (pi *inlineParser) do() {
 				pi.prev = 0
 				continue
 			}
-			if pi.parseFormat(nodeKindTextMono, styleTextMono) {
+			if pi.parseFormat(elKindTextMono, styleTextMono) {
 				continue
 			}
 		} else if pi.c == '[' {
@@ -237,8 +237,8 @@ func (pi *inlineParser) do() {
 				continue
 			}
 			// Do we have the beginning?
-			if pi.state.has(nodeKindInlineIDShort) {
-				pi.terminate(nodeKindInlineIDShort, 0)
+			if pi.state.has(elKindInlineIDShort) {
+				pi.terminate(elKindInlineIDShort, 0)
 				pi.x++
 				pi.prev = 0
 				continue
@@ -367,10 +367,10 @@ func (pi *inlineParser) do() {
 		pi.prev = pi.c
 	}
 
-	// Remove any trailing spaces only if the node is not passthrough.
-	if !(pi.current.kind == nodeKindPassthrough ||
-		pi.current.kind == nodeKindPassthroughDouble ||
-		pi.current.kind == nodeKindPassthroughTriple) {
+	// Remove any trailing spaces only if the el is not passthrough.
+	if !(pi.current.kind == elKindPassthrough ||
+		pi.current.kind == elKindPassthroughDouble ||
+		pi.current.kind == elKindPassthroughTriple) {
 		pi.current.backTrimSpace()
 	}
 	pi.container.removeLastIfEmpty()
@@ -439,22 +439,22 @@ func (pi *inlineParser) parseCrossRef() bool {
 
 	// The ID field will we non-empty if href is empty, it will be
 	// revalidated later when rendered.
-	nodeCrossRef := &adocNode{
+	elCrossRef := &element{
 		elementAttribute: elementAttribute{
 			Attrs: map[string]string{
 				attrNameHref:  href,
 				attrNameTitle: title,
 			},
 		},
-		kind: nodeKindCrossReference,
+		kind: elKindCrossReference,
 		raw:  []byte(label),
 	}
-	pi.current.addChild(nodeCrossRef)
-	node := &adocNode{
-		kind: nodeKindText,
+	pi.current.addChild(elCrossRef)
+	el := &element{
+		kind: elKindText,
 	}
-	pi.current.addChild(node)
-	pi.current = node
+	pi.current.addChild(el)
+	pi.current = el
 	pi.x += 2 + len(raw) + 2
 	pi.prev = 0
 	return true
@@ -477,19 +477,19 @@ func (pi *inlineParser) parseInlineID() bool {
 
 	stringID := pi.doc.registerAnchor(string(id), string(label))
 
-	node := &adocNode{
+	el := &element{
 		elementAttribute: elementAttribute{
 			ID: stringID,
 		},
-		kind: nodeKindInlineID,
+		kind: elKindInlineID,
 	}
 	pi.current.backTrimSpace()
-	pi.current.addChild(node)
-	node = &adocNode{
-		kind: nodeKindText,
+	pi.current.addChild(el)
+	el = &element{
+		kind: elKindText,
 	}
-	pi.current.addChild(node)
-	pi.current = node
+	pi.current.addChild(el)
+	pi.current = el
 	pi.x += 2 + len(raw) + 2
 	pi.prev = 0
 	return true
@@ -519,16 +519,16 @@ func (pi *inlineParser) parseInlineIDShort() bool {
 
 	stringID := pi.doc.registerAnchor(string(id), "")
 
-	node := &adocNode{
+	el := &element{
 		elementAttribute: elementAttribute{
 			ID: stringID,
 		},
-		kind: nodeKindInlineIDShort,
+		kind: elKindInlineIDShort,
 	}
-	pi.state.push(nodeKindInlineIDShort)
+	pi.state.push(elKindInlineIDShort)
 	pi.current.backTrimSpace()
-	pi.current.addChild(node)
-	pi.current = node
+	pi.current.addChild(el)
+	pi.current = el
 	pi.x += 2 + len(id) + 2
 	return true
 }
@@ -553,11 +553,11 @@ func (pi *inlineParser) parseQuoteBegin(quoteEnd []byte, kind int) bool {
 	if ascii.IsSpace(raw[idx-1]) || raw[idx-1] == '\\' {
 		return false
 	}
-	node := &adocNode{
+	el := &element{
 		kind: kind,
 	}
-	pi.current.addChild(node)
-	pi.current = node
+	pi.current.addChild(el)
+	pi.current = el
 	pi.x += 2
 	pi.prev = 0
 	return true
@@ -568,11 +568,11 @@ func (pi *inlineParser) parseQuoteEnd(quoteEnd []byte, kind int) bool {
 		// This is not the end that we looking for.
 		return false
 	}
-	node := &adocNode{
+	el := &element{
 		kind: kind,
 	}
-	pi.current.addChild(node)
-	pi.current = node
+	pi.current.addChild(el)
+	pi.current = el
 	pi.x += 2
 	pi.prev = 0
 	return true
@@ -619,12 +619,12 @@ func (pi *inlineParser) parseFormat(kind int, style int64) bool {
 		return false
 	}
 
-	node := &adocNode{
+	el := &element{
 		kind: kind,
 	}
-	pi.current.addChild(node)
+	pi.current.addChild(el)
 	pi.state.push(kind)
-	pi.current = node
+	pi.current = el
 	pi.prev = 0
 	pi.x++
 	return true
@@ -655,12 +655,12 @@ func (pi *inlineParser) parseFormatUnconstrained(
 	// Do we have the end format?
 	raw := pi.content[pi.x+2:]
 	if bytes.Contains(raw, terms) {
-		node := &adocNode{
+		el := &element{
 			kind: kindUnconstrained,
 		}
-		pi.current.addChild(node)
+		pi.current.addChild(el)
 		pi.state.push(kindUnconstrained)
-		pi.current = node
+		pi.current = el
 		pi.prev = 0
 		pi.x += 2
 		return true
@@ -669,7 +669,7 @@ func (pi *inlineParser) parseFormatUnconstrained(
 	return false
 }
 
-func (pi *inlineParser) parseInlineImage() *adocNode {
+func (pi *inlineParser) parseInlineImage() *element {
 	content := pi.content[pi.x+1:]
 	_, idx := indexByteUnescape(content, ']')
 	if idx < 0 {
@@ -677,16 +677,16 @@ func (pi *inlineParser) parseInlineImage() *adocNode {
 	}
 
 	lineImage := content[:idx+1]
-	nodeImage := &adocNode{
+	elImage := &element{
 		elementAttribute: elementAttribute{
 			Attrs: make(map[string]string),
 		},
-		kind: nodeKindInlineImage,
+		kind: elKindInlineImage,
 	}
-	if nodeImage.parseBlockImage(pi.doc, lineImage) {
+	if elImage.parseBlockImage(pi.doc, lineImage) {
 		pi.x += idx + 2
 		pi.prev = 0
-		return nodeImage
+		return elImage
 	}
 	return nil
 }
@@ -701,34 +701,34 @@ func (pi *inlineParser) parseMacro() bool {
 	case "":
 		return false
 	case macroFTP, macroHTTPS, macroHTTP, macroIRC, macroLink, macroMailto:
-		node := pi.parseURL(name)
-		if node == nil {
+		el := pi.parseURL(name)
+		if el == nil {
 			return false
 		}
 
 		pi.current.raw = pi.current.raw[:len(pi.current.raw)-len(name)]
 
-		pi.current.addChild(node)
-		node = &adocNode{
-			kind: nodeKindText,
+		pi.current.addChild(el)
+		el = &element{
+			kind: elKindText,
 		}
-		pi.current.addChild(node)
-		pi.current = node
+		pi.current.addChild(el)
+		pi.current = el
 		return true
 	case macroImage:
-		node := pi.parseInlineImage()
-		if node == nil {
+		el := pi.parseInlineImage()
+		if el == nil {
 			return false
 		}
 
 		pi.current.raw = pi.current.raw[:len(pi.current.raw)-len(name)]
 
-		pi.current.addChild(node)
-		node = &adocNode{
-			kind: nodeKindText,
+		pi.current.addChild(el)
+		el = &element{
+			kind: elKindText,
 		}
-		pi.current.addChild(node)
-		pi.current = node
+		pi.current.addChild(el)
+		pi.current = el
 		return true
 	}
 	return false
@@ -778,12 +778,12 @@ func (pi *inlineParser) parsePassthrough() bool {
 		return false
 	}
 
-	node := &adocNode{
-		kind: nodeKindPassthrough,
+	el := &element{
+		kind: elKindPassthrough,
 		raw:  pass,
 	}
-	pi.current.addChild(node)
-	pi.current = node
+	pi.current.addChild(el)
+	pi.current = el
 	pi.x += x + 2
 	pi.prev = 0
 	return true
@@ -795,12 +795,12 @@ func (pi *inlineParser) parsePassthroughDouble() bool {
 	// Check if we have "++" at the end.
 	raw, idx := indexUnescape(raw, []byte("++"))
 	if idx >= 0 {
-		node := &adocNode{
-			kind: nodeKindPassthroughDouble,
+		el := &element{
+			kind: elKindPassthroughDouble,
 			raw:  raw,
 		}
-		pi.current.addChild(node)
-		pi.current = node
+		pi.current.addChild(el)
+		pi.current = el
 		pi.x += idx + 4
 		pi.prev = 0
 		return true
@@ -815,12 +815,12 @@ func (pi *inlineParser) parsePassthroughTriple() bool {
 	// Check if we have "+++" at the end.
 	raw, idx := indexUnescape(raw, []byte("+++"))
 	if idx >= 0 {
-		node := &adocNode{
-			kind: nodeKindPassthroughTriple,
+		el := &element{
+			kind: elKindPassthroughTriple,
 			raw:  raw,
 		}
-		pi.current.addChild(node)
-		pi.current = node
+		pi.current.addChild(el)
+		pi.current = el
 		pi.x += idx + 6
 		pi.prev = 0
 		return true
@@ -838,17 +838,17 @@ func (pi *inlineParser) parseSubscript() bool {
 			if prev == '\\' {
 				continue
 			}
-			node := &adocNode{
-				kind: nodeKindTextSubscript,
+			el := &element{
+				kind: elKindTextSubscript,
 				raw:  raw[:x],
 			}
-			pi.current.addChild(node)
+			pi.current.addChild(el)
 
-			node = &adocNode{
-				kind: nodeKindText,
+			el = &element{
+				kind: elKindText,
 			}
-			pi.current.addChild(node)
-			pi.current = node
+			pi.current.addChild(el)
+			pi.current = el
 
 			pi.x += x + 2
 			pi.prev = pi.c
@@ -872,17 +872,17 @@ func (pi *inlineParser) parseSuperscript() bool {
 			if prev == '\\' {
 				continue
 			}
-			node := &adocNode{
-				kind: nodeKindTextSuperscript,
+			el := &element{
+				kind: elKindTextSuperscript,
 				raw:  raw[:x],
 			}
-			pi.current.addChild(node)
+			pi.current.addChild(el)
 
-			node = &adocNode{
-				kind: nodeKindText,
+			el = &element{
+				kind: elKindText,
 			}
-			pi.current.addChild(node)
-			pi.current = node
+			pi.current.addChild(el)
+			pi.current = el
 
 			pi.x += x + 2
 			pi.prev = pi.c
@@ -902,7 +902,7 @@ func (pi *inlineParser) parseSuperscript() bool {
 //
 // The current state of p.x is equal to ":".
 //
-func (pi *inlineParser) parseURL(scheme string) (node *adocNode) {
+func (pi *inlineParser) parseURL(scheme string) (el *element) {
 	var (
 		x   int
 		c   byte
@@ -913,11 +913,11 @@ func (pi *inlineParser) parseURL(scheme string) (node *adocNode) {
 		uri = append(uri, ':')
 	}
 
-	node = &adocNode{
+	el = &element{
 		elementAttribute: elementAttribute{
 			Attrs: make(map[string]string),
 		},
-		kind: nodeKindURL,
+		kind: elKindURL,
 	}
 
 	content := pi.content[pi.x+1:]
@@ -930,7 +930,7 @@ func (pi *inlineParser) parseURL(scheme string) (node *adocNode) {
 	}
 	if c != '[' {
 		if scheme == macroHTTP || scheme == macroHTTPS {
-			node.addRole(attrValueBare)
+			el.addRole(attrValueBare)
 		}
 		if c == '.' || c == ',' || c == ';' {
 			uri = uri[:len(uri)-1]
@@ -943,11 +943,11 @@ func (pi *inlineParser) parseURL(scheme string) (node *adocNode) {
 	}
 
 	uri = applySubstitutions(pi.doc, uri)
-	node.Attrs[attrNameHref] = string(uri)
+	el.Attrs[attrNameHref] = string(uri)
 
 	if c != '[' {
-		node.raw = uri
-		return node
+		el.raw = uri
+		return el
 	}
 
 	_, idx := indexByteUnescape(content[x:], ']')
@@ -959,64 +959,64 @@ func (pi *inlineParser) parseURL(scheme string) (node *adocNode) {
 	pi.prev = 0
 
 	attr := content[x : x+idx+1]
-	node.style = styleLink
-	node.parseElementAttribute(attr)
-	if len(node.Attrs) == 0 {
+	el.style = styleLink
+	el.parseElementAttribute(attr)
+	if len(el.Attrs) == 0 {
 		// empty "[]"
-		node.raw = uri
-		return node
+		el.raw = uri
+		return el
 	}
-	if len(node.rawStyle) >= 1 {
-		l := len(node.rawStyle)
-		if node.rawStyle[l-1] == '^' {
-			node.Attrs[attrNameTarget] = attrValueBlank
-			node.rawStyle = node.rawStyle[:l-1]
-			node.Attrs[attrNameRel] = attrValueNoopener
+	if len(el.rawStyle) >= 1 {
+		l := len(el.rawStyle)
+		if el.rawStyle[l-1] == '^' {
+			el.Attrs[attrNameTarget] = attrValueBlank
+			el.rawStyle = el.rawStyle[:l-1]
+			el.Attrs[attrNameRel] = attrValueNoopener
 		}
-		child := parseInlineMarkup(pi.doc, []byte(node.rawStyle))
-		node.addChild(child)
+		child := parseInlineMarkup(pi.doc, []byte(el.rawStyle))
+		el.addChild(child)
 	}
-	return node
+	return el
 }
 
 func (pi *inlineParser) terminate(kind int, style int64) {
-	node := pi.current
+	el := pi.current
 	stateTmp := &inlineParserState{}
-	for node.parent != nil {
-		if node.kind == kind {
+	for el.parent != nil {
+		if el.kind == kind {
 			pi.state.pop()
-			node.style |= style
+			el.style |= style
 			break
 		}
-		if node.kind == nodeKindTextBold && node.style == 0 {
-			node.style = styleTextBold
+		if el.kind == elKindTextBold && el.style == 0 {
+			el.style = styleTextBold
 			stateTmp.push(pi.state.pop())
 		}
-		if node.kind == nodeKindTextItalic && node.style == 0 {
-			node.style = styleTextItalic
+		if el.kind == elKindTextItalic && el.style == 0 {
+			el.style = styleTextItalic
 			stateTmp.push(pi.state.pop())
 		}
-		if node.kind == nodeKindTextMono && node.style == 0 {
-			node.style = styleTextMono
+		if el.kind == elKindTextMono && el.style == 0 {
+			el.style = styleTextMono
 			stateTmp.push(pi.state.pop())
 		}
-		node = node.parent
+		el = el.parent
 	}
-	if node.parent != nil {
-		node = node.parent
+	if el.parent != nil {
+		el = el.parent
 	}
 	for k := stateTmp.pop(); k != 0; k = stateTmp.pop() {
-		child := &adocNode{
+		child := &element{
 			kind: k,
 		}
-		node.addChild(child)
-		node = child
+		el.addChild(child)
+		el = child
 		pi.state.push(k)
 	}
-	child := &adocNode{
-		kind: nodeKindText,
+	child := &element{
+		kind: elKindText,
 	}
-	node.addChild(child)
+	el.addChild(child)
 	pi.current = child
 }
 

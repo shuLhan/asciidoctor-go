@@ -51,11 +51,11 @@ func parse(doc *Document, content []byte) {
 		doc.sectLevel, _ = strconv.Atoi(sectLevel)
 	}
 
-	preamble := &adocNode{
+	preamble := &element{
 		elementAttribute: elementAttribute{
 			Attrs: make(map[string]string),
 		},
-		kind: nodeKindPreamble,
+		kind: elKindPreamble,
 	}
 	doc.content.addChild(preamble)
 
@@ -77,7 +77,7 @@ func parseSub(parentDoc *Document, content []byte) (subdoc *Document) {
 }
 
 func (docp *documentParser) consumeLinesUntil(
-	node *adocNode, term int, terms []int,
+	el *element, term int, terms []int,
 ) (
 	line []byte,
 ) {
@@ -86,8 +86,8 @@ func (docp *documentParser) consumeLinesUntil(
 		allowComment bool
 		spaces       []byte
 	)
-	if term == nodeKindBlockListing || term == nodeKindBlockListingNamed ||
-		term == nodeKindLiteralParagraph {
+	if term == elKindBlockListing || term == elKindBlockListingNamed ||
+		term == elKindLiteralParagraph {
 		allowComment = true
 	}
 	for {
@@ -101,13 +101,13 @@ func (docp *documentParser) consumeLinesUntil(
 		}
 		if docp.kind == lineKindComment {
 			if allowComment {
-				node.Write(line)
-				node.WriteByte('\n')
+				el.Write(line)
+				el.WriteByte('\n')
 			}
 			continue
 		}
 		if docp.kind == term {
-			node.raw = bytes.TrimRight(node.raw, " \n")
+			el.raw = bytes.TrimRight(el.raw, " \n")
 			return nil
 		}
 		for _, t := range terms {
@@ -118,8 +118,8 @@ func (docp *documentParser) consumeLinesUntil(
 		if docp.kind == lineKindInclude {
 			elInclude := parseInclude(docp.doc, line)
 			if elInclude == nil {
-				node.Write(line)
-				node.WriteByte('\n')
+				el.Write(line)
+				el.WriteByte('\n')
 				line = nil
 				continue
 			}
@@ -129,17 +129,17 @@ func (docp *documentParser) consumeLinesUntil(
 			line = nil
 			continue
 		}
-		if node.kind == nodeKindBlockPassthrough ||
-			node.kind == nodeKindBlockListing ||
-			node.kind == nodeKindBlockLiteral {
-			if node.kind != nodeKindTable {
-				node.Write(spaces)
+		if el.kind == elKindBlockPassthrough ||
+			el.kind == elKindBlockListing ||
+			el.kind == elKindBlockLiteral {
+			if el.kind != elKindTable {
+				el.Write(spaces)
 			}
-		} else if node.kind == nodeKindParagraph && len(spaces) > 0 {
-			node.WriteByte(' ')
+		} else if el.kind == elKindParagraph && len(spaces) > 0 {
+			el.WriteByte(' ')
 		}
-		node.Write(line)
-		node.WriteByte('\n')
+		el.Write(line)
+		el.WriteByte('\n')
 	}
 	return line
 }
@@ -179,9 +179,9 @@ func (docp *documentParser) line() (spaces, line []byte, ok bool) {
 	return spaces, line, true
 }
 
-func (docp *documentParser) parseBlock(parent *adocNode, term int) {
-	node := &adocNode{
-		kind: nodeKindUnknown,
+func (docp *documentParser) parseBlock(parent *element, term int) {
+	el := &element{
+		kind: elKindUnknown,
 	}
 	var (
 		line []byte
@@ -209,9 +209,9 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 			line = nil
 			continue
 		case lineKindHorizontalRule:
-			node.kind = docp.kind
-			parent.addChild(node)
-			node = &adocNode{}
+			el.kind = docp.kind
+			parent.addChild(el)
+			el = &element{}
 			line = nil
 			continue
 
@@ -219,35 +219,35 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 			idLabel := line[2 : len(line)-2]
 			id, label := parseIDLabel(idLabel)
 			if len(id) > 0 {
-				node.ID = docp.doc.registerAnchor(
+				el.ID = docp.doc.registerAnchor(
 					string(id), string(label))
 				line = nil
 				continue
 			}
-			line = docp.parseParagraph(parent, node, line, term)
-			parent.addChild(node)
-			node = &adocNode{}
+			line = docp.parseParagraph(parent, el, line, term)
+			parent.addChild(el)
+			el = &element{}
 			continue
 
 		case lineKindIDShort:
 			id := line[2 : len(line)-1]
 			id, label := parseIDLabel(id)
 			if len(id) > 0 {
-				node.ID = docp.doc.registerAnchor(
+				el.ID = docp.doc.registerAnchor(
 					string(id), string(label))
 				line = nil
 				continue
 			}
-			line = docp.parseParagraph(parent, node, line, term)
-			parent.addChild(node)
-			node = &adocNode{}
+			line = docp.parseParagraph(parent, el, line, term)
+			parent.addChild(el)
+			el = &element{}
 			continue
 
 		case lineKindInclude:
 			elInclude := parseInclude(docp.doc, []byte(line))
 			if elInclude == nil {
-				node.Write(line)
-				node.WriteByte('\n')
+				el.Write(line)
+				el.WriteByte('\n')
 				line = nil
 				continue
 			}
@@ -258,9 +258,9 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 			continue
 
 		case lineKindPageBreak:
-			node.kind = docp.kind
-			parent.addChild(node)
-			node = &adocNode{}
+			el.kind = docp.kind
+			parent.addChild(el)
+			el = &element{}
 			line = nil
 			continue
 
@@ -268,13 +268,13 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 			key, value, ok := parseAttribute(line, false)
 			if ok {
 				if key == attrNameIcons {
-					if node.Attrs == nil {
-						node.Attrs = make(map[string]string)
+					if el.Attrs == nil {
+						el.Attrs = make(map[string]string)
 					}
-					node.Attrs[key] = value
+					el.Attrs[key] = value
 				} else {
 					docp.doc.Attributes.apply(key, value)
-					parent.addChild(&adocNode{
+					parent.addChild(&element{
 						kind:  docp.kind,
 						key:   key,
 						value: value,
@@ -283,78 +283,78 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 				line = nil
 				continue
 			}
-			line = docp.parseParagraph(parent, node, line, term)
-			parent.addChild(node)
-			node = &adocNode{}
+			line = docp.parseParagraph(parent, el, line, term)
+			parent.addChild(el)
+			el = &element{}
 			continue
 
 		case lineKindAttributeElement:
-			node.parseElementAttribute(line)
-			if node.style > 0 {
-				if isStyleAdmonition(node.style) {
-					node.setStyleAdmonition(node.rawStyle)
+			el.parseElementAttribute(line)
+			if el.style > 0 {
+				if isStyleAdmonition(el.style) {
+					el.setStyleAdmonition(el.rawStyle)
 				}
 			}
 			line = nil
 			continue
 
 		case lineKindStyleClass:
-			node.parseStyleClass(line)
+			el.parseStyleClass(line)
 			line = nil
 			continue
 
 		case lineKindText, lineKindListContinue:
-			line = docp.parseParagraph(parent, node, line, term)
-			parent.addChild(node)
-			node = &adocNode{}
+			line = docp.parseParagraph(parent, el, line, term)
+			parent.addChild(el)
+			el = &element{}
 			continue
 
 		case lineKindBlockTitle:
-			node.rawTitle = string(line[1:])
+			el.rawTitle = string(line[1:])
 			line = nil
 			continue
 
 		case lineKindAdmonition:
-			node.kind = nodeKindParagraph
-			node.style |= styleAdmonition
-			node.parseLineAdmonition(line)
+			el.kind = elKindParagraph
+			el.style |= styleAdmonition
+			el.parseLineAdmonition(line)
 			line = docp.consumeLinesUntil(
-				node,
+				el,
 				lineKindEmpty,
 				[]int{
 					term,
-					nodeKindBlockListing,
-					nodeKindBlockListingNamed,
-					nodeKindBlockLiteral,
-					nodeKindBlockLiteralNamed,
+					elKindBlockListing,
+					elKindBlockListingNamed,
+					elKindBlockLiteral,
+					elKindBlockLiteralNamed,
 					lineKindListContinue,
 				})
-			node.parseInlineMarkup(docp.doc, nodeKindText)
-			parent.addChild(node)
-			node = new(adocNode)
+			el.parseInlineMarkup(docp.doc, elKindText)
+			parent.addChild(el)
+			el = new(element)
 			continue
 
-		case nodeKindSectionL1, nodeKindSectionL2,
-			nodeKindSectionL3, nodeKindSectionL4,
-			nodeKindSectionL5:
-			if term == nodeKindBlockOpen {
-				line = docp.parseParagraph(parent, node, line, term)
-				parent.addChild(node)
-				node = new(adocNode)
+		case elKindSectionL1, elKindSectionL2,
+			elKindSectionL3, elKindSectionL4,
+			elKindSectionL5:
+			if term == elKindBlockOpen {
+				line = docp.parseParagraph(parent, el, line, term)
+				parent.addChild(el)
+				el = new(element)
 				continue
 			}
 
-			node.kind = docp.kind
+			el.kind = docp.kind
 			// BUG: "= =a" could become "a", it should be "=a"
-			node.Write(bytes.TrimLeft(line, "= \t"))
+			el.Write(bytes.TrimLeft(line, "= \t"))
 
-			isDiscrete := node.style&styleSectionDiscrete > 0
+			isDiscrete := el.style&styleSectionDiscrete > 0
 			if isDiscrete {
-				node.kind = nodeKindSectionDiscrete
-				node.level = docp.kind
-				node.parseSection(docp.doc, isDiscrete)
-				parent.addChild(node)
-				node = new(adocNode)
+				el.kind = elKindSectionDiscrete
+				el.level = docp.kind
+				el.parseSection(docp.doc, isDiscrete)
+				parent.addChild(el)
+				el = new(element)
 				line = nil
 				continue
 			}
@@ -367,183 +367,183 @@ func (docp *documentParser) parseBlock(parent *adocNode, term int) {
 					break
 				}
 			}
-			node.parseSection(docp.doc, false)
-			parent.addChild(node)
-			parent = node
-			node = new(adocNode)
+			el.parseSection(docp.doc, false)
+			parent.addChild(el)
+			parent = el
+			el = new(element)
 			line = nil
 			continue
 
-		case nodeKindLiteralParagraph:
-			if node.isStyleAdmonition() {
-				line = docp.parseParagraph(parent, node,
+		case elKindLiteralParagraph:
+			if el.isStyleAdmonition() {
+				line = docp.parseParagraph(parent, el,
 					line, term)
 			} else {
-				node.kind = docp.kind
-				node.addRole(classNameLiteralBlock)
-				node.Write(line)
-				node.WriteByte('\n')
+				el.kind = docp.kind
+				el.addRole(classNameLiteralBlock)
+				el.Write(line)
+				el.WriteByte('\n')
 				line = docp.consumeLinesUntil(
-					node,
+					el,
 					lineKindEmpty,
 					[]int{
 						term,
-						nodeKindBlockListing,
-						nodeKindBlockListingNamed,
-						nodeKindBlockLiteral,
-						nodeKindBlockLiteralNamed,
+						elKindBlockListing,
+						elKindBlockListingNamed,
+						elKindBlockLiteral,
+						elKindBlockLiteralNamed,
 					})
-				node.raw = applySubstitutions(docp.doc, node.raw)
+				el.raw = applySubstitutions(docp.doc, el.raw)
 			}
-			parent.addChild(node)
-			node = &adocNode{}
+			parent.addChild(el)
+			el = &element{}
 			continue
 
-		case nodeKindBlockLiteral:
-			node.kind = docp.kind
-			node.addRole(classNameLiteralBlock)
-			line = docp.consumeLinesUntil(node, docp.kind, nil)
-			node.raw = applySubstitutions(docp.doc, node.raw)
-			parent.addChild(node)
-			node = &adocNode{}
+		case elKindBlockLiteral:
+			el.kind = docp.kind
+			el.addRole(classNameLiteralBlock)
+			line = docp.consumeLinesUntil(el, docp.kind, nil)
+			el.raw = applySubstitutions(docp.doc, el.raw)
+			parent.addChild(el)
+			el = &element{}
 			continue
 
-		case nodeKindBlockLiteralNamed:
-			node.kind = docp.kind
-			node.addRole(classNameLiteralBlock)
-			line = docp.consumeLinesUntil(node, lineKindEmpty, nil)
-			node.raw = applySubstitutions(docp.doc, node.raw)
-			parent.addChild(node)
-			node = &adocNode{}
+		case elKindBlockLiteralNamed:
+			el.kind = docp.kind
+			el.addRole(classNameLiteralBlock)
+			line = docp.consumeLinesUntil(el, lineKindEmpty, nil)
+			el.raw = applySubstitutions(docp.doc, el.raw)
+			parent.addChild(el)
+			el = &element{}
 			continue
 
-		case nodeKindBlockListing:
-			node.kind = docp.kind
-			node.addRole(classNameListingBlock)
-			line = docp.consumeLinesUntil(node, docp.kind, nil)
-			node.raw = applySubstitutions(docp.doc, node.raw)
-			parent.addChild(node)
-			node = &adocNode{}
+		case elKindBlockListing:
+			el.kind = docp.kind
+			el.addRole(classNameListingBlock)
+			line = docp.consumeLinesUntil(el, docp.kind, nil)
+			el.raw = applySubstitutions(docp.doc, el.raw)
+			parent.addChild(el)
+			el = &element{}
 			continue
 
-		case nodeKindBlockListingNamed:
-			node.kind = docp.kind
-			node.addRole(classNameListingBlock)
+		case elKindBlockListingNamed:
+			el.kind = docp.kind
+			el.addRole(classNameListingBlock)
 			line = docp.consumeLinesUntil(
-				node,
+				el,
 				lineKindEmpty,
 				[]int{
-					nodeKindBlockListing,
-					nodeKindBlockListingNamed,
-					nodeKindBlockLiteral,
-					nodeKindBlockLiteralNamed,
+					elKindBlockListing,
+					elKindBlockListingNamed,
+					elKindBlockLiteral,
+					elKindBlockLiteralNamed,
 					lineKindListContinue,
 				})
-			node.raw = applySubstitutions(docp.doc, node.raw)
-			parent.addChild(node)
-			node = &adocNode{}
+			el.raw = applySubstitutions(docp.doc, el.raw)
+			parent.addChild(el)
+			el = &element{}
 			continue
 
-		case nodeKindBlockPassthrough:
-			node.kind = docp.kind
-			line = docp.consumeLinesUntil(node, docp.kind, nil)
-			parent.addChild(node)
-			node = &adocNode{}
+		case elKindBlockPassthrough:
+			el.kind = docp.kind
+			line = docp.consumeLinesUntil(el, docp.kind, nil)
+			parent.addChild(el)
+			el = &element{}
 			continue
 
-		case nodeKindListOrderedItem:
-			line = docp.parseListOrdered(parent, node.rawTitle, line, term)
-			parent.addChild(node)
-			node = &adocNode{}
+		case elKindListOrderedItem:
+			line = docp.parseListOrdered(parent, el.rawTitle, line, term)
+			parent.addChild(el)
+			el = &element{}
 			continue
 
-		case nodeKindListUnorderedItem:
-			line = docp.parseListUnordered(parent, node, line, term)
-			parent.addChild(node)
-			node = &adocNode{}
+		case elKindListUnorderedItem:
+			line = docp.parseListUnordered(parent, el, line, term)
+			parent.addChild(el)
+			el = &element{}
 			continue
 
-		case nodeKindListDescriptionItem:
-			line = docp.parseListDescription(parent, node, line, term)
-			parent.addChild(node)
-			node = &adocNode{}
+		case elKindListDescriptionItem:
+			line = docp.parseListDescription(parent, el, line, term)
+			parent.addChild(el)
+			el = &element{}
 			continue
 
-		case nodeKindBlockImage:
+		case elKindBlockImage:
 			lineImage := bytes.TrimRight(line[7:], " \t")
-			if node.parseBlockImage(docp.doc, lineImage) {
-				node.kind = docp.kind
+			if el.parseBlockImage(docp.doc, lineImage) {
+				el.kind = docp.kind
 				line = nil
 			} else {
-				line = docp.parseParagraph(parent, node, line, term)
+				line = docp.parseParagraph(parent, el, line, term)
 			}
-			parent.addChild(node)
-			node = &adocNode{}
+			parent.addChild(el)
+			el = &element{}
 			continue
 
-		case nodeKindBlockOpen, nodeKindBlockExample, nodeKindBlockSidebar:
-			node.kind = docp.kind
-			docp.parseBlock(node, docp.kind)
-			parent.addChild(node)
-			node = new(adocNode)
+		case elKindBlockOpen, elKindBlockExample, elKindBlockSidebar:
+			el.kind = docp.kind
+			docp.parseBlock(el, docp.kind)
+			parent.addChild(el)
+			el = new(element)
 			line = nil
 			continue
 
-		case nodeKindBlockExcerpts:
-			node.kind = docp.kind
-			if node.isStyleVerse() {
+		case elKindBlockExcerpts:
+			el.kind = docp.kind
+			if el.isStyleVerse() {
 				line = docp.consumeLinesUntil(
-					node,
+					el,
 					docp.kind,
 					[]int{
 						term,
-						nodeKindBlockListing,
-						nodeKindBlockListingNamed,
-						nodeKindBlockLiteral,
-						nodeKindBlockLiteralNamed,
+						elKindBlockListing,
+						elKindBlockListingNamed,
+						elKindBlockLiteral,
+						elKindBlockLiteralNamed,
 						lineKindListContinue,
 					})
 			} else {
-				docp.parseBlock(node, docp.kind)
+				docp.parseBlock(el, docp.kind)
 				line = nil
 			}
-			parent.addChild(node)
-			node = new(adocNode)
+			parent.addChild(el)
+			el = new(element)
 			continue
 
-		case nodeKindBlockVideo:
-			if node.parseBlockVideo(docp.doc, line) {
-				node.kind = docp.kind
-				line = nil
-			} else {
-				line = docp.parseParagraph(parent, node, line, term)
-			}
-			parent.addChild(node)
-			node = new(adocNode)
-			continue
-
-		case nodeKindBlockAudio:
-			if node.parseBlockAudio(docp.doc, line) {
-				node.kind = docp.kind
+		case elKindBlockVideo:
+			if el.parseBlockVideo(docp.doc, line) {
+				el.kind = docp.kind
 				line = nil
 			} else {
-				line = docp.parseParagraph(parent, node, line, term)
+				line = docp.parseParagraph(parent, el, line, term)
 			}
-			parent.addChild(node)
-			node = new(adocNode)
+			parent.addChild(el)
+			el = new(element)
 			continue
 
-		case nodeKindMacroTOC:
-			node.kind = docp.kind
-			parent.addChild(node)
-			node = new(adocNode)
+		case elKindBlockAudio:
+			if el.parseBlockAudio(docp.doc, line) {
+				el.kind = docp.kind
+				line = nil
+			} else {
+				line = docp.parseParagraph(parent, el, line, term)
+			}
+			parent.addChild(el)
+			el = new(element)
+			continue
 
-		case nodeKindTable:
-			node.kind = docp.kind
-			line = docp.consumeLinesUntil(node, docp.kind, nil)
-			parent.addChild(node)
-			node.postConsumeTable()
-			node = &adocNode{}
+		case elKindMacroTOC:
+			el.kind = docp.kind
+			parent.addChild(el)
+			el = new(element)
+
+		case elKindTable:
+			el.kind = docp.kind
+			line = docp.consumeLinesUntil(el, docp.kind, nil)
+			parent.addChild(el)
+			el.postConsumeTable()
+			el = &element{}
 			continue
 		}
 		line = nil
@@ -634,7 +634,7 @@ func (docp *documentParser) parseIgnoreCommentBlock() {
 // parseListBlock parse block after list continuation "+" until we found
 // empty line or non-list line.
 //
-func (docp *documentParser) parseListBlock() (node *adocNode, line []byte) {
+func (docp *documentParser) parseListBlock() (el *element, line []byte) {
 	var ok bool
 	for {
 		_, line, ok = docp.line()
@@ -643,24 +643,24 @@ func (docp *documentParser) parseListBlock() (node *adocNode, line []byte) {
 		}
 
 		if docp.kind == lineKindAdmonition {
-			node = &adocNode{
+			el = &element{
 				elementAttribute: elementAttribute{
 					style: styleAdmonition,
 				},
-				kind: nodeKindParagraph,
+				kind: elKindParagraph,
 			}
-			node.parseLineAdmonition(line)
+			el.parseLineAdmonition(line)
 			line = docp.consumeLinesUntil(
-				node,
+				el,
 				lineKindEmpty,
 				[]int{
-					nodeKindBlockListing,
-					nodeKindBlockListingNamed,
-					nodeKindBlockLiteral,
-					nodeKindBlockLiteralNamed,
+					elKindBlockListing,
+					elKindBlockListingNamed,
+					elKindBlockLiteral,
+					elKindBlockLiteralNamed,
 					lineKindListContinue,
 				})
-			node.parseInlineMarkup(docp.doc, nodeKindText)
+			el.parseInlineMarkup(docp.doc, elKindText)
 			break
 		}
 		if docp.kind == lineKindBlockComment {
@@ -671,99 +671,99 @@ func (docp *documentParser) parseListBlock() (node *adocNode, line []byte) {
 			continue
 		}
 		if docp.kind == lineKindEmpty {
-			return node, line
+			return el, line
 		}
 		if docp.kind == lineKindListContinue {
 			continue
 		}
-		if docp.kind == nodeKindLiteralParagraph {
-			node = &adocNode{
+		if docp.kind == elKindLiteralParagraph {
+			el = &element{
 				elementAttribute: elementAttribute{
 					roles: []string{classNameLiteralBlock},
 				},
 				kind: docp.kind,
 			}
-			node.Write(bytes.TrimLeft(line, " \t"))
-			node.WriteByte('\n')
+			el.Write(bytes.TrimLeft(line, " \t"))
+			el.WriteByte('\n')
 			line = docp.consumeLinesUntil(
-				node,
+				el,
 				lineKindEmpty,
 				[]int{
 					lineKindListContinue,
-					nodeKindListOrderedItem,
-					nodeKindListUnorderedItem,
+					elKindListOrderedItem,
+					elKindListUnorderedItem,
 				})
-			node.raw = applySubstitutions(docp.doc, node.raw)
+			el.raw = applySubstitutions(docp.doc, el.raw)
 			break
 		}
 		if docp.kind == lineKindText {
-			node = &adocNode{
-				kind: nodeKindParagraph,
+			el = &element{
+				kind: elKindParagraph,
 			}
-			node.Write(line)
-			node.WriteByte('\n')
-			line = docp.consumeLinesUntil(node,
+			el.Write(line)
+			el.WriteByte('\n')
+			line = docp.consumeLinesUntil(el,
 				lineKindEmpty,
 				[]int{
 					lineKindListContinue,
-					nodeKindListOrderedItem,
-					nodeKindListUnorderedItem,
-					nodeKindListDescriptionItem,
+					elKindListOrderedItem,
+					elKindListUnorderedItem,
+					elKindListDescriptionItem,
 				})
-			node.postParseParagraph(nil)
-			node.parseInlineMarkup(docp.doc, nodeKindText)
+			el.postParseParagraph(nil)
+			el.parseInlineMarkup(docp.doc, elKindText)
 			break
 		}
-		if docp.kind == nodeKindBlockListing {
-			node = &adocNode{
+		if docp.kind == elKindBlockListing {
+			el = &element{
 				elementAttribute: elementAttribute{
 					roles: []string{classNameListingBlock},
 				},
 				kind: docp.kind,
 			}
-			docp.consumeLinesUntil(node, docp.kind, nil)
-			node.raw = applySubstitutions(docp.doc, node.raw)
+			docp.consumeLinesUntil(el, docp.kind, nil)
+			el.raw = applySubstitutions(docp.doc, el.raw)
 			line = nil
 			break
 		}
-		if docp.kind == nodeKindBlockOpen {
-			node = &adocNode{
+		if docp.kind == elKindBlockOpen {
+			el = &element{
 				kind: docp.kind,
 			}
-			docp.parseBlock(node, docp.kind)
+			docp.parseBlock(el, docp.kind)
 			line = nil
 			break
 		}
-		if docp.kind == nodeKindListOrderedItem {
+		if docp.kind == elKindListOrderedItem {
 			break
 		}
-		if docp.kind == nodeKindListUnorderedItem {
+		if docp.kind == elKindListUnorderedItem {
 			break
 		}
-		if docp.kind == nodeKindListDescriptionItem {
+		if docp.kind == elKindListDescriptionItem {
 			break
 		}
 	}
-	return node, line
+	return el, line
 }
 
 func (docp *documentParser) parseListDescription(
-	parent, node *adocNode, line []byte, term int,
+	parent, el *element, line []byte, term int,
 ) (
 	got []byte,
 ) {
-	list := &adocNode{
+	list := &element{
 		elementAttribute: elementAttribute{
-			style: node.style,
+			style: el.style,
 		},
-		kind:     nodeKindListDescription,
-		rawTitle: node.rawTitle,
+		kind:     elKindListDescription,
+		rawTitle: el.rawTitle,
 	}
-	listItem := &adocNode{
+	listItem := &element{
 		elementAttribute: elementAttribute{
 			style: list.style,
 		},
-		kind: nodeKindListDescriptionItem,
+		kind: elKindListDescriptionItem,
 	}
 	listItem.parseListDescriptionItem(line)
 	list.level = listItem.level
@@ -792,10 +792,10 @@ func (docp *documentParser) parseListDescription(
 			continue
 		}
 		if docp.kind == lineKindListContinue {
-			var node *adocNode
-			node, line = docp.parseListBlock()
-			if node != nil {
-				listItem.addChild(node)
+			var el *element
+			el, line = docp.parseListBlock()
+			if el != nil {
+				listItem.addChild(el)
 			}
 			continue
 		}
@@ -803,91 +803,91 @@ func (docp *documentParser) parseListDescription(
 			// Keep going, maybe next line is still a list.
 			continue
 		}
-		if docp.kind == nodeKindListOrderedItem {
+		if docp.kind == elKindListOrderedItem {
 			line = docp.parseListOrdered(listItem, "", line, term)
 			continue
 		}
-		if docp.kind == nodeKindListUnorderedItem {
-			line = docp.parseListUnordered(listItem, node, line, term)
+		if docp.kind == elKindListUnorderedItem {
+			line = docp.parseListUnordered(listItem, el, line, term)
 			continue
 		}
-		if docp.kind == nodeKindListDescriptionItem {
-			node := &adocNode{
+		if docp.kind == elKindListDescriptionItem {
+			el := &element{
 				elementAttribute: elementAttribute{
 					style: list.style,
 				},
-				kind: nodeKindListDescriptionItem,
+				kind: elKindListDescriptionItem,
 			}
-			node.parseListDescriptionItem(line)
-			if listItem.level == node.level {
-				list.addChild(node)
-				listItem = node
+			el.parseListDescriptionItem(line)
+			if listItem.level == el.level {
+				list.addChild(el)
+				listItem = el
 				line = nil
 				continue
 			}
 			parentListItem := parent
 			for parentListItem != nil {
 				if parentListItem.kind == docp.kind &&
-					parentListItem.level == node.level {
+					parentListItem.level == el.level {
 					list.postParseList(docp.doc,
-						nodeKindListDescriptionItem)
+						elKindListDescriptionItem)
 					return line
 				}
 				parentListItem = parentListItem.parent
 			}
-			line = docp.parseListDescription(listItem, node, line, term)
+			line = docp.parseListDescription(listItem, el, line, term)
 			continue
 		}
-		if docp.kind == nodeKindBlockListingNamed {
+		if docp.kind == elKindBlockListingNamed {
 			if docp.prevKind == lineKindEmpty {
 				break
 			}
-			node := &adocNode{
+			el := &element{
 				elementAttribute: elementAttribute{
 					roles: []string{classNameListingBlock},
 				},
 				kind: docp.kind,
 			}
-			line = docp.consumeLinesUntil(node,
+			line = docp.consumeLinesUntil(el,
 				lineKindEmpty,
 				[]int{
-					nodeKindListOrderedItem,
-					nodeKindListUnorderedItem,
+					elKindListOrderedItem,
+					elKindListUnorderedItem,
 				})
-			node.raw = applySubstitutions(docp.doc, node.raw)
-			listItem.addChild(node)
+			el.raw = applySubstitutions(docp.doc, el.raw)
+			listItem.addChild(el)
 			continue
 		}
-		if docp.kind == nodeKindBlockLiteralNamed {
+		if docp.kind == elKindBlockLiteralNamed {
 			if docp.prevKind == lineKindEmpty {
 				break
 			}
-			node := &adocNode{
+			el := &element{
 				elementAttribute: elementAttribute{
 					roles: []string{classNameLiteralBlock},
 				},
 				kind: docp.kind,
 			}
-			line = docp.consumeLinesUntil(node,
+			line = docp.consumeLinesUntil(el,
 				lineKindEmpty,
 				[]int{
-					nodeKindListOrderedItem,
-					nodeKindListUnorderedItem,
+					elKindListOrderedItem,
+					elKindListUnorderedItem,
 				})
-			node.raw = applySubstitutions(docp.doc, node.raw)
-			listItem.addChild(node)
+			el.raw = applySubstitutions(docp.doc, el.raw)
+			listItem.addChild(el)
 			continue
 		}
-		if docp.kind == nodeKindBlockListing ||
-			docp.kind == nodeKindBlockExample ||
-			docp.kind == nodeKindBlockSidebar {
+		if docp.kind == elKindBlockListing ||
+			docp.kind == elKindBlockExample ||
+			docp.kind == elKindBlockSidebar {
 			break
 		}
-		if docp.kind == nodeKindSectionL1 ||
-			docp.kind == nodeKindSectionL2 ||
-			docp.kind == nodeKindSectionL3 ||
-			docp.kind == nodeKindSectionL4 ||
-			docp.kind == nodeKindSectionL5 ||
+		if docp.kind == elKindSectionL1 ||
+			docp.kind == elKindSectionL2 ||
+			docp.kind == elKindSectionL3 ||
+			docp.kind == elKindSectionL4 ||
+			docp.kind == elKindSectionL5 ||
 			docp.kind == lineKindAttributeElement ||
 			docp.kind == lineKindBlockTitle ||
 			docp.kind == lineKindID ||
@@ -902,7 +902,7 @@ func (docp *documentParser) parseListDescription(
 		listItem.WriteByte('\n')
 		line = nil
 	}
-	list.postParseList(docp.doc, nodeKindListDescriptionItem)
+	list.postParseList(docp.doc, elKindListDescriptionItem)
 	return line
 }
 
@@ -912,16 +912,16 @@ func (docp *documentParser) parseListDescription(
 // On success it will return non-empty line and terminator character.
 //
 func (docp *documentParser) parseListOrdered(
-	parent *adocNode, title string, line []byte, term int,
+	parent *element, title string, line []byte, term int,
 ) (
 	got []byte,
 ) {
-	list := &adocNode{
-		kind:     nodeKindListOrdered,
+	list := &element{
+		kind:     elKindListOrdered,
 		rawTitle: title,
 	}
-	listItem := &adocNode{
-		kind: nodeKindListOrderedItem,
+	listItem := &element{
+		kind: elKindListOrderedItem,
 	}
 	listItem.parseListOrderedItem(line)
 	list.level = listItem.level
@@ -951,10 +951,10 @@ func (docp *documentParser) parseListOrdered(
 			continue
 		}
 		if docp.kind == lineKindListContinue {
-			var node *adocNode
-			node, line = docp.parseListBlock()
-			if node != nil {
-				listItem.addChild(node)
+			var el *element
+			el, line = docp.parseListBlock()
+			if el != nil {
+				listItem.addChild(el)
 			}
 			continue
 		}
@@ -962,14 +962,14 @@ func (docp *documentParser) parseListOrdered(
 			// Keep going, maybe next line is still a list.
 			continue
 		}
-		if docp.kind == nodeKindListOrderedItem {
-			node := &adocNode{
-				kind: nodeKindListOrderedItem,
+		if docp.kind == elKindListOrderedItem {
+			el := &element{
+				kind: elKindListOrderedItem,
 			}
-			node.parseListOrderedItem(line)
-			if listItem.level == node.level {
-				list.addChild(node)
-				listItem = node
+			el.parseListOrderedItem(line)
+			if listItem.level == el.level {
+				list.addChild(el)
+				listItem = el
 				line = nil
 				continue
 			}
@@ -981,8 +981,8 @@ func (docp *documentParser) parseListOrdered(
 			parentListItem := parent
 			for parentListItem != nil {
 				if parentListItem.kind == docp.kind &&
-					parentListItem.level == node.level {
-					list.postParseList(docp.doc, nodeKindListOrderedItem)
+					parentListItem.level == el.level {
+					list.postParseList(docp.doc, elKindListOrderedItem)
 					return line
 				}
 				parentListItem = parentListItem.parent
@@ -991,11 +991,11 @@ func (docp *documentParser) parseListOrdered(
 			line = docp.parseListOrdered(listItem, "", line, term)
 			continue
 		}
-		if docp.kind == nodeKindListUnorderedItem {
-			node := &adocNode{
-				kind: nodeKindListUnorderedItem,
+		if docp.kind == elKindListUnorderedItem {
+			el := &element{
+				kind: elKindListUnorderedItem,
 			}
-			node.parseListUnorderedItem(line)
+			el.parseListUnorderedItem(line)
 
 			// Case:
 			// . Parent
@@ -1004,110 +1004,110 @@ func (docp *documentParser) parseListOrdered(
 			parentListItem := parent
 			for parentListItem != nil {
 				if parentListItem.kind == docp.kind &&
-					parentListItem.level == node.level {
+					parentListItem.level == el.level {
 
-					list.postParseList(docp.doc, nodeKindListOrderedItem)
+					list.postParseList(docp.doc, elKindListOrderedItem)
 					return line
 				}
 				parentListItem = parentListItem.parent
 			}
 
-			line = docp.parseListUnordered(listItem, node, line, term)
+			line = docp.parseListUnordered(listItem, el, line, term)
 			continue
 		}
-		if docp.kind == nodeKindListDescriptionItem {
-			node := &adocNode{
+		if docp.kind == elKindListDescriptionItem {
+			el := &element{
 				kind: docp.kind,
 			}
-			node.parseListDescriptionItem(line)
+			el.parseListDescriptionItem(line)
 
 			parentListItem := parent
 			for parentListItem != nil {
 				if parentListItem.kind == docp.kind &&
-					parentListItem.level == node.level {
+					parentListItem.level == el.level {
 
-					list.postParseList(docp.doc, nodeKindListOrderedItem)
+					list.postParseList(docp.doc, elKindListOrderedItem)
 					return line
 				}
 				parentListItem = parentListItem.parent
 			}
 
-			line = docp.parseListDescription(listItem, node, line, term)
+			line = docp.parseListDescription(listItem, el, line, term)
 			continue
 		}
-		if docp.kind == nodeKindLiteralParagraph {
+		if docp.kind == elKindLiteralParagraph {
 			if docp.prevKind == lineKindEmpty {
-				node := &adocNode{
+				el := &element{
 					elementAttribute: elementAttribute{
 						roles: []string{classNameLiteralBlock},
 					},
 					kind: docp.kind,
 				}
-				node.Write(bytes.TrimLeft(line, " \t"))
-				node.WriteByte('\n')
+				el.Write(bytes.TrimLeft(line, " \t"))
+				el.WriteByte('\n')
 				line = docp.consumeLinesUntil(
-					node,
+					el,
 					lineKindEmpty,
 					[]int{
 						lineKindListContinue,
-						nodeKindListOrderedItem,
-						nodeKindListUnorderedItem,
+						elKindListOrderedItem,
+						elKindListUnorderedItem,
 					})
-				node.raw = applySubstitutions(docp.doc, node.raw)
-				listItem.addChild(node)
+				el.raw = applySubstitutions(docp.doc, el.raw)
+				listItem.addChild(el)
 				continue
 			}
 		}
-		if docp.kind == nodeKindBlockListingNamed {
+		if docp.kind == elKindBlockListingNamed {
 			if docp.prevKind == lineKindEmpty {
 				break
 			}
-			node := &adocNode{
+			el := &element{
 				elementAttribute: elementAttribute{
 					roles: []string{classNameListingBlock},
 				},
 				kind: docp.kind,
 			}
-			line = docp.consumeLinesUntil(node,
+			line = docp.consumeLinesUntil(el,
 				lineKindEmpty,
 				[]int{
-					nodeKindListOrderedItem,
-					nodeKindListUnorderedItem,
+					elKindListOrderedItem,
+					elKindListUnorderedItem,
 				})
-			node.raw = applySubstitutions(docp.doc, node.raw)
-			listItem.addChild(node)
+			el.raw = applySubstitutions(docp.doc, el.raw)
+			listItem.addChild(el)
 			continue
 		}
-		if docp.kind == nodeKindBlockLiteralNamed {
+		if docp.kind == elKindBlockLiteralNamed {
 			if docp.prevKind == lineKindEmpty {
 				break
 			}
-			node := &adocNode{
+			el := &element{
 				elementAttribute: elementAttribute{
 					roles: []string{classNameLiteralBlock},
 				},
 				kind: docp.kind,
 			}
-			line = docp.consumeLinesUntil(node,
+			line = docp.consumeLinesUntil(el,
 				lineKindEmpty,
 				[]int{
-					nodeKindListOrderedItem,
-					nodeKindListUnorderedItem,
+					elKindListOrderedItem,
+					elKindListUnorderedItem,
 				})
-			node.raw = applySubstitutions(docp.doc, node.raw)
-			listItem.addChild(node)
+			el.raw = applySubstitutions(docp.doc, el.raw)
+			listItem.addChild(el)
 			continue
 		}
-		if docp.kind == nodeKindBlockListing ||
-			docp.kind == nodeKindBlockExample ||
-			docp.kind == nodeKindBlockSidebar {
+		if docp.kind == elKindBlockListing ||
+			docp.kind == elKindBlockExample ||
+			docp.kind == elKindBlockSidebar {
 			break
 		}
-		if docp.kind == nodeKindSectionL1 ||
-			docp.kind == nodeKindSectionL2 ||
-			docp.kind == nodeKindSectionL3 ||
-			docp.kind == nodeKindSectionL4 ||
-			docp.kind == nodeKindSectionL5 ||
+		if docp.kind == elKindSectionL1 ||
+			docp.kind == elKindSectionL2 ||
+			docp.kind == elKindSectionL3 ||
+			docp.kind == elKindSectionL4 ||
+			docp.kind == elKindSectionL5 ||
 			docp.kind == lineKindAdmonition ||
 			docp.kind == lineKindAttributeElement ||
 			docp.kind == lineKindBlockTitle ||
@@ -1123,31 +1123,31 @@ func (docp *documentParser) parseListOrdered(
 		listItem.WriteByte('\n')
 		line = nil
 	}
-	list.postParseList(docp.doc, nodeKindListOrderedItem)
+	list.postParseList(docp.doc, elKindListOrderedItem)
 	return line
 }
 
 func (docp *documentParser) parseListUnordered(
-	parent, node *adocNode, line []byte, term int,
+	parent, el *element, line []byte, term int,
 ) (
 	got []byte,
 ) {
-	list := &adocNode{
+	list := &element{
 		elementAttribute: elementAttribute{
 			roles: []string{classNameUlist},
 		},
-		kind:     nodeKindListUnordered,
-		rawTitle: node.rawTitle,
+		kind:     elKindListUnordered,
+		rawTitle: el.rawTitle,
 	}
-	if len(node.rawStyle) > 0 {
-		list.addRole(node.rawStyle)
-		list.rawStyle = node.rawStyle
+	if len(el.rawStyle) > 0 {
+		list.addRole(el.rawStyle)
+		list.rawStyle = el.rawStyle
 	}
-	for _, role := range node.roles {
+	for _, role := range el.roles {
 		list.addRole(role)
 	}
-	listItem := &adocNode{
-		kind: nodeKindListUnorderedItem,
+	listItem := &element{
+		kind: elKindListUnorderedItem,
 	}
 	listItem.parseListUnorderedItem(line)
 	list.level = listItem.level
@@ -1185,10 +1185,10 @@ func (docp *documentParser) parseListUnordered(
 			continue
 		}
 		if docp.kind == lineKindListContinue {
-			var node *adocNode
-			node, line = docp.parseListBlock()
-			if node != nil {
-				listItem.addChild(node)
+			var el *element
+			el, line = docp.parseListBlock()
+			if el != nil {
+				listItem.addChild(el)
 			}
 			continue
 		}
@@ -1196,11 +1196,11 @@ func (docp *documentParser) parseListUnordered(
 			// Keep going, maybe next line is still a list.
 			continue
 		}
-		if docp.kind == nodeKindListOrderedItem {
-			node := &adocNode{
-				kind: nodeKindListOrderedItem,
+		if docp.kind == elKindListOrderedItem {
+			el := &element{
+				kind: elKindListOrderedItem,
 			}
-			node.parseListOrderedItem(line)
+			el.parseListOrderedItem(line)
 
 			// Case:
 			// . Parent
@@ -1209,9 +1209,9 @@ func (docp *documentParser) parseListUnordered(
 			parentListItem := parent
 			for parentListItem != nil {
 				if parentListItem.kind == docp.kind &&
-					parentListItem.level == node.level {
+					parentListItem.level == el.level {
 					list.postParseList(docp.doc,
-						nodeKindListUnorderedItem)
+						elKindListUnorderedItem)
 					return line
 				}
 				parentListItem = parentListItem.parent
@@ -1221,20 +1221,20 @@ func (docp *documentParser) parseListUnordered(
 			continue
 		}
 
-		if docp.kind == nodeKindListUnorderedItem {
-			node := &adocNode{
-				kind: nodeKindListUnorderedItem,
+		if docp.kind == elKindListUnorderedItem {
+			el := &element{
+				kind: elKindListUnorderedItem,
 			}
-			node.parseListUnorderedItem(line)
-			if listItem.level == node.level {
-				list.addChild(node)
+			el.parseListUnorderedItem(line)
+			if listItem.level == el.level {
+				list.addChild(el)
 				for _, role := range listItem.roles {
 					list.addRole(role)
 					if role == classNameChecklist {
 						list.rawStyle = role
 					}
 				}
-				listItem = node
+				listItem = el
 				line = nil
 				continue
 			}
@@ -1246,110 +1246,110 @@ func (docp *documentParser) parseListUnordered(
 			parentListItem := parent
 			for parentListItem != nil {
 				if parentListItem.kind == docp.kind &&
-					parentListItem.level == node.level {
+					parentListItem.level == el.level {
 					list.postParseList(docp.doc,
-						nodeKindListUnorderedItem)
+						elKindListUnorderedItem)
 					return line
 				}
 				parentListItem = parentListItem.parent
 			}
 
-			line = docp.parseListUnordered(listItem, node, line, term)
+			line = docp.parseListUnordered(listItem, el, line, term)
 			continue
 		}
-		if docp.kind == nodeKindListDescriptionItem {
-			node := &adocNode{
+		if docp.kind == elKindListDescriptionItem {
+			el := &element{
 				kind: docp.kind,
 			}
-			node.parseListDescriptionItem(line)
+			el.parseListDescriptionItem(line)
 
 			parentListItem := parent
 			for parentListItem != nil {
 				if parentListItem.kind == docp.kind &&
-					parentListItem.level == node.level {
+					parentListItem.level == el.level {
 					list.postParseList(docp.doc,
-						nodeKindListUnorderedItem)
+						elKindListUnorderedItem)
 					return line
 				}
 				parentListItem = parentListItem.parent
 			}
 
-			line = docp.parseListDescription(listItem, node, line, term)
+			line = docp.parseListDescription(listItem, el, line, term)
 			continue
 		}
-		if docp.kind == nodeKindLiteralParagraph {
+		if docp.kind == elKindLiteralParagraph {
 			if docp.prevKind == lineKindEmpty {
-				node = &adocNode{
+				el = &element{
 					elementAttribute: elementAttribute{
 						roles: []string{classNameLiteralBlock},
 					},
 					kind: docp.kind,
 				}
-				node.Write(bytes.TrimLeft(line, " \t"))
-				node.WriteByte('\n')
+				el.Write(bytes.TrimLeft(line, " \t"))
+				el.WriteByte('\n')
 				line = docp.consumeLinesUntil(
-					node,
+					el,
 					lineKindEmpty,
 					[]int{
 						lineKindListContinue,
-						nodeKindListOrderedItem,
-						nodeKindListUnorderedItem,
+						elKindListOrderedItem,
+						elKindListUnorderedItem,
 					})
-				node.raw = applySubstitutions(docp.doc, node.raw)
-				listItem.addChild(node)
+				el.raw = applySubstitutions(docp.doc, el.raw)
+				listItem.addChild(el)
 				continue
 			}
 		}
-		if docp.kind == nodeKindBlockListingNamed {
+		if docp.kind == elKindBlockListingNamed {
 			if docp.prevKind == lineKindEmpty {
 				break
 			}
-			node := &adocNode{
+			el := &element{
 				elementAttribute: elementAttribute{
 					roles: []string{classNameListingBlock},
 				},
 				kind: docp.kind,
 			}
-			line = docp.consumeLinesUntil(node,
+			line = docp.consumeLinesUntil(el,
 				lineKindEmpty,
 				[]int{
-					nodeKindListOrderedItem,
-					nodeKindListUnorderedItem,
+					elKindListOrderedItem,
+					elKindListUnorderedItem,
 				})
-			node.raw = applySubstitutions(docp.doc, node.raw)
-			listItem.addChild(node)
+			el.raw = applySubstitutions(docp.doc, el.raw)
+			listItem.addChild(el)
 			continue
 		}
-		if docp.kind == nodeKindBlockLiteralNamed {
+		if docp.kind == elKindBlockLiteralNamed {
 			if docp.prevKind == lineKindEmpty {
 				break
 			}
-			node := &adocNode{
+			el := &element{
 				elementAttribute: elementAttribute{
 					roles: []string{classNameLiteralBlock},
 				},
 				kind: docp.kind,
 			}
-			line = docp.consumeLinesUntil(node,
+			line = docp.consumeLinesUntil(el,
 				lineKindEmpty,
 				[]int{
-					nodeKindListOrderedItem,
-					nodeKindListUnorderedItem,
+					elKindListOrderedItem,
+					elKindListUnorderedItem,
 				})
-			node.raw = applySubstitutions(docp.doc, node.raw)
-			listItem.addChild(node)
+			el.raw = applySubstitutions(docp.doc, el.raw)
+			listItem.addChild(el)
 			continue
 		}
-		if docp.kind == nodeKindBlockListing ||
-			docp.kind == nodeKindBlockExample ||
-			docp.kind == nodeKindBlockSidebar {
+		if docp.kind == elKindBlockListing ||
+			docp.kind == elKindBlockExample ||
+			docp.kind == elKindBlockSidebar {
 			break
 		}
-		if docp.kind == nodeKindSectionL1 ||
-			docp.kind == nodeKindSectionL2 ||
-			docp.kind == nodeKindSectionL3 ||
-			docp.kind == nodeKindSectionL4 ||
-			docp.kind == nodeKindSectionL5 ||
+		if docp.kind == elKindSectionL1 ||
+			docp.kind == elKindSectionL2 ||
+			docp.kind == elKindSectionL3 ||
+			docp.kind == elKindSectionL4 ||
+			docp.kind == elKindSectionL5 ||
 			docp.kind == lineKindAdmonition ||
 			docp.kind == lineKindAttributeElement ||
 			docp.kind == lineKindBlockTitle ||
@@ -1365,28 +1365,28 @@ func (docp *documentParser) parseListUnordered(
 		listItem.WriteByte('\n')
 		line = nil
 	}
-	list.postParseList(docp.doc, nodeKindListUnorderedItem)
+	list.postParseList(docp.doc, elKindListUnorderedItem)
 	return line
 }
 
 func (docp *documentParser) parseParagraph(
-	parent, node *adocNode, line []byte, term int,
+	parent, el *element, line []byte, term int,
 ) []byte {
-	node.kind = nodeKindParagraph
-	node.Write(line)
-	node.WriteByte('\n')
+	el.kind = elKindParagraph
+	el.Write(line)
+	el.WriteByte('\n')
 	line = docp.consumeLinesUntil(
-		node,
+		el,
 		lineKindEmpty,
 		[]int{
 			term,
-			nodeKindBlockListing,
-			nodeKindBlockListingNamed,
-			nodeKindBlockLiteral,
-			nodeKindBlockLiteralNamed,
+			elKindBlockListing,
+			elKindBlockListingNamed,
+			elKindBlockLiteral,
+			elKindBlockLiteralNamed,
 			lineKindListContinue,
 		})
-	node.postParseParagraph(parent)
-	node.parseInlineMarkup(docp.doc, nodeKindText)
+	el.postParseParagraph(parent)
+	el.parseInlineMarkup(docp.doc, elKindText)
 	return line
 }

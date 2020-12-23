@@ -48,14 +48,14 @@ const (
 	htmlSymbolTrademark        = "&#8482;"
 )
 
-func htmlWriteBlockBegin(node *adocNode, out io.Writer, addClass string) {
+func htmlWriteBlockBegin(el *element, out io.Writer, addClass string) {
 	fmt.Fprint(out, "\n<div")
 
-	if len(node.ID) > 0 {
-		fmt.Fprintf(out, ` id="%s"`, node.ID)
+	if len(el.ID) > 0 {
+		fmt.Fprintf(out, ` id="%s"`, el.ID)
 	}
 
-	classes := node.htmlClasses()
+	classes := el.htmlClasses()
 	c := strings.TrimSpace(addClass + " " + classes)
 	if len(c) > 0 {
 		fmt.Fprintf(out, ` class="%s">`, c)
@@ -63,193 +63,193 @@ func htmlWriteBlockBegin(node *adocNode, out io.Writer, addClass string) {
 		fmt.Fprint(out, ">")
 	}
 
-	if !(node.isStyleAdmonition() ||
-		node.kind == nodeKindBlockImage ||
-		node.kind == nodeKindBlockExample ||
-		node.kind == nodeKindBlockSidebar) &&
-		len(node.rawTitle) > 0 {
+	if !(el.isStyleAdmonition() ||
+		el.kind == elKindBlockImage ||
+		el.kind == elKindBlockExample ||
+		el.kind == elKindBlockSidebar) &&
+		len(el.rawTitle) > 0 {
 
 		fmt.Fprintf(out, "\n<div class=%q>%s</div>",
-			attrValueTitle, node.rawTitle)
+			attrValueTitle, el.rawTitle)
 	}
 }
 
-func htmlWriteBlockAdmonition(node *adocNode, out io.Writer) {
-	htmlWriteBlockBegin(node, out, "admonitionblock")
+func htmlWriteBlockAdmonition(el *element, out io.Writer) {
+	htmlWriteBlockBegin(el, out, "admonitionblock")
 
 	fmt.Fprint(out, "\n<table>\n<tr>\n<td class=\"icon\">")
 
-	iconsFont := node.Attrs[attrNameIcons]
+	iconsFont := el.Attrs[attrNameIcons]
 	if iconsFont == attrValueFont {
 		fmt.Fprintf(out, _htmlAdmonitionIconsFont,
-			strings.ToLower(node.htmlClasses()), node.rawLabel.String())
+			strings.ToLower(el.htmlClasses()), el.rawLabel.String())
 	} else {
 		fmt.Fprintf(out, "\n<div class=%q>%s</div>", attrValueTitle,
-			node.rawLabel.String())
+			el.rawLabel.String())
 	}
 
-	fmt.Fprintf(out, _htmlAdmonitionContent, node.raw)
+	fmt.Fprintf(out, _htmlAdmonitionContent, el.raw)
 
-	if len(node.rawTitle) > 0 {
+	if len(el.rawTitle) > 0 {
 		fmt.Fprintf(out, "\n<div class=%q>%s</div>", attrValueTitle,
-			node.rawTitle)
+			el.rawTitle)
 	}
 }
 
-func htmlWriteBlockAudio(node *adocNode, out io.Writer) {
+func htmlWriteBlockAudio(el *element, out io.Writer) {
 	var (
 		optAutoplay string
 		optControls = " controls"
 		optLoop     string
 	)
 
-	htmlWriteBlockBegin(node, out, "audioblock")
+	htmlWriteBlockBegin(el, out, "audioblock")
 
 	fmt.Fprintf(out, "\n<div class=%q>", attrValueContent)
 
-	src := node.Attrs[attrNameSrc]
+	src := el.Attrs[attrNameSrc]
 
-	if libstrings.IsContain(node.options, optNameAutoplay) {
+	if libstrings.IsContain(el.options, optNameAutoplay) {
 		optAutoplay = " autoplay"
 	}
-	if libstrings.IsContain(node.options, optNameNocontrols) {
+	if libstrings.IsContain(el.options, optNameNocontrols) {
 		optControls = ""
 	}
-	if libstrings.IsContain(node.options, optNameLoop) {
+	if libstrings.IsContain(el.options, optNameLoop) {
 		optLoop = " loop"
 	}
 
 	fmt.Fprintf(out, _htmlBlockAudio, src, optAutoplay, optControls, optLoop)
 }
 
-func htmlWriteBlockExample(doc *Document, node *adocNode, out io.Writer) {
-	htmlWriteBlockBegin(node, out, "exampleblock")
-	if len(node.rawTitle) > 0 {
+func htmlWriteBlockExample(doc *Document, el *element, out io.Writer) {
+	htmlWriteBlockBegin(el, out, "exampleblock")
+	if len(el.rawTitle) > 0 {
 		doc.counterExample++
 		fmt.Fprintf(out, "\n<div class=%q>Example %d. %s</div>",
-			attrValueTitle, doc.counterExample, node.rawTitle)
+			attrValueTitle, doc.counterExample, el.rawTitle)
 	}
 	fmt.Fprintf(out, "\n<div class=%q>", attrValueContent)
 }
 
-func htmlWriteBlockImage(doc *Document, node *adocNode, out io.Writer) {
-	htmlWriteBlockBegin(node, out, "imageblock")
+func htmlWriteBlockImage(doc *Document, el *element, out io.Writer) {
+	htmlWriteBlockBegin(el, out, "imageblock")
 
-	src := node.Attrs[attrNameSrc]
-	alt := node.Attrs[attrNameAlt]
+	src := el.Attrs[attrNameSrc]
+	alt := el.Attrs[attrNameAlt]
 
 	var width, height string
-	v, ok := node.Attrs[attrNameWidth]
+	v, ok := el.Attrs[attrNameWidth]
 	if ok && len(v) > 0 {
 		width = ` width="` + v + `"`
 	}
-	v, ok = node.Attrs[attrNameHeight]
+	v, ok = el.Attrs[attrNameHeight]
 	if ok && len(v) > 0 {
 		height = ` height="` + v + `"`
 	}
 
 	fmt.Fprintf(out, _htmlBlockImage, src, alt, width, height)
 
-	if len(node.rawTitle) > 0 {
+	if len(el.rawTitle) > 0 {
 		doc.counterImage++
 		fmt.Fprintf(out, "\n<div class=%q>Figure %d. %s</div>",
-			attrValueTitle, doc.counterImage, node.rawTitle)
+			attrValueTitle, doc.counterImage, el.rawTitle)
 	}
 
 	fmt.Fprint(out, "\n</div>")
 }
 
-func htmlWriteBlockLiteral(node *adocNode, out io.Writer) {
-	htmlWriteBlockBegin(node, out, "")
-	source, ok := node.Attrs[attrNameSource]
+func htmlWriteBlockLiteral(el *element, out io.Writer) {
+	htmlWriteBlockBegin(el, out, "")
+	source, ok := el.Attrs[attrNameSource]
 	if ok {
 		class := "language-" + source
 		fmt.Fprint(out, "\n<div class=\"content\">\n<pre class=\"highlight\">")
 		fmt.Fprintf(out, `<code class=%q data-lang=%q>%s</code></pre>`,
-			class, source, node.raw)
+			class, source, el.raw)
 		fmt.Fprint(out, "\n</div>\n</div>")
 	} else {
-		fmt.Fprintf(out, _htmlBlockLiteralContent, node.raw)
+		fmt.Fprintf(out, _htmlBlockLiteralContent, el.raw)
 	}
 }
 
-func htmlWriteBlockOpenBegin(node *adocNode, out io.Writer) {
-	htmlWriteBlockBegin(node, out, "openblock")
+func htmlWriteBlockOpenBegin(el *element, out io.Writer) {
+	htmlWriteBlockBegin(el, out, "openblock")
 	fmt.Fprintf(out, "\n<div class=%q>", attrValueContent)
 }
 
-func htmlWriteBlockQuote(node *adocNode, out io.Writer) {
-	htmlWriteBlockBegin(node, out, "quoteblock")
-	fmt.Fprintf(out, "\n<blockquote>\n%s", node.raw)
+func htmlWriteBlockQuote(el *element, out io.Writer) {
+	htmlWriteBlockBegin(el, out, "quoteblock")
+	fmt.Fprintf(out, "\n<blockquote>\n%s", el.raw)
 }
 
-func htmlWriteBlockQuoteEnd(node *adocNode, out io.Writer) {
+func htmlWriteBlockQuoteEnd(el *element, out io.Writer) {
 	fmt.Fprint(out, "\n</blockquote>")
-	if v, ok := node.Attrs[attrNameAttribution]; ok {
+	if v, ok := el.Attrs[attrNameAttribution]; ok {
 		fmt.Fprintf(out, "\n<div class=%q>\n&#8212; %s",
 			attrNameAttribution, v)
 	}
-	if v, ok := node.Attrs[attrNameCitation]; ok {
+	if v, ok := el.Attrs[attrNameCitation]; ok {
 		fmt.Fprintf(out, "<br>\n<cite>%s</cite>", v)
 	}
 	fmt.Fprint(out, "\n</div>\n</div>")
 }
 
-func htmlWriteBlockSidebar(node *adocNode, out io.Writer) {
-	htmlWriteBlockBegin(node, out, "sidebarblock")
+func htmlWriteBlockSidebar(el *element, out io.Writer) {
+	htmlWriteBlockBegin(el, out, "sidebarblock")
 	fmt.Fprintf(out, "\n<div class=%q>", attrValueContent)
-	if len(node.rawTitle) > 0 {
+	if len(el.rawTitle) > 0 {
 		fmt.Fprintf(out, "\n<div class=%q>%s</div>", attrValueTitle,
-			node.rawTitle)
+			el.rawTitle)
 	}
 }
 
-func htmlWriteBlockVerse(node *adocNode, out io.Writer) {
-	htmlWriteBlockBegin(node, out, "verseblock")
-	fmt.Fprintf(out, "\n<pre class=%q>%s", attrValueContent, node.raw)
+func htmlWriteBlockVerse(el *element, out io.Writer) {
+	htmlWriteBlockBegin(el, out, "verseblock")
+	fmt.Fprintf(out, "\n<pre class=%q>%s", attrValueContent, el.raw)
 }
 
-func htmlWriteBlockVerseEnd(node *adocNode, out io.Writer) {
+func htmlWriteBlockVerseEnd(el *element, out io.Writer) {
 	fmt.Fprint(out, "</pre>")
-	if v, ok := node.Attrs[attrNameAttribution]; ok {
+	if v, ok := el.Attrs[attrNameAttribution]; ok {
 		fmt.Fprintf(out, "\n<div class=%q>\n&#8212; %s",
 			attrNameAttribution, v)
 	}
-	if v, ok := node.Attrs[attrNameCitation]; ok {
+	if v, ok := el.Attrs[attrNameCitation]; ok {
 		fmt.Fprintf(out, "<br>\n<cite>%s</cite>", v)
 	}
 	fmt.Fprint(out, "\n</div>\n</div>")
 }
 
-func htmlWriteBlockVideo(node *adocNode, out io.Writer) {
+func htmlWriteBlockVideo(el *element, out io.Writer) {
 	var (
 		isYoutube bool
 		isVimeo   bool
 	)
 
-	src := node.getVideoSource()
-	width, withWidth := node.Attrs[attrNameWidth]
+	src := el.getVideoSource()
+	width, withWidth := el.Attrs[attrNameWidth]
 	if withWidth {
 		width = fmt.Sprintf(` width="%s"`, width)
 	}
-	height, withHeight := node.Attrs[attrNameHeight]
+	height, withHeight := el.Attrs[attrNameHeight]
 	if withHeight {
 		height = fmt.Sprintf(` height="%s"`, height)
 	}
 
-	if node.rawStyle == attrNameYoutube {
+	if el.rawStyle == attrNameYoutube {
 		isYoutube = true
 	}
-	if node.rawStyle == attrNameVimeo {
+	if el.rawStyle == attrNameVimeo {
 		isVimeo = true
 	}
 
-	htmlWriteBlockBegin(node, out, "videoblock")
+	htmlWriteBlockBegin(el, out, "videoblock")
 
 	fmt.Fprintf(out, "\n<div class=%q>", attrValueContent)
 
 	if isYoutube {
-		optFullscreen, noFullscreen := node.Attrs[optVideoNofullscreen]
+		optFullscreen, noFullscreen := el.Attrs[optVideoNofullscreen]
 		if !noFullscreen {
 			optFullscreen = " allowfullscreen"
 		}
@@ -263,18 +263,18 @@ func htmlWriteBlockVideo(node *adocNode, out io.Writer) {
 			optLoop     string
 		)
 
-		optPoster, withPoster := node.Attrs[attrNamePoster]
+		optPoster, withPoster := el.Attrs[attrNamePoster]
 		if withPoster {
 			optPoster = fmt.Sprintf(` poster="%s"`, optPoster)
 		}
 
-		if libstrings.IsContain(node.options, optNameNocontrols) {
+		if libstrings.IsContain(el.options, optNameNocontrols) {
 			optControls = ""
 		}
-		if libstrings.IsContain(node.options, optNameAutoplay) {
+		if libstrings.IsContain(el.options, optNameAutoplay) {
 			optAutoplay = " autoplay"
 		}
-		if libstrings.IsContain(node.options, optNameLoop) {
+		if libstrings.IsContain(el.options, optNameLoop) {
 			optLoop = " loop"
 		}
 
@@ -331,9 +331,9 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 	_, ok := doc.Attributes[metaNameShowTitle]
 	if ok {
 		_, ok = doc.Attributes[metaNameNoTitle]
-		if !ok && doc.Title.node != nil {
+		if !ok && doc.Title.el != nil {
 			fmt.Fprint(out, "\n<h1>")
-			doc.Title.node.toHTML(doc, out, false)
+			doc.Title.el.toHTML(doc, out, false)
 			fmt.Fprint(out, "</h1>")
 		}
 	}
@@ -395,22 +395,22 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 	fmt.Fprint(out, "\n</div>")
 }
 
-func htmlWriteInlineImage(node *adocNode, out io.Writer) {
-	classes := strings.TrimSpace("image " + node.htmlClasses())
+func htmlWriteInlineImage(el *element, out io.Writer) {
+	classes := strings.TrimSpace("image " + el.htmlClasses())
 	fmt.Fprintf(out, "<span class=%q>", classes)
-	link, withLink := node.Attrs[attrNameLink]
+	link, withLink := el.Attrs[attrNameLink]
 	if withLink {
 		fmt.Fprintf(out, "<a class=%q href=%q>", attrValueImage, link)
 	}
 
-	src := node.Attrs[attrNameSrc]
-	alt := node.Attrs[attrNameAlt]
+	src := el.Attrs[attrNameSrc]
+	alt := el.Attrs[attrNameAlt]
 
-	width, ok := node.Attrs[attrNameWidth]
+	width, ok := el.Attrs[attrNameWidth]
 	if ok {
 		width = fmt.Sprintf(` width="%s"`, width)
 	}
-	height, ok := node.Attrs[attrNameHeight]
+	height, ok := el.Attrs[attrNameHeight]
 	if ok {
 		height = fmt.Sprintf(` height="%s"`, height)
 	}
@@ -424,40 +424,40 @@ func htmlWriteInlineImage(node *adocNode, out io.Writer) {
 	fmt.Fprint(out, `</span>`)
 }
 
-func htmlWriteListDescription(node *adocNode, out io.Writer) {
+func htmlWriteListDescription(el *element, out io.Writer) {
 	var openTag string
-	if node.isStyleQandA() {
-		htmlWriteBlockBegin(node, out, "qlist qanda")
+	if el.isStyleQandA() {
+		htmlWriteBlockBegin(el, out, "qlist qanda")
 		openTag = "\n<ol>"
-	} else if node.isStyleHorizontal() {
-		htmlWriteBlockBegin(node, out, "hdlist")
+	} else if el.isStyleHorizontal() {
+		htmlWriteBlockBegin(el, out, "hdlist")
 		openTag = "\n<table>"
 	} else {
-		htmlWriteBlockBegin(node, out, "dlist")
+		htmlWriteBlockBegin(el, out, "dlist")
 		openTag = "\n<dl>"
 	}
 
 	fmt.Fprint(out, openTag)
 }
 
-func htmlWriteListDescriptionEnd(node *adocNode, out io.Writer) {
-	if node.isStyleQandA() {
+func htmlWriteListDescriptionEnd(el *element, out io.Writer) {
+	if el.isStyleQandA() {
 		fmt.Fprintf(out, "\n</ol>\n</div>")
-	} else if node.isStyleHorizontal() {
+	} else if el.isStyleHorizontal() {
 		fmt.Fprintf(out, "\n</table>\n</div>")
 	} else {
 		fmt.Fprintf(out, "\n</dl>\n</div>")
 	}
 }
 
-func htmlWriteListOrdered(node *adocNode, out io.Writer) {
-	class := node.getListOrderedClass()
-	tipe := node.getListOrderedType()
+func htmlWriteListOrdered(el *element, out io.Writer) {
+	class := el.getListOrderedClass()
+	tipe := el.getListOrderedType()
 	if len(tipe) > 0 {
 		tipe = ` type="` + tipe + `"`
 	}
 
-	htmlWriteBlockBegin(node, out, "olist "+class)
+	htmlWriteBlockBegin(el, out, "olist "+class)
 
 	fmt.Fprintf(out, "\n<ol class=\"%s\"%s>", class, tipe)
 }
@@ -466,12 +466,12 @@ func htmlWriteListOrderedEnd(out io.Writer) {
 	fmt.Fprint(out, "\n</ol>\n</div>")
 }
 
-func htmlWriteListUnordered(node *adocNode, out io.Writer) {
+func htmlWriteListUnordered(el *element, out io.Writer) {
 	var classes string
-	if len(node.rawStyle) != 0 {
-		classes = fmt.Sprintf(" class=%q", node.rawStyle)
+	if len(el.rawStyle) != 0 {
+		classes = fmt.Sprintf(" class=%q", el.rawStyle)
 	}
-	htmlWriteBlockBegin(node, out, "")
+	htmlWriteBlockBegin(el, out, "")
 	fmt.Fprintf(out, "\n<ul%s>", classes)
 }
 
@@ -479,84 +479,84 @@ func htmlWriteListUnorderedEnd(out io.Writer) {
 	fmt.Fprint(out, "\n</ul>\n</div>")
 }
 
-func htmlWriteParagraphBegin(node *adocNode, out io.Writer) {
-	htmlWriteBlockBegin(node, out, "paragraph")
+func htmlWriteParagraphBegin(el *element, out io.Writer) {
+	htmlWriteBlockBegin(el, out, "paragraph")
 	fmt.Fprint(out, "\n<p>")
 }
 
-func htmlWriteSection(doc *Document, node *adocNode, out io.Writer, isForToC bool) {
+func htmlWriteSection(doc *Document, el *element, out io.Writer, isForToC bool) {
 	var class, tag string
-	switch node.kind {
-	case nodeKindSectionL1:
+	switch el.kind {
+	case elKindSectionL1:
 		class = "sect1"
 		tag = "h2"
-	case nodeKindSectionL2:
+	case elKindSectionL2:
 		class = "sect2"
 		tag = "h3"
-	case nodeKindSectionL3:
+	case elKindSectionL3:
 		class = "sect3"
 		tag = "h4"
-	case nodeKindSectionL4:
+	case elKindSectionL4:
 		class = "sect4"
 		tag = "h5"
-	case nodeKindSectionL5:
+	case elKindSectionL5:
 		class = "sect5"
 		tag = "h6"
 	}
 
-	fmt.Fprintf(out, "\n<div class=%q>\n<%s id=%q>", class, tag, node.ID)
+	fmt.Fprintf(out, "\n<div class=%q>\n<%s id=%q>", class, tag, el.ID)
 
 	_, withSectAnchors := doc.Attributes[metaNameSectAnchors]
 	if withSectAnchors {
-		fmt.Fprintf(out, `<a class="anchor" href="#%s"></a>`, node.ID)
+		fmt.Fprintf(out, `<a class="anchor" href="#%s"></a>`, el.ID)
 	}
 	_, withSectlinks := doc.Attributes[metaNameSectLinks]
 	if withSectlinks {
-		fmt.Fprintf(out, `<a class="link" href="#%s">`, node.ID)
+		fmt.Fprintf(out, `<a class="link" href="#%s">`, el.ID)
 	}
 
-	if node.sectnums != nil && node.level <= doc.sectLevel {
-		fmt.Fprint(out, node.sectnums.String())
+	if el.sectnums != nil && el.level <= doc.sectLevel {
+		fmt.Fprint(out, el.sectnums.String())
 	}
 
-	node.title.toHTML(doc, out, isForToC)
+	el.title.toHTML(doc, out, isForToC)
 
 	if withSectlinks {
 		fmt.Fprint(out, "</a>")
 	}
 	fmt.Fprintf(out, "</%s>", tag)
 
-	if node.kind == nodeKindSectionL1 {
+	if el.kind == elKindSectionL1 {
 		fmt.Fprint(out, "\n<div class=\"sectionbody\">")
 	}
 }
 
-func hmltWriteSectionDiscrete(doc *Document, node *adocNode, out io.Writer) {
+func hmltWriteSectionDiscrete(doc *Document, el *element, out io.Writer) {
 	var (
 		tag string
 	)
-	switch node.level {
-	case nodeKindSectionL1:
+	switch el.level {
+	case elKindSectionL1:
 		tag = "h2"
-	case nodeKindSectionL2:
+	case elKindSectionL2:
 		tag = "h3"
-	case nodeKindSectionL3:
+	case elKindSectionL3:
 		tag = "h4"
-	case nodeKindSectionL4:
+	case elKindSectionL4:
 		tag = "h5"
-	case nodeKindSectionL5:
+	case elKindSectionL5:
 		tag = "h6"
 	}
 
-	fmt.Fprintf(out, "\n<%s id=%q class=%q>", tag, node.ID, attrNameDiscrete)
-	node.title.toHTML(doc, out, false)
+	fmt.Fprintf(out, "\n<%s id=%q class=%q>", tag, el.ID, attrNameDiscrete)
+	el.title.toHTML(doc, out, false)
 	fmt.Fprintf(out, "</%s>", tag)
 }
 
-func htmlWriteTable(doc *Document, node *adocNode, out io.Writer) {
+func htmlWriteTable(doc *Document, el *element, out io.Writer) {
 	var (
 		footer *tableRow
-		table  = node.table
+		table  = el.table
 	)
 
 	if table == nil {
@@ -571,7 +571,7 @@ func htmlWriteTable(doc *Document, node *adocNode, out io.Writer) {
 	}
 	fmt.Fprint(out, ">")
 
-	if len(node.rawTitle) > 0 {
+	if len(el.rawTitle) > 0 {
 		var (
 			caption string
 			ok      bool
@@ -581,13 +581,13 @@ func htmlWriteTable(doc *Document, node *adocNode, out io.Writer) {
 		_, withTableCaption := doc.Attributes[metaNameTableCaption]
 
 		if withTableCaption {
-			caption, ok = node.Attrs[attrNameCaption]
+			caption, ok = el.Attrs[attrNameCaption]
 			if !ok {
 				caption = fmt.Sprintf("Table %d.", doc.counterTable)
 			}
 		}
 		fmt.Fprintf(out, "\n<caption class=%q>%s %s</caption>",
-			attrValueTitle, caption, node.rawTitle)
+			attrValueTitle, caption, el.rawTitle)
 	}
 
 	fmt.Fprint(out, "\n<colgroup>")
@@ -710,78 +710,78 @@ func htmlWriteTableRow(doc *Document, table *adocTable, row *tableRow, out io.Wr
 	fmt.Fprint(out, "\n</tr>")
 }
 
-func htmlWriteToC(doc *Document, node *adocNode, out io.Writer, level int) {
+func htmlWriteToC(doc *Document, el *element, out io.Writer, level int) {
 	var sectClass string
 
-	isDiscrete := node.style&styleSectionDiscrete > 0
+	isDiscrete := el.style&styleSectionDiscrete > 0
 
-	switch node.kind {
-	case nodeKindSectionL1:
+	switch el.kind {
+	case elKindSectionL1:
 		sectClass = "sectlevel1"
-	case nodeKindSectionL2:
+	case elKindSectionL2:
 		sectClass = "sectlevel2"
-	case nodeKindSectionL3:
+	case elKindSectionL3:
 		sectClass = "sectlevel3"
-	case nodeKindSectionL4:
+	case elKindSectionL4:
 		sectClass = "sectlevel4"
-	case nodeKindSectionL5:
+	case elKindSectionL5:
 		sectClass = "sectlevel5"
 	}
-	if node.level > doc.TOCLevel {
+	if el.level > doc.TOCLevel {
 		sectClass = ""
 	}
 
 	if len(sectClass) > 0 && !isDiscrete {
-		if level < node.level {
+		if level < el.level {
 			fmt.Fprintf(out, "\n<ul class=\"%s\">", sectClass)
-		} else if level > node.level {
+		} else if level > el.level {
 			n := level
-			for n > node.level {
+			for n > el.level {
 				fmt.Fprint(out, "\n</ul>")
 				n--
 			}
 		}
 
-		fmt.Fprintf(out, "\n<li><a href=\"#%s\">", node.ID)
+		fmt.Fprintf(out, "\n<li><a href=\"#%s\">", el.ID)
 
-		if node.sectnums != nil {
-			fmt.Fprint(out, node.sectnums.String())
+		if el.sectnums != nil {
+			fmt.Fprint(out, el.sectnums.String())
 		}
 
-		node.title.toHTML(doc, out, true)
+		el.title.toHTML(doc, out, true)
 		fmt.Fprint(out, "</a>")
 	}
 
-	if node.child != nil {
-		htmlWriteToC(doc, node.child, out, node.level)
+	if el.child != nil {
+		htmlWriteToC(doc, el.child, out, el.level)
 	}
 	if len(sectClass) > 0 && !isDiscrete {
 		fmt.Fprint(out, "</li>")
 	}
-	if node.next != nil {
-		htmlWriteToC(doc, node.next, out, node.level)
+	if el.next != nil {
+		htmlWriteToC(doc, el.next, out, el.level)
 	}
 
-	if len(sectClass) > 0 && level < node.level {
+	if len(sectClass) > 0 && level < el.level {
 		fmt.Fprint(out, "\n</ul>\n")
 	}
 }
 
-func htmlWriteURLBegin(node *adocNode, out io.Writer) {
-	fmt.Fprintf(out, "<a href=\"%s\"", node.Attrs[attrNameHref])
-	classes := node.htmlClasses()
+func htmlWriteURLBegin(el *element, out io.Writer) {
+	fmt.Fprintf(out, "<a href=\"%s\"", el.Attrs[attrNameHref])
+	classes := el.htmlClasses()
 	if len(classes) > 0 {
 		fmt.Fprintf(out, ` class="%s"`, classes)
 	}
-	target := node.Attrs[attrNameTarget]
+	target := el.Attrs[attrNameTarget]
 	if len(target) > 0 {
 		fmt.Fprintf(out, ` target="%s"`, target)
 	}
-	rel := node.Attrs[attrNameRel]
+	rel := el.Attrs[attrNameRel]
 	if len(rel) > 0 {
 		fmt.Fprintf(out, ` rel="%s"`, rel)
 	}
-	fmt.Fprintf(out, `>%s`, node.raw)
+	fmt.Fprintf(out, `>%s`, el.raw)
 }
 
 func htmlWriteURLEnd(out io.Writer) {

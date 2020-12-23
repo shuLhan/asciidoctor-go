@@ -55,8 +55,8 @@ type Document struct {
 	sectnums  *sectionCounters
 	sectLevel int
 
-	header  *adocNode
-	content *adocNode
+	header  *element
+	content *element
 
 	counterExample int
 	counterImage   int
@@ -79,11 +79,11 @@ func newDocument() *Document {
 		titleID:    make(map[string]string),
 		sectnums:   &sectionCounters{},
 		sectLevel:  defSectnumlevels,
-		header: &adocNode{
-			kind: nodeKindDocHeader,
+		header: &element{
+			kind: elKindDocHeader,
 		},
-		content: &adocNode{
-			kind: nodeKindDocContent,
+		content: &element{
+			kind: elKindDocContent,
 		},
 	}
 }
@@ -375,8 +375,8 @@ func (doc *Document) unpackRawTitle() {
 		}
 	}
 
-	doc.Title.node = parseInlineMarkup(doc, []byte(doc.Title.raw))
-	title = doc.Title.node.toText()
+	doc.Title.el = parseInlineMarkup(doc, []byte(doc.Title.raw))
+	title = doc.Title.el.toText()
 	doc.Attributes[metaNameDocTitle] = title
 
 	for x := len(title) - 1; x > 0; x-- {

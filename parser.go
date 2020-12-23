@@ -23,75 +23,75 @@ const (
 )
 
 const (
-	nodeKindUnknown                int = iota
-	nodeKindDocHeader                  // Wrapper.
-	nodeKindPreamble                   // Wrapper.
-	nodeKindDocContent                 // Wrapper.
-	nodeKindSectionL1                  // Line started with "=="
-	nodeKindSectionL2                  // 5: Line started with "==="
-	nodeKindSectionL3                  // Line started with "===="
-	nodeKindSectionL4                  // Line started with "====="
-	nodeKindSectionL5                  // Line started with "======"
-	nodeKindSectionDiscrete            // "[discrete]"
-	nodeKindParagraph                  // 10: Wrapper.
-	nodeKindLiteralParagraph           // Line start with space
-	nodeKindBlockAudio                 // "audio::"
-	nodeKindBlockExample               // "===="
-	nodeKindBlockExcerpts              // "____"
-	nodeKindBlockImage                 // "image::"
-	nodeKindBlockListing               // "----"
-	nodeKindBlockListingNamed          // "[listing]"
-	nodeKindBlockLiteral               // "...."
-	nodeKindBlockLiteralNamed          // "[literal]"
-	nodeKindBlockOpen                  // 20: Block wrapped with "--"
-	nodeKindBlockPassthrough           // Block wrapped with "++++"
-	nodeKindBlockSidebar               // "****"
-	nodeKindBlockVideo                 // "video::"
-	nodeKindCrossReference             // "<<" REF ("," LABEL) ">>"
-	nodeKindInlineID                   // "[[" REF_ID "]]" TEXT
-	nodeKindInlineIDShort              // "[#" REF_ID "]#" TEXT "#"
-	nodeKindInlineImage                // Inline macro for "image:"
-	nodeKindInlineParagraph            //
-	nodeKindListOrdered                // Wrapper.
-	nodeKindListOrderedItem            // 30: Line start with ". "
-	nodeKindListUnordered              // Wrapper.
-	nodeKindListUnorderedItem          // Line start with "* "
-	nodeKindListDescription            // Wrapper.
-	nodeKindListDescriptionItem        // Line that has "::" + WSP
-	nodeKindMacroTOC                   // "toc::[]"
-	nodeKindPassthrough                // Text wrapped inside "+"
-	nodeKindPassthroughDouble          // Text wrapped inside "++"
-	nodeKindPassthroughTriple          // Text wrapped inside "+++"
-	nodeKindSymbolQuoteDoubleBegin     // The ("`)
-	nodeKindSymbolQuoteDoubleEnd       // 40: The (`")
-	nodeKindSymbolQuoteSingleBegin     // The ('`)
-	nodeKindSymbolQuoteSingleEnd       // The (`')
-	nodeKindTable                      // "|==="
-	nodeKindText                       //
-	nodeKindTextBold                   // Text wrapped by "*"
-	nodeKindTextItalic                 // Text wrapped by "_"
-	nodeKindTextMono                   // Text wrapped by "`"
-	nodeKindTextSubscript              // Word wrapped by '~'
-	nodeKindTextSuperscript            // Word wrapped by '^'
-	nodeKindUnconstrainedBold          // 50: Text wrapped by "**"
-	nodeKindUnconstrainedItalic        // Text wrapped by "__"
-	nodeKindUnconstrainedMono          // Text wrapped by "``"
-	nodeKindURL                        // Anchor text.
-	lineKindAdmonition                 // "LABEL: WSP"
-	lineKindAttribute                  // ":" ATTR_NAME ":" (ATTR_VALUE)
-	lineKindAttributeElement           // "[" ATTR_NAME ("=" ATTR_VALUE)"]"
-	lineKindBlockComment               // Block start and end with "////"
-	lineKindBlockTitle                 // Line start with ".<alnum>"
-	lineKindComment                    // Line start with "//"
-	lineKindEmpty                      // 60: LF
-	lineKindHorizontalRule             // "'''", "---", "- - -", "***", "* * *"
-	lineKindID                         // "[[" REF_ID "]]"
-	lineKindIDShort                    // "[#" REF_ID "]#" TEXT "#"
-	lineKindInclude                    // "include::"
-	lineKindListContinue               // "+" LF
-	lineKindPageBreak                  // "<<<"
-	lineKindStyleClass                 // "[.x.y]"
-	lineKindText                       // 1*VCHAR
+	elKindUnknown                int = iota
+	elKindDocHeader                  // Wrapper.
+	elKindPreamble                   // Wrapper.
+	elKindDocContent                 // Wrapper.
+	elKindSectionL1                  // Line started with "=="
+	elKindSectionL2                  // 5: Line started with "==="
+	elKindSectionL3                  // Line started with "===="
+	elKindSectionL4                  // Line started with "====="
+	elKindSectionL5                  // Line started with "======"
+	elKindSectionDiscrete            // "[discrete]"
+	elKindParagraph                  // 10: Wrapper.
+	elKindLiteralParagraph           // Line start with space
+	elKindBlockAudio                 // "audio::"
+	elKindBlockExample               // "===="
+	elKindBlockExcerpts              // "____"
+	elKindBlockImage                 // "image::"
+	elKindBlockListing               // "----"
+	elKindBlockListingNamed          // "[listing]"
+	elKindBlockLiteral               // "...."
+	elKindBlockLiteralNamed          // "[literal]"
+	elKindBlockOpen                  // 20: Block wrapped with "--"
+	elKindBlockPassthrough           // Block wrapped with "++++"
+	elKindBlockSidebar               // "****"
+	elKindBlockVideo                 // "video::"
+	elKindCrossReference             // "<<" REF ("," LABEL) ">>"
+	elKindInlineID                   // "[[" REF_ID "]]" TEXT
+	elKindInlineIDShort              // "[#" REF_ID "]#" TEXT "#"
+	elKindInlineImage                // Inline macro for "image:"
+	elKindInlineParagraph            //
+	elKindListOrdered                // Wrapper.
+	elKindListOrderedItem            // 30: Line start with ". "
+	elKindListUnordered              // Wrapper.
+	elKindListUnorderedItem          // Line start with "* "
+	elKindListDescription            // Wrapper.
+	elKindListDescriptionItem        // Line that has "::" + WSP
+	elKindMacroTOC                   // "toc::[]"
+	elKindPassthrough                // Text wrapped inside "+"
+	elKindPassthroughDouble          // Text wrapped inside "++"
+	elKindPassthroughTriple          // Text wrapped inside "+++"
+	elKindSymbolQuoteDoubleBegin     // The ("`)
+	elKindSymbolQuoteDoubleEnd       // 40: The (`")
+	elKindSymbolQuoteSingleBegin     // The ('`)
+	elKindSymbolQuoteSingleEnd       // The (`')
+	elKindTable                      // "|==="
+	elKindText                       //
+	elKindTextBold                   // Text wrapped by "*"
+	elKindTextItalic                 // Text wrapped by "_"
+	elKindTextMono                   // Text wrapped by "`"
+	elKindTextSubscript              // Word wrapped by '~'
+	elKindTextSuperscript            // Word wrapped by '^'
+	elKindUnconstrainedBold          // 50: Text wrapped by "**"
+	elKindUnconstrainedItalic        // Text wrapped by "__"
+	elKindUnconstrainedMono          // Text wrapped by "``"
+	elKindURL                        // Anchor text.
+	lineKindAdmonition               // "LABEL: WSP"
+	lineKindAttribute                // ":" ATTR_NAME ":" (ATTR_VALUE)
+	lineKindAttributeElement         // "[" ATTR_NAME ("=" ATTR_VALUE)"]"
+	lineKindBlockComment             // Block start and end with "////"
+	lineKindBlockTitle               // Line start with ".<alnum>"
+	lineKindComment                  // Line start with "//"
+	lineKindEmpty                    // 60: LF
+	lineKindHorizontalRule           // "'''", "---", "- - -", "***", "* * *"
+	lineKindID                       // "[[" REF_ID "]]"
+	lineKindIDShort                  // "[#" REF_ID "]#" TEXT "#"
+	lineKindInclude                  // "include::"
+	lineKindListContinue             // "+" LF
+	lineKindPageBreak                // "<<<"
+	lineKindStyleClass               // "[.x.y]"
+	lineKindText                     // 1*VCHAR
 )
 
 const (
@@ -568,7 +568,7 @@ func parseIDLabel(s []byte) (id, label []byte) {
 	return nil, nil
 }
 
-func parseInlineMarkup(doc *Document, content []byte) (container *adocNode) {
+func parseInlineMarkup(doc *Document, content []byte) (container *element) {
 	pi := newInlineParser(doc, content)
 	pi.do()
 	return pi.container
@@ -623,48 +623,48 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 		return lineKindPageBreak, spaces, line
 	}
 	if bytes.Equal(line, []byte("--")) {
-		return nodeKindBlockOpen, spaces, line
+		return elKindBlockOpen, spaces, line
 	}
 	if bytes.Equal(line, []byte("____")) {
-		return nodeKindBlockExcerpts, spaces, line
+		return elKindBlockExcerpts, spaces, line
 	}
 	if bytes.Equal(line, []byte("....")) {
-		return nodeKindBlockLiteral, nil, line
+		return elKindBlockLiteral, nil, line
 	}
 	if bytes.Equal(line, []byte("++++")) {
-		return nodeKindBlockPassthrough, spaces, line
+		return elKindBlockPassthrough, spaces, line
 	}
 	if bytes.Equal(line, []byte("****")) {
-		return nodeKindBlockSidebar, nil, line
+		return elKindBlockSidebar, nil, line
 	}
 	if bytes.Equal(line, []byte("====")) {
-		return nodeKindBlockExample, spaces, line
+		return elKindBlockExample, spaces, line
 	}
 
 	if bytes.HasPrefix(line, []byte("|===")) {
-		return nodeKindTable, nil, line
+		return elKindTable, nil, line
 	}
 
 	if bytes.Equal(line, []byte("[listing]")) {
-		return nodeKindBlockListingNamed, nil, line
+		return elKindBlockListingNamed, nil, line
 	}
 	if bytes.Equal(line, []byte("[literal]")) {
-		return nodeKindBlockLiteralNamed, nil, line
+		return elKindBlockLiteralNamed, nil, line
 	}
 	if bytes.Equal(line, []byte("toc::[]")) {
-		return nodeKindMacroTOC, spaces, line
+		return elKindMacroTOC, spaces, line
 	}
 	if bytes.HasPrefix(line, []byte("image::")) {
-		return nodeKindBlockImage, spaces, line
+		return elKindBlockImage, spaces, line
 	}
 	if bytes.HasPrefix(line, []byte("include::")) {
 		return lineKindInclude, nil, line
 	}
 	if bytes.HasPrefix(line, []byte("video::")) {
-		return nodeKindBlockVideo, nil, line
+		return elKindBlockVideo, nil, line
 	}
 	if bytes.HasPrefix(line, []byte("audio::")) {
-		return nodeKindBlockAudio, nil, line
+		return elKindBlockAudio, nil, line
 	}
 	if isAdmonition(line) {
 		return lineKindAdmonition, nil, line
@@ -690,11 +690,11 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 		// otherwise it would be set as literal paragraph.
 
 		if isLineDescriptionItem(line) {
-			return nodeKindListDescriptionItem, spaces, line
+			return elKindListDescriptionItem, spaces, line
 		}
 
 		if line[0] != '*' && line[0] != '.' {
-			return nodeKindLiteralParagraph, spaces, line
+			return elKindLiteralParagraph, spaces, line
 		}
 	}
 
@@ -726,15 +726,15 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 	} else if line[0] == '=' {
 		subs := bytes.Fields(line)
 		if bytes.Equal(subs[0], []byte("==")) {
-			kind = nodeKindSectionL1
+			kind = elKindSectionL1
 		} else if bytes.Equal(subs[0], []byte("===")) {
-			kind = nodeKindSectionL2
+			kind = elKindSectionL2
 		} else if bytes.Equal(subs[0], []byte("====")) {
-			kind = nodeKindSectionL3
+			kind = elKindSectionL3
 		} else if bytes.Equal(subs[0], []byte("=====")) {
-			kind = nodeKindSectionL4
+			kind = elKindSectionL4
 		} else if bytes.Equal(subs[0], []byte("======")) {
-			kind = nodeKindSectionL5
+			kind = elKindSectionL5
 		}
 	} else if line[0] == '.' {
 		if len(line) <= 1 {
@@ -748,7 +748,7 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 					continue
 				}
 				if line[x] == ' ' || line[x] == '\t' {
-					kind = nodeKindListOrderedItem
+					kind = elKindListOrderedItem
 					return kind, spaces, line
 				}
 			}
@@ -763,7 +763,7 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 					continue
 				}
 				if line[x] == ' ' || line[x] == '\t' {
-					kind = nodeKindListUnorderedItem
+					kind = elKindListUnorderedItem
 					return kind, spaces, line
 				}
 				kind = lineKindText
@@ -773,9 +773,9 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 	} else if bytes.Equal(line, []byte("+")) {
 		kind = lineKindListContinue
 	} else if bytes.Equal(line, []byte("----")) {
-		kind = nodeKindBlockListing
+		kind = elKindBlockListing
 	} else if isLineDescriptionItem(line) {
-		kind = nodeKindListDescriptionItem
+		kind = elKindListDescriptionItem
 	}
 	return kind, spaces, line
 }

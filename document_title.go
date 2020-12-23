@@ -9,7 +9,7 @@ import "fmt"
 type DocumentTitle struct {
 	Main string
 	Sub  string
-	node *adocNode
+	el   *element
 	raw  string
 	sep  byte
 }

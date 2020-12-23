@@ -15,15 +15,15 @@ import (
 )
 
 //
-// adocNode is the building block of asciidoc document.
+// element is the building block of asciidoc document.
 //
-type adocNode struct {
+type element struct {
 	elementAttribute
 
-	Text     string // The content of node without inline formatting.
+	Text     string // The content of element without inline formatting.
 	kind     int
 	level    int    // The number of dot for ordered list, or '*' for unordered list.
-	raw      []byte // unparsed content of node.
+	raw      []byte // unparsed content of element.
 	rawLabel bytes.Buffer
 	rawTitle string
 
@@ -33,22 +33,22 @@ type adocNode struct {
 
 	// title is the parsed rawTitle for section L1 or parsed raw for
 	// section L2-L5.
-	title *adocNode
-	label *adocNode
+	title *element
+	label *element
 
 	// sectnums contain the current section numbers.
 	// It will be set only if attribute "sectnums" is on.
 	sectnums *sectionCounters
 
 	table  *adocTable
-	parent *adocNode
-	child  *adocNode
-	next   *adocNode
-	prev   *adocNode
+	parent *element
+	child  *element
+	next   *element
+	prev   *element
 }
 
-func (node *adocNode) getListOrderedClass() string {
-	switch node.level {
+func (el *element) getListOrderedClass() string {
+	switch el.level {
 	case 2:
 		return "loweralpha"
 	case 3:
@@ -61,8 +61,8 @@ func (node *adocNode) getListOrderedClass() string {
 	return "arabic"
 }
 
-func (node *adocNode) getListOrderedType() string {
-	switch node.level {
+func (el *element) getListOrderedType() string {
+	switch el.level {
 	case 2:
 		return "a"
 	case 3:
@@ -78,7 +78,7 @@ func (node *adocNode) getListOrderedType() string {
 //
 // getVideoSource generate video full URL for HTML attribute "src".
 //
-func (node *adocNode) getVideoSource() string {
+func (el *element) getVideoSource() string {
 	var (
 		u         = new(url.URL)
 		q         []string
@@ -87,14 +87,14 @@ func (node *adocNode) getVideoSource() string {
 		isVimeo   bool
 	)
 
-	if node.rawStyle == attrNameYoutube {
+	if el.rawStyle == attrNameYoutube {
 		isYoutube = true
 	}
-	if node.rawStyle == attrNameVimeo {
+	if el.rawStyle == attrNameVimeo {
 		isVimeo = true
 	}
 
-	src := node.Attrs[attrNameSrc]
+	src := el.Attrs[attrNameSrc]
 
 	if isYoutube {
 		u.Scheme = "https"
@@ -103,15 +103,15 @@ func (node *adocNode) getVideoSource() string {
 
 		q = append(q, "rel=0")
 
-		v, ok := node.Attrs[attrNameStart]
+		v, ok := el.Attrs[attrNameStart]
 		if ok {
 			q = append(q, attrNameStart+"="+v)
 		}
-		v, ok = node.Attrs[attrNameEnd]
+		v, ok = el.Attrs[attrNameEnd]
 		if ok {
 			q = append(q, attrNameEnd+"="+v)
 		}
-		for _, opt := range node.options {
+		for _, opt := range el.options {
 			switch opt {
 			case optNameAutoplay, optNameLoop:
 				q = append(q, opt+"=1")
@@ -122,14 +122,14 @@ func (node *adocNode) getVideoSource() string {
 				q = append(q, optVideoPlaylist+"="+src)
 			case optVideoNofullscreen:
 				q = append(q, optVideoFullscreen+"=0")
-				node.Attrs[optVideoNofullscreen] = ""
+				el.Attrs[optVideoNofullscreen] = ""
 			}
 		}
-		v, ok = node.Attrs[attrNameTheme]
+		v, ok = el.Attrs[attrNameTheme]
 		if ok {
 			q = append(q, attrNameTheme+"="+v)
 		}
-		v, ok = node.Attrs[attrNameLang]
+		v, ok = el.Attrs[attrNameLang]
 		if ok {
 			q = append(q, attrNameYoutubeLang+"="+v)
 		}
@@ -139,33 +139,33 @@ func (node *adocNode) getVideoSource() string {
 		u.Host = "player.vimeo.com"
 		u.Path = "/video/" + src
 
-		for _, opt := range node.options {
+		for _, opt := range el.options {
 			switch opt {
 			case optNameAutoplay, optNameLoop:
 				q = append(q, opt+"=1")
 			}
 		}
-		v, ok := node.Attrs[attrNameStart]
+		v, ok := el.Attrs[attrNameStart]
 		if ok {
 			fragment = "at=" + v
 		}
 	} else {
-		for _, opt := range node.options {
+		for _, opt := range el.options {
 			switch opt {
 			case optNameAutoplay, optNameLoop:
-				node.Attrs[optNameNocontrols] = ""
-				node.Attrs[opt] = ""
+				el.Attrs[optNameNocontrols] = ""
+				el.Attrs[opt] = ""
 			}
 		}
 
-		v, ok := node.Attrs[attrNameStart]
+		v, ok := el.Attrs[attrNameStart]
 		if ok {
 			fragment = "t=" + v
-			v, ok = node.Attrs[attrNameEnd]
+			v, ok = el.Attrs[attrNameEnd]
 			if ok {
 				fragment += "," + v
 			}
-		} else if v, ok = node.Attrs[attrNameEnd]; ok {
+		} else if v, ok = el.Attrs[attrNameEnd]; ok {
 			fragment = "t=0," + v
 		}
 
@@ -180,58 +180,58 @@ func (node *adocNode) getVideoSource() string {
 	return u.String()
 }
 
-func (node *adocNode) hasStyle(s int64) bool {
-	return node.style&s > 0
+func (el *element) hasStyle(s int64) bool {
+	return el.style&s > 0
 }
 
-func (node *adocNode) isStyleAdmonition() bool {
-	return isStyleAdmonition(node.style)
+func (el *element) isStyleAdmonition() bool {
+	return isStyleAdmonition(el.style)
 }
 
-func (node *adocNode) isStyleHorizontal() bool {
-	return node.style&styleDescriptionHorizontal > 0
+func (el *element) isStyleHorizontal() bool {
+	return el.style&styleDescriptionHorizontal > 0
 }
 
-func (node *adocNode) isStyleQandA() bool {
-	return node.style&styleDescriptionQandA > 0
+func (el *element) isStyleQandA() bool {
+	return el.style&styleDescriptionQandA > 0
 }
 
-func (node *adocNode) isStyleQuote() bool {
-	return isStyleQuote(node.style)
+func (el *element) isStyleQuote() bool {
+	return isStyleQuote(el.style)
 }
 
-func (node *adocNode) isStyleVerse() bool {
-	return isStyleVerse(node.style)
+func (el *element) isStyleVerse() bool {
+	return isStyleVerse(el.style)
 }
 
-func (node *adocNode) Write(b []byte) {
-	node.raw = append(node.raw, b...)
+func (el *element) Write(b []byte) {
+	el.raw = append(el.raw, b...)
 }
 
-func (node *adocNode) WriteByte(b byte) {
-	node.raw = append(node.raw, b)
+func (el *element) WriteByte(b byte) {
+	el.raw = append(el.raw, b)
 }
 
-func (node *adocNode) WriteString(s string) {
-	node.raw = append(node.raw, []byte(s)...)
+func (el *element) WriteString(s string) {
+	el.raw = append(el.raw, []byte(s)...)
 }
 
 //
-// addChild push the node "child" to the list of current node child.
+// addChild push the "child" to the list of current element's child.
 //
-func (node *adocNode) addChild(child *adocNode) {
+func (el *element) addChild(child *element) {
 	if child == nil {
 		return
 	}
 
-	child.parent = node
+	child.parent = el
 	child.next = nil
 	child.prev = nil
 
-	if node.child == nil {
-		node.child = child
+	if el.child == nil {
+		el.child = child
 	} else {
-		c := node.child
+		c := el.child
 		for c.next != nil {
 			c = c.next
 		}
@@ -241,35 +241,35 @@ func (node *adocNode) addChild(child *adocNode) {
 }
 
 // backTrimSpace remove trailing white spaces on raw field.
-func (node *adocNode) backTrimSpace() {
-	x := len(node.raw) - 1
+func (el *element) backTrimSpace() {
+	x := len(el.raw) - 1
 	for ; x > 0; x-- {
-		if ascii.IsSpace(node.raw[x]) {
+		if ascii.IsSpace(el.raw[x]) {
 			continue
 		}
 		break
 	}
-	node.raw = node.raw[:x+1]
+	el.raw = el.raw[:x+1]
 }
 
-func (node *adocNode) debug(n int) {
+func (el *element) debug(n int) {
 	for x := 0; x < n; x++ {
 		fmt.Printf("\t")
 	}
-	fmt.Printf("node: {kind:%-3d style:%-3d raw:%s}\n", node.kind, node.style, node.raw)
-	if node.child != nil {
-		node.child.debug(n + 1)
+	fmt.Printf("el: {kind:%-3d style:%-3d raw:%s}\n", el.kind, el.style, el.raw)
+	if el.child != nil {
+		el.child.debug(n + 1)
 	}
-	if node.next != nil {
-		node.next.debug(n)
+	if el.next != nil {
+		el.next.debug(n)
 	}
 }
 
-func (node *adocNode) lastSuccessor() (last *adocNode) {
-	if node.child == nil {
+func (el *element) lastSuccessor() (last *element) {
+	if el.child == nil {
 		return nil
 	}
-	last = node
+	last = el
 	for last.child != nil {
 		last = last.child
 		for last.next != nil {
@@ -279,7 +279,7 @@ func (node *adocNode) lastSuccessor() (last *adocNode) {
 	return last
 }
 
-func (node *adocNode) parseBlockAudio(doc *Document, line []byte) bool {
+func (el *element) parseBlockAudio(doc *Document, line []byte) bool {
 	line = bytes.TrimRight(line[7:], " \t")
 	attrBegin := bytes.IndexByte(line, '[')
 	if attrBegin < 0 {
@@ -291,13 +291,13 @@ func (node *adocNode) parseBlockAudio(doc *Document, line []byte) bool {
 	}
 
 	src := bytes.TrimRight(line[:attrBegin], " \t")
-	if node.Attrs == nil {
-		node.Attrs = make(map[string]string)
+	if el.Attrs == nil {
+		el.Attrs = make(map[string]string)
 	}
-	node.parseElementAttribute(line[attrBegin : attrEnd+1])
+	el.parseElementAttribute(line[attrBegin : attrEnd+1])
 
 	src = applySubstitutions(doc, []byte(src))
-	node.Attrs[attrNameSrc] = string(src)
+	el.Attrs[attrNameSrc] = string(src)
 
 	return true
 }
@@ -306,7 +306,7 @@ func (node *adocNode) parseBlockAudio(doc *Document, line []byte) bool {
 // parseBlockImage parse the image block or line.
 // The line parameter must not have "image::" block or "image:" macro prefix.
 //
-func (node *adocNode) parseBlockImage(doc *Document, line []byte) bool {
+func (el *element) parseBlockImage(doc *Document, line []byte) bool {
 	attrBegin := bytes.IndexByte(line, '[')
 	if attrBegin < 0 {
 		return false
@@ -318,15 +318,15 @@ func (node *adocNode) parseBlockImage(doc *Document, line []byte) bool {
 
 	src := bytes.TrimRight(line[:attrBegin], " \t")
 
-	if node.Attrs == nil {
-		node.Attrs = make(map[string]string)
+	if el.Attrs == nil {
+		el.Attrs = make(map[string]string)
 	}
 	src = applySubstitutions(doc, src)
-	node.Attrs[attrNameSrc] = string(src)
+	el.Attrs[attrNameSrc] = string(src)
 
 	attrs := bytes.Split(line[attrBegin+1:attrEnd], []byte(","))
-	if node.Attrs == nil {
-		node.Attrs = make(map[string]string)
+	if el.Attrs == nil {
+		el.Attrs = make(map[string]string)
 	}
 	var hasWidth bool
 	for x, battr := range attrs {
@@ -339,19 +339,19 @@ func (node *adocNode) parseBlockImage(doc *Document, line []byte) bool {
 					alt = src[:dot]
 				}
 			}
-			node.Attrs[attrNameAlt] = string(alt)
+			el.Attrs[attrNameAlt] = string(alt)
 			continue
 		}
 		if x == 1 {
 			if ascii.IsDigits(attrs[1]) {
-				node.Attrs[attrNameWidth] = string(attrs[1])
+				el.Attrs[attrNameWidth] = string(attrs[1])
 				hasWidth = true
 				continue
 			}
 		}
 		if hasWidth && x == 2 {
 			if ascii.IsDigits(attrs[2]) {
-				node.Attrs[attrNameHeight] = string(attrs[2])
+				el.Attrs[attrNameHeight] = string(attrs[2])
 			}
 		}
 		kv := strings.SplitN(attr, "=", 2)
@@ -365,52 +365,52 @@ func (node *adocNode) parseBlockImage(doc *Document, line []byte) bool {
 			if val == "center" {
 				val = "text-center"
 			}
-			node.addRole(val)
+			el.addRole(val)
 		default:
-			node.Attrs[key] = val
+			el.Attrs[key] = val
 		}
 	}
 
-	for k, v := range node.Attrs {
+	for k, v := range el.Attrs {
 		if k == attrNameLink {
 			v = string(applySubstitutions(doc, []byte(v)))
-			node.Attrs[k] = v
+			el.Attrs[k] = v
 		}
 	}
 
 	return true
 }
 
-func (node *adocNode) parseInlineMarkup(doc *Document, kind int) {
-	if len(node.raw) == 0 {
+func (el *element) parseInlineMarkup(doc *Document, kind int) {
+	if len(el.raw) == 0 {
 		return
 	}
 
-	container := parseInlineMarkup(doc, node.raw)
+	container := parseInlineMarkup(doc, el.raw)
 	if kind != 0 {
 		container.kind = kind
 	}
-	container.parent = node
-	container.next = node.child
-	if node.child != nil {
-		node.child.prev = container
+	container.parent = el
+	container.next = el.child
+	if el.child != nil {
+		el.child.prev = container
 	}
-	node.child = container
+	el.child = container
 
-	node.raw = nil
+	el.raw = nil
 }
 
-func (node *adocNode) parseLineAdmonition(line []byte) {
+func (el *element) parseLineAdmonition(line []byte) {
 	sep := bytes.IndexByte(line, ':')
 	class := bytes.ToLower(line[:sep])
-	node.addRole(string(class))
-	node.rawLabel.Write(bytes.Title(class))
+	el.addRole(string(class))
+	el.rawLabel.Write(bytes.Title(class))
 	line = bytes.TrimSpace(line[sep+1:])
-	node.Write(line)
-	node.WriteByte('\n')
+	el.Write(line)
+	el.WriteByte('\n')
 }
 
-func (node *adocNode) parseListDescriptionItem(line []byte) {
+func (el *element) parseListDescriptionItem(line []byte) {
 	var (
 		label []byte
 		x     int
@@ -418,12 +418,12 @@ func (node *adocNode) parseListDescriptionItem(line []byte) {
 	)
 
 	label, x = indexUnescape(line, []byte("::"))
-	node.rawLabel.Write(label)
+	el.rawLabel.Write(label)
 
 	line = line[x+2:]
 	for x, c = range line {
 		if c == ':' {
-			node.level++
+			el.level++
 			continue
 		}
 		break
@@ -442,16 +442,16 @@ func (node *adocNode) parseListDescriptionItem(line []byte) {
 		break
 	}
 	if len(line) > 0 {
-		node.Write(line[x:])
-		node.WriteByte('\n')
+		el.Write(line[x:])
+		el.WriteByte('\n')
 	}
 }
 
-func (node *adocNode) parseListOrderedItem(line []byte) {
+func (el *element) parseListOrderedItem(line []byte) {
 	x := 0
 	for ; x < len(line); x++ {
 		if line[x] == '.' {
-			node.level++
+			el.level++
 			continue
 		}
 		if line[x] == ' ' || line[x] == '\t' {
@@ -464,15 +464,15 @@ func (node *adocNode) parseListOrderedItem(line []byte) {
 		}
 		break
 	}
-	node.Write(line[x:])
-	node.WriteByte('\n')
+	el.Write(line[x:])
+	el.WriteByte('\n')
 }
 
-func (node *adocNode) parseListUnorderedItem(line []byte) {
+func (el *element) parseListUnorderedItem(line []byte) {
 	x := 0
 	for ; x < len(line); x++ {
 		if line[x] == '*' {
-			node.level++
+			el.level++
 			continue
 		}
 		if line[x] == ' ' || line[x] == '\t' {
@@ -497,27 +497,27 @@ func (node *adocNode) parseListUnorderedItem(line []byte) {
 			sym = symbolChecked
 		}
 		if len(sym) > 0 {
-			node.WriteString(sym)
-			node.WriteByte(' ')
+			el.WriteString(sym)
+			el.WriteByte(' ')
 			line = line[x+2:]
-			node.addRole(classNameChecklist)
+			el.addRole(classNameChecklist)
 		}
 	}
-	node.Write(line[x:])
-	node.WriteByte('\n')
+	el.Write(line[x:])
+	el.WriteByte('\n')
 }
 
-func (node *adocNode) parseSection(doc *Document, isDiscrete bool) {
+func (el *element) parseSection(doc *Document, isDiscrete bool) {
 	if !isDiscrete {
-		node.level = (node.kind - nodeKindSectionL1) + 1
+		el.level = (el.kind - elKindSectionL1) + 1
 	}
 
-	container := parseInlineMarkup(doc, node.raw)
+	container := parseInlineMarkup(doc, el.raw)
 
-	if len(node.ID) == 0 {
+	if len(el.ID) == 0 {
 		lastChild := container.lastSuccessor()
-		if lastChild != nil && lastChild.kind == nodeKindInlineID {
-			node.ID = lastChild.ID
+		if lastChild != nil && lastChild.kind == elKindInlineID {
+			el.ID = lastChild.ID
 
 			// Delete last child
 			if lastChild.prev != nil {
@@ -532,48 +532,48 @@ func (node *adocNode) parseSection(doc *Document, isDiscrete bool) {
 		}
 	}
 
-	container.parent = node
-	node.title = container
-	node.raw = nil
-	node.Text = container.toText()
+	container.parent = el
+	el.title = container
+	el.raw = nil
+	el.Text = container.toText()
 
-	if len(node.ID) == 0 {
+	if len(el.ID) == 0 {
 		_, ok := doc.Attributes[metaNameSectIDs]
 		if ok {
-			node.ID = generateID(doc, node.Text)
-			node.ID = doc.registerAnchor(node.ID, node.Text)
+			el.ID = generateID(doc, el.Text)
+			el.ID = doc.registerAnchor(el.ID, el.Text)
 		}
 	}
 
-	refText, ok := node.Attrs[attrNameRefText]
+	refText, ok := el.Attrs[attrNameRefText]
 	if ok {
-		doc.titleID[refText] = node.ID
+		doc.titleID[refText] = el.ID
 		// Replace the label with refText.
-		anc := doc.anchors[node.ID]
+		anc := doc.anchors[el.ID]
 		if anc != nil {
 			anc.label = refText
 		}
 	}
-	doc.titleID[node.Text] = node.ID
+	doc.titleID[el.Text] = el.ID
 
 	_, ok = doc.Attributes[metaNameSectNums]
 	if ok && !isDiscrete {
-		node.sectnums = doc.sectnums.set(node.level)
+		el.sectnums = doc.sectnums.set(el.level)
 	}
 }
 
-func (node *adocNode) parseStyleClass(line []byte) {
+func (el *element) parseStyleClass(line []byte) {
 	line = bytes.Trim(line, "[]")
 	parts := bytes.Split(line, []byte("."))
 	for _, class := range parts {
 		class = bytes.TrimSpace(class)
 		if len(class) > 0 {
-			node.addRole(string(class))
+			el.addRole(string(class))
 		}
 	}
 }
 
-func (node *adocNode) parseBlockVideo(doc *Document, line []byte) bool {
+func (el *element) parseBlockVideo(doc *Document, line []byte) bool {
 	line = bytes.TrimRight(line[7:], " \t")
 
 	attrBegin := bytes.IndexByte(line, '[')
@@ -585,29 +585,29 @@ func (node *adocNode) parseBlockVideo(doc *Document, line []byte) bool {
 		return false
 	}
 
-	if node.Attrs == nil {
-		node.Attrs = make(map[string]string)
+	if el.Attrs == nil {
+		el.Attrs = make(map[string]string)
 	}
 
 	videoSrc := bytes.TrimRight(line[:attrBegin], " \t")
 	videoSrc = applySubstitutions(doc, []byte(videoSrc))
-	node.Attrs[attrNameSrc] = string(videoSrc)
+	el.Attrs[attrNameSrc] = string(videoSrc)
 
-	node.parseElementAttribute(line[attrBegin : attrEnd+1])
+	el.parseElementAttribute(line[attrBegin : attrEnd+1])
 
 	return true
 }
 
-func (node *adocNode) postParseList(doc *Document, kind int) {
-	item := node.child
+func (el *element) postParseList(doc *Document, kind int) {
+	item := el.child
 	for item != nil {
 		if item.kind == kind {
-			if item.kind == nodeKindListDescriptionItem {
+			if item.kind == elKindListDescriptionItem {
 				raw := item.rawLabel.Bytes()
 				item.label = parseInlineMarkup(doc, raw)
 				item.rawLabel.Reset()
 			}
-			item.parseInlineMarkup(doc, nodeKindInlineParagraph)
+			item.parseInlineMarkup(doc, elKindInlineParagraph)
 		}
 		item = item.next
 	}
@@ -618,25 +618,25 @@ func (node *adocNode) postParseList(doc *Document, kind int) {
 // character of the first line ('"'), the last character of last second line
 // ('"'), and the last line start with "-- ".
 //
-func (node *adocNode) postParseParagraph(parent *adocNode) {
-	if node.isStyleQuote() {
+func (el *element) postParseParagraph(parent *element) {
+	if el.isStyleQuote() {
 		return
 	}
-	if parent != nil && parent.kind == nodeKindBlockExcerpts {
+	if parent != nil && parent.kind == elKindBlockExcerpts {
 		return
 	}
 
-	node.raw = bytes.TrimRight(node.raw, " \t\n")
+	el.raw = bytes.TrimRight(el.raw, " \t\n")
 
-	lines := bytes.Split(node.raw, []byte{'\n'})
+	lines := bytes.Split(el.raw, []byte{'\n'})
 	if len(lines) <= 1 {
 		return
 	}
 
-	node.postParseParagraphAsQuote(lines)
+	el.postParseParagraphAsQuote(lines)
 }
 
-func (node *adocNode) postParseParagraphAsQuote(lines [][]byte) bool {
+func (el *element) postParseParagraphAsQuote(lines [][]byte) bool {
 	lastLine := lines[len(lines)-1]
 	if len(lastLine) <= 4 {
 		return false
@@ -659,34 +659,34 @@ func (node *adocNode) postParseParagraphAsQuote(lines [][]byte) bool {
 		return false
 	}
 
-	node.raw = node.raw[:0]
+	el.raw = el.raw[:0]
 
 	secondLastIdx := len(lines) - 2
 	for x, line := range lines[:len(lines)-1] {
 		if x == 0 {
 			if x == secondLastIdx {
-				node.Write(line[1 : len(line)-1])
+				el.Write(line[1 : len(line)-1])
 			} else {
-				node.Write(line[1:])
+				el.Write(line[1:])
 			}
 		} else if x == secondLastIdx {
-			node.Write(line[:len(line)-1])
+			el.Write(line[:len(line)-1])
 		} else {
-			node.Write(line)
+			el.Write(line)
 		}
-		node.WriteByte('\n')
+		el.WriteByte('\n')
 	}
 
-	node.kind = nodeKindBlockExcerpts
+	el.kind = elKindBlockExcerpts
 	opts := strings.SplitN(string(lastLine[3:]), `,`, 2)
-	if node.Attrs == nil {
-		node.Attrs = make(map[string]string)
+	if el.Attrs == nil {
+		el.Attrs = make(map[string]string)
 	}
 	if len(opts) >= 1 {
-		node.Attrs[attrNameAttribution] = strings.TrimSpace(opts[0])
+		el.Attrs[attrNameAttribution] = strings.TrimSpace(opts[0])
 	}
 	if len(opts) >= 2 {
-		node.Attrs[attrNameCitation] = strings.TrimSpace(opts[1])
+		el.Attrs[attrNameCitation] = strings.TrimSpace(opts[1])
 	}
 
 	return true
@@ -696,29 +696,29 @@ func (node *adocNode) postParseParagraphAsQuote(lines [][]byte) bool {
 // postConsumeTable after we get all raw tables contents, we split them into
 // multiple rows, based on empty line between row.
 //
-func (node *adocNode) postConsumeTable() (table *adocTable) {
-	node.table = newTable(&node.elementAttribute, node.raw)
-	return node.table
+func (el *element) postConsumeTable() (table *adocTable) {
+	el.table = newTable(&el.elementAttribute, el.raw)
+	return el.table
 }
 
-func (node *adocNode) removeLastIfEmpty() {
-	if node.child == nil {
+func (el *element) removeLastIfEmpty() {
+	if el.child == nil {
 		return
 	}
-	c := node
+	c := el
 	for c.child != nil {
 		c = c.child
 		for c.next != nil {
 			c = c.next
 		}
 	}
-	if c.kind != nodeKindText || len(c.raw) > 0 {
+	if c.kind != elKindText || len(c.raw) > 0 {
 		return
 	}
 	if c.prev != nil {
 		c.prev.next = nil
-		if c.prev.kind == nodeKindText {
-			node.raw = bytes.TrimRight(node.raw, " \t")
+		if c.prev.kind == elKindText {
+			el.raw = bytes.TrimRight(el.raw, " \t")
 		}
 	} else if c.parent != nil {
 		c.parent.child = nil
@@ -727,88 +727,88 @@ func (node *adocNode) removeLastIfEmpty() {
 	c.parent = nil
 }
 
-func (node *adocNode) setStyleAdmonition(admName string) {
+func (el *element) setStyleAdmonition(admName string) {
 	admName = strings.ToLower(admName)
-	node.addRole(admName)
-	node.rawLabel.WriteString(strings.Title(admName))
+	el.addRole(admName)
+	el.rawLabel.WriteString(strings.Title(admName))
 }
 
-func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
-	switch node.kind {
+func (el *element) toHTML(doc *Document, w io.Writer, isForToC bool) {
+	switch el.kind {
 	case lineKindAttribute:
-		doc.Attributes.apply(node.key, node.value)
+		doc.Attributes.apply(el.key, el.value)
 
-	case nodeKindCrossReference:
-		href, ok := node.Attrs[attrNameHref]
+	case elKindCrossReference:
+		href, ok := el.Attrs[attrNameHref]
 		if !ok {
-			title, ok := node.Attrs[attrNameTitle]
+			title, ok := el.Attrs[attrNameTitle]
 			if !ok {
-				title = node.Attrs[attrNameRefText]
+				title = el.Attrs[attrNameRefText]
 			}
 			href = doc.titleID[title]
 		}
-		fmt.Fprintf(w, "<a href=\"#%s\">%s</a>", href, node.raw)
+		fmt.Fprintf(w, "<a href=\"#%s\">%s</a>", href, el.raw)
 
-	case nodeKindMacroTOC:
+	case elKindMacroTOC:
 		if doc.tocIsEnabled && doc.tocPosition == metaValueMacro {
 			doc.tocHTML(w)
 		}
 
-	case nodeKindPreamble:
+	case elKindPreamble:
 		if !doc.isEmbedded {
 			fmt.Fprint(w, _htmlPreambleBegin)
 		}
 
-	case nodeKindSectionDiscrete:
-		hmltWriteSectionDiscrete(doc, node, w)
+	case elKindSectionDiscrete:
+		hmltWriteSectionDiscrete(doc, el, w)
 
-	case nodeKindSectionL1, nodeKindSectionL2, nodeKindSectionL3,
-		nodeKindSectionL4, nodeKindSectionL5:
-		htmlWriteSection(doc, node, w, isForToC)
+	case elKindSectionL1, elKindSectionL2, elKindSectionL3,
+		elKindSectionL4, elKindSectionL5:
+		htmlWriteSection(doc, el, w, isForToC)
 
-	case nodeKindParagraph:
-		if node.isStyleAdmonition() {
-			htmlWriteBlockAdmonition(node, w)
-		} else if node.isStyleQuote() {
-			htmlWriteBlockQuote(node, w)
-		} else if node.isStyleVerse() {
-			htmlWriteBlockVerse(node, w)
+	case elKindParagraph:
+		if el.isStyleAdmonition() {
+			htmlWriteBlockAdmonition(el, w)
+		} else if el.isStyleQuote() {
+			htmlWriteBlockQuote(el, w)
+		} else if el.isStyleVerse() {
+			htmlWriteBlockVerse(el, w)
 		} else {
-			htmlWriteParagraphBegin(node, w)
+			htmlWriteParagraphBegin(el, w)
 		}
 
-	case nodeKindLiteralParagraph, nodeKindBlockLiteral,
-		nodeKindBlockLiteralNamed,
-		nodeKindBlockListing, nodeKindBlockListingNamed:
-		htmlWriteBlockLiteral(node, w)
+	case elKindLiteralParagraph, elKindBlockLiteral,
+		elKindBlockLiteralNamed,
+		elKindBlockListing, elKindBlockListingNamed:
+		htmlWriteBlockLiteral(el, w)
 
-	case nodeKindInlineImage:
-		htmlWriteInlineImage(node, w)
+	case elKindInlineImage:
+		htmlWriteInlineImage(el, w)
 
-	case nodeKindListDescription:
-		htmlWriteListDescription(node, w)
-	case nodeKindListOrdered:
-		htmlWriteListOrdered(node, w)
-	case nodeKindListUnordered:
-		htmlWriteListUnordered(node, w)
+	case elKindListDescription:
+		htmlWriteListDescription(el, w)
+	case elKindListOrdered:
+		htmlWriteListOrdered(el, w)
+	case elKindListUnordered:
+		htmlWriteListUnordered(el, w)
 
-	case nodeKindListOrderedItem, nodeKindListUnorderedItem:
+	case elKindListOrderedItem, elKindListUnorderedItem:
 		fmt.Fprint(w, "\n<li>")
 
-	case nodeKindListDescriptionItem:
+	case elKindListDescriptionItem:
 		var (
 			format string
 			label  bytes.Buffer
 		)
-		if node.label != nil {
-			node.label.toHTML(doc, &label, false)
+		if el.label != nil {
+			el.label.toHTML(doc, &label, false)
 		} else {
-			label.Write(node.rawLabel.Bytes())
+			label.Write(el.rawLabel.Bytes())
 		}
 
-		if node.isStyleQandA() {
+		if el.isStyleQandA() {
 			format = _htmlListDescriptionItemQandABegin
-		} else if node.isStyleHorizontal() {
+		} else if el.isStyleHorizontal() {
 			format = _htmlListDescriptionItemHorizontalBegin
 		} else {
 			format = _htmlListDescriptionItemBegin
@@ -821,145 +821,145 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 	case lineKindPageBreak:
 		fmt.Fprint(w, "\n<div style=\"page-break-after: always;\"></div>")
 
-	case nodeKindBlockExample:
-		if node.isStyleAdmonition() {
-			htmlWriteBlockAdmonition(node, w)
+	case elKindBlockExample:
+		if el.isStyleAdmonition() {
+			htmlWriteBlockAdmonition(el, w)
 		} else {
-			htmlWriteBlockExample(doc, node, w)
+			htmlWriteBlockExample(doc, el, w)
 		}
 
-	case nodeKindBlockImage:
-		htmlWriteBlockImage(doc, node, w)
+	case elKindBlockImage:
+		htmlWriteBlockImage(doc, el, w)
 
-	case nodeKindBlockOpen:
-		if node.isStyleAdmonition() {
-			htmlWriteBlockAdmonition(node, w)
-		} else if node.isStyleQuote() {
-			htmlWriteBlockQuote(node, w)
-		} else if node.isStyleVerse() {
-			htmlWriteBlockVerse(node, w)
+	case elKindBlockOpen:
+		if el.isStyleAdmonition() {
+			htmlWriteBlockAdmonition(el, w)
+		} else if el.isStyleQuote() {
+			htmlWriteBlockQuote(el, w)
+		} else if el.isStyleVerse() {
+			htmlWriteBlockVerse(el, w)
 		} else {
-			htmlWriteBlockOpenBegin(node, w)
+			htmlWriteBlockOpenBegin(el, w)
 		}
 
-	case nodeKindBlockPassthrough:
-		fmt.Fprintf(w, "\n%s", node.raw)
+	case elKindBlockPassthrough:
+		fmt.Fprintf(w, "\n%s", el.raw)
 
-	case nodeKindBlockExcerpts:
-		if node.isStyleVerse() {
-			htmlWriteBlockVerse(node, w)
+	case elKindBlockExcerpts:
+		if el.isStyleVerse() {
+			htmlWriteBlockVerse(el, w)
 		} else {
-			htmlWriteBlockQuote(node, w)
+			htmlWriteBlockQuote(el, w)
 		}
 
-	case nodeKindBlockSidebar:
-		htmlWriteBlockSidebar(node, w)
+	case elKindBlockSidebar:
+		htmlWriteBlockSidebar(el, w)
 
-	case nodeKindBlockVideo:
-		htmlWriteBlockVideo(node, w)
+	case elKindBlockVideo:
+		htmlWriteBlockVideo(el, w)
 
-	case nodeKindBlockAudio:
-		htmlWriteBlockAudio(node, w)
+	case elKindBlockAudio:
+		htmlWriteBlockAudio(el, w)
 
-	case nodeKindInlineID:
+	case elKindInlineID:
 		if !isForToC {
-			fmt.Fprintf(w, "<a id=%q></a>", node.ID)
+			fmt.Fprintf(w, "<a id=%q></a>", el.ID)
 		}
 
-	case nodeKindInlineIDShort:
+	case elKindInlineIDShort:
 		if !isForToC {
-			fmt.Fprintf(w, "<span id=%q>%s", node.ID, node.raw)
+			fmt.Fprintf(w, "<span id=%q>%s", el.ID, el.raw)
 		}
 
-	case nodeKindInlineParagraph:
-		fmt.Fprintf(w, "\n<p>%s", node.raw)
+	case elKindInlineParagraph:
+		fmt.Fprintf(w, "\n<p>%s", el.raw)
 
-	case nodeKindPassthrough:
-		fmt.Fprint(w, string(node.raw))
-	case nodeKindPassthroughDouble:
-		fmt.Fprint(w, string(node.raw))
-	case nodeKindPassthroughTriple:
-		fmt.Fprint(w, string(node.raw))
+	case elKindPassthrough:
+		fmt.Fprint(w, string(el.raw))
+	case elKindPassthroughDouble:
+		fmt.Fprint(w, string(el.raw))
+	case elKindPassthroughTriple:
+		fmt.Fprint(w, string(el.raw))
 
-	case nodeKindSymbolQuoteDoubleBegin:
-		fmt.Fprint(w, symbolQuoteDoubleBegin, string(node.raw))
-	case nodeKindSymbolQuoteDoubleEnd:
-		fmt.Fprint(w, symbolQuoteDoubleEnd, string(node.raw))
+	case elKindSymbolQuoteDoubleBegin:
+		fmt.Fprint(w, symbolQuoteDoubleBegin, string(el.raw))
+	case elKindSymbolQuoteDoubleEnd:
+		fmt.Fprint(w, symbolQuoteDoubleEnd, string(el.raw))
 
-	case nodeKindSymbolQuoteSingleBegin:
-		fmt.Fprint(w, symbolQuoteSingleBegin, string(node.raw))
-	case nodeKindSymbolQuoteSingleEnd:
-		fmt.Fprint(w, symbolQuoteSingleEnd, string(node.raw))
+	case elKindSymbolQuoteSingleBegin:
+		fmt.Fprint(w, symbolQuoteSingleBegin, string(el.raw))
+	case elKindSymbolQuoteSingleEnd:
+		fmt.Fprint(w, symbolQuoteSingleEnd, string(el.raw))
 
-	case nodeKindText:
-		fmt.Fprint(w, string(node.raw))
+	case elKindText:
+		fmt.Fprint(w, string(el.raw))
 
-	case nodeKindTextBold:
-		if node.hasStyle(styleTextBold) {
+	case elKindTextBold:
+		if el.hasStyle(styleTextBold) {
 			fmt.Fprint(w, "<strong>")
-		} else if len(node.raw) > 0 {
+		} else if len(el.raw) > 0 {
 			fmt.Fprint(w, "*")
 		}
-		fmt.Fprint(w, string(node.raw))
+		fmt.Fprint(w, string(el.raw))
 
-	case nodeKindUnconstrainedBold:
-		if node.hasStyle(styleTextBold) {
+	case elKindUnconstrainedBold:
+		if el.hasStyle(styleTextBold) {
 			fmt.Fprint(w, "<strong>")
-		} else if len(node.raw) > 0 {
+		} else if len(el.raw) > 0 {
 			fmt.Fprint(w, "**")
 		}
-		fmt.Fprint(w, string(node.raw))
+		fmt.Fprint(w, string(el.raw))
 
-	case nodeKindTextItalic:
-		if node.hasStyle(styleTextItalic) {
+	case elKindTextItalic:
+		if el.hasStyle(styleTextItalic) {
 			fmt.Fprint(w, "<em>")
-		} else if len(node.raw) > 0 {
+		} else if len(el.raw) > 0 {
 			fmt.Fprint(w, "_")
 		}
-		fmt.Fprint(w, string(node.raw))
+		fmt.Fprint(w, string(el.raw))
 
-	case nodeKindUnconstrainedItalic:
-		if node.hasStyle(styleTextItalic) {
+	case elKindUnconstrainedItalic:
+		if el.hasStyle(styleTextItalic) {
 			fmt.Fprint(w, "<em>")
-		} else if len(node.raw) > 0 {
+		} else if len(el.raw) > 0 {
 			fmt.Fprint(w, "__")
 		}
-		fmt.Fprint(w, string(node.raw))
+		fmt.Fprint(w, string(el.raw))
 
-	case nodeKindTextMono:
-		if node.hasStyle(styleTextMono) {
+	case elKindTextMono:
+		if el.hasStyle(styleTextMono) {
 			fmt.Fprint(w, "<code>")
-		} else if len(node.raw) > 0 {
+		} else if len(el.raw) > 0 {
 			fmt.Fprint(w, "`")
 		}
-		fmt.Fprint(w, string(node.raw))
+		fmt.Fprint(w, string(el.raw))
 
-	case nodeKindUnconstrainedMono:
-		if node.hasStyle(styleTextMono) {
+	case elKindUnconstrainedMono:
+		if el.hasStyle(styleTextMono) {
 			fmt.Fprint(w, "<code>")
-		} else if len(node.raw) > 0 {
+		} else if len(el.raw) > 0 {
 			fmt.Fprint(w, "``")
 		}
-		fmt.Fprint(w, string(node.raw))
+		fmt.Fprint(w, string(el.raw))
 
-	case nodeKindURL:
-		htmlWriteURLBegin(node, w)
+	case elKindURL:
+		htmlWriteURLBegin(el, w)
 
-	case nodeKindTextSubscript:
-		fmt.Fprintf(w, "<sub>%s</sub>", node.raw)
-	case nodeKindTextSuperscript:
-		fmt.Fprintf(w, "<sup>%s</sup>", node.raw)
+	case elKindTextSubscript:
+		fmt.Fprintf(w, "<sub>%s</sub>", el.raw)
+	case elKindTextSuperscript:
+		fmt.Fprintf(w, "<sup>%s</sup>", el.raw)
 
-	case nodeKindTable:
-		htmlWriteTable(doc, node, w)
+	case elKindTable:
+		htmlWriteTable(doc, el, w)
 	}
 
-	if node.child != nil {
-		node.child.toHTML(doc, w, isForToC)
+	if el.child != nil {
+		el.child.toHTML(doc, w, isForToC)
 	}
 
-	switch node.kind {
-	case nodeKindPreamble:
+	switch el.kind {
+	case elKindPreamble:
 		if !doc.isEmbedded {
 			fmt.Fprint(w, "\n</div>")
 		}
@@ -970,178 +970,178 @@ func (node *adocNode) toHTML(doc *Document, w io.Writer, isForToC bool) {
 			fmt.Fprint(w, "\n</div>")
 		}
 
-	case nodeKindSectionL1, nodeKindSectionL2, nodeKindSectionL3,
-		nodeKindSectionL4, nodeKindSectionL5:
-		if node.kind == nodeKindSectionL1 {
+	case elKindSectionL1, elKindSectionL2, elKindSectionL3,
+		elKindSectionL4, elKindSectionL5:
+		if el.kind == elKindSectionL1 {
 			fmt.Fprint(w, "\n</div>")
 		}
 		fmt.Fprint(w, "\n</div>")
 
-	case nodeKindParagraph:
-		if node.isStyleAdmonition() {
+	case elKindParagraph:
+		if el.isStyleAdmonition() {
 			fmt.Fprint(w, _htmlAdmonitionEnd)
-		} else if node.isStyleQuote() {
-			htmlWriteBlockQuoteEnd(node, w)
-		} else if node.isStyleVerse() {
-			htmlWriteBlockVerseEnd(node, w)
+		} else if el.isStyleQuote() {
+			htmlWriteBlockQuoteEnd(el, w)
+		} else if el.isStyleVerse() {
+			htmlWriteBlockVerseEnd(el, w)
 		} else {
 			fmt.Fprint(w, "</p>\n</div>")
 		}
 
-	case nodeKindListOrderedItem, nodeKindListUnorderedItem:
+	case elKindListOrderedItem, elKindListUnorderedItem:
 		fmt.Fprint(w, "\n</li>")
 
-	case nodeKindListDescriptionItem:
+	case elKindListDescriptionItem:
 		var format string
-		if node.isStyleQandA() {
+		if el.isStyleQandA() {
 			format = "\n</li>"
-		} else if node.isStyleHorizontal() {
+		} else if el.isStyleHorizontal() {
 			format = "\n</td>\n</tr>"
 		} else {
 			format = "\n</dd>"
 		}
 		fmt.Fprint(w, format)
 
-	case nodeKindListDescription:
-		htmlWriteListDescriptionEnd(node, w)
-	case nodeKindListOrdered:
+	case elKindListDescription:
+		htmlWriteListDescriptionEnd(el, w)
+	case elKindListOrdered:
 		htmlWriteListOrderedEnd(w)
-	case nodeKindListUnordered:
+	case elKindListUnordered:
 		htmlWriteListUnorderedEnd(w)
 
-	case nodeKindBlockExample:
-		if node.isStyleAdmonition() {
+	case elKindBlockExample:
+		if el.isStyleAdmonition() {
 			fmt.Fprint(w, _htmlAdmonitionEnd)
 		} else {
 			fmt.Fprint(w, "\n</div>\n</div>")
 		}
 
-	case nodeKindBlockOpen:
-		if node.isStyleAdmonition() {
+	case elKindBlockOpen:
+		if el.isStyleAdmonition() {
 			fmt.Fprint(w, _htmlAdmonitionEnd)
-		} else if node.isStyleQuote() {
-			htmlWriteBlockQuoteEnd(node, w)
-		} else if node.isStyleVerse() {
-			htmlWriteBlockVerseEnd(node, w)
+		} else if el.isStyleQuote() {
+			htmlWriteBlockQuoteEnd(el, w)
+		} else if el.isStyleVerse() {
+			htmlWriteBlockVerseEnd(el, w)
 		} else {
 			fmt.Fprint(w, "\n</div>\n</div>")
 		}
-	case nodeKindBlockExcerpts:
-		if node.isStyleVerse() {
-			htmlWriteBlockVerseEnd(node, w)
+	case elKindBlockExcerpts:
+		if el.isStyleVerse() {
+			htmlWriteBlockVerseEnd(el, w)
 		} else {
-			htmlWriteBlockQuoteEnd(node, w)
+			htmlWriteBlockQuoteEnd(el, w)
 		}
 
-	case nodeKindBlockSidebar:
+	case elKindBlockSidebar:
 		fmt.Fprint(w, "\n</div>\n</div>")
 
-	case nodeKindInlineIDShort:
+	case elKindInlineIDShort:
 		if !isForToC {
 			fmt.Fprint(w, "</span>")
 		}
 
-	case nodeKindInlineParagraph:
+	case elKindInlineParagraph:
 		fmt.Fprint(w, "</p>")
 
-	case nodeKindTextBold, nodeKindUnconstrainedBold:
-		if node.hasStyle(styleTextBold) {
+	case elKindTextBold, elKindUnconstrainedBold:
+		if el.hasStyle(styleTextBold) {
 			fmt.Fprint(w, "</strong>")
 		}
-	case nodeKindTextItalic, nodeKindUnconstrainedItalic:
-		if node.hasStyle(styleTextItalic) {
+	case elKindTextItalic, elKindUnconstrainedItalic:
+		if el.hasStyle(styleTextItalic) {
 			fmt.Fprint(w, "</em>")
 		}
-	case nodeKindTextMono, nodeKindUnconstrainedMono:
-		if node.hasStyle(styleTextMono) {
+	case elKindTextMono, elKindUnconstrainedMono:
+		if el.hasStyle(styleTextMono) {
 			fmt.Fprint(w, "</code>")
 		}
-	case nodeKindURL:
+	case elKindURL:
 		htmlWriteURLEnd(w)
 	}
 
-	if node.next != nil {
-		node.next.toHTML(doc, w, isForToC)
+	if el.next != nil {
+		el.next.toHTML(doc, w, isForToC)
 	}
 }
 
-func (node *adocNode) toText() (text string) {
+func (el *element) toText() (text string) {
 	var buf bytes.Buffer
-	node.writeText(&buf)
+	el.writeText(&buf)
 	return buf.String()
 }
 
-func (node *adocNode) writeText(w io.Writer) {
-	switch node.kind {
-	case nodeKindPassthrough:
-		fmt.Fprint(w, string(node.raw))
-	case nodeKindPassthroughDouble:
-		fmt.Fprint(w, string(node.raw))
-	case nodeKindPassthroughTriple:
-		fmt.Fprint(w, string(node.raw))
+func (el *element) writeText(w io.Writer) {
+	switch el.kind {
+	case elKindPassthrough:
+		fmt.Fprint(w, string(el.raw))
+	case elKindPassthroughDouble:
+		fmt.Fprint(w, string(el.raw))
+	case elKindPassthroughTriple:
+		fmt.Fprint(w, string(el.raw))
 
-	case nodeKindSymbolQuoteDoubleBegin:
-		fmt.Fprint(w, symbolQuoteDoubleBegin, string(node.raw))
+	case elKindSymbolQuoteDoubleBegin:
+		fmt.Fprint(w, symbolQuoteDoubleBegin, string(el.raw))
 
-	case nodeKindSymbolQuoteDoubleEnd:
-		fmt.Fprint(w, symbolQuoteDoubleEnd, string(node.raw))
+	case elKindSymbolQuoteDoubleEnd:
+		fmt.Fprint(w, symbolQuoteDoubleEnd, string(el.raw))
 
-	case nodeKindSymbolQuoteSingleBegin:
-		fmt.Fprint(w, symbolQuoteSingleBegin, string(node.raw))
-	case nodeKindSymbolQuoteSingleEnd:
-		fmt.Fprint(w, symbolQuoteSingleEnd, string(node.raw))
+	case elKindSymbolQuoteSingleBegin:
+		fmt.Fprint(w, symbolQuoteSingleBegin, string(el.raw))
+	case elKindSymbolQuoteSingleEnd:
+		fmt.Fprint(w, symbolQuoteSingleEnd, string(el.raw))
 
-	case nodeKindText:
-		fmt.Fprint(w, string(node.raw))
+	case elKindText:
+		fmt.Fprint(w, string(el.raw))
 
-	case nodeKindTextBold:
-		if !node.hasStyle(styleTextBold) {
+	case elKindTextBold:
+		if !el.hasStyle(styleTextBold) {
 			fmt.Fprint(w, "*")
 		}
-		fmt.Fprint(w, string(node.raw))
+		fmt.Fprint(w, string(el.raw))
 
-	case nodeKindUnconstrainedBold:
-		if !node.hasStyle(styleTextBold) {
+	case elKindUnconstrainedBold:
+		if !el.hasStyle(styleTextBold) {
 			fmt.Fprint(w, "**")
 		}
-		fmt.Fprint(w, string(node.raw))
+		fmt.Fprint(w, string(el.raw))
 
-	case nodeKindTextItalic:
-		if !node.hasStyle(styleTextItalic) {
+	case elKindTextItalic:
+		if !el.hasStyle(styleTextItalic) {
 			fmt.Fprint(w, "_")
 		}
-		fmt.Fprint(w, string(node.raw))
+		fmt.Fprint(w, string(el.raw))
 
-	case nodeKindUnconstrainedItalic:
-		if !node.hasStyle(styleTextItalic) {
+	case elKindUnconstrainedItalic:
+		if !el.hasStyle(styleTextItalic) {
 			fmt.Fprint(w, "__")
 		}
-		fmt.Fprint(w, string(node.raw))
+		fmt.Fprint(w, string(el.raw))
 
-	case nodeKindTextMono:
-		if !node.hasStyle(styleTextMono) {
+	case elKindTextMono:
+		if !el.hasStyle(styleTextMono) {
 			fmt.Fprint(w, "`")
 		}
-		fmt.Fprint(w, string(node.raw))
+		fmt.Fprint(w, string(el.raw))
 
-	case nodeKindUnconstrainedMono:
-		if !node.hasStyle(styleTextMono) {
+	case elKindUnconstrainedMono:
+		if !el.hasStyle(styleTextMono) {
 			fmt.Fprint(w, "``")
 		}
-		fmt.Fprint(w, string(node.raw))
+		fmt.Fprint(w, string(el.raw))
 
-	case nodeKindURL:
-		fmt.Fprint(w, string(node.raw))
-	case nodeKindTextSubscript:
-		fmt.Fprint(w, string(node.raw))
-	case nodeKindTextSuperscript:
-		fmt.Fprint(w, string(node.raw))
+	case elKindURL:
+		fmt.Fprint(w, string(el.raw))
+	case elKindTextSubscript:
+		fmt.Fprint(w, string(el.raw))
+	case elKindTextSuperscript:
+		fmt.Fprint(w, string(el.raw))
 	}
 
-	if node.child != nil {
-		node.child.writeText(w)
+	if el.child != nil {
+		el.child.writeText(w)
 	}
-	if node.next != nil {
-		node.next.writeText(w)
+	if el.next != nil {
+		el.next.writeText(w)
 	}
 }
