@@ -33,7 +33,7 @@ func TestParse_metaDocTitle(t *testing.T) {
 	for _, c := range cases {
 		doc := Parse([]byte(c.content))
 		buf.Reset()
-		err := doc.ToEmbeddedHTML(&buf)
+		err := doc.ToHTMLEmbedded(&buf)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -259,7 +259,7 @@ Paragraph C.
 	doc := Parse(content)
 	got := bytes.Buffer{}
 
-	err := doc.ToEmbeddedHTML(&got)
+	err := doc.ToHTMLEmbedded(&got)
 	if err != nil {
 		t.Fatal(err)
 	}

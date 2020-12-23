@@ -669,7 +669,7 @@ func htmlWriteTableRow(doc *Document, table *elementTable, row *tableRow, out io
 		case colStyleAsciidoc:
 			subdoc := parseSub(doc, contentTrimmed)
 			fmt.Fprint(out, "\n<div id=\"content\">")
-			_ = subdoc.ToEmbeddedHTML(out)
+			_ = subdoc.ToHTMLEmbedded(out)
 			fmt.Fprint(out, "\n</div>")
 
 		case colStyleDefault:

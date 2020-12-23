@@ -28,7 +28,7 @@ This is the ultimate paragraph.`),
 	for _, c := range cases {
 		subdoc := parseSub(parentDoc, c.content)
 		out.Reset()
-		err := subdoc.ToEmbeddedHTML(&out)
+		err := subdoc.ToHTMLEmbedded(&out)
 		if err != nil {
 			t.Fatal(err)
 		}

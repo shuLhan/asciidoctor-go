@@ -118,10 +118,10 @@ func Open(file string) (doc *Document, err error) {
 }
 
 //
-// ToEmbeddedHTML convert the Document object into HTML with content only
-// (without header and footer).
+// ToHTMLEmbedded convert the Document object into HTML with content only,
+// without header and footer.
 //
-func (doc *Document) ToEmbeddedHTML(out io.Writer) (err error) {
+func (doc *Document) ToHTMLEmbedded(out io.Writer) (err error) {
 	doc.isEmbedded = true
 	doc.generateClasses()
 	buf := &bytes.Buffer{}
@@ -132,8 +132,7 @@ func (doc *Document) ToEmbeddedHTML(out io.Writer) (err error) {
 }
 
 //
-// ToHTML convert the asciidoc document into full HTML document, including
-// head and body.
+// ToHTML convert the Document object into full HTML document.
 //
 func (doc *Document) ToHTML(out io.Writer) (err error) {
 	doc.generateClasses()
@@ -189,8 +188,8 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 }
 
 //
-// ToHTMLBody convert the Document object body into HTML, this is including
-// header, content, and footer.
+// ToHTMLBody convert the Document object into HTML with body only, this is
+// including header, content, and footer.
 //
 func (doc *Document) ToHTMLBody(out io.Writer) (err error) {
 	doc.generateClasses()
