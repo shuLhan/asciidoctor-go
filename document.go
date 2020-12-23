@@ -30,13 +30,13 @@ const (
 type Document struct {
 	Title       DocumentTitle
 	Authors     []*Author
-	rawAuthors  string
 	Revision    Revision
-	rawRevision string
 	LastUpdated string
 	Attributes  AttributeEntry
+	TOCLevel    int
 
-	TOCLevel     int
+	rawAuthors   string
+	rawRevision  string
 	tocClasses   attributeClass
 	tocPosition  string
 	tocTitle     string
