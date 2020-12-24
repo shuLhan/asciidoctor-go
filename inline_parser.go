@@ -464,7 +464,7 @@ func (pi *inlineParser) parseCrossRef() bool {
 // parseInlineID parse the ID and optional label between "[[" "]]".
 //
 func (pi *inlineParser) parseInlineID() bool {
-	// Check if we have term at the end.
+	// Check if we have termination.
 	raw := pi.content[pi.x+2:]
 	raw, idx := indexUnescape(raw, []byte("]]"))
 	if idx < 0 {

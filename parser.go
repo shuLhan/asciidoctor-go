@@ -548,6 +548,12 @@ func parseAttrRef(doc *Document, content []byte, x int) (
 		if !ok {
 			return nil, false
 		}
+
+		// Add prefix "mailto:" if the ref name start with email, so
+		// it can be parsed by caller as macro link.
+		if name == "email" || strings.HasPrefix(name, "email_") {
+			attrValue = "mailto:" + attrValue + "[" + attrValue + "]"
+		}
 	}
 
 	rest := content[x+idx+2:]
