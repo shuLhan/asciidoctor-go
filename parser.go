@@ -326,7 +326,35 @@ var adocStyles map[string]int64 = map[string]int64{
 }
 
 var _attrRef map[string]string = map[string]string{
-	"vbar": "|",
+	"amp":            "&",
+	"apos":           htmlSymbolSingleQuote, // '
+	"asterisk":       "*",
+	"backslash":      `\`,
+	"backtick":       "`",
+	"blank":          "",
+	"brvbar":         htmlSymbolBrokenVerticalBar, // ¦
+	"caret":          "^",
+	"cpp":            "C++",
+	"deg":            htmlSymbolDegreeSign, // °
+	"empty":          "",
+	"endsb":          "]",
+	"gt":             ">",
+	"ldquo":          htmlSymbolLeftDoubleQuote,
+	"lsquo":          htmlSymbolLeftSingleQuote,
+	"lt":             "<",
+	"nbsp":           htmlSymbolNonBreakingSpace,
+	"plus":           htmlSymbolPlus,
+	"quot":           htmlSymbolDoubleQuote,
+	"rdquo":          htmlSymbolRightDoubleQuote,
+	"rsquo":          htmlSymbolRightSingleQuote,
+	"sp":             " ",
+	"startsb":        "[",
+	"tilde":          "~",
+	"two-colons":     "::",
+	"two-semicolons": ";;",
+	"vbar":           "|",
+	"wj":             htmlSymbolWordJoiner,
+	"zwsp":           htmlSymbolZeroWidthSpace,
 }
 
 func applySubstitutions(doc *Document, content []byte) []byte {

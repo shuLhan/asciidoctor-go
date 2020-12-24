@@ -104,6 +104,7 @@ numbered based on
 * 40. Passthroughs
   * 40.2. Passthrough Blocks
 * 41. Open Blocks
+* A.3. Predefined Attributes for Character Replacements
 
 Supported metadata or attribute references,
 
@@ -127,7 +128,6 @@ Supported metadata or attribute references,
 * `showtitle`
 * `table-caption`
 * `title-separator`
-* `vbar`
 * `version-label`
 
 
