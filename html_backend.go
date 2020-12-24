@@ -291,10 +291,10 @@ func htmlWriteBody(doc *Document, out *bytes.Buffer) {
 	}
 
 	if doc.content.child != nil {
-		doc.content.child.toHTML(doc, out, false)
+		doc.content.child.toHTML(doc, out)
 	}
 	if doc.content.next != nil {
-		doc.content.next.toHTML(doc, out, false)
+		doc.content.next.toHTML(doc, out)
 	}
 
 	if !doc.isEmbedded {
@@ -333,7 +333,7 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 		_, ok = doc.Attributes[metaNameNoTitle]
 		if !ok && doc.Title.el != nil {
 			fmt.Fprint(out, "\n<h1>")
-			doc.Title.el.toHTML(doc, out, false)
+			doc.Title.el.toHTML(doc, out)
 			fmt.Fprint(out, "</h1>")
 		}
 	}
@@ -484,7 +484,7 @@ func htmlWriteParagraphBegin(el *element, out io.Writer) {
 	fmt.Fprint(out, "\n<p>")
 }
 
-func htmlWriteSection(doc *Document, el *element, out io.Writer, isForToC bool) {
+func htmlWriteSection(doc *Document, el *element, out io.Writer) {
 	var class, tag string
 	switch el.kind {
 	case elKindSectionL1:
@@ -519,7 +519,7 @@ func htmlWriteSection(doc *Document, el *element, out io.Writer, isForToC bool) 
 		fmt.Fprint(out, el.sectnums.String())
 	}
 
-	el.title.toHTML(doc, out, isForToC)
+	el.title.toHTML(doc, out)
 
 	if withSectlinks {
 		fmt.Fprint(out, "</a>")
@@ -549,7 +549,7 @@ func hmltWriteSectionDiscrete(doc *Document, el *element, out io.Writer) {
 	}
 
 	fmt.Fprintf(out, "\n<%s id=%q class=%q>", tag, el.ID, attrNameDiscrete)
-	el.title.toHTML(doc, out, false)
+	el.title.toHTML(doc, out)
 	fmt.Fprintf(out, "</%s>", tag)
 }
 
@@ -640,7 +640,7 @@ func htmlWriteTableHeader(doc *Document, header *tableRow, out io.Writer) {
 	for _, cell := range header.cells {
 		fmt.Fprintf(out, "\n<th class=%q>", classRow)
 		cont := parseInlineMarkup(doc, bytes.TrimSpace(cell.content))
-		cont.toHTML(doc, out, false)
+		cont.toHTML(doc, out)
 		fmt.Fprint(out, "</th>")
 	}
 	fmt.Fprint(out, "\n</tr>\n</thead>")
@@ -680,7 +680,7 @@ func htmlWriteTableRow(doc *Document, table *elementTable, row *tableRow, out io
 				}
 				fmt.Fprintf(out, "<p class=%q>", classNameTableBlock)
 				container := parseInlineMarkup(doc, p)
-				container.toHTML(doc, out, false)
+				container.toHTML(doc, out)
 				fmt.Fprint(out, "</p>")
 			}
 
@@ -748,7 +748,10 @@ func htmlWriteToC(doc *Document, el *element, out io.Writer, level int) {
 			fmt.Fprint(out, el.sectnums.String())
 		}
 
-		el.title.toHTML(doc, out, true)
+		doc.isForToC = true
+		el.title.toHTML(doc, out)
+		doc.isForToC = false
+
 		fmt.Fprint(out, "</a>")
 	}
 

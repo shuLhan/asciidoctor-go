@@ -733,7 +733,7 @@ func (el *element) setStyleAdmonition(admName string) {
 	el.rawLabel.WriteString(strings.Title(admName))
 }
 
-func (el *element) toHTML(doc *Document, w io.Writer, isForToC bool) {
+func (el *element) toHTML(doc *Document, w io.Writer) {
 	switch el.kind {
 	case lineKindAttribute:
 		doc.Attributes.apply(el.key, el.value)
@@ -764,7 +764,7 @@ func (el *element) toHTML(doc *Document, w io.Writer, isForToC bool) {
 
 	case elKindSectionL1, elKindSectionL2, elKindSectionL3,
 		elKindSectionL4, elKindSectionL5:
-		htmlWriteSection(doc, el, w, isForToC)
+		htmlWriteSection(doc, el, w)
 
 	case elKindParagraph:
 		if el.isStyleAdmonition() {
@@ -801,7 +801,7 @@ func (el *element) toHTML(doc *Document, w io.Writer, isForToC bool) {
 			label  bytes.Buffer
 		)
 		if el.label != nil {
-			el.label.toHTML(doc, &label, false)
+			el.label.toHTML(doc, &label)
 		} else {
 			label.Write(el.rawLabel.Bytes())
 		}
@@ -862,12 +862,12 @@ func (el *element) toHTML(doc *Document, w io.Writer, isForToC bool) {
 		htmlWriteBlockAudio(el, w)
 
 	case elKindInlineID:
-		if !isForToC {
+		if !doc.isForToC {
 			fmt.Fprintf(w, "<a id=%q></a>", el.ID)
 		}
 
 	case elKindInlineIDShort:
-		if !isForToC {
+		if !doc.isForToC {
 			fmt.Fprintf(w, "<span id=%q>%s", el.ID, el.raw)
 		}
 
@@ -955,7 +955,7 @@ func (el *element) toHTML(doc *Document, w io.Writer, isForToC bool) {
 	}
 
 	if el.child != nil {
-		el.child.toHTML(doc, w, isForToC)
+		el.child.toHTML(doc, w)
 	}
 
 	switch el.kind {
@@ -1037,7 +1037,7 @@ func (el *element) toHTML(doc *Document, w io.Writer, isForToC bool) {
 		fmt.Fprint(w, "\n</div>\n</div>")
 
 	case elKindInlineIDShort:
-		if !isForToC {
+		if !doc.isForToC {
 			fmt.Fprint(w, "</span>")
 		}
 
@@ -1061,7 +1061,7 @@ func (el *element) toHTML(doc *Document, w io.Writer, isForToC bool) {
 	}
 
 	if el.next != nil {
-		el.next.toHTML(doc, w, isForToC)
+		el.next.toHTML(doc, w)
 	}
 }
 

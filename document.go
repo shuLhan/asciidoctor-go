@@ -63,6 +63,7 @@ type Document struct {
 	counterTable   int
 
 	isEmbedded bool
+	isForToC   bool
 }
 
 func newDocument() *Document {

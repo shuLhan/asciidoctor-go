@@ -37,7 +37,7 @@ func TestInlineParser_do(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		container.toHTML(_testDoc, &buf, false)
+		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
@@ -77,7 +77,7 @@ func TestInlineParser_parseAttrRef(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		container.toHTML(_testDoc, &buf, false)
+		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
@@ -122,7 +122,7 @@ func TestInlineParser_parseCrossReference(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		container.toHTML(_testDoc, &buf, false)
+		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
@@ -179,7 +179,7 @@ func TestInlineParser_parseFormat(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		container.toHTML(_testDoc, &buf, false)
+		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
@@ -224,7 +224,7 @@ func TestInlineParser_parseFormatUnconstrained(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		container.toHTML(_testDoc, &buf, false)
+		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
@@ -274,7 +274,9 @@ func TestInlineParser_parseInlineID(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		container.toHTML(_testDoc, &buf, c.isForToC)
+		_testDoc.isForToC = c.isForToC
+		container.toHTML(_testDoc, &buf)
+		_testDoc.isForToC = false
 
 		if debug.Value > 0 {
 			container.debug(0)
@@ -319,7 +321,7 @@ func TestInlineParser_parseInlineIDShort(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		container.toHTML(_testDoc, &buf, false)
+		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
@@ -362,7 +364,7 @@ image:linux.png[2]`,
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		container.toHTML(_testDoc, &buf, false)
+		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
@@ -404,7 +406,7 @@ func TestInlineParser_parsePassthrough(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		container.toHTML(_testDoc, &buf, false)
+		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
@@ -452,7 +454,7 @@ func TestInlineParser_parsePassthroughDouble(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		container.toHTML(_testDoc, &buf, false)
+		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
@@ -506,7 +508,7 @@ func TestInlineParser_parsePassthroughTriple(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		container.toHTML(_testDoc, &buf, false)
+		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
@@ -557,7 +559,7 @@ func TestInlineParser_parseQuote(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		container.toHTML(_testDoc, &buf, false)
+		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
@@ -599,7 +601,7 @@ func TestInlineParser_parseSubscsript(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		container.toHTML(_testDoc, &buf, false)
+		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
@@ -641,7 +643,7 @@ func TestInlineParser_parseSuperscript(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		container.toHTML(_testDoc, &buf, false)
+		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
@@ -698,7 +700,7 @@ func TestInlineParser_parseURL(t *testing.T) {
 		buf.Reset()
 
 		container := parseInlineMarkup(_testDoc, []byte(c.content))
-		container.toHTML(_testDoc, &buf, false)
+		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
