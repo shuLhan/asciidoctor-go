@@ -331,6 +331,7 @@ func (pi *inlineParser) do() {
 			}
 			if pi.nextc == '.' && pi.nextcc == '.' {
 				pi.current.WriteString(htmlSymbolEllipsis)
+				pi.current.WriteString(htmlSymbolZeroWidthSpace)
 				pi.x += 3
 				pi.prev = pi.c
 				continue
