@@ -55,6 +55,7 @@ const (
 	htmlSymbolSingleLeftArrow   = "&#8592;"
 	htmlSymbolSingleQuote       = "&#39;"
 	htmlSymbolSingleRightArrow  = "&#8594;"
+	htmlSymbolThinSpace         = "&#8201;"
 	htmlSymbolTrademark         = "&#8482;"
 	htmlSymbolWordJoiner        = "&#8288;"
 	htmlSymbolZeroWidthSpace    = "&#8203;"

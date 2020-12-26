@@ -302,7 +302,15 @@ func (pi *inlineParser) do() {
 			}
 			if pi.prev != '-' {
 				if pi.nextc == '-' && pi.nextcc != '-' {
+					if ascii.IsSpace(pi.prev) && ascii.IsSpace(pi.nextcc) {
+						pi.current.backTrimSpace()
+						pi.current.WriteString(htmlSymbolThinSpace)
+					}
 					pi.current.WriteString(htmlSymbolEmdash)
+					if ascii.IsSpace(pi.nextcc) {
+						pi.current.WriteString(htmlSymbolThinSpace)
+						pi.x++
+					}
 					pi.x += 2
 					pi.prev = pi.nextc
 					continue
