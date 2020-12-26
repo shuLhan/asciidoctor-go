@@ -1171,8 +1171,6 @@ func (docp *documentParser) parseListUnordered(
 		}
 
 		if docp.kind == term {
-			fmt.Printf("parseListUnordered: line %d terminate by %d\n",
-				docp.lineNum, term)
 			break
 		}
 		if docp.kind == lineKindBlockComment {
