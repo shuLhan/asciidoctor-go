@@ -1,7 +1,7 @@
 module git.sr.ht/~shulhan/asciidoctor-go
 
-go 1.13
+go 1.15
 
-require github.com/shuLhan/share v0.20.2-0.20201122173411-e8b3bf5ee6e9
+require github.com/shuLhan/share v0.24.0
 
 //replace github.com/shuLhan/share => ../share
