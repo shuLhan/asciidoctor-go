@@ -1,0 +1,13 @@
+= CHANGELOG
+
+== asciidoctor-go v0.1.0 (2021-03-06)
+
+The asciidoctor-go is the Go module to parse the AsciiDoc (TM) markup
+and convert it into HTML5.
+
+This first release bring almost all AsciiDoc syntax except for include
+directive, inter-document cross-reference, macros, and non-primary syntax
+features.
+
+I hope this library can be useful for Gophers who need the power of AsciiDoc
+in their workflows.
