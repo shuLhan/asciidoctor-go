@@ -58,6 +58,6 @@ func TestParseRevision(t *testing.T) {
 
 	for _, c := range cases {
 		got := parseRevision(c.raw)
-		test.Assert(t, "Revision", c.exp, got, true)
+		test.Assert(t, "Revision", c.exp, got)
 	}
 }

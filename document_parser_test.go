@@ -37,7 +37,7 @@ func TestParse_metaDocTitle(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		test.Assert(t, "", expHTML, buf.String(), true)
+		test.Assert(t, "", expHTML, buf.String())
 	}
 }
 
@@ -94,7 +94,7 @@ func TestParse_metaShowTitle(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		test.Assert(t, c.desc, c.expHTML, buf.String(), true)
+		test.Assert(t, c.desc, c.expHTML, buf.String())
 	}
 }
 
@@ -142,11 +142,10 @@ func TestParse_document_title(t *testing.T) {
 
 	for _, c := range cases {
 		got := Parse([]byte(c.content))
-		test.Assert(t, "Main", c.exp.Main, got.Title.Main, true)
-		test.Assert(t, "Sub", c.exp.Sub, got.Title.Sub, true)
-		test.Assert(t, "sep", c.exp.sep, got.Title.sep, true)
-
-		test.Assert(t, "String", c.expString, got.Title.String(), true)
+		test.Assert(t, "Main", c.exp.Main, got.Title.Main)
+		test.Assert(t, "Sub", c.exp.Sub, got.Title.Sub)
+		test.Assert(t, "sep", c.exp.sep, got.Title.sep)
+		test.Assert(t, "String", c.expString, got.Title.String())
 	}
 }
 
@@ -208,7 +207,7 @@ A B <a@b>; C <c@c>; D e_f G <>;`,
 
 	for _, c := range cases {
 		got := Parse([]byte(c.content))
-		test.Assert(t, c.desc, c.exp, got.Authors, true)
+		test.Assert(t, c.desc, c.exp, got.Authors)
 	}
 }
 
@@ -264,5 +263,5 @@ Paragraph C.
 		t.Fatal(err)
 	}
 
-	test.Assert(t, "parseListDescription with open block", exp, got.String(), false)
+	test.Assert(t, "parseListDescription with open block", exp, got.String())
 }

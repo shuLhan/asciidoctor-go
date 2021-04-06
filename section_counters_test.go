@@ -64,7 +64,7 @@ func TestSectionCounters(t *testing.T) {
 	for _, c := range cases {
 		got := sec.set(c.level)
 		gotString := got.String()
-		test.Assert(t, "set", c.exp, got, true)
-		test.Assert(t, "String", c.expString, gotString, true)
+		test.Assert(t, "set", c.exp, got)
+		test.Assert(t, "String", c.expString, gotString)
 	}
 }

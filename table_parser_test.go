@@ -84,6 +84,6 @@ func TestTableParser_new(t *testing.T) {
 
 	for _, c := range cases {
 		pt := newTableParser([]byte(c.content))
-		test.Assert(t, c.desc, c.exp, pt.cells, false)
+		test.Assert(t, c.desc, c.exp, pt.cells)
 	}
 }

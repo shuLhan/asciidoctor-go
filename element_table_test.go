@@ -162,8 +162,8 @@ func TestParseAttrCols(t *testing.T) {
 
 	for _, c := range cases {
 		ncols, formats := parseAttrCols(c.val)
-		test.Assert(t, "ncols", c.ncols, ncols, false)
-		test.Assert(t, c.val, c.formats, formats, false)
+		test.Assert(t, "ncols", c.ncols, ncols)
+		test.Assert(t, c.val, c.formats, formats)
 	}
 }
 
@@ -221,6 +221,6 @@ func TestParseToRawRows(t *testing.T) {
 
 	for _, c := range cases {
 		got := parseToRawRows([]byte(c.raw))
-		test.Assert(t, c.desc, c.exp, got, false)
+		test.Assert(t, c.desc, c.exp, got)
 	}
 }

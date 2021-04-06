@@ -23,6 +23,6 @@ func TestIsValidID(t *testing.T) {
 
 	for _, c := range cases {
 		got := isValidID([]byte(c.id))
-		test.Assert(t, c.id, c.exp, got, true)
+		test.Assert(t, c.id, c.exp, got)
 	}
 }

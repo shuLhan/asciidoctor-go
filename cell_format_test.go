@@ -82,6 +82,6 @@ func TestParseCellFormat(t *testing.T) {
 
 	for _, c := range cases {
 		got := parseCellFormat(c.raw)
-		test.Assert(t, c.raw, c.exp, got, false)
+		test.Assert(t, c.raw, c.exp, got)
 	}
 }

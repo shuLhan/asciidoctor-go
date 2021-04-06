@@ -43,7 +43,7 @@ func TestParseColumnFormat(t *testing.T) {
 
 	for _, c := range cases {
 		gotNCols, gotFormat := parseColumnFormat(c.s)
-		test.Assert(t, c.s+" ncols", c.expNCols, gotNCols, false)
-		test.Assert(t, c.s, c.expFormat, gotFormat, false)
+		test.Assert(t, c.s+" ncols", c.expNCols, gotNCols)
+		test.Assert(t, c.s, c.expFormat, gotFormat)
 	}
 }

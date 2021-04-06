@@ -32,6 +32,6 @@ This is the ultimate paragraph.`),
 		if err != nil {
 			t.Fatal(err)
 		}
-		test.Assert(t, c.desc, c.exp, out.String(), false)
+		test.Assert(t, c.desc, c.exp, out.String())
 	}
 }

@@ -44,7 +44,7 @@ func TestInlineParser_do(t *testing.T) {
 		}
 
 		got := buf.String()
-		test.Assert(t, c.content, c.exp, got, true)
+		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
@@ -84,7 +84,7 @@ func TestInlineParser_parseAttrRef(t *testing.T) {
 		}
 
 		got := buf.String()
-		test.Assert(t, c.content, c.exp, got, true)
+		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
@@ -129,7 +129,7 @@ func TestInlineParser_parseCrossReference(t *testing.T) {
 		}
 
 		got := buf.String()
-		test.Assert(t, c.content, c.exp, got, true)
+		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
@@ -186,7 +186,7 @@ func TestInlineParser_parseFormat(t *testing.T) {
 		}
 
 		got := buf.String()
-		test.Assert(t, c.content, c.exp, got, true)
+		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
@@ -231,7 +231,7 @@ func TestInlineParser_parseFormatUnconstrained(t *testing.T) {
 		}
 
 		got := buf.String()
-		test.Assert(t, c.content, c.exp, got, true)
+		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
@@ -283,7 +283,7 @@ func TestInlineParser_parseInlineID(t *testing.T) {
 		}
 
 		got := buf.String()
-		test.Assert(t, c.content, c.exp, got, true)
+		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
@@ -328,7 +328,7 @@ func TestInlineParser_parseInlineIDShort(t *testing.T) {
 		}
 
 		got := buf.String()
-		test.Assert(t, c.content, c.exp, got, true)
+		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
@@ -371,7 +371,7 @@ image:linux.png[2]`,
 		}
 
 		got := buf.String()
-		test.Assert(t, c.content, c.exp, got, true)
+		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
@@ -413,7 +413,7 @@ func TestInlineParser_parsePassthrough(t *testing.T) {
 		}
 
 		got := buf.String()
-		test.Assert(t, c.content, c.exp, got, true)
+		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
@@ -461,7 +461,7 @@ func TestInlineParser_parsePassthroughDouble(t *testing.T) {
 		}
 
 		got := buf.String()
-		test.Assert(t, c.content, c.exp, got, true)
+		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
@@ -515,7 +515,7 @@ func TestInlineParser_parsePassthroughTriple(t *testing.T) {
 		}
 
 		got := buf.String()
-		test.Assert(t, c.content, c.exp, got, true)
+		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
@@ -566,7 +566,7 @@ func TestInlineParser_parseQuote(t *testing.T) {
 		}
 
 		got := buf.String()
-		test.Assert(t, c.content, c.exp, got, true)
+		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
@@ -608,7 +608,7 @@ func TestInlineParser_parseSubscsript(t *testing.T) {
 		}
 
 		got := buf.String()
-		test.Assert(t, c.content, c.exp, got, true)
+		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
@@ -650,7 +650,7 @@ func TestInlineParser_parseSuperscript(t *testing.T) {
 		}
 
 		got := buf.String()
-		test.Assert(t, c.content, c.exp, got, true)
+		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
@@ -707,6 +707,6 @@ func TestInlineParser_parseURL(t *testing.T) {
 		}
 
 		got := buf.String()
-		test.Assert(t, c.content, c.exp, got, true)
+		test.Assert(t, c.content, c.exp, got)
 	}
 }

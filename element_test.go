@@ -27,9 +27,9 @@ func TestAdocNode_parseListDescriptionItem(t *testing.T) {
 		el := &element{}
 		el.parseListDescriptionItem([]byte(c.line))
 
-		test.Assert(t, "element.Level", c.expLevel, el.level, true)
-		test.Assert(t, "element.rawLabel", c.expRawTerm, el.rawLabel.String(), true)
-		test.Assert(t, "element.raw", c.expRaw, string(el.raw), true)
+		test.Assert(t, "element.Level", c.expLevel, el.level)
+		test.Assert(t, "element.rawLabel", c.expRawTerm, el.rawLabel.String())
+		test.Assert(t, "element.raw", c.expRaw, string(el.raw))
 	}
 }
 
@@ -178,6 +178,6 @@ func TestAdocNode_postConsumeTable(t *testing.T) {
 			raw: []byte(c.raw),
 		}
 		got := el.postConsumeTable()
-		test.Assert(t, c.desc, c.exp, *got, false)
+		test.Assert(t, c.desc, c.exp, *got)
 	}
 }
