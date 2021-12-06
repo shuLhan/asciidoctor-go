@@ -414,45 +414,20 @@ func (pi *inlineParser) parseCrossRef() bool {
 	var (
 		href  string
 		label string
-		title string
-		ok    bool
 	)
 
 	parts := bytes.Split(raw, []byte(","))
+	href = string(parts[0])
 	if len(parts) >= 2 {
 		label = string(bytes.TrimSpace(parts[1]))
 	}
 
-	if isRefTitle(parts[0]) {
-		// Get ID by title.
-		href, ok = pi.doc.titleID[string(parts[0])]
-		if ok {
-			if len(label) == 0 {
-				label = string(parts[0])
-			}
-		} else {
-			// Store the label for cross reference later.
-			title = string(parts[0])
-		}
-	} else if isValidID(parts[0]) {
-		href = string(parts[0])
-		if len(label) == 0 {
-			anchor := pi.doc.anchors[href]
-			if anchor != nil {
-				label = anchor.label
-			}
-		}
-	} else {
-		return false
-	}
-
-	// The ID field will we non-empty if href is empty, it will be
-	// revalidated later when rendered.
+	// Set attribute href to the first part, we will revalidated later
+	// when rendering the element.
 	elCrossRef := &element{
 		elementAttribute: elementAttribute{
 			Attrs: map[string]string{
-				attrNameHref:  href,
-				attrNameTitle: title,
+				attrNameHref: href,
 			},
 		},
 		kind: elKindCrossReference,

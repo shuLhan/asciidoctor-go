@@ -739,15 +739,34 @@ func (el *element) toHTML(doc *Document, w io.Writer) {
 		doc.Attributes.apply(el.key, el.value)
 
 	case elKindCrossReference:
-		href, ok := el.Attrs[attrNameHref]
-		if !ok {
-			title, ok := el.Attrs[attrNameTitle]
-			if !ok {
-				title = el.Attrs[attrNameRefText]
+		var (
+			href  = el.Attrs[attrNameHref]
+			label = string(el.raw)
+		)
+		anchor := doc.anchors[href]
+		if anchor == nil {
+			href = doc.titleID[href]
+			if len(href) > 0 {
+				anchor = doc.anchors[href]
+				if anchor != nil {
+					if len(label) == 0 {
+						label = anchor.label
+					}
+				}
+			} else {
+				// href is not ID nor label, assume its broken
+				// link.
+				href = el.Attrs[attrNameHref]
+				if len(label) == 0 {
+					label = href
+				}
 			}
-			href = doc.titleID[title]
+		} else {
+			if len(label) == 0 {
+				label = anchor.label
+			}
 		}
-		fmt.Fprintf(w, "<a href=\"#%s\">%s</a>", href, el.raw)
+		fmt.Fprintf(w, "<a href=\"#%s\">%s</a>", href, label)
 
 	case elKindMacroTOC:
 		if doc.tocIsEnabled && doc.tocPosition == metaValueMacro {

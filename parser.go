@@ -458,17 +458,6 @@ func isLineDescriptionItem(line []byte) bool {
 	return x > 0
 }
 
-// isRefTitle will return true if one of character is upper case or white
-// space.
-func isRefTitle(s []byte) bool {
-	for _, r := range string(s) {
-		if unicode.IsUpper(r) || unicode.IsSpace(r) {
-			return true
-		}
-	}
-	return false
-}
-
 func isStyleAdmonition(style int64) bool {
 	return style&styleAdmonition > 0
 }
