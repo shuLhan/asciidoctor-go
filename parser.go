@@ -497,13 +497,13 @@ func isTitle(line []byte) bool {
 func isValidID(id []byte) bool {
 	for x, r := range string(id) {
 		if x == 0 {
-			if !(r == '-' || r == '_' || unicode.IsLetter(r)) {
+			if !(r == ':' || r == '-' || r == '_' || unicode.IsLetter(r)) {
 				return false
 			}
 			continue
 		}
-		if r == '-' || r == '_' || unicode.IsLetter(r) ||
-			unicode.IsDigit(r) {
+		if r == ':' || r == '-' || r == '_' || r == '.' ||
+			unicode.IsLetter(r) || unicode.IsDigit(r) {
 			continue
 		}
 		return false
