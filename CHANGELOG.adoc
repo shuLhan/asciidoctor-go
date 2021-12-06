@@ -1,5 +1,30 @@
 = CHANGELOG
 
+== asciidoctor-go v0.1.1 (2021-12-06)
+
+=== Bug fixes
+
+*  all: fix parsing and rendering cross reference
+
+   Previously, when parsing cross reference we assume that if the string
+   contains upper-case letter then it's a label so we store it as title
+   to search for ID later.
+
+   The bug is when ID is set manually and its contains upper-case for
+   example "[#Id]".
+
+   This changes fix this issue by storing cross reference first, not
+   assuming it as ID or title, and then when doing rendering we check
+   whether its ID or title.
+
+*  all: allow colon ':' and  period '.' on the ID
+
+   According to XML spec [1], the colon is allowed as the first and the next
+   character.  While period is only allowed on the next characters.
+
+   [1] https://www.w3.org/TR/REC-xml/#NT-Name
+
+
 == asciidoctor-go v0.1.0 (2021-03-06)
 
 The asciidoctor-go is the Go module to parse the AsciiDoc (TM) markup
