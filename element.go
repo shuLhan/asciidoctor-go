@@ -402,9 +402,12 @@ func (el *element) parseInlineMarkup(doc *Document, kind int) {
 
 func (el *element) parseLineAdmonition(line []byte) {
 	sep := bytes.IndexByte(line, ':')
-	class := bytes.ToLower(line[:sep])
-	el.addRole(string(class))
-	el.rawLabel.Write(bytes.Title(class))
+	class := string(bytes.ToLower(line[:sep]))
+	rawLabel := admonitionToLabel(class)
+
+	el.addRole(class)
+	el.rawLabel.WriteString(rawLabel)
+
 	line = bytes.TrimSpace(line[sep+1:])
 	el.Write(line)
 	el.WriteByte('\n')
@@ -730,7 +733,8 @@ func (el *element) removeLastIfEmpty() {
 func (el *element) setStyleAdmonition(admName string) {
 	admName = strings.ToLower(admName)
 	el.addRole(admName)
-	el.rawLabel.WriteString(strings.Title(admName))
+	rawLabel := admonitionToLabel(admName)
+	el.rawLabel.WriteString(rawLabel)
 }
 
 func (el *element) toHTML(doc *Document, w io.Writer) {
@@ -1163,4 +1167,21 @@ func (el *element) writeText(w io.Writer) {
 	if el.next != nil {
 		el.next.writeText(w)
 	}
+}
+
+func admonitionToLabel(admName string) string {
+	admName = strings.ToUpper(admName)
+	switch admName {
+	case admonitionCaution:
+		return "Caution"
+	case admonitionImportant:
+		return "Important"
+	case admonitionNote:
+		return "Note"
+	case admonitionTip:
+		return "Tip"
+	case admonitionWarning:
+		return "Warning"
+	}
+	return admName
 }
