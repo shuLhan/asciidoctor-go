@@ -33,6 +33,60 @@ func TestAdocNode_parseListDescriptionItem(t *testing.T) {
 	}
 }
 
+func TestElement_parseListUnorderedItem(t *testing.T) {
+	cases := []struct {
+		desc     string
+		line     []byte
+		expRaw   []byte
+		expRoles []string
+		expLevel int
+	}{{
+		desc:     "With text",
+		line:     []byte("* \t a"),
+		expRaw:   []byte("a\n"),
+		expLevel: 1,
+	}, {
+		desc:     "With unchecked box, no text",
+		line:     []byte("* [ ]"),
+		expRaw:   []byte("[ ]\n"),
+		expLevel: 1,
+	}, {
+		desc:     "With unchecked box",
+		line:     []byte("* [ ] \t a"),
+		expRaw:   []byte("&#10063; a\n"),
+		expRoles: []string{classNameChecklist},
+		expLevel: 1,
+	}, {
+		desc:     "With checked box, using 'x'",
+		line:     []byte("* [x] \t a"),
+		expRaw:   []byte("&#10003; a\n"),
+		expRoles: []string{classNameChecklist},
+		expLevel: 1,
+	}, {
+		desc:     "With checked box, using 'X'",
+		line:     []byte("* [X] \t a"),
+		expRaw:   []byte("&#10003; a\n"),
+		expRoles: []string{classNameChecklist},
+		expLevel: 1,
+	}, {
+		desc:     "With checked box, using '*'",
+		line:     []byte("* [*] \t a"),
+		expRaw:   []byte("&#10003; a\n"),
+		expRoles: []string{classNameChecklist},
+		expLevel: 1,
+	}}
+
+	for _, c := range cases {
+		el := &element{}
+		el.raw = el.raw[:0]
+		el.parseListUnorderedItem(c.line)
+
+		test.Assert(t, c.desc+" - level", c.expLevel, el.level)
+		test.Assert(t, c.desc+" - roles", c.expRoles, el.roles)
+		test.Assert(t, c.desc+" - raw", c.expRaw, el.raw)
+	}
+}
+
 func TestAdocNode_postConsumeTable(t *testing.T) {
 	cases := []struct {
 		desc string

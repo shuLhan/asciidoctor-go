@@ -496,14 +496,22 @@ func (el *element) parseListUnorderedItem(line []byte) {
 		if bytes.Equal(checklist, []byte("[ ]")) {
 			sym = symbolUnchecked
 		} else if bytes.Equal(checklist, []byte("[x]")) ||
+			bytes.Equal(checklist, []byte("[X]")) ||
 			bytes.Equal(checklist, []byte("[*]")) {
 			sym = symbolChecked
 		}
-		if len(sym) > 0 {
+		if len(sym) != 0 {
 			el.WriteString(sym)
 			el.WriteByte(' ')
-			line = line[x+2:]
 			el.addRole(classNameChecklist)
+			x += 3
+			for ; x < len(line); x++ {
+				if line[x] == ' ' || line[x] == '\t' {
+					continue
+				}
+				break
+			}
+
 		}
 	}
 	el.Write(line[x:])
