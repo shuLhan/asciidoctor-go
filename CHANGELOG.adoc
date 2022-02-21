@@ -1,4 +1,11 @@
-= CHANGELOG
+// SPDX-FileCopyrightText: 2021 M. Shulhan <ms@kilabit.info>
+// SPDX-License-Identifier: GPL-3.0-or-later
+= Changelog for asciidoctor-go
+Shulhan <ms@kilabit.info>
+21 February 2022
+:toc:
+:sectanchors:
+:sectlinks:
 
 == asciidoctor-go v0.1.1 (2021-12-06)
 

@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2020 M. Shulhan <ms@kilabit.info>
+// SPDX-License-Identifier: GPL-3.0-or-later
 # asciidoctor-go
 
 Shulhan <ms@kilabit.info>
