@@ -7,6 +7,34 @@ Shulhan <ms@kilabit.info>
 :sectanchors:
 :sectlinks:
 
+== asciidoctor-go v0.2.0 (2022-03-04)
+
+This release changes the license of asciidoctor-go from BSD to GPL 3.0 or
+later.
+
+=== Bug fixes
+
+*  all: fix list check box text get cut one character
++
+--
+Given the following asciidoc check box markup,
+
+	* [ ] abc
+
+It will rendereded as "&#10063; bc" instead of "&#10063; abc".
+--
+
+=== Chores
+
+*  all: replace bytes.Title and strings.Title with function
++
+Both of those functions has been deprecated.
++
+Since the Title function is to convert the adminition string into a
+human title (first letter uppercase), we can use a function to do that.
+Any unknown admonition will be returned as is.
+
+
 == asciidoctor-go v0.1.1 (2021-12-06)
 
 === Bug fixes
