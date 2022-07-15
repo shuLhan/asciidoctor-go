@@ -7,16 +7,13 @@ import (
 	"strings"
 )
 
-//
 // Revision contains the document version, date, and remark.
-//
 type Revision struct {
 	Number string
 	Date   string
 	Remark string
 }
 
-//
 // parseRevision parse document revision in the following format,
 //
 //	DOC_REVISION     = DOC_REV_VERSION [ "," DOC_REV_DATE ]
@@ -24,7 +21,6 @@ type Revision struct {
 //	DOC_REV_VERSION  = "v" 1*DIGIT "." 1*DIGIT "." 1*DIGIT
 //
 //	DOC_REV_DATE     = 1*2DIGIT WSP 3*ALPHA WSP 4*DIGIT
-//
 func parseRevision(raw string) Revision {
 	var (
 		rev   Revision

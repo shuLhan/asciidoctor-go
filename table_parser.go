@@ -25,9 +25,7 @@ func newTableParser(content []byte) (pt *tableParser) {
 	return pt
 }
 
-//
 // toCells parse the raw table content into cells.
-//
 func (pt *tableParser) toCells() {
 	var (
 		token, c  = pt.p.TokenEscaped('\\')
@@ -122,9 +120,7 @@ func (pt *tableParser) addCell(cell *tableCell) {
 	}
 }
 
-//
 // firstRow get the first row of the table to get the number of columns.
-//
 func (pt *tableParser) firstRow() (row *tableRow) {
 	row = &tableRow{}
 
@@ -152,9 +148,7 @@ func (pt *tableParser) firstRow() (row *tableRow) {
 	return row
 }
 
-//
 // row get n number of cells as row, skip any nil cell if exist on list.
-//
 func (pt *tableParser) row(ncols int) (row *tableRow) {
 	row = &tableRow{}
 	for ; pt.x < len(pt.cells); pt.x++ {

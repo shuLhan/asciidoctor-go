@@ -3,9 +3,7 @@
 
 package asciidoctor
 
-//
 // anchor contains label and counter for duplicate ID.
-//
 type anchor struct {
 	label   string
 	counter int

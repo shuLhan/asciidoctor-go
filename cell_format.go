@@ -18,11 +18,9 @@ type cellFormat struct {
 	style    int
 }
 
-//
 // parseCellFormat parse the cell format and return it.
 // In case one of the character is not a valid format, it will return nil,
 // considering the whole raw string as not cell format.
-//
 func parseCellFormat(raw string) (cf *cellFormat) {
 	var (
 		x     int

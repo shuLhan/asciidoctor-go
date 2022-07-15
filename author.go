@@ -8,9 +8,7 @@ import (
 	"strings"
 )
 
-//
 // Author of document.
-//
 type Author struct {
 	FirstName  string
 	MiddleName string
@@ -19,9 +17,7 @@ type Author struct {
 	Email      string
 }
 
-//
 // parseAuthor parse raw author into object.
-//
 func parseAuthor(raw string) (author *Author) {
 	author = &Author{}
 
@@ -62,9 +58,7 @@ func parseAuthor(raw string) (author *Author) {
 	return author
 }
 
-//
 // FullName return the concatenation of author first, middle, and last name.
-//
 func (author *Author) FullName() string {
 	var sb strings.Builder
 

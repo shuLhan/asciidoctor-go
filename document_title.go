@@ -13,10 +13,8 @@ type DocumentTitle struct {
 	sep  byte
 }
 
-//
 // String return the combination of main and subtitle separated by colon or
 // meta "title-separator" value.
-//
 func (docTitle *DocumentTitle) String() string {
 	if len(docTitle.Sub) > 0 {
 		return fmt.Sprintf("%s%c %s", docTitle.Main, docTitle.sep, docTitle.Sub)

@@ -478,10 +478,8 @@ func isTitle(line []byte) bool {
 	return false
 }
 
-//
 // isValidID will return true if id is valid XML ID, where the first character
 // is '-', '_', or letter; and the rest is either '-', '_', letter or digits.
-//
 func isValidID(id []byte) bool {
 	for x, r := range string(id) {
 		if x == 0 {
@@ -499,7 +497,6 @@ func isValidID(id []byte) bool {
 	return true
 }
 
-//
 // parseAttribute parse document attribute and return its key and optional
 // value.
 //
@@ -511,7 +508,6 @@ func isValidID(id []byte) bool {
 //	META_KEY_CHAR  = (A..Z | a..z | 0..9 | '_')
 //
 //	META_KEY       = 1META_KEY_CHAR *(META_KEY_CHAR | '-')
-//
 func parseAttribute(line []byte, strict bool) (key, value string, ok bool) {
 	var sb strings.Builder
 
@@ -543,11 +539,9 @@ func parseAttribute(line []byte, strict bool) (key, value string, ok bool) {
 	return sb.String(), string(valb), true
 }
 
-//
 // parseAttrRef parse the attribute reference, an attribute key wrapped by
 // "{" "}".  If the attribute reference exist, replace the content with the
 // attribute value and reset the parser state to zero.
-//
 func parseAttrRef(doc *Document, content []byte, x int) (
 	newContent []byte, ok bool,
 ) {
@@ -579,10 +573,8 @@ func parseAttrRef(doc *Document, content []byte, x int) (
 	return newContent, true
 }
 
-//
 // parseIDLabel parse the string "ID (,LABEL)" into ID and label.
 // It will return empty id and label if ID is not valid.
-//
 func parseIDLabel(s []byte) (id, label []byte) {
 	idLabel := bytes.Split(s, []byte(","))
 	id = idLabel[0]
@@ -601,9 +593,7 @@ func parseInlineMarkup(doc *Document, content []byte) (container *element) {
 	return pi.container
 }
 
-//
 // parseStyle get the style based on string value.
-//
 func parseStyle(styleName string) (styleKind int64) {
 	// Check for admonition label first...
 	styleKind = adocStyles[styleName]
@@ -620,10 +610,8 @@ func parseStyle(styleName string) (styleKind int64) {
 	return 0
 }
 
-//
 // whatKindOfLine return the kind of line.
 // It will return lineKindText if the line does not match with known syntax.
-//
 func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 	kind = lineKindText
 	if len(line) == 0 {

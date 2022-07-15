@@ -23,9 +23,7 @@ const (
 	defVersionPrefix  = "version "
 )
 
-//
 // Document represent content of asciidoc that has been parsed.
-//
 type Document struct {
 	Title       DocumentTitle
 	Authors     []*Author
@@ -88,9 +86,7 @@ func newDocument() *Document {
 	}
 }
 
-//
 // Open the ascidoc file and parse it.
-//
 func Open(file string) (doc *Document, err error) {
 	fi, err := os.Stat(file)
 	if err != nil {
@@ -117,10 +113,8 @@ func Open(file string) (doc *Document, err error) {
 	return doc, nil
 }
 
-//
 // ToHTMLEmbedded convert the Document object into HTML with content only,
 // without header and footer.
-//
 func (doc *Document) ToHTMLEmbedded(out io.Writer) (err error) {
 	doc.isEmbedded = true
 	doc.generateClasses()
@@ -131,9 +125,7 @@ func (doc *Document) ToHTMLEmbedded(out io.Writer) (err error) {
 	return err
 }
 
-//
 // ToHTML convert the Document object into full HTML document.
-//
 func (doc *Document) ToHTML(out io.Writer) (err error) {
 	doc.generateClasses()
 
@@ -187,10 +179,8 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 	return err
 }
 
-//
 // ToHTMLBody convert the Document object into HTML with body only, this is
 // including header, content, and footer.
-//
 func (doc *Document) ToHTMLBody(out io.Writer) (err error) {
 	doc.generateClasses()
 	buf := &bytes.Buffer{}
@@ -235,10 +225,8 @@ func (doc *Document) toHTMLBody(buf *bytes.Buffer, withHeaderFooter bool) {
 	}
 }
 
-//
 // postParseHeader re-check the document title, substract the authors, and
 // revision number, date, and/or remark.
-//
 func (doc *Document) postParseHeader() {
 	doc.unpackTitleSeparator()
 	doc.unpackRawTitle()
@@ -246,12 +234,10 @@ func (doc *Document) postParseHeader() {
 	doc.unpackRawRevision()
 }
 
-//
 // registerAnchor register ID and its label.
 // If the ID is already exist it will generate new ID with additional suffix
 // "_x" added, where x is the counter of duplicate ID.
 // The old or new ID will be returned to caller.
-//
 func (doc *Document) registerAnchor(id, label string) string {
 	got, ok := doc.anchors[id]
 	for ok {
@@ -266,9 +252,7 @@ func (doc *Document) registerAnchor(id, label string) string {
 	return id
 }
 
-//
 // tocHTML write table of contents with HTML template into out.
-//
 func (doc *Document) tocHTML(out io.Writer) {
 	v, ok := doc.Attributes[metaNameTOCLevels]
 	if ok {
@@ -288,9 +272,7 @@ func (doc *Document) tocHTML(out io.Writer) {
 	fmt.Fprint(out, "\n</div>")
 }
 
-//
 // unpackRawAuthor parse the authors field into one or more Author.
-//
 func (doc *Document) unpackRawAuthor() {
 	if len(doc.rawAuthors) == 0 {
 		v := doc.Attributes[metaNameAuthor]
@@ -393,10 +375,8 @@ func (doc *Document) unpackRawTitle() {
 	}
 }
 
-//
 // unpackTitleSeparator set the Title separator using the first character in
 // meta attribute "title-separator" value.
-//
 func (doc *Document) unpackTitleSeparator() {
 	v, ok := doc.Attributes[metaNameTitleSeparator]
 	if ok {

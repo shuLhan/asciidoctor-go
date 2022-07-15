@@ -3,9 +3,7 @@
 
 package asciidoctor
 
-//
 // HTML templates for head, meta attributes, and footers.
-//
 const (
 	_htmlBegin = `<!DOCTYPE html>
 <html lang="en">
@@ -22,18 +20,14 @@ const (
 <div class="sectionbody">`
 )
 
-//
 // HTML templates for table of contents.
-//
 const (
 	_htmlToCBegin = `
 <div id="toc" class="%s">
 <div id="toctitle">%s</div>`
 )
 
-//
 // HTML templates for adminition block.
-//
 const (
 	_htmlAdmonitionIconsFont = `
 <i class="fa icon-%s" title=%q></i>`
@@ -60,9 +54,7 @@ Your browser does not support the audio tag.
 </div>`
 )
 
-//
 // HTML templates for block image.
-//
 const (
 	_htmlBlockImage = `
 <div class="content">
@@ -96,9 +88,7 @@ const (
 </div>`
 )
 
-//
 // HTML templates for list description.
-//
 const (
 	_htmlListDescriptionItemBegin = `
 <dt class="hdlist1">%s</dt>

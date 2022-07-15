@@ -35,7 +35,6 @@ func (ea *elementAttribute) htmlClasses() string {
 	return strings.Join(ea.roles, " ")
 }
 
-//
 // parseElementAttribute parse list of attributes in between "[" "]".
 //
 //	BLOCK_ATTRS = BLOCK_ATTR *("," BLOCK_ATTR)
@@ -51,7 +50,6 @@ func (ea *elementAttribute) htmlClasses() string {
 // If the attribute value contains space or comma, it must be wrapped with
 // double quote.
 // The double quote on value will be removed when stored on options.
-//
 func (ea *elementAttribute) parseElementAttribute(raw []byte) {
 	raw = bytes.TrimSpace(raw)
 	if len(raw) == 0 {

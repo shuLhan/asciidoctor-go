@@ -19,9 +19,7 @@ type documentParser struct {
 	kind     int
 }
 
-//
 // Parse the content into a Document.
-//
 func Parse(content []byte) (doc *Document) {
 	doc = newDocument()
 	parse(doc, content)
@@ -157,10 +155,8 @@ func (docp *documentParser) include(el *elementInclude) {
 	docp.lines = newLines
 }
 
-//
 // line return the next line in the content of raw document.
 // It will return ok as false if there are no more line.
-//
 func (docp *documentParser) line() (spaces, line []byte, ok bool) {
 	docp.prevKind = docp.kind
 
@@ -549,7 +545,6 @@ func (docp *documentParser) parseBlock(parent *element, term int) {
 	}
 }
 
-//
 // parseHeader document header consist of title and optional authors,
 // revision, and zero or more attributes.
 //
@@ -563,7 +558,6 @@ func (docp *documentParser) parseBlock(parent *element, term int) {
 //	              (*DOC_ATTRIBUTE)
 //	              DOC_REVISION LF
 //	              (*DOC_ATTRIBUTE)
-//
 func (docp *documentParser) parseHeader() {
 	const (
 		stateTitle int = iota
@@ -629,10 +623,8 @@ func (docp *documentParser) parseIgnoreCommentBlock() {
 	}
 }
 
-//
 // parseListBlock parse block after list continuation "+" until we found
 // empty line or non-list line.
-//
 func (docp *documentParser) parseListBlock() (el *element, line []byte) {
 	var ok bool
 	for {
@@ -905,11 +897,9 @@ func (docp *documentParser) parseListDescription(
 	return line
 }
 
-//
 // parseListOrdered parser the content as list until it found line that is not
 // list-item.
 // On success it will return non-empty line and terminator character.
-//
 func (docp *documentParser) parseListOrdered(
 	parent *element, title string, line []byte, term int,
 ) (

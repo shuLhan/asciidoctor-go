@@ -75,10 +75,8 @@ func (f *columnFormat) merge(other *columnFormat) {
 	}
 }
 
-//
 // parseColumnFormat parse single "cols" format value, for example "3*.>" or
 // ".^3l".
-//
 func parseColumnFormat(s string) (ncols int, format *columnFormat) {
 	format = newColumnFormat()
 	if len(s) == 0 {

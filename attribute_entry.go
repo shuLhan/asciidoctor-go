@@ -5,10 +5,8 @@ package asciidoctor
 
 import "strings"
 
-//
 // AttributeEntry contains the mapping of global attribute keys in the headers
 // with its value.
-//
 type AttributeEntry map[string]string
 
 func newAttributeEntry() AttributeEntry {

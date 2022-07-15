@@ -13,9 +13,7 @@ import (
 	"github.com/shuLhan/share/lib/ascii"
 )
 
-//
 // element is the building block of asciidoc document.
-//
 type element struct {
 	elementAttribute
 
@@ -74,9 +72,7 @@ func (el *element) getListOrderedType() string {
 	return ""
 }
 
-//
 // getVideoSource generate video full URL for HTML attribute "src".
-//
 func (el *element) getVideoSource() string {
 	var (
 		u         = new(url.URL)
@@ -215,9 +211,7 @@ func (el *element) WriteString(s string) {
 	el.raw = append(el.raw, []byte(s)...)
 }
 
-//
 // addChild push the "child" to the list of current element's child.
-//
 func (el *element) addChild(child *element) {
 	if child == nil {
 		return
@@ -301,10 +295,8 @@ func (el *element) parseBlockAudio(doc *Document, line []byte) bool {
 	return true
 }
 
-//
 // parseBlockImage parse the image block or line.
 // The line parameter must not have "image::" block or "image:" macro prefix.
-//
 func (el *element) parseBlockImage(doc *Document, line []byte) bool {
 	attrBegin := bytes.IndexByte(line, '[')
 	if attrBegin < 0 {
@@ -623,11 +615,9 @@ func (el *element) postParseList(doc *Document, kind int) {
 	}
 }
 
-//
 // postParseParagraph check if paragraph is a blockquote based on the first
 // character of the first line ('"'), the last character of last second line
 // ('"'), and the last line start with "-- ".
-//
 func (el *element) postParseParagraph(parent *element) {
 	if el.isStyleQuote() {
 		return
@@ -702,10 +692,8 @@ func (el *element) postParseParagraphAsQuote(lines [][]byte) bool {
 	return true
 }
 
-//
 // postConsumeTable after we get all raw tables contents, we split them into
 // multiple rows, based on empty line between row.
-//
 func (el *element) postConsumeTable() (table *elementTable) {
 	el.table = newTable(&el.elementAttribute, el.raw)
 	return el.table

@@ -228,7 +228,6 @@ func (table *elementTable) htmlStyle() string {
 	return buf.String()
 }
 
-//
 // parseAttrCols parse the value of attribute "cols=".
 //
 //	ATTR_COLS = (NCOLS ("*")) / COL_ATTR  ("," COL_ATTR)
@@ -240,7 +239,6 @@ func (table *elementTable) htmlStyle() string {
 //	COL_WIDTH = DIGITS / (2DIGITs)
 //
 //	COL_STYLE = "a" / "e" / "h" / "l" / "m" / "d" / "s" / "v"
-//
 func parseAttrCols(val string) (ncols int, formats []*columnFormat) {
 	val = strings.TrimSpace(val)
 	if len(val) == 0 {
@@ -280,9 +278,7 @@ func parseAttrCols(val string) (ncols int, formats []*columnFormat) {
 	return ncols, formats
 }
 
-//
 // parseToRawRows convert raw table content into multiple raw rows.
-//
 func parseToRawRows(raw []byte) (rows [][]byte) {
 	lines := bytes.Split(raw, []byte{'\n'})
 	for _, line := range lines {

@@ -9,10 +9,8 @@ import (
 	"github.com/shuLhan/share/lib/ascii"
 )
 
-//
 // inlineParser is the one that responsible to parse text that contains inline
 // markup (bold, italic, etc.) into tree.
-//
 type inlineParser struct {
 	container *element
 	current   *element
@@ -443,9 +441,7 @@ func (pi *inlineParser) parseCrossRef() bool {
 	return true
 }
 
-//
 // parseInlineID parse the ID and optional label between "[[" "]]".
-//
 func (pi *inlineParser) parseInlineID() bool {
 	// Check if we have termination.
 	raw := pi.content[pi.x+2:]
@@ -478,10 +474,8 @@ func (pi *inlineParser) parseInlineID() bool {
 	return true
 }
 
-//
 // parseInlineIDShort parse the ID and optional label between "[#", "]#", and
 // "#".
-//
 func (pi *inlineParser) parseInlineIDShort() bool {
 	// Check if we have term at the end.
 	raw := pi.content[pi.x+2:]
@@ -516,10 +510,8 @@ func (pi *inlineParser) parseInlineIDShort() bool {
 	return true
 }
 
-//
 // parseQuoteBegin check if the double quote curve ("`) is valid (does not
 // followed by space) and has an end (`").
-//
 func (pi *inlineParser) parseQuoteBegin(quoteEnd []byte, kind int) bool {
 	if pi.x+2 >= len(pi.content) {
 		return false
@@ -879,12 +871,10 @@ func (pi *inlineParser) parseSuperscript() bool {
 	return false
 }
 
-//
 // parseURL parser the URL, an optional text, optional attribute for target,
 // and optional role.
 //
 // The current state of p.x is equal to ":".
-//
 func (pi *inlineParser) parseURL(scheme string) (el *element) {
 	var (
 		x   int
@@ -1003,11 +993,9 @@ func (pi *inlineParser) terminate(kind int, style int64) {
 	pi.current = child
 }
 
-//
 // indexByteUnescape find the index of the first unescaped byte `c` on
 // slice of byte `in`.
 // It will return nil and -1 if no unescape byte `c` found.
-//
 func indexByteUnescape(in []byte, c byte) (out []byte, idx int) {
 	var (
 		isEsc bool
