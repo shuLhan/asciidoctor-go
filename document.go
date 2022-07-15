@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -93,7 +92,7 @@ func Open(file string) (doc *Document, err error) {
 		return nil, err
 	}
 
-	raw, err := ioutil.ReadFile(file)
+	raw, err := os.ReadFile(file)
 	if err != nil {
 		return nil, fmt.Errorf("Open %s: %w", file, err)
 	}

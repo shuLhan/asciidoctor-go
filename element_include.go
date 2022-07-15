@@ -5,8 +5,8 @@ package asciidoctor
 
 import (
 	"bytes"
-	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 )
 
@@ -40,7 +40,7 @@ func parseInclude(doc *Document, line []byte) (el *elementInclude) {
 	path = applySubstitutions(doc, path)
 	el.fpath = filepath.Join(filepath.Dir(doc.fpath), string(path))
 
-	el.content, err = ioutil.ReadFile(el.fpath)
+	el.content, err = os.ReadFile(el.fpath)
 	if err != nil {
 		log.Printf("parseInclude %q: %s", doc.file, err)
 		return nil

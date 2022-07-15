@@ -3,8 +3,8 @@
 
 module git.sr.ht/~shulhan/asciidoctor-go
 
-go 1.16
+go 1.18
 
-require github.com/shuLhan/share v0.35.0
+require github.com/shuLhan/share v0.39.0
 
 //replace github.com/shuLhan/share => ../share
