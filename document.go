@@ -24,42 +24,45 @@ const (
 
 // Document represent content of asciidoc that has been parsed.
 type Document struct {
-	Title       DocumentTitle
-	Authors     []*Author
-	Revision    Revision
-	LastUpdated string
-	Attributes  AttributeEntry
-	TOCLevel    int
-
-	rawAuthors   string
-	rawRevision  string
-	tocClasses   attributeClass
-	tocPosition  string
-	tocTitle     string
-	tocIsEnabled bool
-
-	file    string
-	fpath   string
-	classes attributeClass
-
 	// anchors contains mapping between unique ID and its label.
 	anchors map[string]*anchor
+
+	content *element
+	header  *element
+
+	Attributes AttributeEntry
+	sectnums   *sectionCounters
+
 	// titleID is the reverse of anchors, it contains mapping of title and
 	// its ID.
 	titleID map[string]string
 
-	sectnums  *sectionCounters
-	sectLevel int
+	Revision Revision
 
-	header  *element
-	content *element
+	LastUpdated string
+	file        string
+	fpath       string
+	rawAuthors  string
+	rawRevision string
+	tocPosition string
+	tocTitle    string
 
+	Title DocumentTitle
+
+	classes    attributeClass
+	tocClasses attributeClass
+
+	Authors []*Author
+
+	TOCLevel       int
+	sectLevel      int
 	counterExample int
 	counterImage   int
 	counterTable   int
 
-	isEmbedded bool
-	isForToC   bool
+	isEmbedded   bool
+	isForToC     bool
+	tocIsEnabled bool
 }
 
 func newDocument() *Document {

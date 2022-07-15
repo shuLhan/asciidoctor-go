@@ -12,9 +12,9 @@ import (
 
 func TestParseColumnFormat(t *testing.T) {
 	cases := []struct {
+		expFormat *columnFormat
 		s         string
 		expNCols  int
-		expFormat *columnFormat
 	}{{
 		s:        "3*",
 		expNCols: 3,

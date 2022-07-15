@@ -15,33 +15,36 @@ import (
 
 // element is the building block of asciidoc document.
 type element struct {
-	elementAttribute
-
-	Text     string // The content of element without inline formatting.
-	kind     int
-	level    int    // The number of dot for ordered list, or '*' for unordered list.
-	raw      []byte // unparsed content of element.
-	rawLabel bytes.Buffer
-	rawTitle string
-
-	// The key and value for attribute (lineKindAttribute).
-	key   string
-	value string
-
 	// title is the parsed rawTitle for section L1 or parsed raw for
 	// section L2-L5.
 	title *element
-	label *element
+
+	prev   *element
+	next   *element
+	parent *element
+	child  *element
+	label  *element
+
+	table *elementTable
 
 	// sectnums contain the current section numbers.
 	// It will be set only if attribute "sectnums" is on.
 	sectnums *sectionCounters
 
-	table  *elementTable
-	parent *element
-	child  *element
-	next   *element
-	prev   *element
+	// The key and value for attribute (lineKindAttribute).
+	key   string
+	value string
+
+	rawTitle string
+	Text     string // The content of element without inline formatting.
+
+	raw []byte // Unparsed content of element.
+
+	elementAttribute
+
+	rawLabel bytes.Buffer
+	level    int // The number of dot for ordered list, or '*' for unordered list.
+	kind     int
 }
 
 func (el *element) getListOrderedClass() string {

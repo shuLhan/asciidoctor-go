@@ -6,11 +6,13 @@ package asciidoctor
 import "fmt"
 
 type DocumentTitle struct {
+	el *element
+
 	Main string
 	Sub  string
-	el   *element
 	raw  string
-	sep  byte
+
+	sep byte
 }
 
 // String return the combination of main and subtitle separated by colon or

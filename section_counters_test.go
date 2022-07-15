@@ -13,9 +13,9 @@ func TestSectionCounters(t *testing.T) {
 	sec := &sectionCounters{}
 
 	cases := []struct {
-		level     int
 		exp       *sectionCounters
 		expString string
+		level     int
 	}{{
 		level: 2,
 		exp: &sectionCounters{

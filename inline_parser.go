@@ -14,14 +14,18 @@ import (
 type inlineParser struct {
 	container *element
 	current   *element
-	content   []byte
-	doc       *Document
-	x         int
-	state     *inlineParserState
-	prev      byte
-	c         byte
-	nextc     byte
-	nextcc    byte
+
+	doc   *Document
+	state *inlineParserState
+
+	content []byte
+
+	x      int
+	prev   byte
+	c      byte
+	nextc  byte
+	nextcc byte
+
 	isEscaped bool
 }
 

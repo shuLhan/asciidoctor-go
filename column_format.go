@@ -38,14 +38,17 @@ var _colStyles = map[byte]int{
 }
 
 type columnFormat struct {
+	width *big.Rat
+
+	classes []string
+
 	alignHor int
 	alignVer int
 	style    int
-	width    *big.Rat
-	classes  []string
 
 	// isDefault will true if its contains '*'.
 	isDefault bool
+
 	// isAutowidth will true if its contains '~'.
 	isAutowidth bool
 }

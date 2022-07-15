@@ -12,8 +12,8 @@ import (
 
 type elementInclude struct {
 	fpath   string
-	attrs   elementAttribute
 	content []byte
+	attrs   elementAttribute
 }
 
 func parseInclude(doc *Document, line []byte) (el *elementInclude) {

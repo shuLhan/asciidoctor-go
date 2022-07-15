@@ -13,9 +13,9 @@ import (
 func TestAdocNode_parseListDescriptionItem(t *testing.T) {
 	cases := []struct {
 		line       string
-		expLevel   int
 		expRawTerm string
 		expRaw     string
+		expLevel   int
 	}{{
 		line:       "CPU::",
 		expLevel:   0,

@@ -11,13 +11,16 @@ import (
 )
 
 type elementAttribute struct {
+	Attrs map[string]string
+
 	ID       string
-	Attrs    map[string]string
-	style    int64
 	rawStyle string
-	roles    []string
-	options  []string
-	pos      int
+
+	roles   []string
+	options []string
+
+	style int64
+	pos   int
 }
 
 func (ea *elementAttribute) addRole(role string) {

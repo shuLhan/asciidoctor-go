@@ -13,11 +13,14 @@ import (
 )
 
 type elementTable struct {
-	ncols     int
-	rows      []*tableRow
-	formats   []*columnFormat
-	classes   attributeClass
-	styles    map[string]string
+	styles map[string]string
+
+	rows    []*tableRow
+	formats []*columnFormat
+
+	classes attributeClass
+	ncols   int
+
 	hasHeader bool
 	hasFooter bool
 }

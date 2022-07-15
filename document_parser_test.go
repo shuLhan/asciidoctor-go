@@ -100,8 +100,8 @@ func TestParse_metaShowTitle(t *testing.T) {
 func TestParse_document_title(t *testing.T) {
 	cases := []struct {
 		content   string
-		exp       DocumentTitle
 		expString string
+		exp       DocumentTitle
 	}{{
 		content: `= Main: sub`,
 		exp: DocumentTitle{

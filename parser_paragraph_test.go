@@ -13,8 +13,8 @@ import (
 func TestParser_parseParagraph(t *testing.T) {
 	cases := []struct {
 		desc    string
-		content []byte
 		exp     string
+		content []byte
 	}{{
 		desc: "with lead style",
 		content: []byte(`[.lead]

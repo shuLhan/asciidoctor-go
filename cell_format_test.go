@@ -11,8 +11,8 @@ import (
 
 func TestParseCellFormat(t *testing.T) {
 	cases := []struct {
-		raw string
 		exp *cellFormat
+		raw string
 	}{{
 		raw: "3*",
 		exp: &cellFormat{

@@ -13,8 +13,8 @@ import (
 func TestParseAttrCols(t *testing.T) {
 	cases := []struct {
 		val     string
-		ncols   int
 		formats []*columnFormat
+		ncols   int
 	}{{
 		val:   "3*",
 		ncols: 3,
