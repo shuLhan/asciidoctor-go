@@ -1,7 +1,7 @@
 ## SPDX-FileCopyrightText: 2020 M. Shulhan <ms@kilabit.info>
 ## SPDX-License-Identifier: GPL-3.0-or-later
 
-.PHONY: all lint
+.PHONY: all lint test-parser serve-doc
 
 all: lint test
 
@@ -16,3 +16,6 @@ test:
 test-parser:
 	asciidoctor --attribute stylesheet=empty.css testdata/test.adoc
 	go test -v -run=Open .
+
+serve-doc:
+	ciigo serve .
