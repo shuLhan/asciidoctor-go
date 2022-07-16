@@ -47,6 +47,8 @@ This implementation,
 ==  Common grammar
 
 ----
+EMPTY     = ""
+
 DQUOTE    = %d34  ; "
 
 WORD      = 1*VCHAR           ; Sequence of visible character without
@@ -225,6 +227,30 @@ number of '=' minus 1.
   </div>
 </div>
 ----
+
+===  Section Attributes
+
+==== idprefix
+
+----
+":idprefix:" EMPTY / REF_ID
+----
+
+The idprefix must be ASCII string.
+It must start with "\_", "\-", or ASCII letters, otherwise the "\_" will be
+prepended.
+If one of the character is not valid, it will replaced with "\_".
+
+==== idseparator
+
+----
+":idseparator:" EMPTY / "-" / "_" / ALPHA
+----
+
+The `idseparator` can be empty or single ASCII character ("\_" or "\-",
+ASCII letter, or digit).
+It is used to replace invalid REF_ID character.
+
 
 ==  Comments
 

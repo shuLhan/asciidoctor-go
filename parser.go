@@ -6,7 +6,6 @@ package asciidoctor
 import (
 	"bytes"
 	"strings"
-	"unicode"
 
 	"github.com/shuLhan/share/lib/ascii"
 )
@@ -390,38 +389,77 @@ func applySubstitutions(doc *Document, content []byte) []byte {
 	return buf.Bytes()
 }
 
+// generateID generate ID for anchor.
+// This function follow the [Mozilla specification].
+//
+// The generated ID is affected by the following metadata: `idprefix` and
+// `idseparator`.
+//
+// The idprefix must be ASCII string.
+// It must start with '_', '-', or ASCII letters, otherwise the '_' will be
+// prepended.
+// If one of the character is not valid, it will replaced with '_'.
+//
+// The `idseparator` can be empty or single ASCII character ('_' or '-',
+// ASCII letter, or digit).
+// It is used to replace invalid characters in the src.
+//
+// [Mozilla specification]: https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/id.
 func generateID(doc *Document, str string) string {
 	var (
-		idPrefix = "_"
-		idSep    = "_"
-		id       = make([]rune, 0, len(str)+1)
+		idSep byte = '_'
 
-		v  string
-		c  rune
-		ok bool
+		v    string
+		bout []byte
+		c    byte
+		ok   bool
 	)
 
 	v, ok = doc.Attributes[metaNameIDPrefix]
 	if ok {
-		idPrefix = strings.TrimSpace(v)
+		v = strings.TrimSpace(v)
+		if len(v) > 0 {
+			str = v + str
+		}
 	}
+
+	bout = make([]byte, 0, len(str))
 
 	v, ok = doc.Attributes[metaNameIDSeparator]
 	if ok {
-		idSep = strings.TrimSpace(v)
-	}
-
-	id = append(id, []rune(idPrefix)...)
-	for _, c = range strings.ToLower(str) {
-		if unicode.IsLetter(c) || unicode.IsDigit(c) {
-			id = append(id, c)
+		v = strings.TrimSpace(v)
+		if len(v) == 0 {
+			// idseparator metadata exist and set to empty.
+			idSep = 0
 		} else {
-			if id[len(id)-1] != '_' {
-				id = append(id, []rune(idSep)...)
+			c = v[0]
+			if c == '_' || c == '-' || ascii.IsAlnum(c) {
+				idSep = c
 			}
 		}
 	}
-	return strings.TrimRight(string(id), idSep)
+
+	for _, c = range []byte(str) {
+		if c == '_' || c == '-' || ascii.IsAlnum(c) {
+			if c >= 'A' && c <= 'Z' {
+				bout = append(bout, c+32)
+			} else {
+				bout = append(bout, c)
+			}
+		} else if idSep != 0 {
+			bout = append(bout, idSep)
+		}
+	}
+
+	if len(bout) == 0 {
+		bout = append(bout, '_')
+	} else if !ascii.IsAlpha(bout[0]) && bout[0] != '_' {
+		bout = append(bout, '_')
+		copy(bout[1:], bout[:])
+		bout[0] = '_'
+	}
+
+	return string(bout)
 }
 
 func isAdmonition(line []byte) bool {
@@ -492,23 +530,25 @@ func isTitle(line []byte) bool {
 	return false
 }
 
-// isValidID will return true if id is valid XML ID, where the first character
-// is '-', '_', or letter; and the rest is either '-', '_', letter or digits.
+// isValidID will return true if id is valid HTML ref ID according to
+// [Mozilla specification], where the first character is either '-', '_', or
+// ASCII letter, and the rest is either '-', '_', ASCII letter or digit.
+//
+// [Mozilla specification]: https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/id.
 func isValidID(id []byte) bool {
 	var (
 		x int
-		r rune
+		c byte
 	)
 
-	for x, r = range string(id) {
+	for x, c = range id {
 		if x == 0 {
-			if !(r == ':' || r == '-' || r == '_' || unicode.IsLetter(r)) {
+			if !(c == '-' || c == '_' || ascii.IsAlpha(c)) {
 				return false
 			}
 			continue
 		}
-		if r == ':' || r == '-' || r == '_' || r == '.' ||
-			unicode.IsLetter(r) || unicode.IsDigit(r) {
+		if c == '-' || c == '_' || c == '.' || ascii.IsAlnum(c) {
 			continue
 		}
 		return false
