@@ -89,8 +89,13 @@ func parseColumnFormat(s string) (ncols int, format *columnFormat) {
 	if ascii.IsDigit(s[0]) {
 		format.width, s = parseColumnDigits(s)
 	}
-	var isAlignVertical bool
-	for x := 0; x < len(s); x++ {
+
+	var (
+		x               int
+		isAlignVertical bool
+	)
+
+	for x = 0; x < len(s); x++ {
 		switch s[x] {
 		case '*':
 			format.isDefault = true

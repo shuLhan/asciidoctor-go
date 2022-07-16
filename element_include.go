@@ -17,7 +17,12 @@ type elementInclude struct {
 }
 
 func parseInclude(doc *Document, line []byte) (el *elementInclude) {
-	var err error
+	var (
+		path  []byte
+		start int
+		end   int
+		err   error
+	)
 
 	if !bytes.HasPrefix(line, []byte(prefixInclude)) {
 		return nil
@@ -26,11 +31,12 @@ func parseInclude(doc *Document, line []byte) (el *elementInclude) {
 	el = &elementInclude{}
 	line = line[len(prefixInclude):]
 
-	path, start := indexByteUnescape(line, '[')
+	path, start = indexByteUnescape(line, '[')
 	if start == -1 {
 		return nil
 	}
-	_, end := indexByteUnescape(line[start:], ']')
+
+	_, end = indexByteUnescape(line[start:], ']')
 	if end == -1 {
 		return nil
 	}

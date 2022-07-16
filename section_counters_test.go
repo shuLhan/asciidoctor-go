@@ -10,13 +10,13 @@ import (
 )
 
 func TestSectionCounters(t *testing.T) {
-	sec := &sectionCounters{}
-
-	cases := []struct {
+	type testCase struct {
 		exp       *sectionCounters
 		expString string
 		level     int
-	}{{
+	}
+
+	var cases = []testCase{{
 		level: 2,
 		exp: &sectionCounters{
 			nums: [6]byte{0, 1, 0, 0, 0, 0},
@@ -60,9 +60,17 @@ func TestSectionCounters(t *testing.T) {
 		expString: "3. ",
 	}}
 
-	for _, c := range cases {
-		got := sec.set(c.level)
-		gotString := got.String()
+	var (
+		sec = &sectionCounters{}
+
+		got       *sectionCounters
+		gotString string
+		c         testCase
+	)
+
+	for _, c = range cases {
+		got = sec.set(c.level)
+		gotString = got.String()
 		test.Assert(t, "set", c.exp, got)
 		test.Assert(t, "String", c.expString, gotString)
 	}

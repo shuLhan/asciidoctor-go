@@ -10,11 +10,13 @@ import (
 )
 
 func TestTableParser_new(t *testing.T) {
-	cases := []struct {
+	type testCase struct {
 		desc    string
 		content string
 		exp     []*tableCell
-	}{{
+	}
+
+	var cases = []testCase{{
 		desc:    "empty content",
 		content: ``,
 		exp:     nil,
@@ -81,8 +83,13 @@ func TestTableParser_new(t *testing.T) {
 		}},
 	}}
 
-	for _, c := range cases {
-		pt := newTableParser([]byte(c.content))
+	var (
+		c  testCase
+		pt *tableParser
+	)
+
+	for _, c = range cases {
+		pt = newTableParser([]byte(c.content))
 		test.Assert(t, c.desc, c.exp, pt.cells)
 	}
 }

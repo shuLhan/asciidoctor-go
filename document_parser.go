@@ -38,17 +38,23 @@ func newDocumentParser(doc *Document, content []byte) (docp *documentParser) {
 }
 
 func parse(doc *Document, content []byte) {
-	docp := newDocumentParser(doc, content)
+	var (
+		docp *documentParser = newDocumentParser(doc, content)
+
+		preamble  *element
+		sectLevel string
+		ok        bool
+	)
 
 	docp.parseHeader()
 	docp.doc.postParseHeader()
 
-	sectLevel, ok := doc.Attributes[metaNameSectNumLevel]
+	sectLevel, ok = doc.Attributes[metaNameSectNumLevel]
 	if ok {
 		doc.sectLevel, _ = strconv.Atoi(sectLevel)
 	}
 
-	preamble := &element{
+	preamble = &element{
 		elementAttribute: elementAttribute{
 			Attrs: make(map[string]string),
 		},
@@ -60,13 +66,19 @@ func parse(doc *Document, content []byte) {
 }
 
 func parseSub(parentDoc *Document, content []byte) (subdoc *Document) {
+	var (
+		docp *documentParser
+		k    string
+		v    string
+	)
+
 	subdoc = newDocument()
 
-	for k, v := range parentDoc.Attributes {
+	for k, v = range parentDoc.Attributes {
 		subdoc.Attributes[k] = v
 	}
 
-	docp := newDocumentParser(subdoc, content)
+	docp = newDocumentParser(subdoc, content)
 
 	docp.parseBlock(subdoc.content, 0)
 
@@ -79,10 +91,14 @@ func (docp *documentParser) consumeLinesUntil(
 	line []byte,
 ) {
 	var (
+		elInclude *elementInclude
+		spaces    []byte
+		t         int
+
 		ok           bool
 		allowComment bool
-		spaces       []byte
 	)
+
 	if term == elKindBlockListing || term == elKindBlockListingNamed ||
 		term == elKindLiteralParagraph {
 		allowComment = true
@@ -107,13 +123,13 @@ func (docp *documentParser) consumeLinesUntil(
 			el.raw = bytes.TrimRight(el.raw, " \n")
 			return nil
 		}
-		for _, t := range terms {
+		for _, t = range terms {
 			if t == docp.kind {
 				return line
 			}
 		}
 		if docp.kind == lineKindInclude {
-			elInclude := parseInclude(docp.doc, line)
+			elInclude = parseInclude(docp.doc, line)
 			if elInclude == nil {
 				el.Write(line)
 				el.WriteByte('\n')
@@ -142,10 +158,16 @@ func (docp *documentParser) consumeLinesUntil(
 }
 
 func (docp *documentParser) include(el *elementInclude) {
-	content := bytes.ReplaceAll(el.content, []byte("\r\n"), []byte("\n"))
+	var (
+		content []byte = bytes.ReplaceAll(el.content, []byte("\r\n"), []byte("\n"))
+	)
+
 	content = bytes.TrimRight(content, "\n")
-	includedLines := bytes.Split(content, []byte("\n"))
-	newLines := make([][]byte, 0, len(docp.lines)+len(includedLines))
+
+	var (
+		includedLines = bytes.Split(content, []byte("\n"))
+		newLines      = make([][]byte, 0, len(docp.lines)+len(includedLines))
+	)
 
 	// Do not add the "include" directive
 	docp.lineNum--
@@ -175,10 +197,11 @@ func (docp *documentParser) line() (spaces, line []byte, ok bool) {
 }
 
 func (docp *documentParser) parseBlock(parent *element, term int) {
-	el := &element{
-		kind: elKindUnknown,
-	}
 	var (
+		el = &element{
+			kind: elKindUnknown,
+		}
+
 		line []byte
 		ok   bool
 	)
@@ -211,8 +234,10 @@ func (docp *documentParser) parseBlock(parent *element, term int) {
 			continue
 
 		case lineKindID:
-			idLabel := line[2 : len(line)-2]
-			id, label := parseIDLabel(idLabel)
+			var (
+				idLabel   = line[2 : len(line)-2]
+				id, label = parseIDLabel(idLabel)
+			)
 			if len(id) > 0 {
 				el.ID = docp.doc.registerAnchor(
 					string(id), string(label))
@@ -225,8 +250,13 @@ func (docp *documentParser) parseBlock(parent *element, term int) {
 			continue
 
 		case lineKindIDShort:
-			id := line[2 : len(line)-1]
-			id, label := parseIDLabel(id)
+			var (
+				id    = line[2 : len(line)-1]
+				label []byte
+			)
+
+			id, label = parseIDLabel(id)
+
 			if len(id) > 0 {
 				el.ID = docp.doc.registerAnchor(
 					string(id), string(label))
@@ -239,7 +269,10 @@ func (docp *documentParser) parseBlock(parent *element, term int) {
 			continue
 
 		case lineKindInclude:
-			elInclude := parseInclude(docp.doc, []byte(line))
+			var (
+				elInclude = parseInclude(docp.doc, []byte(line))
+			)
+
 			if elInclude == nil {
 				el.Write(line)
 				el.WriteByte('\n')
@@ -260,7 +293,9 @@ func (docp *documentParser) parseBlock(parent *element, term int) {
 			continue
 
 		case lineKindAttribute:
-			key, value, ok := parseAttribute(line, false)
+			var (
+				key, value, ok = parseAttribute(line, false)
+			)
 			if ok {
 				if key == attrNameIcons {
 					if el.Attrs == nil {
@@ -343,7 +378,7 @@ func (docp *documentParser) parseBlock(parent *element, term int) {
 			// BUG: "= =a" could become "a", it should be "=a"
 			el.Write(bytes.TrimLeft(line, "= \t"))
 
-			isDiscrete := el.style&styleSectionDiscrete > 0
+			var isDiscrete bool = el.style&styleSectionDiscrete > 0
 			if isDiscrete {
 				el.kind = elKindSectionDiscrete
 				el.level = docp.kind
@@ -465,7 +500,7 @@ func (docp *documentParser) parseBlock(parent *element, term int) {
 			continue
 
 		case elKindBlockImage:
-			lineImage := bytes.TrimRight(line[7:], " \t")
+			var lineImage []byte = bytes.TrimRight(line[7:], " \t")
 			if el.parseBlockImage(docp.doc, lineImage) {
 				el.kind = docp.kind
 				line = nil
@@ -565,9 +600,17 @@ func (docp *documentParser) parseHeader() {
 		stateRevision
 		stateEnd
 	)
-	state := stateTitle
+
+	var (
+		state int = stateTitle
+
+		key   string
+		value string
+		line  []byte
+		ok    bool
+	)
 	for {
-		_, line, ok := docp.line()
+		_, line, ok = docp.line()
 		if !ok {
 			return
 		}
@@ -582,7 +625,7 @@ func (docp *documentParser) parseHeader() {
 			continue
 		}
 		if line[0] == ':' {
-			key, value, ok := parseAttribute(line, false)
+			key, value, ok = parseAttribute(line, false)
 			if ok {
 				docp.doc.Attributes.apply(key, value)
 			}
@@ -612,8 +655,13 @@ func (docp *documentParser) parseHeader() {
 }
 
 func (docp *documentParser) parseIgnoreCommentBlock() {
+	var (
+		line []byte
+		ok   bool
+	)
+
 	for {
-		_, line, ok := docp.line()
+		_, line, ok = docp.line()
 		if !ok {
 			return
 		}
@@ -743,19 +791,22 @@ func (docp *documentParser) parseListDescription(
 ) (
 	got []byte,
 ) {
-	list := &element{
-		elementAttribute: elementAttribute{
-			style: el.style,
-		},
-		kind:     elKindListDescription,
-		rawTitle: el.rawTitle,
-	}
-	listItem := &element{
-		elementAttribute: elementAttribute{
-			style: list.style,
-		},
-		kind: elKindListDescriptionItem,
-	}
+	var (
+		list = &element{
+			elementAttribute: elementAttribute{
+				style: el.style,
+			},
+			kind:     elKindListDescription,
+			rawTitle: el.rawTitle,
+		}
+		listItem = &element{
+			elementAttribute: elementAttribute{
+				style: list.style,
+			},
+			kind: elKindListDescriptionItem,
+		}
+	)
+
 	listItem.parseListDescriptionItem(line)
 	list.level = listItem.level
 	list.addChild(listItem)
@@ -803,7 +854,7 @@ func (docp *documentParser) parseListDescription(
 			continue
 		}
 		if docp.kind == elKindListDescriptionItem {
-			el := &element{
+			var el = &element{
 				elementAttribute: elementAttribute{
 					style: list.style,
 				},
@@ -816,7 +867,8 @@ func (docp *documentParser) parseListDescription(
 				line = nil
 				continue
 			}
-			parentListItem := parent
+
+			var parentListItem *element = parent
 			for parentListItem != nil {
 				if parentListItem.kind == docp.kind &&
 					parentListItem.level == el.level {
@@ -833,7 +885,7 @@ func (docp *documentParser) parseListDescription(
 			if docp.prevKind == lineKindEmpty {
 				break
 			}
-			el := &element{
+			var el = &element{
 				elementAttribute: elementAttribute{
 					roles: []string{classNameListingBlock},
 				},
@@ -853,7 +905,7 @@ func (docp *documentParser) parseListDescription(
 			if docp.prevKind == lineKindEmpty {
 				break
 			}
-			el := &element{
+			var el = &element{
 				elementAttribute: elementAttribute{
 					roles: []string{classNameLiteralBlock},
 				},
@@ -905,13 +957,19 @@ func (docp *documentParser) parseListOrdered(
 ) (
 	got []byte,
 ) {
-	list := &element{
-		kind:     elKindListOrdered,
-		rawTitle: title,
-	}
-	listItem := &element{
-		kind: elKindListOrderedItem,
-	}
+	var (
+		list = &element{
+			kind:     elKindListOrdered,
+			rawTitle: title,
+		}
+		listItem = &element{
+			kind: elKindListOrderedItem,
+		}
+
+		el             *element
+		parentListItem *element
+	)
+
 	listItem.parseListOrderedItem(line)
 	list.level = listItem.level
 	list.addChild(listItem)
@@ -940,7 +998,6 @@ func (docp *documentParser) parseListOrdered(
 			continue
 		}
 		if docp.kind == lineKindListContinue {
-			var el *element
 			el, line = docp.parseListBlock()
 			if el != nil {
 				listItem.addChild(el)
@@ -952,9 +1009,10 @@ func (docp *documentParser) parseListOrdered(
 			continue
 		}
 		if docp.kind == elKindListOrderedItem {
-			el := &element{
+			el = &element{
 				kind: elKindListOrderedItem,
 			}
+
 			el.parseListOrderedItem(line)
 			if listItem.level == el.level {
 				list.addChild(el)
@@ -967,7 +1025,7 @@ func (docp *documentParser) parseListOrdered(
 			// ... Parent
 			// . child
 			// ... Next list
-			parentListItem := parent
+			parentListItem = parent
 			for parentListItem != nil {
 				if parentListItem.kind == docp.kind &&
 					parentListItem.level == el.level {
@@ -981,7 +1039,7 @@ func (docp *documentParser) parseListOrdered(
 			continue
 		}
 		if docp.kind == elKindListUnorderedItem {
-			el := &element{
+			el = &element{
 				kind: elKindListUnorderedItem,
 			}
 			el.parseListUnorderedItem(line)
@@ -990,7 +1048,7 @@ func (docp *documentParser) parseListOrdered(
 			// . Parent
 			// * child
 			// . Next list
-			parentListItem := parent
+			parentListItem = parent
 			for parentListItem != nil {
 				if parentListItem.kind == docp.kind &&
 					parentListItem.level == el.level {
@@ -1005,12 +1063,12 @@ func (docp *documentParser) parseListOrdered(
 			continue
 		}
 		if docp.kind == elKindListDescriptionItem {
-			el := &element{
+			el = &element{
 				kind: docp.kind,
 			}
 			el.parseListDescriptionItem(line)
 
-			parentListItem := parent
+			parentListItem = parent
 			for parentListItem != nil {
 				if parentListItem.kind == docp.kind &&
 					parentListItem.level == el.level {
@@ -1026,7 +1084,7 @@ func (docp *documentParser) parseListOrdered(
 		}
 		if docp.kind == elKindLiteralParagraph {
 			if docp.prevKind == lineKindEmpty {
-				el := &element{
+				el = &element{
 					elementAttribute: elementAttribute{
 						roles: []string{classNameLiteralBlock},
 					},
@@ -1051,7 +1109,7 @@ func (docp *documentParser) parseListOrdered(
 			if docp.prevKind == lineKindEmpty {
 				break
 			}
-			el := &element{
+			el = &element{
 				elementAttribute: elementAttribute{
 					roles: []string{classNameListingBlock},
 				},
@@ -1071,7 +1129,7 @@ func (docp *documentParser) parseListOrdered(
 			if docp.prevKind == lineKindEmpty {
 				break
 			}
-			el := &element{
+			el = &element{
 				elementAttribute: elementAttribute{
 					roles: []string{classNameLiteralBlock},
 				},
@@ -1121,27 +1179,36 @@ func (docp *documentParser) parseListUnordered(
 ) (
 	got []byte,
 ) {
-	list := &element{
-		elementAttribute: elementAttribute{
-			roles: []string{classNameUlist},
-		},
-		kind:     elKindListUnordered,
-		rawTitle: el.rawTitle,
-	}
+	var (
+		list = &element{
+			elementAttribute: elementAttribute{
+				roles: []string{classNameUlist},
+			},
+			kind:     elKindListUnordered,
+			rawTitle: el.rawTitle,
+		}
+
+		listItem       *element
+		parentListItem *element
+
+		role string
+	)
+
 	if len(el.rawStyle) > 0 {
 		list.addRole(el.rawStyle)
 		list.rawStyle = el.rawStyle
 	}
-	for _, role := range el.roles {
+	for _, role = range el.roles {
 		list.addRole(role)
 	}
-	listItem := &element{
+
+	listItem = &element{
 		kind: elKindListUnorderedItem,
 	}
 	listItem.parseListUnorderedItem(line)
 	list.level = listItem.level
 	list.addChild(listItem)
-	for _, role := range listItem.roles {
+	for _, role = range listItem.roles {
 		list.addRole(role)
 		if role == classNameChecklist {
 			list.rawStyle = role
@@ -1172,7 +1239,6 @@ func (docp *documentParser) parseListUnordered(
 			continue
 		}
 		if docp.kind == lineKindListContinue {
-			var el *element
 			el, line = docp.parseListBlock()
 			if el != nil {
 				listItem.addChild(el)
@@ -1184,7 +1250,7 @@ func (docp *documentParser) parseListUnordered(
 			continue
 		}
 		if docp.kind == elKindListOrderedItem {
-			el := &element{
+			el = &element{
 				kind: elKindListOrderedItem,
 			}
 			el.parseListOrderedItem(line)
@@ -1193,7 +1259,7 @@ func (docp *documentParser) parseListUnordered(
 			// . Parent
 			// * child
 			// . Next list
-			parentListItem := parent
+			parentListItem = parent
 			for parentListItem != nil {
 				if parentListItem.kind == docp.kind &&
 					parentListItem.level == el.level {
@@ -1209,13 +1275,13 @@ func (docp *documentParser) parseListUnordered(
 		}
 
 		if docp.kind == elKindListUnorderedItem {
-			el := &element{
+			el = &element{
 				kind: elKindListUnorderedItem,
 			}
 			el.parseListUnorderedItem(line)
 			if listItem.level == el.level {
 				list.addChild(el)
-				for _, role := range listItem.roles {
+				for _, role = range listItem.roles {
 					list.addRole(role)
 					if role == classNameChecklist {
 						list.rawStyle = role
@@ -1230,7 +1296,7 @@ func (docp *documentParser) parseListUnordered(
 			// *** Parent
 			// * child
 			// *** Next list
-			parentListItem := parent
+			parentListItem = parent
 			for parentListItem != nil {
 				if parentListItem.kind == docp.kind &&
 					parentListItem.level == el.level {
@@ -1245,12 +1311,12 @@ func (docp *documentParser) parseListUnordered(
 			continue
 		}
 		if docp.kind == elKindListDescriptionItem {
-			el := &element{
+			el = &element{
 				kind: docp.kind,
 			}
 			el.parseListDescriptionItem(line)
 
-			parentListItem := parent
+			parentListItem = parent
 			for parentListItem != nil {
 				if parentListItem.kind == docp.kind &&
 					parentListItem.level == el.level {
@@ -1291,7 +1357,7 @@ func (docp *documentParser) parseListUnordered(
 			if docp.prevKind == lineKindEmpty {
 				break
 			}
-			el := &element{
+			el = &element{
 				elementAttribute: elementAttribute{
 					roles: []string{classNameListingBlock},
 				},
@@ -1311,7 +1377,7 @@ func (docp *documentParser) parseListUnordered(
 			if docp.prevKind == lineKindEmpty {
 				break
 			}
-			el := &element{
+			el = &element{
 				elementAttribute: elementAttribute{
 					roles: []string{classNameLiteralBlock},
 				},

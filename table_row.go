@@ -13,7 +13,9 @@ type tableRow struct {
 func (row *tableRow) add(cell *tableCell) {
 	row.cells = append(row.cells, cell)
 	row.ncell++
-	for x := 1; x < cell.format.ndupCol; x++ {
+
+	var x int
+	for x = 1; x < cell.format.ndupCol; x++ {
 		row.cells = append(row.cells, cell)
 		row.ncell++
 	}
@@ -23,10 +25,15 @@ func (row *tableRow) add(cell *tableCell) {
 }
 
 func (row *tableRow) String() string {
-	var buf bytes.Buffer
-	for _, cell := range row.cells {
+	var (
+		buf  bytes.Buffer
+		cell *tableCell
+	)
+
+	for _, cell = range row.cells {
 		buf.WriteByte('|')
 		buf.Write(cell.content)
 	}
+
 	return buf.String()
 }

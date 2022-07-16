@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.12">
+<meta name="generator" content="Asciidoctor 2.0.17">
 <meta name="description" content="meta description">
 <meta name="keywords" content="key, words">
 <meta name="author" content="Author A, Author mid dle B">
@@ -2149,7 +2149,7 @@ D</p></td>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">A formal table</caption>
+<caption class="title">Table A. A formal table</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -2330,15 +2330,12 @@ D</p></td>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-go" data-lang="go">// Copyright 2020, Shulhan &lt;ms@kilabit.info&gt;. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+<pre class="highlight"><code class="language-go" data-lang="go">// SPDX-FileCopyrightText: 2020 M. Shulhan &lt;ms@kilabit.info&gt;
+// SPDX-License-Identifier: GPL-3.0-or-later
 
 package asciidoctor
 
-//
 // anchor contains label and counter for duplicate ID.
-//
 type anchor struct {
 	label   string
 	counter int
@@ -2957,7 +2954,7 @@ this sidebar.</p>
 <div id="footer">
 <div id="footer-text">
  1.1.1<br>
-Last updated 2020-12-20 01:53:35 +0700
+Last updated 2022-02-21 23:14:08 +0700
 </div>
 </div>
 </body>

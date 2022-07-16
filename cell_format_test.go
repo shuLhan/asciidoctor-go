@@ -10,10 +10,12 @@ import (
 )
 
 func TestParseCellFormat(t *testing.T) {
-	cases := []struct {
+	type testCase struct {
 		exp *cellFormat
 		raw string
-	}{{
+	}
+
+	var cases = []testCase{{
 		raw: "3*",
 		exp: &cellFormat{
 			ndupCol: 3,
@@ -79,8 +81,13 @@ func TestParseCellFormat(t *testing.T) {
 		},
 	}}
 
-	for _, c := range cases {
-		got := parseCellFormat(c.raw)
+	var (
+		c   testCase
+		got *cellFormat
+	)
+
+	for _, c = range cases {
+		got = parseCellFormat(c.raw)
 		test.Assert(t, c.raw, c.exp, got)
 	}
 }

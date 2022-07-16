@@ -11,11 +11,13 @@ import (
 )
 
 func TestParser_parseParagraph(t *testing.T) {
-	cases := []struct {
+	type testCase struct {
 		desc    string
 		exp     string
 		content []byte
-	}{{
+	}
+
+	var cases = []testCase{{
 		desc: "with lead style",
 		content: []byte(`[.lead]
 This is the ultimate paragraph.`),
@@ -25,13 +27,19 @@ This is the ultimate paragraph.`),
 </div>`,
 	}}
 
-	parentDoc := newDocument()
-	out := bytes.Buffer{}
+	var (
+		parentDoc = newDocument()
+		out       = bytes.Buffer{}
 
-	for _, c := range cases {
-		subdoc := parseSub(parentDoc, c.content)
+		c      testCase
+		subdoc *Document
+		err    error
+	)
+
+	for _, c = range cases {
+		subdoc = parseSub(parentDoc, c.content)
 		out.Reset()
-		err := subdoc.ToHTMLEmbedded(&out)
+		err = subdoc.ToHTMLEmbedded(&out)
 		if err != nil {
 			t.Fatal(err)
 		}

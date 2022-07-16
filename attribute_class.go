@@ -16,7 +16,12 @@ func (aclass *attributeClass) add(c string) {
 }
 
 func (aclass *attributeClass) replace(old, new string) {
-	for x, v := range *aclass {
+	var (
+		v string
+		x int
+	)
+
+	for x, v = range *aclass {
 		if v == old {
 			(*aclass)[x] = new
 			return

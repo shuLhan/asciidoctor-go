@@ -19,18 +19,24 @@ type Author struct {
 
 // parseAuthor parse raw author into object.
 func parseAuthor(raw string) (author *Author) {
+	var (
+		names   []string
+		idx     int
+		lastIdx int
+	)
+
 	author = &Author{}
 
 	raw = strings.TrimSpace(raw)
 	if raw[len(raw)-1] == '>' {
-		idx := strings.IndexByte(raw, '<')
+		idx = strings.IndexByte(raw, '<')
 		if idx > 0 {
 			author.Email = raw[idx+1 : len(raw)-1]
 			raw = strings.TrimSpace(raw[:idx])
 		}
 	}
 
-	names := strings.Split(raw, " ")
+	names = strings.Split(raw, " ")
 	if len(names) == 0 {
 		return
 	}
@@ -40,7 +46,7 @@ func parseAuthor(raw string) (author *Author) {
 	initials.WriteByte(author.FirstName[0])
 
 	if len(names) >= 2 {
-		lastIdx := len(names) - 1
+		lastIdx = len(names) - 1
 		author.LastName = strings.ReplaceAll(names[lastIdx], "_", " ")
 
 		author.MiddleName = strings.ReplaceAll(

@@ -11,11 +11,13 @@ import (
 )
 
 func TestParseAttrCols(t *testing.T) {
-	cases := []struct {
+	type testCase struct {
 		val     string
 		formats []*columnFormat
 		ncols   int
-	}{{
+	}
+
+	var cases = []testCase{{
 		val:   "3*",
 		ncols: 3,
 		formats: []*columnFormat{
@@ -159,19 +161,27 @@ func TestParseAttrCols(t *testing.T) {
 		}},
 	}}
 
-	for _, c := range cases {
-		ncols, formats := parseAttrCols(c.val)
+	var (
+		c       testCase
+		formats []*columnFormat
+		ncols   int
+	)
+
+	for _, c = range cases {
+		ncols, formats = parseAttrCols(c.val)
 		test.Assert(t, "ncols", c.ncols, ncols)
 		test.Assert(t, c.val, c.formats, formats)
 	}
 }
 
 func TestParseToRawRows(t *testing.T) {
-	cases := []struct {
+	type testCase struct {
 		desc string
 		raw  string
 		exp  [][]byte
-	}{{
+	}
+
+	var cases = []testCase{{
 		desc: "empty content",
 		raw:  ``,
 		exp:  make([][]byte, 1),
@@ -218,8 +228,13 @@ func TestParseToRawRows(t *testing.T) {
 		},
 	}}
 
-	for _, c := range cases {
-		got := parseToRawRows([]byte(c.raw))
+	var (
+		c   testCase
+		got [][]byte
+	)
+
+	for _, c = range cases {
+		got = parseToRawRows([]byte(c.raw))
 		test.Assert(t, c.desc, c.exp, got)
 	}
 }

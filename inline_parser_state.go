@@ -12,7 +12,7 @@ func (pis *inlineParserState) push(c int) {
 }
 
 func (pis *inlineParserState) pop() (c int) {
-	size := len(pis.stack)
+	var size int = len(pis.stack)
 	if size > 0 {
 		c = pis.stack[size-1]
 		pis.stack = pis.stack[:size-1]
@@ -21,7 +21,9 @@ func (pis *inlineParserState) pop() (c int) {
 }
 
 func (pis *inlineParserState) has(c int) bool {
-	for _, r := range pis.stack {
+	var r int
+
+	for _, r = range pis.stack {
 		if r == c {
 			return true
 		}

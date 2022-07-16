@@ -32,6 +32,8 @@ func (pt *tableParser) toCells() {
 		tokenTrim = strings.TrimSpace(token)
 		l         = len(tokenTrim)
 		cell      = &tableCell{}
+
+		cf *cellFormat
 	)
 
 	// Parse the first cell with three possibilities,
@@ -59,7 +61,7 @@ func (pt *tableParser) toCells() {
 		return
 	}
 	if c == '|' {
-		cf := parseCellFormat(token)
+		cf = parseCellFormat(token)
 		if cf == nil {
 			if l > 0 {
 				// Case 1.
@@ -83,7 +85,7 @@ func (pt *tableParser) toCells() {
 			}
 			cell.writeByte('\n')
 		} else if c == '|' {
-			cf := parseCellFormat(token)
+			cf = parseCellFormat(token)
 			if cf == nil {
 				cell.writeString(token)
 				pt.addCell(cell)
@@ -122,6 +124,10 @@ func (pt *tableParser) addCell(cell *tableCell) {
 
 // firstRow get the first row of the table to get the number of columns.
 func (pt *tableParser) firstRow() (row *tableRow) {
+	var (
+		cell *tableCell
+	)
+
 	row = &tableRow{}
 
 	// Skip empty lines..
@@ -129,7 +135,7 @@ func (pt *tableParser) firstRow() (row *tableRow) {
 		pt.nrow++
 	}
 	for ; pt.x < len(pt.cells); pt.x++ {
-		cell := pt.cells[pt.x]
+		cell = pt.cells[pt.x]
 		if cell == nil {
 			// Row with empty line.
 			break

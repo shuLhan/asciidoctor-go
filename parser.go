@@ -361,13 +361,16 @@ func applySubstitutions(doc *Document, content []byte) []byte {
 		raw    = bytes.TrimRight(content, " \n")
 		newraw = make([]byte, 0, len(raw))
 		buf    = bytes.NewBuffer(newraw)
+
 		c      byte
 		x      int
+		newRaw []byte
+		ok     bool
 	)
 	for x < len(raw) {
 		c = raw[x]
 		if c == '{' {
-			newRaw, ok := parseAttrRef(doc, raw, x)
+			newRaw, ok = parseAttrRef(doc, raw, x)
 			if ok {
 				raw = newRaw
 				continue
@@ -388,21 +391,28 @@ func applySubstitutions(doc *Document, content []byte) []byte {
 }
 
 func generateID(doc *Document, str string) string {
-	idPrefix := "_"
-	v, ok := doc.Attributes[metaNameIDPrefix]
+	var (
+		idPrefix = "_"
+		idSep    = "_"
+		id       = make([]rune, 0, len(str)+1)
+
+		v  string
+		c  rune
+		ok bool
+	)
+
+	v, ok = doc.Attributes[metaNameIDPrefix]
 	if ok {
 		idPrefix = strings.TrimSpace(v)
 	}
 
-	idSep := "_"
 	v, ok = doc.Attributes[metaNameIDSeparator]
 	if ok {
 		idSep = strings.TrimSpace(v)
 	}
 
-	id := make([]rune, 0, len(str)+1)
 	id = append(id, []rune(idPrefix)...)
-	for _, c := range strings.ToLower(str) {
+	for _, c = range strings.ToLower(str) {
 		if unicode.IsLetter(c) || unicode.IsDigit(c) {
 			id = append(id, c)
 		} else {
@@ -445,7 +455,11 @@ func isAdmonition(line []byte) bool {
 }
 
 func isLineDescriptionItem(line []byte) bool {
-	_, x := indexUnescape(line, []byte(":: "))
+	var (
+		x int
+	)
+
+	_, x = indexUnescape(line, []byte(":: "))
 	if x > 0 {
 		return true
 	}
@@ -481,7 +495,12 @@ func isTitle(line []byte) bool {
 // isValidID will return true if id is valid XML ID, where the first character
 // is '-', '_', or letter; and the rest is either '-', '_', letter or digits.
 func isValidID(id []byte) bool {
-	for x, r := range string(id) {
+	var (
+		x int
+		r rune
+	)
+
+	for x, r = range string(id) {
 		if x == 0 {
 			if !(r == ':' || r == '-' || r == '_' || unicode.IsLetter(r)) {
 				return false
@@ -509,14 +528,18 @@ func isValidID(id []byte) bool {
 //
 //	META_KEY       = 1META_KEY_CHAR *(META_KEY_CHAR | '-')
 func parseAttribute(line []byte, strict bool) (key, value string, ok bool) {
-	var sb strings.Builder
+	var (
+		sb   strings.Builder
+		valb []byte
+		x    int
+	)
 
 	if !(ascii.IsAlnum(line[1]) || line[1] == '_') {
 		return "", "", false
 	}
 
 	sb.WriteByte(line[1])
-	x := 2
+	x = 2
 	for ; x < len(line); x++ {
 		if line[x] == ':' {
 			break
@@ -534,7 +557,7 @@ func parseAttribute(line []byte, strict bool) (key, value string, ok bool) {
 		return "", "", false
 	}
 
-	valb := bytes.TrimSpace(line[x+1:])
+	valb = bytes.TrimSpace(line[x+1:])
 
 	return sb.String(), string(valb), true
 }
@@ -542,17 +565,24 @@ func parseAttribute(line []byte, strict bool) (key, value string, ok bool) {
 // parseAttrRef parse the attribute reference, an attribute key wrapped by
 // "{" "}".  If the attribute reference exist, replace the content with the
 // attribute value and reset the parser state to zero.
-func parseAttrRef(doc *Document, content []byte, x int) (
-	newContent []byte, ok bool,
-) {
-	raw := content[x+1:]
-	attrName, idx := indexByteUnescape(raw, '}')
+func parseAttrRef(doc *Document, content []byte, x int) (newContent []byte, ok bool) {
+	var (
+		raw = content[x+1:]
+
+		name      string
+		attrValue string
+		attrName  []byte
+		rest      []byte
+		idx       int
+	)
+
+	attrName, idx = indexByteUnescape(raw, '}')
 	if idx < 0 {
 		return nil, false
 	}
 
-	name := string(bytes.TrimSpace(bytes.ToLower(attrName)))
-	attrValue, ok := _attrRef[name]
+	name = string(bytes.TrimSpace(bytes.ToLower(attrName)))
+	attrValue, ok = _attrRef[name]
 	if !ok {
 		attrValue, ok = doc.Attributes[name]
 		if !ok {
@@ -566,7 +596,7 @@ func parseAttrRef(doc *Document, content []byte, x int) (
 		}
 	}
 
-	rest := content[x+idx+2:]
+	rest = content[x+idx+2:]
 	newContent = make([]byte, 0, len(attrValue)+len(rest))
 	newContent = append(newContent, attrValue...)
 	newContent = append(newContent, rest...)
@@ -576,7 +606,10 @@ func parseAttrRef(doc *Document, content []byte, x int) (
 // parseIDLabel parse the string "ID (,LABEL)" into ID and label.
 // It will return empty id and label if ID is not valid.
 func parseIDLabel(s []byte) (id, label []byte) {
-	idLabel := bytes.Split(s, []byte(","))
+	var (
+		idLabel [][]byte = bytes.Split(s, []byte(","))
+	)
+
 	id = idLabel[0]
 	if len(idLabel) >= 2 {
 		label = idLabel[1]
@@ -588,7 +621,10 @@ func parseIDLabel(s []byte) (id, label []byte) {
 }
 
 func parseInlineMarkup(doc *Document, content []byte) (container *element) {
-	pi := newInlineParser(doc, content)
+	var (
+		pi *inlineParser = newInlineParser(doc, content)
+	)
+
 	pi.do()
 	return pi.container
 }
@@ -716,8 +752,11 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 	if line[0] == ':' {
 		kind = lineKindAttribute
 	} else if line[0] == '[' {
-		newline := bytes.TrimRight(line, " \t")
-		l := len(newline)
+		var (
+			newline []byte = bytes.TrimRight(line, " \t")
+			l       int    = len(newline)
+		)
+
 		if newline[l-1] != ']' {
 			return lineKindText, nil, line
 		}
@@ -739,7 +778,10 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 		}
 		return lineKindAttributeElement, spaces, line
 	} else if line[0] == '=' {
-		subs := bytes.Fields(line)
+		var (
+			subs [][]byte = bytes.Fields(line)
+		)
+
 		if bytes.Equal(subs[0], []byte("==")) {
 			kind = elKindSectionL1
 		} else if bytes.Equal(subs[0], []byte("===")) {
@@ -757,7 +799,7 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 		} else if ascii.IsAlnum(line[1]) {
 			kind = lineKindBlockTitle
 		} else {
-			x := 0
+			x = 0
 			for ; x < len(line); x++ {
 				if line[x] == '.' {
 					continue
@@ -772,7 +814,7 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 		if len(line) <= 1 {
 			kind = lineKindText
 		} else {
-			x := 0
+			x = 0
 			for ; x < len(line); x++ {
 				if line[x] == '*' {
 					continue

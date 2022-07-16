@@ -67,8 +67,11 @@ func htmlWriteBlockBegin(el *element, out io.Writer, addClass string) {
 		fmt.Fprintf(out, ` id="%s"`, el.ID)
 	}
 
-	classes := el.htmlClasses()
-	c := strings.TrimSpace(addClass + " " + classes)
+	var (
+		classes string = el.htmlClasses()
+		c       string = strings.TrimSpace(addClass + " " + classes)
+	)
+
 	if len(c) > 0 {
 		fmt.Fprintf(out, ` class="%s">`, c)
 	} else {
@@ -91,7 +94,10 @@ func htmlWriteBlockAdmonition(el *element, out io.Writer) {
 
 	fmt.Fprint(out, "\n<table>\n<tr>\n<td class=\"icon\">")
 
-	iconsFont := el.Attrs[attrNameIcons]
+	var (
+		iconsFont string = el.Attrs[attrNameIcons]
+	)
+
 	if iconsFont == attrValueFont {
 		fmt.Fprintf(out, _htmlAdmonitionIconsFont,
 			strings.ToLower(el.htmlClasses()), el.rawLabel.String())
@@ -110,16 +116,16 @@ func htmlWriteBlockAdmonition(el *element, out io.Writer) {
 
 func htmlWriteBlockAudio(el *element, out io.Writer) {
 	var (
+		optControls string = " controls"
+		src         string = el.Attrs[attrNameSrc]
+
 		optAutoplay string
-		optControls = " controls"
 		optLoop     string
 	)
 
 	htmlWriteBlockBegin(el, out, "audioblock")
 
 	fmt.Fprintf(out, "\n<div class=%q>", attrValueContent)
-
-	src := el.Attrs[attrNameSrc]
 
 	if libstrings.IsContain(el.options, optNameAutoplay) {
 		optAutoplay = " autoplay"
@@ -147,11 +153,17 @@ func htmlWriteBlockExample(doc *Document, el *element, out io.Writer) {
 func htmlWriteBlockImage(doc *Document, el *element, out io.Writer) {
 	htmlWriteBlockBegin(el, out, "imageblock")
 
-	src := el.Attrs[attrNameSrc]
-	alt := el.Attrs[attrNameAlt]
+	var (
+		src = el.Attrs[attrNameSrc]
+		alt = el.Attrs[attrNameAlt]
 
-	var width, height string
-	v, ok := el.Attrs[attrNameWidth]
+		v      string
+		width  string
+		height string
+		ok     bool
+	)
+
+	v, ok = el.Attrs[attrNameWidth]
 	if ok && len(v) > 0 {
 		width = ` width="` + v + `"`
 	}
@@ -173,9 +185,15 @@ func htmlWriteBlockImage(doc *Document, el *element, out io.Writer) {
 
 func htmlWriteBlockLiteral(el *element, out io.Writer) {
 	htmlWriteBlockBegin(el, out, "")
-	source, ok := el.Attrs[attrNameSource]
+
+	var (
+		source string
+		class  string
+		ok     bool
+	)
+	source, ok = el.Attrs[attrNameSource]
 	if ok {
-		class := "language-" + source
+		class = "language-" + source
 		fmt.Fprint(out, "\n<div class=\"content\">\n<pre class=\"highlight\">")
 		fmt.Fprintf(out, `<code class=%q data-lang=%q>%s</code></pre>`,
 			class, source, el.raw)
@@ -197,11 +215,20 @@ func htmlWriteBlockQuote(el *element, out io.Writer) {
 
 func htmlWriteBlockQuoteEnd(el *element, out io.Writer) {
 	fmt.Fprint(out, "\n</blockquote>")
-	if v, ok := el.Attrs[attrNameAttribution]; ok {
+
+	var (
+		v  string
+		ok bool
+	)
+
+	v, ok = el.Attrs[attrNameAttribution]
+	if ok {
 		fmt.Fprintf(out, "\n<div class=%q>\n&#8212; %s",
 			attrNameAttribution, v)
 	}
-	if v, ok := el.Attrs[attrNameCitation]; ok {
+
+	v, ok = el.Attrs[attrNameCitation]
+	if ok {
 		fmt.Fprintf(out, "<br>\n<cite>%s</cite>", v)
 	}
 	fmt.Fprint(out, "\n</div>\n</div>")
@@ -223,11 +250,20 @@ func htmlWriteBlockVerse(el *element, out io.Writer) {
 
 func htmlWriteBlockVerseEnd(el *element, out io.Writer) {
 	fmt.Fprint(out, "</pre>")
-	if v, ok := el.Attrs[attrNameAttribution]; ok {
+
+	var (
+		v  string
+		ok bool
+	)
+
+	v, ok = el.Attrs[attrNameAttribution]
+	if ok {
 		fmt.Fprintf(out, "\n<div class=%q>\n&#8212; %s",
 			attrNameAttribution, v)
 	}
-	if v, ok := el.Attrs[attrNameCitation]; ok {
+
+	v, ok = el.Attrs[attrNameCitation]
+	if ok {
 		fmt.Fprintf(out, "<br>\n<cite>%s</cite>", v)
 	}
 	fmt.Fprint(out, "\n</div>\n</div>")
@@ -235,16 +271,23 @@ func htmlWriteBlockVerseEnd(el *element, out io.Writer) {
 
 func htmlWriteBlockVideo(el *element, out io.Writer) {
 	var (
-		isYoutube bool
-		isVimeo   bool
+		src    string
+		width  string
+		height string
+
+		isYoutube  bool
+		isVimeo    bool
+		withWidth  bool
+		withHeight bool
 	)
 
-	src := el.getVideoSource()
-	width, withWidth := el.Attrs[attrNameWidth]
+	src = el.getVideoSource()
+	width, withWidth = el.Attrs[attrNameWidth]
 	if withWidth {
 		width = fmt.Sprintf(` width="%s"`, width)
 	}
-	height, withHeight := el.Attrs[attrNameHeight]
+
+	height, withHeight = el.Attrs[attrNameHeight]
 	if withHeight {
 		height = fmt.Sprintf(` height="%s"`, height)
 	}
@@ -261,7 +304,12 @@ func htmlWriteBlockVideo(el *element, out io.Writer) {
 	fmt.Fprintf(out, "\n<div class=%q>", attrValueContent)
 
 	if isYoutube {
-		optFullscreen, noFullscreen := el.Attrs[optVideoNofullscreen]
+		var (
+			optFullscreen string
+			noFullscreen  bool
+		)
+
+		optFullscreen, noFullscreen = el.Attrs[optVideoNofullscreen]
 		if !noFullscreen {
 			optFullscreen = " allowfullscreen"
 		}
@@ -271,11 +319,14 @@ func htmlWriteBlockVideo(el *element, out io.Writer) {
 	} else {
 		var (
 			optControls = " controls"
+
 			optAutoplay string
 			optLoop     string
+			optPoster   string
+			withPoster  bool
 		)
 
-		optPoster, withPoster := el.Attrs[attrNamePoster]
+		optPoster, withPoster = el.Attrs[attrNamePoster]
 		if withPoster {
 			optPoster = fmt.Sprintf(` poster="%s"`, optPoster)
 		}
@@ -320,7 +371,12 @@ func htmlWriteFooter(doc *Document, out io.Writer) {
 <div id="footer-text">`)
 
 	if len(doc.Revision.Number) > 0 {
-		prefix, ok := doc.Attributes[metaNameVersionLabel]
+		var (
+			prefix string
+			ok     bool
+		)
+
+		prefix, ok = doc.Attributes[metaNameVersionLabel]
 		if ok && len(prefix) == 0 {
 			prefix = "Version "
 		} else {
@@ -340,7 +396,15 @@ func htmlWriteFooter(doc *Document, out io.Writer) {
 func htmlWriteHeader(doc *Document, out io.Writer) {
 	fmt.Fprint(out, "\n<div id=\"header\">")
 
-	_, ok := doc.Attributes[metaNameShowTitle]
+	var (
+		author *Author
+		prefix string
+		sep    string
+		x      int
+		ok     bool
+	)
+
+	_, ok = doc.Attributes[metaNameShowTitle]
 	if ok {
 		_, ok = doc.Attributes[metaNameNoTitle]
 		if !ok && doc.Title.el != nil {
@@ -353,7 +417,7 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 	fmt.Fprint(out, "\n<div class=\"details\">")
 
 	var authorID, emailID string
-	for x, author := range doc.Authors {
+	for x, author = range doc.Authors {
 		if x == 0 {
 			authorID = attrValueAuthor
 			emailID = attrValueEmail
@@ -373,14 +437,14 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 	}
 
 	if len(doc.Revision.Number) > 0 {
-		prefix, ok := doc.Attributes[metaNameVersionLabel]
+		prefix, ok = doc.Attributes[metaNameVersionLabel]
 		if ok && len(prefix) == 0 {
 			prefix = defVersionPrefix
 		} else {
 			prefix = " "
 		}
 
-		sep := ""
+		sep = ""
 		if len(doc.Revision.Date) > 0 {
 			sep = ","
 		}
@@ -408,21 +472,33 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 }
 
 func htmlWriteInlineImage(el *element, out io.Writer) {
-	classes := strings.TrimSpace("image " + el.htmlClasses())
+	var (
+		classes = strings.TrimSpace("image " + el.htmlClasses())
+
+		link     string
+		withLink bool
+	)
+
 	fmt.Fprintf(out, "<span class=%q>", classes)
-	link, withLink := el.Attrs[attrNameLink]
+	link, withLink = el.Attrs[attrNameLink]
 	if withLink {
 		fmt.Fprintf(out, "<a class=%q href=%q>", attrValueImage, link)
 	}
 
-	src := el.Attrs[attrNameSrc]
-	alt := el.Attrs[attrNameAlt]
+	var (
+		src string = el.Attrs[attrNameSrc]
+		alt string = el.Attrs[attrNameAlt]
 
-	width, ok := el.Attrs[attrNameWidth]
+		width  string
+		height string
+		ok     bool
+	)
+
+	width, ok = el.Attrs[attrNameWidth]
 	if ok {
 		width = fmt.Sprintf(` width="%s"`, width)
 	}
-	height, ok := el.Attrs[attrNameHeight]
+	height, ok = el.Attrs[attrNameHeight]
 	if ok {
 		height = fmt.Sprintf(` height="%s"`, height)
 	}
@@ -463,8 +539,11 @@ func htmlWriteListDescriptionEnd(el *element, out io.Writer) {
 }
 
 func htmlWriteListOrdered(el *element, out io.Writer) {
-	class := el.getListOrderedClass()
-	tipe := el.getListOrderedType()
+	var (
+		class string = el.getListOrderedClass()
+		tipe  string = el.getListOrderedType()
+	)
+
 	if len(tipe) > 0 {
 		tipe = ` type="` + tipe + `"`
 	}
@@ -497,7 +576,11 @@ func htmlWriteParagraphBegin(el *element, out io.Writer) {
 }
 
 func htmlWriteSection(doc *Document, el *element, out io.Writer) {
-	var class, tag string
+	var (
+		class string
+		tag   string
+	)
+
 	switch el.kind {
 	case elKindSectionL1:
 		class = "sect1"
@@ -518,11 +601,16 @@ func htmlWriteSection(doc *Document, el *element, out io.Writer) {
 
 	fmt.Fprintf(out, "\n<div class=%q>\n<%s id=%q>", class, tag, el.ID)
 
-	_, withSectAnchors := doc.Attributes[metaNameSectAnchors]
+	var (
+		withSectAnchors bool
+		withSectlinks   bool
+	)
+
+	_, withSectAnchors = doc.Attributes[metaNameSectAnchors]
 	if withSectAnchors {
 		fmt.Fprintf(out, `<a class="anchor" href="#%s"></a>`, el.ID)
 	}
-	_, withSectlinks := doc.Attributes[metaNameSectLinks]
+	_, withSectlinks = doc.Attributes[metaNameSectLinks]
 	if withSectlinks {
 		fmt.Fprintf(out, `<a class="link" href="#%s">`, el.ID)
 	}
@@ -567,8 +655,13 @@ func hmltWriteSectionDiscrete(doc *Document, el *element, out io.Writer) {
 
 func htmlWriteTable(doc *Document, el *element, out io.Writer) {
 	var (
+		table *elementTable = el.table
+
 		footer *tableRow
-		table  = el.table
+		format *columnFormat
+		style  string
+
+		withTableCaption bool
 	)
 
 	if table == nil {
@@ -577,7 +670,7 @@ func htmlWriteTable(doc *Document, el *element, out io.Writer) {
 
 	fmt.Fprintf(out, "\n<table class=%q", table.classes.String())
 
-	style := table.htmlStyle()
+	style = table.htmlStyle()
 	if len(style) > 0 {
 		fmt.Fprintf(out, " style=%q", style)
 	}
@@ -590,7 +683,7 @@ func htmlWriteTable(doc *Document, el *element, out io.Writer) {
 		)
 
 		doc.counterTable++
-		_, withTableCaption := doc.Attributes[metaNameTableCaption]
+		_, withTableCaption = doc.Attributes[metaNameTableCaption]
 
 		if withTableCaption {
 			caption, ok = el.Attrs[attrNameCaption]
@@ -603,17 +696,20 @@ func htmlWriteTable(doc *Document, el *element, out io.Writer) {
 	}
 
 	fmt.Fprint(out, "\n<colgroup>")
-	for _, format := range table.formats {
+	for _, format = range table.formats {
 		if format.width != nil {
-			fmt.Fprintf(out, "\n<col style=\"width: %s%%;\">",
-				format.width)
+			fmt.Fprintf(out, "\n<col style=\"width: %s%%;\">", format.width)
 		} else {
 			fmt.Fprint(out, "\n<col>")
 		}
 	}
 	fmt.Fprint(out, "\n</colgroup>")
 
-	rows := table.rows
+	var (
+		rows []*tableRow = table.rows
+		row  *tableRow
+	)
+
 	if table.hasHeader {
 		htmlWriteTableHeader(doc, rows[0], out)
 		rows = rows[1:]
@@ -625,7 +721,7 @@ func htmlWriteTable(doc *Document, el *element, out io.Writer) {
 
 	if len(rows) > 0 {
 		fmt.Fprint(out, "\n<tbody>")
-		for _, row := range rows {
+		for _, row = range rows {
 			htmlWriteTableRow(doc, table, row, out)
 		}
 		fmt.Fprint(out, "\n</tbody>")
@@ -646,12 +742,17 @@ func htmlWriteTableFooter(doc *Document, table *elementTable, footer *tableRow, 
 }
 
 func htmlWriteTableHeader(doc *Document, header *tableRow, out io.Writer) {
-	classRow := "tableblock halign-left valign-top"
+	var (
+		classRow = "tableblock halign-left valign-top"
+
+		cell *tableCell
+		cont *element
+	)
 
 	fmt.Fprint(out, "\n<thead>\n<tr>")
-	for _, cell := range header.cells {
+	for _, cell = range header.cells {
 		fmt.Fprintf(out, "\n<th class=%q>", classRow)
-		cont := parseInlineMarkup(doc, bytes.TrimSpace(cell.content))
+		cont = parseInlineMarkup(doc, bytes.TrimSpace(cell.content))
 		cont.toHTML(doc, out)
 		fmt.Fprint(out, "</th>")
 	}
@@ -659,11 +760,26 @@ func htmlWriteTableHeader(doc *Document, header *tableRow, out io.Writer) {
 }
 
 func htmlWriteTableRow(doc *Document, table *elementTable, row *tableRow, out io.Writer) {
+	var (
+		cell      *tableCell
+		format    *columnFormat
+		subdoc    *Document
+		container *element
+
+		tag     string
+		colspan string
+
+		contentTrimmed []byte
+		rawParagraphs  [][]byte
+		p              []byte
+		x              int
+	)
+
 	fmt.Fprint(out, "\n<tr>")
-	for x, cell := range row.cells {
-		format := table.formats[x]
-		tag := "td"
-		colspan := ""
+	for x, cell = range row.cells {
+		format = table.formats[x]
+		tag = "td"
+		colspan = ""
 
 		if format.style == colStyleHeader {
 			tag = "th"
@@ -675,23 +791,23 @@ func htmlWriteTableRow(doc *Document, table *elementTable, row *tableRow, out io
 		fmt.Fprintf(out, "\n<%s class=%q%s>", tag,
 			format.htmlClasses(), colspan)
 
-		contentTrimmed := bytes.TrimSpace(cell.content)
+		contentTrimmed = bytes.TrimSpace(cell.content)
 
 		switch format.style {
 		case colStyleAsciidoc:
-			subdoc := parseSub(doc, contentTrimmed)
+			subdoc = parseSub(doc, contentTrimmed)
 			fmt.Fprint(out, "\n<div id=\"content\">")
 			_ = subdoc.ToHTMLEmbedded(out)
 			fmt.Fprint(out, "\n</div>")
 
 		case colStyleDefault:
-			rawParagraphs := bytes.Split(contentTrimmed, []byte("\n\n"))
-			for x, p := range rawParagraphs {
+			rawParagraphs = bytes.Split(contentTrimmed, []byte("\n\n"))
+			for x, p = range rawParagraphs {
 				if x > 0 {
 					fmt.Fprint(out, "\n")
 				}
 				fmt.Fprintf(out, "<p class=%q>", classNameTableBlock)
-				container := parseInlineMarkup(doc, p)
+				container = parseInlineMarkup(doc, p)
 				container.toHTML(doc, out)
 				fmt.Fprint(out, "</p>")
 			}
@@ -723,9 +839,12 @@ func htmlWriteTableRow(doc *Document, table *elementTable, row *tableRow, out io
 }
 
 func htmlWriteToC(doc *Document, el *element, out io.Writer, level int) {
-	var sectClass string
+	var (
+		isDiscrete = el.style&styleSectionDiscrete > 0
 
-	isDiscrete := el.style&styleSectionDiscrete > 0
+		sectClass string
+		n         int
+	)
 
 	switch el.kind {
 	case elKindSectionL1:
@@ -747,7 +866,7 @@ func htmlWriteToC(doc *Document, el *element, out io.Writer, level int) {
 		if level < el.level {
 			fmt.Fprintf(out, "\n<ul class=\"%s\">", sectClass)
 		} else if level > el.level {
-			n := level
+			n = level
 			for n > el.level {
 				fmt.Fprint(out, "\n</ul>")
 				n--
@@ -784,15 +903,19 @@ func htmlWriteToC(doc *Document, el *element, out io.Writer, level int) {
 
 func htmlWriteURLBegin(el *element, out io.Writer) {
 	fmt.Fprintf(out, "<a href=\"%s\"", el.Attrs[attrNameHref])
-	classes := el.htmlClasses()
+
+	var (
+		classes string = el.htmlClasses()
+		target  string = el.Attrs[attrNameTarget]
+		rel     string = el.Attrs[attrNameRel]
+	)
+
 	if len(classes) > 0 {
 		fmt.Fprintf(out, ` class="%s"`, classes)
 	}
-	target := el.Attrs[attrNameTarget]
 	if len(target) > 0 {
 		fmt.Fprintf(out, ` target="%s"`, target)
 	}
-	rel := el.Attrs[attrNameRel]
 	if len(rel) > 0 {
 		fmt.Fprintf(out, ` rel="%s"`, rel)
 	}

@@ -69,10 +69,13 @@ func (ea *elementAttribute) parseElementAttribute(raw []byte) {
 		return
 	}
 	var (
-		buf   []byte
-		prevc byte
-		c     = raw[0]
-		x     int
+		c = raw[0]
+
+		str       string
+		buf       []byte
+		prevc     byte
+		x         int
+		isEscaped bool
 	)
 	if c == '#' || c == '.' || c == '%' {
 		prevc = c
@@ -82,7 +85,7 @@ func (ea *elementAttribute) parseElementAttribute(raw []byte) {
 		c = raw[x]
 		switch c {
 		case '"':
-			isEscaped := false
+			isEscaped = false
 			x++
 			for ; x < len(raw); x++ {
 				if raw[x] == '\\' {
@@ -100,7 +103,7 @@ func (ea *elementAttribute) parseElementAttribute(raw []byte) {
 				buf = append(buf, raw[x])
 			}
 		case ',':
-			str := string(bytes.TrimSpace(buf))
+			str = string(bytes.TrimSpace(buf))
 			ea.setByPreviousChar(prevc, str)
 			ea.pos++
 			buf = buf[:0]
@@ -137,9 +140,12 @@ func (ea *elementAttribute) parseNamedValue(prevc byte, str string) {
 		ea.Attrs = make(map[string]string)
 	}
 
-	kv := strings.Split(str, "=")
-	key := kv[0]
-	val := strings.TrimSpace(kv[1])
+	var (
+		kv  []string = strings.Split(str, "=")
+		key          = kv[0]
+		val          = strings.TrimSpace(kv[1])
+	)
+
 	if len(val) == 0 {
 		ea.Attrs[key] = ""
 		return
@@ -151,9 +157,14 @@ func (ea *elementAttribute) parseNamedValue(prevc byte, str string) {
 		val = val[:len(val)-1]
 	}
 
-	rawvals := strings.Split(val, ",")
-	vals := make([]string, 0, len(rawvals))
-	for _, v := range rawvals {
+	var (
+		rawvals []string = strings.Split(val, ",")
+		vals             = make([]string, 0, len(rawvals))
+
+		v string
+	)
+
+	for _, v = range rawvals {
 		v = strings.TrimSpace(v)
 		if len(v) == 0 {
 			continue

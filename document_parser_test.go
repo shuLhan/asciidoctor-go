@@ -11,14 +11,18 @@ import (
 )
 
 func TestParse_metaDocTitle(t *testing.T) {
-	expHTML := `
+	type testCase struct {
+		content string
+	}
+
+	var (
+		expHTML string = `
 <div class="paragraph">
 <p>Abc begins on a bleary Monday morning.</p>
 </div>`
+	)
 
-	cases := []struct {
-		content string
-	}{{
+	var cases = []testCase{{
 		content: `= Abc
 
 {doctitle} begins on a bleary Monday morning.`,
@@ -28,11 +32,17 @@ func TestParse_metaDocTitle(t *testing.T) {
 {doctitle} begins on a bleary Monday morning.`,
 	}}
 
-	var buf bytes.Buffer
-	for _, c := range cases {
-		doc := Parse([]byte(c.content))
+	var (
+		doc *Document
+		c   testCase
+		buf bytes.Buffer
+		err error
+	)
+
+	for _, c = range cases {
+		doc = Parse([]byte(c.content))
 		buf.Reset()
-		err := doc.ToHTMLEmbedded(&buf)
+		err = doc.ToHTMLEmbedded(&buf)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -41,11 +51,13 @@ func TestParse_metaDocTitle(t *testing.T) {
 }
 
 func TestParse_metaShowTitle(t *testing.T) {
-	cases := []struct {
+	type testCase struct {
 		desc    string
 		content string
 		expHTML string
-	}{{
+	}
+
+	var cases = []testCase{{
 		desc:    "default",
 		content: `= Abc`,
 		expHTML: `
@@ -85,11 +97,17 @@ func TestParse_metaShowTitle(t *testing.T) {
 </div>`,
 	}}
 
-	var buf bytes.Buffer
-	for _, c := range cases {
-		doc := Parse([]byte(c.content))
+	var (
+		doc *Document
+		buf bytes.Buffer
+		c   testCase
+		err error
+	)
+
+	for _, c = range cases {
+		doc = Parse([]byte(c.content))
 		buf.Reset()
-		err := doc.ToHTMLBody(&buf)
+		err = doc.ToHTMLBody(&buf)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -98,11 +116,13 @@ func TestParse_metaShowTitle(t *testing.T) {
 }
 
 func TestParse_document_title(t *testing.T) {
-	cases := []struct {
+	type testCase struct {
 		content   string
 		expString string
 		exp       DocumentTitle
-	}{{
+	}
+
+	var cases = []testCase{{
 		content: `= Main: sub`,
 		exp: DocumentTitle{
 			Main: "Main",
@@ -139,8 +159,13 @@ func TestParse_document_title(t *testing.T) {
 		expString: "Mainx sub",
 	}}
 
-	for _, c := range cases {
-		got := Parse([]byte(c.content))
+	var (
+		c   testCase
+		got *Document
+	)
+
+	for _, c = range cases {
+		got = Parse([]byte(c.content))
 		test.Assert(t, "Main", c.exp.Main, got.Title.Main)
 		test.Assert(t, "Sub", c.exp.Sub, got.Title.Sub)
 		test.Assert(t, "sep", c.exp.sep, got.Title.sep)
@@ -149,11 +174,13 @@ func TestParse_document_title(t *testing.T) {
 }
 
 func TestParse_author(t *testing.T) {
-	cases := []struct {
+	type testCase struct {
 		desc    string
 		content string
 		exp     []*Author
-	}{{
+	}
+
+	var cases = []testCase{{
 		desc: "single author",
 		content: `= T
 A B`,
@@ -204,14 +231,19 @@ A B <a@b>; C <c@c>; D e_f G <>;`,
 		}},
 	}}
 
-	for _, c := range cases {
-		got := Parse([]byte(c.content))
+	var (
+		c   testCase
+		got *Document
+	)
+
+	for _, c = range cases {
+		got = Parse([]byte(c.content))
 		test.Assert(t, c.desc, c.exp, got.Authors)
 	}
 }
 
 func TestDocumentParser_parseListDescription_withOpenBlock(t *testing.T) {
-	content := []byte(`
+	var content = []byte(`
 Description:: Description body with open block.
 +
 --
@@ -224,7 +256,7 @@ Paragraph A.
 Paragraph C.
 `)
 
-	exp := `
+	var exp string = `
 <div class="dlist">
 <dl>
 <dt class="hdlist1">Description</dt>
@@ -254,10 +286,14 @@ Paragraph C.
 <p>Paragraph C.</p>
 </div>`
 
-	doc := Parse(content)
-	got := bytes.Buffer{}
+	var (
+		doc *Document = Parse(content)
 
-	err := doc.ToHTMLEmbedded(&got)
+		got bytes.Buffer
+		err error
+	)
+
+	err = doc.ToHTMLEmbedded(&got)
 	if err != nil {
 		t.Fatal(err)
 	}

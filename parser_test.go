@@ -10,18 +10,25 @@ import (
 )
 
 func TestIsValidID(t *testing.T) {
-	cases := []struct {
+	type testCase struct {
 		id  string
 		exp bool
-	}{{
+	}
+
+	var cases = []testCase{{
 		id:  "a",
 		exp: true,
 	}, {
 		id: "1",
 	}}
 
-	for _, c := range cases {
-		got := isValidID([]byte(c.id))
+	var (
+		c   testCase
+		got bool
+	)
+
+	for _, c = range cases {
+		got = isValidID([]byte(c.id))
 		test.Assert(t, c.id, c.exp, got)
 	}
 }

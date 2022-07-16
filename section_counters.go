@@ -26,22 +26,24 @@ func (sec *sectionCounters) set(level int) *sectionCounters {
 		sec.nums[level] = 1
 		sec.curr = level
 	} else {
-		for x := sec.curr; x > level; x-- {
+		var x int
+		for x = sec.curr; x > level; x-- {
 			sec.nums[x] = 0
 		}
 		sec.nums[level]++
 		sec.curr = level
 	}
-	clone := *sec
+	var clone sectionCounters = *sec
 	return &clone
 }
 
 func (sec *sectionCounters) String() string {
 	var (
 		sb strings.Builder
+		x  int
 	)
 
-	for x := 1; x < 6; x++ {
+	for x = 1; x < 6; x++ {
 		if sec.nums[x] == 0 {
 			break
 		}

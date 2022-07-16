@@ -10,10 +10,12 @@ import (
 )
 
 func TestParseRevision(t *testing.T) {
-	cases := []struct {
+	type testCase struct {
 		raw string
 		exp Revision
-	}{{
+	}
+
+	var cases = []testCase{{
 		raw: "v1",
 		exp: Revision{
 			Number: "1",
@@ -55,8 +57,13 @@ func TestParseRevision(t *testing.T) {
 		},
 	}}
 
-	for _, c := range cases {
-		got := parseRevision(c.raw)
+	var (
+		c   testCase
+		got Revision
+	)
+
+	for _, c = range cases {
+		got = parseRevision(c.raw)
 		test.Assert(t, "Revision", c.exp, got)
 	}
 }

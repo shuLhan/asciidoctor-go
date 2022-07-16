@@ -90,17 +90,23 @@ func newDocument() *Document {
 
 // Open the ascidoc file and parse it.
 func Open(file string) (doc *Document, err error) {
-	fi, err := os.Stat(file)
+	var (
+		fi  os.FileInfo
+		wd  string
+		raw []byte
+	)
+
+	fi, err = os.Stat(file)
 	if err != nil {
 		return nil, err
 	}
 
-	raw, err := os.ReadFile(file)
+	raw, err = os.ReadFile(file)
 	if err != nil {
 		return nil, fmt.Errorf("Open %s: %w", file, err)
 	}
 
-	wd, err := os.Getwd()
+	wd, err = os.Getwd()
 	if err != nil {
 		return nil, fmt.Errorf("Open %s: %w", file, err)
 	}
@@ -120,7 +126,8 @@ func Open(file string) (doc *Document, err error) {
 func (doc *Document) ToHTMLEmbedded(out io.Writer) (err error) {
 	doc.isEmbedded = true
 	doc.generateClasses()
-	buf := &bytes.Buffer{}
+
+	var buf = &bytes.Buffer{}
 	doc.toHTMLBody(buf, false)
 	doc.isEmbedded = false
 	_, err = out.Write(buf.Bytes())
@@ -132,11 +139,11 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 	doc.generateClasses()
 
 	// Use *bytes.Buffer to minimize checking for error.
-	buf := &bytes.Buffer{}
+	var buf = &bytes.Buffer{}
 
 	fmt.Fprint(buf, _htmlBegin)
 
-	metaValue := doc.Attributes[metaNameDescription]
+	var metaValue string = doc.Attributes[metaNameDescription]
 	if len(metaValue) > 0 {
 		fmt.Fprintf(buf, "\n<meta name=\"description\" content=%q>",
 			metaValue)
@@ -147,8 +154,12 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 		fmt.Fprintf(buf, "\n<meta name=\"keywords\" content=%q>", metaValue)
 	}
 
-	var metaAuthors strings.Builder
-	for x, author := range doc.Authors {
+	var (
+		metaAuthors strings.Builder
+		author      *Author
+		x           int
+	)
+	for x, author = range doc.Authors {
 		if x > 0 {
 			metaAuthors.WriteString(", ")
 		}
@@ -159,7 +170,7 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 			attrValueAuthor, metaAuthors.String())
 	}
 
-	title := doc.Title.String()
+	var title string = doc.Title.String()
 	if len(title) > 0 {
 		fmt.Fprintf(buf, "\n<title>%s</title>", title)
 	}
@@ -167,8 +178,11 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 
 	fmt.Fprintf(buf, "\n</head>\n<body class=%q>", doc.classes.String())
 
-	isWithHeaderFooter := true
-	_, ok := doc.Attributes[metaNameNoHeaderFooter]
+	var (
+		isWithHeaderFooter = true
+		ok                 bool
+	)
+	_, ok = doc.Attributes[metaNameNoHeaderFooter]
 	if ok {
 		isWithHeaderFooter = false
 	}
@@ -185,8 +199,10 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 // including header, content, and footer.
 func (doc *Document) ToHTMLBody(out io.Writer) (err error) {
 	doc.generateClasses()
-	buf := &bytes.Buffer{}
+
+	var buf = &bytes.Buffer{}
 	doc.toHTMLBody(buf, true)
+
 	_, err = out.Write(buf.Bytes())
 	return err
 }
@@ -210,8 +226,12 @@ func (doc *Document) generateClasses() {
 }
 
 func (doc *Document) toHTMLBody(buf *bytes.Buffer, withHeaderFooter bool) {
+	var (
+		ok bool
+	)
+
 	if withHeaderFooter {
-		_, ok := doc.Attributes[metaNameNoHeader]
+		_, ok = doc.Attributes[metaNameNoHeader]
 		if !ok {
 			htmlWriteHeader(doc, buf)
 		}
@@ -220,7 +240,7 @@ func (doc *Document) toHTMLBody(buf *bytes.Buffer, withHeaderFooter bool) {
 	htmlWriteBody(doc, buf)
 
 	if withHeaderFooter {
-		_, ok := doc.Attributes[metaNameNoFooter]
+		_, ok = doc.Attributes[metaNameNoFooter]
 		if !ok {
 			htmlWriteFooter(doc, buf)
 		}
@@ -241,7 +261,12 @@ func (doc *Document) postParseHeader() {
 // "_x" added, where x is the counter of duplicate ID.
 // The old or new ID will be returned to caller.
 func (doc *Document) registerAnchor(id, label string) string {
-	got, ok := doc.anchors[id]
+	var (
+		got *anchor
+		ok  bool
+	)
+
+	got, ok = doc.anchors[id]
 	for ok {
 		// The ID is duplicate
 		got.counter++
@@ -256,7 +281,12 @@ func (doc *Document) registerAnchor(id, label string) string {
 
 // tocHTML write table of contents with HTML template into out.
 func (doc *Document) tocHTML(out io.Writer) {
-	v, ok := doc.Attributes[metaNameTOCLevels]
+	var (
+		v  string
+		ok bool
+	)
+
+	v, ok = doc.Attributes[metaNameTOCLevels]
 	if ok {
 		doc.TOCLevel, _ = strconv.Atoi(v)
 		if doc.TOCLevel <= 0 {
@@ -276,8 +306,12 @@ func (doc *Document) tocHTML(out io.Writer) {
 
 // unpackRawAuthor parse the authors field into one or more Author.
 func (doc *Document) unpackRawAuthor() {
+	var (
+		v string
+	)
+
 	if len(doc.rawAuthors) == 0 {
-		v := doc.Attributes[metaNameAuthor]
+		v = doc.Attributes[metaNameAuthor]
 		if len(v) > 0 {
 			doc.rawAuthors = v
 		}
@@ -290,20 +324,31 @@ func (doc *Document) unpackRawAuthor() {
 		}
 	}
 
-	rawAuthors := strings.Split(doc.rawAuthors, ";")
-	for _, rawAuthor := range rawAuthors {
+	var (
+		rawAuthors []string = strings.Split(doc.rawAuthors, ";")
+
+		rawAuthor string
+	)
+
+	for _, rawAuthor = range rawAuthors {
 		if len(rawAuthor) > 0 {
 			doc.Authors = append(doc.Authors, parseAuthor(rawAuthor))
 		}
 	}
 
-	authorKey := metaNameAuthor
-	emailKey := metaNameEmail
-	initialsKey := metaNameAuthorInitials
-	firstNameKey := metaNameFirstName
-	middleNameKey := metaNameMiddleName
-	lastNameKey := metaNameLastName
-	for x, author := range doc.Authors {
+	var (
+		authorKey     = metaNameAuthor
+		emailKey      = metaNameEmail
+		initialsKey   = metaNameAuthorInitials
+		firstNameKey  = metaNameFirstName
+		middleNameKey = metaNameMiddleName
+		lastNameKey   = metaNameLastName
+
+		author *Author
+		x      int
+	)
+
+	for x, author = range doc.Authors {
 		if x == 0 {
 			doc.Attributes[authorKey] = author.FullName()
 			doc.Attributes[emailKey] = author.Email
@@ -346,6 +391,7 @@ func (doc *Document) unpackRawTitle() {
 	var (
 		title string
 		prev  byte
+		x     int
 	)
 
 	if len(doc.Title.raw) == 0 {
@@ -362,7 +408,7 @@ func (doc *Document) unpackRawTitle() {
 	title = doc.Title.el.toText()
 	doc.Attributes[metaNameDocTitle] = title
 
-	for x := len(title) - 1; x > 0; x-- {
+	for x = len(title) - 1; x > 0; x-- {
 		if title[x] == doc.Title.sep {
 			if prev == ' ' {
 				doc.Title.Sub = string(title[x+2:])
@@ -380,7 +426,12 @@ func (doc *Document) unpackRawTitle() {
 // unpackTitleSeparator set the Title separator using the first character in
 // meta attribute "title-separator" value.
 func (doc *Document) unpackTitleSeparator() {
-	v, ok := doc.Attributes[metaNameTitleSeparator]
+	var (
+		v  string
+		ok bool
+	)
+
+	v, ok = doc.Attributes[metaNameTitleSeparator]
 	if ok {
 		v = strings.TrimSpace(v)
 		if len(v) > 0 {

@@ -11,11 +11,13 @@ import (
 )
 
 func TestParseColumnFormat(t *testing.T) {
-	cases := []struct {
+	type testCase struct {
 		expFormat *columnFormat
 		s         string
 		expNCols  int
-	}{{
+	}
+
+	var cases = []testCase{{
 		s:        "3*",
 		expNCols: 3,
 		expFormat: &columnFormat{
@@ -40,8 +42,14 @@ func TestParseColumnFormat(t *testing.T) {
 		},
 	}}
 
-	for _, c := range cases {
-		gotNCols, gotFormat := parseColumnFormat(c.s)
+	var (
+		c         testCase
+		gotNCols  int
+		gotFormat *columnFormat
+	)
+
+	for _, c = range cases {
+		gotNCols, gotFormat = parseColumnFormat(c.s)
 		test.Assert(t, c.s+" ncols", c.expNCols, gotNCols)
 		test.Assert(t, c.s, c.expFormat, gotFormat)
 	}

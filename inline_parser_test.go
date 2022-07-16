@@ -12,15 +12,17 @@ import (
 )
 
 func TestInlineParser_do(t *testing.T) {
-	_testDoc := &Document{
+	type testCase struct {
+		content string
+		exp     string
+	}
+
+	var _testDoc = &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
 	}
 
-	cases := []struct {
-		content string
-		exp     string
-	}{{
+	var cases = []testCase{{
 		content: "*A _B `C_ D` E*",
 		exp:     "<strong>A <em>B <code>C</code></em><code> D</code> E</strong>",
 	}, {
@@ -31,33 +33,40 @@ func TestInlineParser_do(t *testing.T) {
 		exp:     "<strong>A <em>B `C D</em></strong><em> E</em> F.",
 	}}
 
-	var buf bytes.Buffer
-	for _, c := range cases {
+	var (
+		buf       bytes.Buffer
+		c         testCase
+		container *element
+		got       string
+	)
+	for _, c = range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		container = parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
 		}
 
-		got := buf.String()
+		got = buf.String()
 		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
 func TestInlineParser_parseAttrRef(t *testing.T) {
-	_testDoc := &Document{
+	type testCase struct {
+		content string
+		exp     string
+	}
+
+	var _testDoc = &Document{
 		Attributes: map[string]string{
 			"x": "https://kilabit.info",
 		},
 	}
 
-	cases := []struct {
-		content string
-		exp     string
-	}{{
+	var cases = []testCase{{
 		content: "A {x}[*B*] C",
 		exp:     `A <a href="https://kilabit.info"><strong>B</strong></a> C`,
 	}, {
@@ -71,24 +80,35 @@ func TestInlineParser_parseAttrRef(t *testing.T) {
 		exp:     "A {y }<strong>B</strong> C",
 	}}
 
-	var buf bytes.Buffer
-	for _, c := range cases {
+	var (
+		buf       bytes.Buffer
+		c         testCase
+		container *element
+		got       string
+	)
+
+	for _, c = range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		container = parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
 		}
 
-		got := buf.String()
+		got = buf.String()
 		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
 func TestInlineParser_parseCrossReference(t *testing.T) {
-	_testDoc := &Document{
+	type testCase struct {
+		content string
+		exp     string
+	}
+
+	var _testDoc = &Document{
 		anchors: map[string]*anchor{
 			"x": &anchor{
 				label: "X y",
@@ -99,10 +119,7 @@ func TestInlineParser_parseCrossReference(t *testing.T) {
 		},
 	}
 
-	cases := []struct {
-		content string
-		exp     string
-	}{{
+	var cases = []testCase{{
 		content: "A <<x>>",
 		exp:     `A <a href="#x">X y</a>`,
 	}, {
@@ -116,32 +133,39 @@ func TestInlineParser_parseCrossReference(t *testing.T) {
 		exp:     `A <a href="#x">Label</a>`,
 	}}
 
-	var buf bytes.Buffer
-	for _, c := range cases {
+	var (
+		buf       bytes.Buffer
+		c         testCase
+		container *element
+		got       string
+	)
+	for _, c = range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		container = parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
 		}
 
-		got := buf.String()
+		got = buf.String()
 		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
 func TestInlineParser_parseFormat(t *testing.T) {
-	_testDoc := &Document{
+	type testCase struct {
+		content string
+		exp     string
+	}
+
+	var _testDoc = &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
 	}
 
-	cases := []struct {
-		content string
-		exp     string
-	}{{
+	var cases = []testCase{{
 		content: "_A_B",
 		exp:     "_A_B",
 	}, {
@@ -173,32 +197,40 @@ func TestInlineParser_parseFormat(t *testing.T) {
 		exp:     "A <code>/<strong></strong>/</code> <strong>B</strong>",
 	}}
 
-	var buf bytes.Buffer
-	for _, c := range cases {
+	var (
+		buf       bytes.Buffer
+		c         testCase
+		container *element
+		got       string
+	)
+
+	for _, c = range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		container = parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
 		}
 
-		got := buf.String()
+		got = buf.String()
 		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
 func TestInlineParser_parseFormatUnconstrained(t *testing.T) {
-	_testDoc := &Document{
+	type testCase struct {
+		content string
+		exp     string
+	}
+
+	var _testDoc = &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
 	}
 
-	cases := []struct {
-		content string
-		exp     string
-	}{{
+	var cases = []testCase{{
 		content: "__A__B",
 		exp:     "<em>A</em>B",
 	}, {
@@ -218,33 +250,41 @@ func TestInlineParser_parseFormatUnconstrained(t *testing.T) {
 		exp:     "<em>A <strong>B</strong>_</em>",
 	}}
 
-	var buf bytes.Buffer
-	for _, c := range cases {
+	var (
+		buf       bytes.Buffer
+		c         testCase
+		container *element
+		got       string
+	)
+
+	for _, c = range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		container = parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
 		}
 
-		got := buf.String()
+		got = buf.String()
 		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
 func TestInlineParser_parseInlineID(t *testing.T) {
-	_testDoc := &Document{
+	type testCase struct {
+		content  string
+		exp      string
+		isForToC bool
+	}
+
+	var _testDoc = &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
 	}
 
-	cases := []struct {
-		content  string
-		exp      string
-		isForToC bool
-	}{{
+	var cases = []testCase{{
 		content: `[[A]] B`,
 		exp:     `<a id="A"></a> B`,
 	}, {
@@ -268,11 +308,17 @@ func TestInlineParser_parseInlineID(t *testing.T) {
 		exp:     `[[A B]] C`,
 	}}
 
-	var buf bytes.Buffer
-	for _, c := range cases {
+	var (
+		buf       bytes.Buffer
+		c         testCase
+		container *element
+		got       string
+	)
+
+	for _, c = range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		container = parseInlineMarkup(_testDoc, []byte(c.content))
 		_testDoc.isForToC = c.isForToC
 		container.toHTML(_testDoc, &buf)
 		_testDoc.isForToC = false
@@ -281,21 +327,23 @@ func TestInlineParser_parseInlineID(t *testing.T) {
 			container.debug(0)
 		}
 
-		got := buf.String()
+		got = buf.String()
 		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
 func TestInlineParser_parseInlineIDShort(t *testing.T) {
-	_testDoc := &Document{
+	type testCase struct {
+		content string
+		exp     string
+	}
+
+	var _testDoc = &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
 	}
 
-	cases := []struct {
-		content string
-		exp     string
-	}{{
+	var cases = []testCase{{
 		content: `[#A]#B#`,
 		exp:     `<span id="A">B</span>`,
 	}, {
@@ -315,32 +363,40 @@ func TestInlineParser_parseInlineIDShort(t *testing.T) {
 		exp:     `[#A B]# C#`,
 	}}
 
-	var buf bytes.Buffer
-	for _, c := range cases {
+	var (
+		buf       bytes.Buffer
+		c         testCase
+		container *element
+		got       string
+	)
+
+	for _, c = range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		container = parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
 		}
 
-		got := buf.String()
+		got = buf.String()
 		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
 func TestInlineParser_parseInlineImage(t *testing.T) {
-	_testDoc := &Document{
+	type testCase struct {
+		content string
+		exp     string
+	}
+
+	var _testDoc = &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
 	}
 
-	cases := []struct {
-		content string
-		exp     string
-	}{{
+	var cases = []testCase{{
 		content: `image:https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg[Linux,25,35]`,
 		exp:     `<span class="image"><img src="https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg" alt="Linux" width="25" height="35"></span>`,
 	}, {
@@ -358,32 +414,40 @@ image:linux.png[2]`,
 <span class="image"><img src="linux.png" alt="2"></span>`,
 	}}
 
-	var buf bytes.Buffer
-	for _, c := range cases {
+	var (
+		buf       bytes.Buffer
+		c         testCase
+		container *element
+		got       string
+	)
+
+	for _, c = range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		container = parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
 		}
 
-		got := buf.String()
+		got = buf.String()
 		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
 func TestInlineParser_parsePassthrough(t *testing.T) {
-	_testDoc := &Document{
+	type testCase struct {
+		content string
+		exp     string
+	}
+
+	var _testDoc = &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
 	}
 
-	cases := []struct {
-		content string
-		exp     string
-	}{{
+	var cases = []testCase{{
 		content: "`+__A *B*__+`",
 		exp:     "<code>__A *B*__</code>",
 	}, {
@@ -400,32 +464,40 @@ func TestInlineParser_parsePassthrough(t *testing.T) {
 		exp:     `+<em>A <strong>B</strong></em>+X`,
 	}}
 
-	var buf bytes.Buffer
-	for _, c := range cases {
+	var (
+		buf       bytes.Buffer
+		c         testCase
+		container *element
+		got       string
+	)
+
+	for _, c = range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		container = parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
 		}
 
-		got := buf.String()
+		got = buf.String()
 		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
 func TestInlineParser_parsePassthroughDouble(t *testing.T) {
-	_testDoc := &Document{
+	type testCase struct {
+		content string
+		exp     string
+	}
+
+	var _testDoc = &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
 	}
 
-	cases := []struct {
-		content string
-		exp     string
-	}{{
+	var cases = []testCase{{
 		content: "`++__A *B*__++`",
 		exp:     "<code>__A *B*__</code>",
 	}, {
@@ -448,32 +520,40 @@ func TestInlineParser_parsePassthroughDouble(t *testing.T) {
 		exp:     ` <u>A</u> `,
 	}}
 
-	var buf bytes.Buffer
-	for _, c := range cases {
+	var (
+		buf       bytes.Buffer
+		c         testCase
+		container *element
+		got       string
+	)
+
+	for _, c = range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		container = parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
 		}
 
-		got := buf.String()
+		got = buf.String()
 		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
 func TestInlineParser_parsePassthroughTriple(t *testing.T) {
-	_testDoc := &Document{
+	type testCase struct {
+		content string
+		exp     string
+	}
+
+	var _testDoc = &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
 	}
 
-	cases := []struct {
-		content string
-		exp     string
-	}{{
+	var cases = []testCase{{
 		content: `+++__A *B*__+++`,
 		exp:     `__A *B*__`,
 	}, {
@@ -502,32 +582,40 @@ func TestInlineParser_parsePassthroughTriple(t *testing.T) {
 		exp:     ` <u>A</u> `,
 	}}
 
-	var buf bytes.Buffer
-	for _, c := range cases {
+	var (
+		buf       bytes.Buffer
+		c         testCase
+		container *element
+		got       string
+	)
+
+	for _, c = range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		container = parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
 		}
 
-		got := buf.String()
+		got = buf.String()
 		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
 func TestInlineParser_parseQuote(t *testing.T) {
-	_testDoc := &Document{
+	type testCase struct {
+		content string
+		exp     string
+	}
+
+	var _testDoc = &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
 	}
 
-	cases := []struct {
-		content string
-		exp     string
-	}{{
+	var cases = []testCase{{
 		content: "\"`A double quote without end.",
 		exp:     "\"`A double quote without end.",
 	}, {
@@ -553,32 +641,39 @@ func TestInlineParser_parseQuote(t *testing.T) {
 		exp:     "\"`Escaped single quote`\"",
 	}}
 
-	var buf bytes.Buffer
-	for _, c := range cases {
+	var (
+		buf       bytes.Buffer
+		c         testCase
+		container *element
+		got       string
+	)
+	for _, c = range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		container = parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
 		}
 
-		got := buf.String()
+		got = buf.String()
 		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
 func TestInlineParser_parseSubscsript(t *testing.T) {
-	_testDoc := &Document{
+	type testCase struct {
+		content string
+		exp     string
+	}
+
+	var _testDoc = &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
 	}
 
-	cases := []struct {
-		content string
-		exp     string
-	}{{
+	var cases = []testCase{{
 		content: "A~B~C",
 		exp:     "A<sub>B</sub>C",
 	}, {
@@ -595,32 +690,40 @@ func TestInlineParser_parseSubscsript(t *testing.T) {
 		exp:     "A~B~C",
 	}}
 
-	var buf bytes.Buffer
-	for _, c := range cases {
+	var (
+		buf       bytes.Buffer
+		c         testCase
+		container *element
+		got       string
+	)
+
+	for _, c = range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		container = parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
 		}
 
-		got := buf.String()
+		got = buf.String()
 		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
 func TestInlineParser_parseSuperscript(t *testing.T) {
-	_testDoc := &Document{
+	type testCase struct {
+		content string
+		exp     string
+	}
+
+	var _testDoc = &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
 	}
 
-	cases := []struct {
-		content string
-		exp     string
-	}{{
+	var cases = []testCase{{
 		content: "A^B^C",
 		exp:     "A<sup>B</sup>C",
 	}, {
@@ -637,32 +740,40 @@ func TestInlineParser_parseSuperscript(t *testing.T) {
 		exp:     "A^B^C",
 	}}
 
-	var buf bytes.Buffer
-	for _, c := range cases {
+	var (
+		buf       bytes.Buffer
+		c         testCase
+		container *element
+		got       string
+	)
+
+	for _, c = range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		container = parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
 		}
 
-		got := buf.String()
+		got = buf.String()
 		test.Assert(t, c.content, c.exp, got)
 	}
 }
 
 func TestInlineParser_parseURL(t *testing.T) {
-	_testDoc := &Document{
+	type testCase struct {
+		content string
+		exp     string
+	}
+
+	var _testDoc = &Document{
 		anchors: make(map[string]*anchor),
 		titleID: make(map[string]string),
 	}
 
-	cases := []struct {
-		content string
-		exp     string
-	}{{
+	var cases = []testCase{{
 		content: `https://asciidoctor.org/abc`,
 		exp:     `<a href="https://asciidoctor.org/abc" class="bare">https://asciidoctor.org/abc</a>`,
 	}, {
@@ -694,18 +805,24 @@ func TestInlineParser_parseURL(t *testing.T) {
 		exp:     `http: this is not link`,
 	}}
 
-	var buf bytes.Buffer
-	for _, c := range cases {
+	var (
+		buf       bytes.Buffer
+		c         testCase
+		container *element
+		got       string
+	)
+
+	for _, c = range cases {
 		buf.Reset()
 
-		container := parseInlineMarkup(_testDoc, []byte(c.content))
+		container = parseInlineMarkup(_testDoc, []byte(c.content))
 		container.toHTML(_testDoc, &buf)
 
 		if debug.Value > 0 {
 			container.debug(0)
 		}
 
-		got := buf.String()
+		got = buf.String()
 		test.Assert(t, c.content, c.exp, got)
 	}
 }

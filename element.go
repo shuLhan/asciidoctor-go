@@ -78,11 +78,16 @@ func (el *element) getListOrderedType() string {
 // getVideoSource generate video full URL for HTML attribute "src".
 func (el *element) getVideoSource() string {
 	var (
-		u         = new(url.URL)
-		q         []string
-		fragment  string
+		u          = new(url.URL)
+		src string = el.Attrs[attrNameSrc]
+
+		q        []string
+		fragment string
+		vstr     string
+
 		isYoutube bool
 		isVimeo   bool
+		ok        bool
 	)
 
 	if el.rawStyle == attrNameYoutube {
@@ -92,8 +97,6 @@ func (el *element) getVideoSource() string {
 		isVimeo = true
 	}
 
-	src := el.Attrs[attrNameSrc]
-
 	if isYoutube {
 		u.Scheme = "https"
 		u.Host = "www.youtube.com"
@@ -101,18 +104,20 @@ func (el *element) getVideoSource() string {
 
 		q = append(q, "rel=0")
 
-		v, ok := el.Attrs[attrNameStart]
+		vstr, ok = el.Attrs[attrNameStart]
 		if ok {
-			q = append(q, attrNameStart+"="+v)
+			q = append(q, attrNameStart+"="+vstr)
 		}
-		v, ok = el.Attrs[attrNameEnd]
+
+		vstr, ok = el.Attrs[attrNameEnd]
 		if ok {
-			q = append(q, attrNameEnd+"="+v)
+			q = append(q, attrNameEnd+"="+vstr)
 		}
-		for _, opt := range el.options {
-			switch opt {
+
+		for _, vstr = range el.options {
+			switch vstr {
 			case optNameAutoplay, optNameLoop:
-				q = append(q, opt+"=1")
+				q = append(q, vstr+"=1")
 			case optVideoModest:
 				q = append(q, optVideoYoutubeModestbranding+"=1")
 			case optNameNocontrols:
@@ -123,13 +128,15 @@ func (el *element) getVideoSource() string {
 				el.Attrs[optVideoNofullscreen] = ""
 			}
 		}
-		v, ok = el.Attrs[attrNameTheme]
+
+		vstr, ok = el.Attrs[attrNameTheme]
 		if ok {
-			q = append(q, attrNameTheme+"="+v)
+			q = append(q, attrNameTheme+"="+vstr)
 		}
-		v, ok = el.Attrs[attrNameLang]
+
+		vstr, ok = el.Attrs[attrNameLang]
 		if ok {
-			q = append(q, attrNameYoutubeLang+"="+v)
+			q = append(q, attrNameYoutubeLang+"="+vstr)
 		}
 
 	} else if isVimeo {
@@ -137,34 +144,35 @@ func (el *element) getVideoSource() string {
 		u.Host = "player.vimeo.com"
 		u.Path = "/video/" + src
 
-		for _, opt := range el.options {
-			switch opt {
+		for _, vstr = range el.options {
+			switch vstr {
 			case optNameAutoplay, optNameLoop:
-				q = append(q, opt+"=1")
+				q = append(q, vstr+"=1")
 			}
 		}
-		v, ok := el.Attrs[attrNameStart]
+		vstr, ok = el.Attrs[attrNameStart]
 		if ok {
-			fragment = "at=" + v
+			fragment = "at=" + vstr
 		}
+
 	} else {
-		for _, opt := range el.options {
-			switch opt {
+		for _, vstr = range el.options {
+			switch vstr {
 			case optNameAutoplay, optNameLoop:
 				el.Attrs[optNameNocontrols] = ""
-				el.Attrs[opt] = ""
+				el.Attrs[vstr] = ""
 			}
 		}
 
-		v, ok := el.Attrs[attrNameStart]
+		vstr, ok = el.Attrs[attrNameStart]
 		if ok {
-			fragment = "t=" + v
-			v, ok = el.Attrs[attrNameEnd]
+			fragment = "t=" + vstr
+			vstr, ok = el.Attrs[attrNameEnd]
 			if ok {
-				fragment += "," + v
+				fragment += "," + vstr
 			}
-		} else if v, ok = el.Attrs[attrNameEnd]; ok {
-			fragment = "t=0," + v
+		} else if vstr, ok = el.Attrs[attrNameEnd]; ok {
+			fragment = "t=0," + vstr
 		}
 
 		if len(fragment) > 0 {
@@ -227,7 +235,7 @@ func (el *element) addChild(child *element) {
 	if el.child == nil {
 		el.child = child
 	} else {
-		c := el.child
+		var c *element = el.child
 		for c.next != nil {
 			c = c.next
 		}
@@ -238,7 +246,7 @@ func (el *element) addChild(child *element) {
 
 // backTrimSpace remove trailing white spaces on raw field.
 func (el *element) backTrimSpace() {
-	x := len(el.raw) - 1
+	var x int = len(el.raw) - 1
 	for ; x > 0; x-- {
 		if ascii.IsSpace(el.raw[x]) {
 			continue
@@ -249,7 +257,8 @@ func (el *element) backTrimSpace() {
 }
 
 func (el *element) debug(n int) {
-	for x := 0; x < n; x++ {
+	var x int
+	for x = 0; x < n; x++ {
 		fmt.Printf("\t")
 	}
 	fmt.Printf("el: {kind:%-3d style:%-3d raw:%s}\n", el.kind, el.style, el.raw)
@@ -277,16 +286,18 @@ func (el *element) lastSuccessor() (last *element) {
 
 func (el *element) parseBlockAudio(doc *Document, line []byte) bool {
 	line = bytes.TrimRight(line[7:], " \t")
-	attrBegin := bytes.IndexByte(line, '[')
+
+	var attrBegin int = bytes.IndexByte(line, '[')
 	if attrBegin < 0 {
 		return false
 	}
-	attrEnd := bytes.IndexByte(line, ']')
+
+	var attrEnd int = bytes.IndexByte(line, ']')
 	if attrEnd < 0 {
 		return false
 	}
 
-	src := bytes.TrimRight(line[:attrBegin], " \t")
+	var src []byte = bytes.TrimRight(line[:attrBegin], " \t")
 	if el.Attrs == nil {
 		el.Attrs = make(map[string]string)
 	}
@@ -301,16 +312,33 @@ func (el *element) parseBlockAudio(doc *Document, line []byte) bool {
 // parseBlockImage parse the image block or line.
 // The line parameter must not have "image::" block or "image:" macro prefix.
 func (el *element) parseBlockImage(doc *Document, line []byte) bool {
-	attrBegin := bytes.IndexByte(line, '[')
+	var (
+		attrBegin int = bytes.IndexByte(line, '[')
+
+		attr string
+		key  string
+		val  string
+		kv   []string
+
+		attrs [][]byte
+		src   []byte
+		battr []byte
+		alt   []byte
+
+		attrEnd int
+		dot     int
+		x       int
+	)
+
 	if attrBegin < 0 {
 		return false
 	}
-	attrEnd := bytes.IndexByte(line, ']')
+	attrEnd = bytes.IndexByte(line, ']')
 	if attrEnd < 0 {
 		return false
 	}
 
-	src := bytes.TrimRight(line[:attrBegin], " \t")
+	src = bytes.TrimRight(line[:attrBegin], " \t")
 
 	if el.Attrs == nil {
 		el.Attrs = make(map[string]string)
@@ -318,17 +346,17 @@ func (el *element) parseBlockImage(doc *Document, line []byte) bool {
 	src = applySubstitutions(doc, src)
 	el.Attrs[attrNameSrc] = string(src)
 
-	attrs := bytes.Split(line[attrBegin+1:attrEnd], []byte(","))
+	attrs = bytes.Split(line[attrBegin+1:attrEnd], []byte(","))
 	if el.Attrs == nil {
 		el.Attrs = make(map[string]string)
 	}
 	var hasWidth bool
-	for x, battr := range attrs {
-		attr := string(battr)
+	for x, battr = range attrs {
+		attr = string(battr)
 		if x == 0 {
-			alt := bytes.TrimSpace(attrs[0])
+			alt = bytes.TrimSpace(attrs[0])
 			if len(alt) == 0 {
-				dot := bytes.IndexByte(src, '.')
+				dot = bytes.IndexByte(src, '.')
 				if dot > 0 {
 					alt = src[:dot]
 				}
@@ -348,12 +376,12 @@ func (el *element) parseBlockImage(doc *Document, line []byte) bool {
 				el.Attrs[attrNameHeight] = string(attrs[2])
 			}
 		}
-		kv := strings.SplitN(attr, "=", 2)
+		kv = strings.SplitN(attr, "=", 2)
 		if len(kv) != 2 {
 			continue
 		}
-		key := strings.TrimSpace(kv[0])
-		val := strings.Trim(kv[1], `"`)
+		key = strings.TrimSpace(kv[0])
+		val = strings.Trim(kv[1], `"`)
 		switch key {
 		case attrNameFloat, attrNameAlign, attrNameRole:
 			if val == "center" {
@@ -365,10 +393,10 @@ func (el *element) parseBlockImage(doc *Document, line []byte) bool {
 		}
 	}
 
-	for k, v := range el.Attrs {
-		if k == attrNameLink {
-			v = string(applySubstitutions(doc, []byte(v)))
-			el.Attrs[k] = v
+	for key, val = range el.Attrs {
+		if key == attrNameLink {
+			val = string(applySubstitutions(doc, []byte(val)))
+			el.Attrs[key] = val
 		}
 	}
 
@@ -380,7 +408,7 @@ func (el *element) parseInlineMarkup(doc *Document, kind int) {
 		return
 	}
 
-	container := parseInlineMarkup(doc, el.raw)
+	var container *element = parseInlineMarkup(doc, el.raw)
 	if kind != 0 {
 		container.kind = kind
 	}
@@ -395,9 +423,11 @@ func (el *element) parseInlineMarkup(doc *Document, kind int) {
 }
 
 func (el *element) parseLineAdmonition(line []byte) {
-	sep := bytes.IndexByte(line, ':')
-	class := string(bytes.ToLower(line[:sep]))
-	rawLabel := admonitionToLabel(class)
+	var (
+		sep      int    = bytes.IndexByte(line, ':')
+		class    string = string(bytes.ToLower(line[:sep]))
+		rawLabel string = admonitionToLabel(class)
+	)
 
 	el.addRole(class)
 	el.rawLabel.WriteString(rawLabel)
@@ -445,7 +475,10 @@ func (el *element) parseListDescriptionItem(line []byte) {
 }
 
 func (el *element) parseListOrderedItem(line []byte) {
-	x := 0
+	var (
+		x int
+	)
+
 	for ; x < len(line); x++ {
 		if line[x] == '.' {
 			el.level++
@@ -466,7 +499,10 @@ func (el *element) parseListOrderedItem(line []byte) {
 }
 
 func (el *element) parseListUnorderedItem(line []byte) {
-	x := 0
+	var (
+		x int
+	)
+
 	for ; x < len(line); x++ {
 		if line[x] == '*' {
 			el.level++
@@ -517,19 +553,28 @@ func (el *element) parseSection(doc *Document, isDiscrete bool) {
 		el.level = (el.kind - elKindSectionL1) + 1
 	}
 
-	container := parseInlineMarkup(doc, el.raw)
+	var (
+		container *element = parseInlineMarkup(doc, el.raw)
+
+		lastChild *element
+		p         *element
+		anc       *anchor
+
+		refText string
+		ok      bool
+	)
 
 	if len(el.ID) == 0 {
-		lastChild := container.lastSuccessor()
+		lastChild = container.lastSuccessor()
 		if lastChild != nil && lastChild.kind == elKindInlineID {
 			el.ID = lastChild.ID
 
 			// Delete last child
 			if lastChild.prev != nil {
-				p := lastChild.prev
+				p = lastChild.prev
 				p.next = nil
 			} else if lastChild.parent != nil {
-				p := lastChild.parent
+				p = lastChild.parent
 				p.child = nil
 			}
 			lastChild.prev = nil
@@ -543,18 +588,18 @@ func (el *element) parseSection(doc *Document, isDiscrete bool) {
 	el.Text = container.toText()
 
 	if len(el.ID) == 0 {
-		_, ok := doc.Attributes[metaNameSectIDs]
+		_, ok = doc.Attributes[metaNameSectIDs]
 		if ok {
 			el.ID = generateID(doc, el.Text)
 			el.ID = doc.registerAnchor(el.ID, el.Text)
 		}
 	}
 
-	refText, ok := el.Attrs[attrNameRefText]
+	refText, ok = el.Attrs[attrNameRefText]
 	if ok {
 		doc.titleID[refText] = el.ID
 		// Replace the label with refText.
-		anc := doc.anchors[el.ID]
+		anc = doc.anchors[el.ID]
 		if anc != nil {
 			anc.label = refText
 		}
@@ -569,8 +614,14 @@ func (el *element) parseSection(doc *Document, isDiscrete bool) {
 
 func (el *element) parseStyleClass(line []byte) {
 	line = bytes.Trim(line, "[]")
-	parts := bytes.Split(line, []byte("."))
-	for _, class := range parts {
+
+	var (
+		parts = bytes.Split(line, []byte("."))
+
+		class []byte
+	)
+
+	for _, class = range parts {
 		class = bytes.TrimSpace(class)
 		if len(class) > 0 {
 			el.addRole(string(class))
@@ -581,11 +632,17 @@ func (el *element) parseStyleClass(line []byte) {
 func (el *element) parseBlockVideo(doc *Document, line []byte) bool {
 	line = bytes.TrimRight(line[7:], " \t")
 
-	attrBegin := bytes.IndexByte(line, '[')
+	var (
+		attrBegin = bytes.IndexByte(line, '[')
+
+		videoSrc []byte
+		attrEnd  int
+	)
+
 	if attrBegin < 0 {
 		return false
 	}
-	attrEnd := bytes.IndexByte(line, ']')
+	attrEnd = bytes.IndexByte(line, ']')
 	if attrEnd < 0 {
 		return false
 	}
@@ -594,7 +651,7 @@ func (el *element) parseBlockVideo(doc *Document, line []byte) bool {
 		el.Attrs = make(map[string]string)
 	}
 
-	videoSrc := bytes.TrimRight(line[:attrBegin], " \t")
+	videoSrc = bytes.TrimRight(line[:attrBegin], " \t")
 	videoSrc = applySubstitutions(doc, []byte(videoSrc))
 	el.Attrs[attrNameSrc] = string(videoSrc)
 
@@ -604,11 +661,15 @@ func (el *element) parseBlockVideo(doc *Document, line []byte) bool {
 }
 
 func (el *element) postParseList(doc *Document, kind int) {
-	item := el.child
+	var (
+		item *element = el.child
+		raw  []byte
+	)
+
 	for item != nil {
 		if item.kind == kind {
 			if item.kind == elKindListDescriptionItem {
-				raw := item.rawLabel.Bytes()
+				raw = item.rawLabel.Bytes()
 				item.label = parseInlineMarkup(doc, raw)
 				item.rawLabel.Reset()
 			}
@@ -631,7 +692,10 @@ func (el *element) postParseParagraph(parent *element) {
 
 	el.raw = bytes.TrimRight(el.raw, " \t\n")
 
-	lines := bytes.Split(el.raw, []byte{'\n'})
+	var (
+		lines [][]byte = bytes.Split(el.raw, []byte{'\n'})
+	)
+
 	if len(lines) <= 1 {
 		return
 	}
@@ -640,7 +704,17 @@ func (el *element) postParseParagraph(parent *element) {
 }
 
 func (el *element) postParseParagraphAsQuote(lines [][]byte) bool {
-	lastLine := lines[len(lines)-1]
+	var (
+		lastLine []byte = lines[len(lines)-1]
+
+		firstLine      []byte
+		secondLastLine []byte
+		line           []byte
+
+		secondLastIdx int
+		x             int
+	)
+
 	if len(lastLine) <= 4 {
 		return false
 	}
@@ -653,19 +727,20 @@ func (el *element) postParseParagraphAsQuote(lines [][]byte) bool {
 	if !(lastLine[2] == ' ' || lastLine[2] == '\t') {
 		return false
 	}
-	firstLine := lines[0]
+	firstLine = lines[0]
 	if firstLine[0] != '"' {
 		return false
 	}
-	secondLastLine := lines[len(lines)-2]
+	secondLastLine = lines[len(lines)-2]
 	if secondLastLine[len(secondLastLine)-1] != '"' {
 		return false
 	}
 
 	el.raw = el.raw[:0]
 
-	secondLastIdx := len(lines) - 2
-	for x, line := range lines[:len(lines)-1] {
+	secondLastIdx = len(lines) - 2
+
+	for x, line = range lines[:len(lines)-1] {
 		if x == 0 {
 			if x == secondLastIdx {
 				el.Write(line[1 : len(line)-1])
@@ -681,7 +756,7 @@ func (el *element) postParseParagraphAsQuote(lines [][]byte) bool {
 	}
 
 	el.kind = elKindBlockExcerpts
-	opts := strings.SplitN(string(lastLine[3:]), `,`, 2)
+	var opts []string = strings.SplitN(string(lastLine[3:]), `,`, 2)
 	if el.Attrs == nil {
 		el.Attrs = make(map[string]string)
 	}
@@ -706,7 +781,7 @@ func (el *element) removeLastIfEmpty() {
 	if el.child == nil {
 		return
 	}
-	c := el
+	var c *element = el
 	for c.child != nil {
 		c = c.child
 		for c.next != nil {
@@ -731,7 +806,7 @@ func (el *element) removeLastIfEmpty() {
 func (el *element) setStyleAdmonition(admName string) {
 	admName = strings.ToLower(admName)
 	el.addRole(admName)
-	rawLabel := admonitionToLabel(admName)
+	var rawLabel string = admonitionToLabel(admName)
 	el.rawLabel.WriteString(rawLabel)
 }
 
@@ -742,10 +817,10 @@ func (el *element) toHTML(doc *Document, w io.Writer) {
 
 	case elKindCrossReference:
 		var (
-			href  = el.Attrs[attrNameHref]
-			label = string(el.raw)
+			href   string  = el.Attrs[attrNameHref]
+			label          = string(el.raw)
+			anchor *anchor = doc.anchors[href]
 		)
-		anchor := doc.anchors[href]
 		if anchor == nil {
 			href = doc.titleID[href]
 			if len(href) > 0 {

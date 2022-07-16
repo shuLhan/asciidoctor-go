@@ -27,7 +27,9 @@ type elementTable struct {
 
 func newTable(ea *elementAttribute, content []byte) (table *elementTable) {
 	var (
-		row *tableRow
+		row       *tableRow
+		pt        *tableParser
+		attrValue string
 	)
 
 	table = &elementTable{
@@ -39,14 +41,14 @@ func newTable(ea *elementAttribute, content []byte) (table *elementTable) {
 		styles: make(map[string]string),
 	}
 
-	attrValue := ea.Attrs[attrNameCols]
+	attrValue = ea.Attrs[attrNameCols]
 	if len(attrValue) > 0 {
 		table.ncols, table.formats = parseAttrCols(attrValue)
 	}
 
 	table.parseOptions(ea.options)
 
-	pt := newTableParser(content)
+	pt = newTableParser(content)
 
 	if table.ncols == 0 {
 		row = pt.firstRow()
@@ -76,7 +78,8 @@ func newTable(ea *elementAttribute, content []byte) (table *elementTable) {
 	}
 
 	if len(table.formats) == 0 {
-		for x := 0; x < table.ncols; x++ {
+		var x int
+		for x = 0; x < table.ncols; x++ {
 			table.formats = append(table.formats, newColumnFormat())
 		}
 	}
@@ -89,8 +92,12 @@ func newTable(ea *elementAttribute, content []byte) (table *elementTable) {
 }
 
 func (table *elementTable) initializeFormats() {
-	for _, format := range table.formats {
-		classes := []string{classNameTableBlock}
+	var (
+		format *columnFormat
+	)
+
+	for _, format = range table.formats {
+		var classes = []string{classNameTableBlock}
 
 		switch format.alignHor {
 		case colAlignTop:
@@ -114,9 +121,11 @@ func (table *elementTable) initializeFormats() {
 
 func (table *elementTable) initializeClassAndStyles(ea *elementAttribute) {
 	var (
+		k         string
+		v         string
 		withWidth bool
 	)
-	for k, v := range ea.Attrs {
+	for k, v = range ea.Attrs {
 		switch k {
 		case attrNameWidth:
 			if len(v) == 0 {
@@ -164,17 +173,19 @@ func (table *elementTable) initializeClassAndStyles(ea *elementAttribute) {
 			}
 		}
 	}
-	for _, k := range ea.options {
+	for _, k = range ea.options {
 		switch k {
 		case optNameAutowidth:
 			withWidth = true
 			table.classes.add(classNameFitContent)
-			for _, f := range table.formats {
+
+			var f *columnFormat
+			for _, f = range table.formats {
 				f.width = nil
 			}
 		}
 	}
-	for _, k := range ea.roles {
+	for _, k = range ea.roles {
 		table.classes.add(k)
 	}
 	if !withWidth {
@@ -186,7 +197,8 @@ func (table *elementTable) parseOptions(opts []string) {
 	if opts == nil {
 		return
 	}
-	for _, key := range opts {
+	var key string
+	for _, key = range opts {
 		switch key {
 		case attrValueHeader:
 			table.hasHeader = true
@@ -198,11 +210,14 @@ func (table *elementTable) parseOptions(opts []string) {
 
 func (table *elementTable) recalculateWidth() {
 	var (
-		totalWidth   = big.NewRat(0)
-		lastWidth    = big.NewRat(100)
+		totalWidth = big.NewRat(0)
+		lastWidth  = big.NewRat(100)
+
+		format       *columnFormat
+		x            int
 		hasAutowidth bool
 	)
-	for _, format := range table.formats {
+	for _, format = range table.formats {
 		if format.isAutowidth {
 			hasAutowidth = true
 			format.width = nil
@@ -210,7 +225,7 @@ func (table *elementTable) recalculateWidth() {
 			totalWidth.Add(format.width)
 		}
 	}
-	for x, format := range table.formats {
+	for x, format = range table.formats {
 		if hasAutowidth {
 			continue
 		}
@@ -224,8 +239,13 @@ func (table *elementTable) recalculateWidth() {
 }
 
 func (table *elementTable) htmlStyle() string {
-	var buf bytes.Buffer
-	for k, v := range table.styles {
+	var (
+		buf bytes.Buffer
+		k   string
+		v   string
+	)
+
+	for k, v = range table.styles {
 		fmt.Fprintf(&buf, "%s: %s;", k, v)
 	}
 	return buf.String()
@@ -248,17 +268,23 @@ func parseAttrCols(val string) (ncols int, formats []*columnFormat) {
 		return 0, nil
 	}
 
-	var hasDefault bool
+	var (
+		rawFormat = strings.Split(val, ",")
 
-	rawFormat := strings.Split(val, ",")
+		format      *columnFormat
+		n           int
+		x           int
+		idxFromLast int
+		hasDefault  bool
+	)
 
-	n, format := parseColumnFormat(rawFormat[0])
+	n, format = parseColumnFormat(rawFormat[0])
 	if format.isDefault {
 		hasDefault = true
 		ncols = n
 		format.isDefault = false
-		for x := 0; x < n; x++ {
-			f := newColumnFormat()
+		for x = 0; x < n; x++ {
+			var f = newColumnFormat()
 			f.merge(format)
 			formats = append(formats, f)
 		}
@@ -267,8 +293,8 @@ func parseAttrCols(val string) (ncols int, formats []*columnFormat) {
 		formats = append(formats, format)
 	}
 
-	idxFromLast := ncols - (len(rawFormat) - 1)
-	for x := 1; x < len(rawFormat); x++ {
+	idxFromLast = ncols - (len(rawFormat) - 1)
+	for x = 1; x < len(rawFormat); x++ {
 		_, format = parseColumnFormat(rawFormat[x])
 		if hasDefault {
 			formats[idxFromLast].merge(format)
@@ -283,8 +309,12 @@ func parseAttrCols(val string) (ncols int, formats []*columnFormat) {
 
 // parseToRawRows convert raw table content into multiple raw rows.
 func parseToRawRows(raw []byte) (rows [][]byte) {
-	lines := bytes.Split(raw, []byte{'\n'})
-	for _, line := range lines {
+	var (
+		lines [][]byte = bytes.Split(raw, []byte{'\n'})
+		line  []byte
+	)
+
+	for _, line = range lines {
 		line = bytes.TrimSpace(line)
 		rows = append(rows, line)
 	}

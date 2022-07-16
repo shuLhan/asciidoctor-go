@@ -9,12 +9,18 @@ import (
 )
 
 func TestOpen(t *testing.T) {
-	doc, err := Open("testdata/test.adoc")
+	var (
+		doc  *Document
+		fout *os.File
+		err  error
+	)
+
+	doc, err = Open("testdata/test.adoc")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	fout, err := os.OpenFile("testdata/got.test.html",
+	fout, err = os.OpenFile("testdata/got.test.html",
 		os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		t.Fatal(err)

@@ -11,19 +11,26 @@ import (
 )
 
 func TestAdocNode_parseListDescriptionItem(t *testing.T) {
-	cases := []struct {
+	type testCase struct {
 		line       string
 		expRawTerm string
 		expRaw     string
 		expLevel   int
-	}{{
+	}
+
+	var cases = []testCase{{
 		line:       "CPU::",
 		expLevel:   0,
 		expRawTerm: "CPU",
 	}}
 
-	for _, c := range cases {
-		el := &element{}
+	var (
+		el *element
+		c  testCase
+	)
+
+	for _, c = range cases {
+		el = &element{}
 		el.parseListDescriptionItem([]byte(c.line))
 
 		test.Assert(t, "element.Level", c.expLevel, el.level)
@@ -33,13 +40,15 @@ func TestAdocNode_parseListDescriptionItem(t *testing.T) {
 }
 
 func TestElement_parseListUnorderedItem(t *testing.T) {
-	cases := []struct {
+	type testCase struct {
 		desc     string
 		line     []byte
 		expRaw   []byte
 		expRoles []string
 		expLevel int
-	}{{
+	}
+
+	var cases = []testCase{{
 		desc:     "With text",
 		line:     []byte("* \t a"),
 		expRaw:   []byte("a\n"),
@@ -75,8 +84,13 @@ func TestElement_parseListUnorderedItem(t *testing.T) {
 		expLevel: 1,
 	}}
 
-	for _, c := range cases {
-		el := &element{}
+	var (
+		c  testCase
+		el *element
+	)
+
+	for _, c = range cases {
+		el = &element{}
 		el.raw = el.raw[:0]
 		el.parseListUnorderedItem(c.line)
 
@@ -87,11 +101,13 @@ func TestElement_parseListUnorderedItem(t *testing.T) {
 }
 
 func TestAdocNode_postConsumeTable(t *testing.T) {
-	cases := []struct {
+	type testCase struct {
 		desc string
 		raw  string
 		exp  elementTable
-	}{{
+	}
+
+	var cases = []testCase{{
 		desc: "single row, multiple lines",
 		raw:  "|A\n|B",
 		exp: elementTable{
@@ -226,11 +242,17 @@ func TestAdocNode_postConsumeTable(t *testing.T) {
 		},
 	}}
 
-	for _, c := range cases {
-		el := &element{
+	var (
+		c   testCase
+		el  *element
+		got *elementTable
+	)
+
+	for _, c = range cases {
+		el = &element{
 			raw: []byte(c.raw),
 		}
-		got := el.postConsumeTable()
+		got = el.postConsumeTable()
 		test.Assert(t, c.desc, c.exp, *got)
 	}
 }

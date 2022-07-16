@@ -10,10 +10,12 @@ import (
 )
 
 func Test_parseElementAttribute(t *testing.T) {
-	cases := []struct {
+	type testCase struct {
 		raw string
 		exp elementAttribute
-	}{{
+	}
+
+	var cases = []testCase{{
 		raw: "",
 	}, {
 		raw: "[]",
@@ -66,8 +68,12 @@ func Test_parseElementAttribute(t *testing.T) {
 		},
 	}}
 
-	for _, c := range cases {
-		got := elementAttribute{}
+	var (
+		c testCase
+	)
+
+	for _, c = range cases {
+		var got = elementAttribute{}
 		got.parseElementAttribute([]byte(c.raw))
 		test.Assert(t, c.raw, c.exp, got)
 	}
