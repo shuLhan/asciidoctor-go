@@ -41,7 +41,6 @@ func parse(doc *Document, content []byte) {
 	var (
 		docp *documentParser = newDocumentParser(doc, content)
 
-		preamble  *element
 		sectLevel string
 		ok        bool
 	)
@@ -54,15 +53,7 @@ func parse(doc *Document, content []byte) {
 		doc.sectLevel, _ = strconv.Atoi(sectLevel)
 	}
 
-	preamble = &element{
-		elementAttribute: elementAttribute{
-			Attrs: make(map[string]string),
-		},
-		kind: elKindPreamble,
-	}
-	doc.content.addChild(preamble)
-
-	docp.parseBlock(preamble, 0)
+	docp.parseBlock(doc.preamble, 0)
 }
 
 func parseSub(parentDoc *Document, content []byte) (subdoc *Document) {

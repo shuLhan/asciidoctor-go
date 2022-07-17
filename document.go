@@ -27,8 +27,9 @@ type Document struct {
 	// anchors contains mapping between unique ID and its label.
 	anchors map[string]*anchor
 
-	content *element
-	header  *element
+	header   *element
+	preamble *element
+	content  *element
 
 	Attributes AttributeEntry
 	sectnums   *sectionCounters
@@ -65,8 +66,8 @@ type Document struct {
 	tocIsEnabled bool
 }
 
-func newDocument() *Document {
-	return &Document{
+func newDocument() (doc *Document) {
+	doc = &Document{
 		Title: DocumentTitle{
 			sep: defTitleSeparator,
 		},
@@ -82,10 +83,20 @@ func newDocument() *Document {
 		header: &element{
 			kind: elKindDocHeader,
 		},
+		preamble: &element{
+			elementAttribute: elementAttribute{
+				Attrs: make(map[string]string),
+			},
+			kind: elKindPreamble,
+		},
 		content: &element{
 			kind: elKindDocContent,
 		},
 	}
+
+	doc.content.addChild(doc.preamble)
+
+	return doc
 }
 
 // Open the ascidoc file and parse it.
