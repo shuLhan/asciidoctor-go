@@ -586,14 +586,14 @@ func (docp *documentParser) parseBlock(parent *element, term int) {
 //	              (*DOC_ATTRIBUTE)
 func (docp *documentParser) parseHeader() {
 	const (
-		stateTitle int = iota
+		stateBegin int = iota
+		stateTitle
 		stateAuthor
 		stateRevision
-		stateEnd
 	)
 
 	var (
-		state int = stateTitle
+		state int = stateBegin
 
 		key   string
 		value string
@@ -622,25 +622,25 @@ func (docp *documentParser) parseHeader() {
 			}
 			continue
 		}
-		if state == stateTitle {
+		if state == stateBegin {
 			if isTitle(line) {
 				docp.doc.header.Write(bytes.TrimSpace(line[2:]))
 				docp.doc.Title.raw = string(docp.doc.header.raw)
-				state = stateAuthor
+				state = stateTitle
 			} else {
 				docp.doc.rawAuthors = string(line)
-				state = stateRevision
+				state = stateAuthor
 			}
 			continue
 		}
 		switch state {
-		case stateAuthor:
+		case stateTitle:
 			docp.doc.rawAuthors = string(line)
-			state = stateRevision
+			state = stateAuthor
 
-		case stateRevision:
+		case stateAuthor:
 			docp.doc.rawRevision = string(line)
-			state = stateEnd
+			state = stateRevision
 		}
 	}
 }
