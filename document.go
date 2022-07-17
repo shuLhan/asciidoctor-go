@@ -132,6 +132,32 @@ func Open(file string) (doc *Document, err error) {
 	return doc, nil
 }
 
+// Parse the content into a Document.
+func Parse(content []byte) (doc *Document) {
+	doc = newDocument()
+	parse(doc, content)
+	return doc
+}
+
+func parse(doc *Document, content []byte) {
+	var (
+		docp *documentParser = newDocumentParser(doc, content)
+
+		sectLevel string
+		ok        bool
+	)
+
+	docp.parseHeader()
+	docp.doc.postParseHeader()
+
+	sectLevel, ok = doc.Attributes[metaNameSectNumLevel]
+	if ok {
+		doc.sectLevel, _ = strconv.Atoi(sectLevel)
+	}
+
+	docp.parseBlock(doc.preamble, 0)
+}
+
 // ToHTMLEmbedded convert the Document object into HTML with content only,
 // without header and footer.
 func (doc *Document) ToHTMLEmbedded(out io.Writer) (err error) {

@@ -6,7 +6,6 @@ package asciidoctor
 import (
 	"bytes"
 	"fmt"
-	"strconv"
 
 	"github.com/shuLhan/share/lib/debug"
 )
@@ -19,13 +18,6 @@ type documentParser struct {
 	kind     int
 }
 
-// Parse the content into a Document.
-func Parse(content []byte) (doc *Document) {
-	doc = newDocument()
-	parse(doc, content)
-	return doc
-}
-
 func newDocumentParser(doc *Document, content []byte) (docp *documentParser) {
 	docp = &documentParser{
 		doc: doc,
@@ -35,25 +27,6 @@ func newDocumentParser(doc *Document, content []byte) (docp *documentParser) {
 	docp.lines = bytes.Split(content, []byte("\n"))
 
 	return docp
-}
-
-func parse(doc *Document, content []byte) {
-	var (
-		docp *documentParser = newDocumentParser(doc, content)
-
-		sectLevel string
-		ok        bool
-	)
-
-	docp.parseHeader()
-	docp.doc.postParseHeader()
-
-	sectLevel, ok = doc.Attributes[metaNameSectNumLevel]
-	if ok {
-		doc.sectLevel, _ = strconv.Atoi(sectLevel)
-	}
-
-	docp.parseBlock(doc.preamble, 0)
 }
 
 func parseSub(parentDoc *Document, content []byte) (subdoc *Document) {
