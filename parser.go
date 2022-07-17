@@ -690,6 +690,9 @@ func parseStyle(styleName string) (styleKind int64) {
 // It will return lineKindText if the line does not match with known syntax.
 func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 	kind = lineKindText
+
+	line = bytes.TrimRight(line, " \f\n\r\t\v")
+
 	if len(line) == 0 {
 		return lineKindEmpty, nil, line
 	}
@@ -777,7 +780,7 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 		spaces = line[:x]
 		line = line[x:]
 
-		// A line idented with space only allowed on list item,
+		// A line indented with space only allowed on list item,
 		// otherwise it would be set as literal paragraph.
 
 		if isLineDescriptionItem(line) {

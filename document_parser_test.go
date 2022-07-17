@@ -242,6 +242,44 @@ A B <a@b>; C <c@c>; D e_f G <>;`,
 	}
 }
 
+func TestDocumentParser_parseHeader(t *testing.T) {
+	type testCase struct {
+		expDoc      func() *Document
+		desc        string
+		content     string
+		expPreamble string
+	}
+
+	var cases = []testCase{{
+		desc:    "With empty line contains white spaces",
+		content: "//// block\ncomment.\n////\n\t  \n= Title\n",
+		expDoc: func() (doc *Document) {
+			doc = newDocument()
+			return doc
+		},
+		expPreamble: "= Title",
+	}}
+
+	var (
+		c      testCase
+		expDoc *Document
+		gotDoc *Document
+	)
+
+	for _, c = range cases {
+		t.Log(c.desc)
+
+		expDoc = c.expDoc()
+		gotDoc = Parse([]byte(c.content))
+
+		test.Assert(t, "Title", expDoc.Title.raw, gotDoc.Title.raw)
+		test.Assert(t, "rawAuthors", expDoc.rawAuthors, gotDoc.rawAuthors)
+		test.Assert(t, "rawRevision", expDoc.rawRevision, gotDoc.rawRevision)
+		test.Assert(t, "Attributes", expDoc.Attributes, gotDoc.Attributes)
+		test.Assert(t, "Preamble text", c.expPreamble, gotDoc.preamble.toText())
+	}
+}
+
 func TestDocumentParser_parseListDescription_withOpenBlock(t *testing.T) {
 	var content = []byte(`
 Description:: Description body with open block.
