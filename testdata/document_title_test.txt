@@ -1,0 +1,46 @@
+output_call: htmlWriteHeader
+
+>>>
+= Main: sub
+
+<<<
+
+<div id="header">
+<h1>Main: sub</h1>
+<div class="details">
+</div>
+</div>
+
+>>> Without space after separator
+= Main:sub
+
+<<< Without space after separator
+
+<div id="header">
+<h1>Main:sub</h1>
+<div class="details">
+</div>
+</div>
+
+>>> With multiple separator after separator
+= a: b: c
+
+<<< With multiple separator after separator
+
+<div id="header">
+<h1>a: b: c</h1>
+<div class="details">
+</div>
+</div>
+
+>>> With custom separator
+:title-separator: x
+= Mainx sub
+
+<<< With custom separator
+
+<div id="header">
+<h1>Mainx sub</h1>
+<div class="details">
+</div>
+</div>

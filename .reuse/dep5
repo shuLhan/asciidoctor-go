@@ -1,0 +1,8 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: ciigo
+Upstream-Contact: Shulhan <ms@kilabit.info>
+Source: https://git.sr.ht/~shulhan/ciigo
+
+Files: testdata/*
+Copyright: 2022 Shulhan <ms@kilabit.info>
+License: GPL-3.0-or-later

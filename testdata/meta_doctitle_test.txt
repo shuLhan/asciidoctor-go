@@ -1,0 +1,21 @@
+>>>
+= Abc
+
+{doctitle} begins on a bleary Monday morning.
+
+<<<
+
+<div class="paragraph">
+<p>Abc begins on a bleary Monday morning.</p>
+</div>
+
+>>> With meta
+:doctitle: Abc
+
+{doctitle} begins on a bleary Monday morning.
+
+<<< With meta
+
+<div class="paragraph">
+<p>Abc begins on a bleary Monday morning.</p>
+</div>

@@ -1,0 +1,60 @@
+output_call: htmlWriteHeader
+
+>>> single author
+= T
+A B
+
+<<< single author
+
+<div id="header">
+<h1>T</h1>
+<div class="details">
+<span id="author" class="author">A B</span><br>
+</div>
+</div>
+
+>>> single author with email
+= T
+A B <a@b>
+
+<<< single author with email
+
+<div id="header">
+<h1>T</h1>
+<div class="details">
+<span id="author" class="author">A B</span><br>
+<span id="email" class="email"><a href="mailto:a@b">a@b</a></span><br>
+</div>
+</div>
+
+>>> Multiple authors
+= T
+A B <a@b>; C <c@c>; D e_f G <>;
+
+<<< Multiple authors
+
+<div id="header">
+<h1>T</h1>
+<div class="details">
+<span id="author" class="author">A B</span><br>
+<span id="email" class="email"><a href="mailto:a@b">a@b</a></span><br>
+<span id="author2" class="author">C</span><br>
+<span id="email2" class="email"><a href="mailto:c@c">c@c</a></span><br>
+<span id="author3" class="author">D e f G</span><br>
+</div>
+</div>
+
+>>> Meta author
+= T
+:author: A B
+:email: a@b
+
+<<< Meta author
+
+<div id="header">
+<h1>T</h1>
+<div class="details">
+<span id="author" class="author">A B</span><br>
+<span id="email" class="email"><a href="mailto:a@b">a@b</a></span><br>
+</div>
+</div>

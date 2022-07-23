@@ -1,0 +1,10 @@
+>>> With lead style
+
+[.lead]
+This is the ultimate paragraph.
+
+<<< With lead style
+
+<div class="paragraph lead">
+<p>This is the ultimate paragraph.</p>
+</div>
