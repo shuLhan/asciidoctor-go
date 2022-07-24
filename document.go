@@ -173,14 +173,20 @@ func (doc *Document) ToHTMLEmbedded(out io.Writer) (err error) {
 
 // ToHTML convert the Document object into full HTML document.
 func (doc *Document) ToHTML(out io.Writer) (err error) {
+	var (
+		metaValue string
+	)
+
 	doc.generateClasses()
 
 	// Use *bytes.Buffer to minimize checking for error.
 	var buf = &bytes.Buffer{}
 
-	fmt.Fprint(buf, _htmlBegin)
+	metaValue = doc.Attributes[MetaNameGenerator]
 
-	var metaValue string = doc.Attributes[MetaNameDescription]
+	fmt.Fprintf(buf, _htmlBegin, metaValue)
+
+	metaValue = doc.Attributes[MetaNameDescription]
 	if len(metaValue) > 0 {
 		fmt.Fprintf(buf, "\n<meta name=\"description\" content=%q>",
 			metaValue)

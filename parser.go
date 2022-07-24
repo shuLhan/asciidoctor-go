@@ -182,6 +182,7 @@ const (
 const (
 	MetaNameAuthor      = "author"
 	MetaNameDescription = "description"
+	MetaNameGenerator   = "generator"
 	MetaNameKeywords    = "keywords"
 
 	metaNameAuthorInitials = "authorinitials"
