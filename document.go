@@ -182,24 +182,26 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 	// Use *bytes.Buffer to minimize checking for error.
 	var buf = &bytes.Buffer{}
 
-	metaValue = doc.Attributes[MetaNameGenerator]
-
-	fmt.Fprintf(buf, _htmlBegin, metaValue)
-
-	metaValue = doc.Attributes[MetaNameDescription]
-	if len(metaValue) > 0 {
-		fmt.Fprintf(buf, "\n<meta name=\"description\" content=%q>",
-			metaValue)
-	}
-
-	metaValue = doc.Attributes[MetaNameKeywords]
-	if len(metaValue) > 0 {
-		fmt.Fprintf(buf, "\n<meta name=\"keywords\" content=%q>", metaValue)
-	}
+	fmt.Fprint(buf, _htmlBegin)
 
 	metaValue = doc.Attributes[MetaNameAuthorNames]
 	if len(metaValue) > 0 {
 		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", MetaNameAuthor, metaValue)
+	}
+
+	metaValue = doc.Attributes[MetaNameDescription]
+	if len(metaValue) > 0 {
+		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", MetaNameDescription, metaValue)
+	}
+
+	metaValue = doc.Attributes[MetaNameGenerator]
+	if len(metaValue) > 0 {
+		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", MetaNameGenerator, metaValue)
+	}
+
+	metaValue = doc.Attributes[MetaNameKeywords]
+	if len(metaValue) > 0 {
+		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", MetaNameKeywords, metaValue)
 	}
 
 	var title string = doc.Title.String()
