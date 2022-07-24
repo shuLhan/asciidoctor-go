@@ -175,7 +175,6 @@ List of features which will be implemented,
 
 * Comment above heading 1 with space cause the heading not parsed.
 
-* Comment start with white spaces is not parsed correctly.
 
 === ENHANCEMENTS
 

@@ -264,6 +264,9 @@ COMMENT_BLOCK  = "////" LF
 COMMENTS = *(COMMENT_SINGLE / COMMENT_BLOCK)
 ----
 
+The comment line cannot start with spaces, due to
+link:#block_literal[Block literal].
+
 
 ==  Block listing
 
