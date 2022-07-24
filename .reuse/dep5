@@ -6,3 +6,7 @@ Source: https://git.sr.ht/~shulhan/ciigo
 Files: testdata/*
 Copyright: 2022 Shulhan <ms@kilabit.info>
 License: GPL-3.0-or-later
+
+Files: go.sum
+Copyright: 2020 Shulhan <ms@kilabit.info>
+License: GPL-3.0-or-later
