@@ -180,13 +180,13 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 
 	fmt.Fprint(buf, _htmlBegin)
 
-	var metaValue string = doc.Attributes[metaNameDescription]
+	var metaValue string = doc.Attributes[MetaNameDescription]
 	if len(metaValue) > 0 {
 		fmt.Fprintf(buf, "\n<meta name=\"description\" content=%q>",
 			metaValue)
 	}
 
-	metaValue = doc.Attributes[metaNameKeywords]
+	metaValue = doc.Attributes[MetaNameKeywords]
 	if len(metaValue) > 0 {
 		fmt.Fprintf(buf, "\n<meta name=\"keywords\" content=%q>", metaValue)
 	}
@@ -203,8 +203,7 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 		metaAuthors.WriteString(author.FullName())
 	}
 	if metaAuthors.Len() > 0 {
-		fmt.Fprintf(buf, "\n<meta name=%q content=%q>",
-			attrValueAuthor, metaAuthors.String())
+		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", MetaNameAuthor, metaAuthors.String())
 	}
 
 	var title string = doc.Title.String()
@@ -348,7 +347,7 @@ func (doc *Document) unpackRawAuthor() {
 	)
 
 	if len(doc.rawAuthors) == 0 {
-		v = doc.Attributes[metaNameAuthor]
+		v = doc.Attributes[MetaNameAuthor]
 		if len(v) > 0 {
 			doc.rawAuthors = v
 		}
@@ -374,7 +373,7 @@ func (doc *Document) unpackRawAuthor() {
 	}
 
 	var (
-		authorKey     = metaNameAuthor
+		authorKey     = MetaNameAuthor
 		emailKey      = metaNameEmail
 		initialsKey   = metaNameAuthorInitials
 		firstNameKey  = metaNameFirstName
@@ -395,7 +394,7 @@ func (doc *Document) unpackRawAuthor() {
 			doc.Attributes[lastNameKey] = author.LastName
 		}
 
-		authorKey = fmt.Sprintf("%s_%d", metaNameAuthor, x+1)
+		authorKey = fmt.Sprintf("%s_%d", MetaNameAuthor, x+1)
 		emailKey = fmt.Sprintf("%s_%d", metaNameEmail, x+1)
 		initialsKey = fmt.Sprintf("%s_%d", metaNameAuthorInitials, x+1)
 		firstNameKey = fmt.Sprintf("%s_%d", metaNameFirstName, x+1)

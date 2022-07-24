@@ -180,15 +180,16 @@ const (
 
 // List of document metadata.
 const (
-	metaNameAuthor         = attrValueAuthor
+	MetaNameAuthor      = "author"
+	MetaNameDescription = "description"
+	MetaNameKeywords    = "keywords"
+
 	metaNameAuthorInitials = "authorinitials"
-	metaNameDescription    = "description"
 	metaNameDocTitle       = "doctitle"
 	metaNameEmail          = attrValueEmail
 	metaNameFirstName      = "firstname"
 	metaNameIDPrefix       = "idprefix"
 	metaNameIDSeparator    = "idseparator"
-	metaNameKeywords       = "keywords"
 	metaNameLastName       = "lastname"
 	metaNameMiddleName     = "middlename"
 	metaNameNoFooter       = "nofooter"
