@@ -22,7 +22,7 @@ func TestOpen(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	fout, err = os.OpenFile("testdata/got.test.html",
+	fout, err = os.OpenFile("testdata/test.got.html",
 		os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		t.Fatal(err)

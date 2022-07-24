@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: 2020 M. Shulhan <ms@kilabit.info>
 // SPDX-License-Identifier: GPL-3.0-or-later
-*.html
-cover.html
-cover.out
+/*.html
+/cover.html
+/cover.out
+/testdata/*.html
+/testdata/_includes/*.html
