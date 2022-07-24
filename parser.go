@@ -180,7 +180,8 @@ const (
 
 // List of document metadata.
 const (
-	MetaNameAuthor      = "author"
+	MetaNameAuthor      = "author"       // May contain the first author full name only.
+	MetaNameAuthorNames = "author_names" // List of author full names, separated by comma.
 	MetaNameDescription = "description"
 	MetaNameGenerator   = "generator"
 	MetaNameKeywords    = "keywords"

@@ -347,50 +347,66 @@ func (doc *Document) tocHTML(out io.Writer) {
 }
 
 // unpackRawAuthor parse the authors field into one or more Author.
+//
+// This method set the Document Attributes "author_names" to list of author
+// full name, separated by comma.
+//
+// If the Authors is more than one, the first author is set using Attributes
+// "author", "author_1, "email", "email_1", and so on;
+// and the second author is set using "author_2, "email_2", and so on.
 func (doc *Document) unpackRawAuthor() {
 	var (
-		v string
+		sb strings.Builder
+		v  string
 	)
 
 	if len(doc.rawAuthors) == 0 {
 		v = doc.Attributes[MetaNameAuthor]
 		if len(v) > 0 {
-			doc.rawAuthors = v
+			sb.WriteString(v)
 		}
 		v = doc.Attributes[metaNameEmail]
 		if len(v) > 0 {
-			doc.rawAuthors += " <" + v + ">"
+			sb.WriteString(" <")
+			sb.WriteString(v)
+			sb.WriteString(">")
 		}
-		if len(doc.rawAuthors) == 0 {
+		v = sb.String()
+		if len(v) == 0 {
 			return
 		}
+		doc.rawAuthors = v
 	}
 
 	var (
-		rawAuthors []string = strings.Split(doc.rawAuthors, ";")
+		rawAuthors    []string = strings.Split(doc.rawAuthors, ";")
+		authorKey              = MetaNameAuthor
+		emailKey               = metaNameEmail
+		initialsKey            = metaNameAuthorInitials
+		firstNameKey           = metaNameFirstName
+		middleNameKey          = metaNameMiddleName
+		lastNameKey            = metaNameLastName
 
+		author    *Author
 		rawAuthor string
+		x         int
 	)
 
-	for _, rawAuthor = range rawAuthors {
-		if len(rawAuthor) > 0 {
-			doc.Authors = append(doc.Authors, parseAuthor(rawAuthor))
+	sb.Reset()
+
+	for x, rawAuthor = range rawAuthors {
+		if len(rawAuthor) == 0 {
+			continue
 		}
-	}
 
-	var (
-		authorKey     = MetaNameAuthor
-		emailKey      = metaNameEmail
-		initialsKey   = metaNameAuthorInitials
-		firstNameKey  = metaNameFirstName
-		middleNameKey = metaNameMiddleName
-		lastNameKey   = metaNameLastName
+		author = parseAuthor(rawAuthor)
+		doc.Authors = append(doc.Authors, author)
 
-		author *Author
-		x      int
-	)
+		if len(doc.Authors) >= 2 {
+			sb.WriteString(", ")
+		}
+		sb.WriteString(author.FullName())
 
-	for x, author = range doc.Authors {
 		if x == 0 {
 			doc.Attributes[authorKey] = author.FullName()
 			doc.Attributes[emailKey] = author.Email
@@ -398,6 +414,9 @@ func (doc *Document) unpackRawAuthor() {
 			doc.Attributes[firstNameKey] = author.FirstName
 			doc.Attributes[middleNameKey] = author.MiddleName
 			doc.Attributes[lastNameKey] = author.LastName
+
+			// No continue, the first author have two keys, one is
+			// "author" and another is "author_1".
 		}
 
 		authorKey = fmt.Sprintf("%s_%d", MetaNameAuthor, x+1)
@@ -413,6 +432,11 @@ func (doc *Document) unpackRawAuthor() {
 		doc.Attributes[firstNameKey] = author.FirstName
 		doc.Attributes[middleNameKey] = author.MiddleName
 		doc.Attributes[lastNameKey] = author.LastName
+	}
+
+	v = sb.String()
+	if len(v) > 0 {
+		doc.Attributes[MetaNameAuthorNames] = v
 	}
 }
 

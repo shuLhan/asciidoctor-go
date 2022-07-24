@@ -140,6 +140,11 @@ Supported metadata or attribute references,
 * `version-label`
 
 
+Additional metadata provides by this library,
+
+* `author_names` - list of author full names separated by comma.
+
+
 ==  TODO
 
 List of features which will be implemented,
