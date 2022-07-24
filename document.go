@@ -197,19 +197,9 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 		fmt.Fprintf(buf, "\n<meta name=\"keywords\" content=%q>", metaValue)
 	}
 
-	var (
-		metaAuthors strings.Builder
-		author      *Author
-		x           int
-	)
-	for x, author = range doc.Authors {
-		if x > 0 {
-			metaAuthors.WriteString(", ")
-		}
-		metaAuthors.WriteString(author.FullName())
-	}
-	if metaAuthors.Len() > 0 {
-		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", MetaNameAuthor, metaAuthors.String())
+	metaValue = doc.Attributes[MetaNameAuthorNames]
+	if len(metaValue) > 0 {
+		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", MetaNameAuthor, metaValue)
 	}
 
 	var title string = doc.Title.String()
