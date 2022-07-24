@@ -4,6 +4,7 @@
 Shulhan <ms@kilabit.info>
 6 June 2020
 :toc:
+:url_ref: https://docs.asciidoctor.org/asciidoc/latest
 
 This document contains grammar of asciidoc document markup language based on
 https://asciidoctor.org/docs/user-manual[Asciidoctor User Manual].
@@ -36,12 +37,9 @@ complex than it should.
 This implementation,
 
 * use the strict asciidoctor syntax rules which we define in this document.
+
 * minimize duplicate markup.
-
-
-=== Minimize duplicate markup
-
-* Support only "<<" ">>" syntax, drop "xref:" syntax
+** Support only "<<" ">>" syntax, drop "xref:" syntax
 
 
 ==  Common grammar
@@ -66,6 +64,8 @@ REF_ID    = 1*ALPHA *("-" / "_" / ALPHA / DIGIT)
 
 ==  Document header
 
+{url_ref}/document/header/[Reference^].
+
 Document header consist of title and optional authors, a revision, and zero or
 more metadata.
 The document metadata can be in any order, before or after title, but the
@@ -84,22 +84,46 @@ DOC_HEADER     = *(DOC_ATTRIBUTE / COMMENTS)
 There are no empty line before and after the document header.
 An empty line mark as the end of document header.
 
-----
-DOC_TITLE     = 1*WORD
+===  Title
 
+{url_ref}/document/title/[Reference^].
+
+----
+DOC_TITLE     = 1*WORD [DOC_TITLE_SEP SUBTITLE]
+
+DOC_TITLE_SEP = ":"
+
+SUBTITLE      = 1*WORD
+----
+
+===  Author information
+
+{url_ref}/document/author-information/[Reference^].
+
+----
 DOC_AUTHORS   = MAILBOX *( ";" MAILBOX )
 
   MAILBOX     = STRING [ "<" EMAIL ">" ]
 
   EMAIL       = WORD "@" WORD "." 1*8ALPHA
               ; simplified syntax of email format.
+----
 
+===  Revision information
+
+{url_ref}/document/revision-information/[Reference^].
+
+----
 DOC_REVISION     = DOC_REV_VERSION [ "," DOC_REV_DATE ]
 
 DOC_REV_VERSION  = "v" 1*DIGIT "." 1*DIGIT "." 1*DIGIT
 
 DOC_REV_DATE     = 1*2DIGIT 3*ALPHA 4*DIGIT
 ----
+
+===  Metadata
+
+{url_ref}/document/metadata/[Reference^].
 
 There are also metadata which affect how the document rendered,
 
@@ -114,11 +138,14 @@ META_KEY_CHAR  = (A..Z | a..z | 0..9 | '_')
 META_KEY       = 1META_KEY_CHAR *(META_KEY_CHAR | '-')
 ----
 
-HTML format for section header,
+
+=== HTML format
+
+HTML format for rendering section header,
 
 ----
 <div id="header">
-  <h1>{ADOC_WORD}</h1>
+  <h1>{DOC_TITLE}{DOC_TITLE_SEP} {SUBTITLE}</h1>
   <div class="details">
     <span id="author" class="author">{DOC_AUTHORS}</span>
     <br>
@@ -127,7 +154,6 @@ HTML format for section header,
   </div>
 </div>
 ----
-
 
 ==  Document preamble
 
@@ -216,7 +242,7 @@ that will be considered as paragraph.
 
 ----
 SECTION          = [BLOCK_REF]
-                   2*6(EQUAL/HASH) 1*WSP ADOC_LINE LF
+                   2*6(EQUAL/HASH) 1*WSP LINE LF
 ----
 
 HTML format,
@@ -226,7 +252,7 @@ number of '=' minus 1.
 
 ----
 <div class="sectN">
-  <hN>{ADOC_WORD}</hN>
+  <hN>{WORD}</hN>
   <div class="sectionbody">
     ...
   </div>
