@@ -6,7 +6,7 @@ package asciidoctor
 import "github.com/shuLhan/share/lib/math/big"
 
 const (
-	Version = "0.3.0-alpha"
+	Version = "0.3.0"
 )
 
 func init() {
