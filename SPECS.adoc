@@ -79,8 +79,13 @@ DOC_HEADER     = *(DOC_ATTRIBUTE / COMMENTS)
                  (*DOC_ATTRIBUTE)
                  DOC_REVISION LF
                  (*DOC_ATTRIBUTE)
+----
 
-DOC_TITLE     = 1*ADOC_WORD
+There are no empty line before and after the document header.
+An empty line mark as the end of document header.
+
+----
+DOC_TITLE     = 1*WORD
 
 DOC_AUTHORS   = MAILBOX *( ";" MAILBOX )
 
