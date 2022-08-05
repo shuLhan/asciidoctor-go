@@ -70,10 +70,6 @@ func TestData(t *testing.T) {
 				if err != nil {
 					got = []byte(err.Error())
 				} else {
-					// Since the data file is from file it
-					// always end with LF, we need to add
-					// new line to output.
-					bbuf.WriteByte('\n')
 					got = bbuf.Bytes()
 				}
 
