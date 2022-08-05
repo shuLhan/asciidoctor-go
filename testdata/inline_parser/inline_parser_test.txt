@@ -1,0 +1,247 @@
+Various tests for inlineParser.
+
+>>>
+*A _B `C_ D` E*
+A * B *, C *=*.
+*A _B `C D* E_ F.
+
+<<<
+<strong>A <em>B <code>C</code></em><code> D</code> E</strong>
+A * B <strong>, C *=</strong>.
+<strong>A <em>B `C D</em></strong><em> E</em> F.
+
+>>> parseAttrRef
+A {x}[*B*] C
+A {x }[*B*] C
+A {x }*B* C
+A {y }*B* C
+
+<<< parseAttrRef
+A <a href="https://kilabit.info"><strong>B</strong></a> C
+A <a href="https://kilabit.info"><strong>B</strong></a> C
+A <a href="https://kilabit.info*B*" class="bare">https://kilabit.info*B*</a> C
+A {y }<strong>B</strong> C
+
+>>> parseCrossRef
+A <<x>>
+A <<x, Label>>
+A <<X y>>
+A <<X y,Label>>
+
+<<< parseCrossRef
+A <a href="#x">X y</a>
+A <a href="#x">Label</a>
+A <a href="#x">X y</a>
+A <a href="#x">Label</a>
+
+>>> parseFormat
+_A_B
+_A_ B
+_A _B
+*A*B
+*A* B
+*A *B
+`A`B
+`A` B
+`A `B
+A `/**/` *B*
+
+<<< parseFormat
+_A_B
+<em>A</em> B
+_A _B
+*A*B
+<strong>A</strong> B
+*A *B
+`A`B
+<code>A</code> B
+`A `B
+A <code>/<strong></strong>/</code> <strong>B</strong>
+
+>>> parseFormatUnconstrained
+__A__B
+__A *B*__
+__A _B_ C__
+__A B_ C__
+__A *B*_
+_A *B*__
+
+<<< parseFormatUnconstrained
+<em>A</em>B
+<em>A <strong>B</strong></em>
+<em>A <em>B</em> C</em>
+<em>A B_ C</em>
+<em>_A <strong>B</strong></em>
+<em>A <strong>B</strong>_</em>
+
+>>> parseInlineID
+[[A]] B
+[[A] B
+[A]] B
+[[A ]] B
+[[ A]] B
+[[A B]] C
+
+<<< parseInlineID
+<a id="A"></a> B
+[[A] B
+[A]] B
+[[A ]] B
+[[ A]] B
+[[A B]] C
+
+>>> parseInlineIDShort
+[#Q]#W#
+[#Q]#W
+[#Q]W#
+[#Q ]#W#
+[# Q]# W#
+[#Q W]# E#
+
+<<< parseInlineIDShort
+<span id="Q">W</span>
+[#Q]#W
+[#Q]W#
+[#Q ]#W#
+[# Q]# W#
+[#Q W]# E#
+
+>>> parseInlineImage
+image:https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg[Linux,25,35]
+image:linux.png[Linux,150,150,float="right"] You can find Linux everywhere these days!
+image:sunset.jpg[Sunset,150,150,role="right"] What a beautiful sunset!
+image:sunset.jpg[Sunset]
+image:linux.png[2]
+
+<<< parseInlineImage
+<span class="image"><img src="https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg" alt="Linux" width="25" height="35"></span>
+<span class="image right"><img src="linux.png" alt="Linux" width="150" height="150"></span> You can find Linux everywhere these days!
+<span class="image right"><img src="sunset.jpg" alt="Sunset" width="150" height="150"></span> What a beautiful sunset!
+<span class="image"><img src="sunset.jpg" alt="Sunset"></span>
+<span class="image"><img src="linux.png" alt="2"></span>
+
+>>> parsePassthrough
+`+__A *B*__+`
+\+__A *B*__+
++__A *B*__\+
+X+__A *B*__+
++__A *B*__+X
+
+<<< parsePassthrough
+<code>__A *B*__</code>
++<em>A <strong>B</strong></em>+
++<em>A <strong>B</strong></em>+
+X+<em>A <strong>B</strong></em>+
++<em>A <strong>B</strong></em>+X
+
+>>> parsePassthroughDouble
+`++__A *B*__++`
+`++__A *B*__+`
+\++__A *B*__++
++\+__A *B*__++
+++__A *B*__\++
+++__A *B*__+\+
+++ <u>A</u> ++.
+
+<<< parsePassthroughDouble
+<code>__A *B*__</code>
+<code><em>A <strong>B</strong></em>+</code>
++__A *B*__+
++__A *B*__+
+<em>A <strong>B</strong></em>++
+<em>A <strong>B</strong></em>++
+ <u>A</u> .
+
+>>> parsePassthroughTriple
++++__A *B*__+++
++++__A *B*__++
+\+++__A *B*__+++
++\++__A *B*__+++
+++\+__A *B*__+++
++++__A *B*__\+++
++++__A *B*__+\++
++++__A *B*__++\+
++++ <u>A</u> +++.
+
+<<< parsePassthroughTriple
+__A *B*__
++__A *B*__
++__A *B*__+
++<em>A <strong>B</strong></em>+
++__A *B*__+
++__A *B*__+
+__A *B*__++
++__A *B*__+
+ <u>A</u> .
+
+>>> parseQuote
+"`A double quote without end.
+"` A double quote around space `"
+"`A double quote`"
+"`Escaped double quote\`"
+'`A single quote without end.
+'` A single quote around space `'
+"`A single quote`"
+"`Escaped single quote\`"
+
+<<< parseQuote
+"`A double quote without end.
+"` A double quote around space `"
+&#8220;A double quote&#8221;
+"`Escaped double quote`"
+'`A single quote without end.
+'` A single quote around space &#8217;
+&#8220;A single quote&#8221;
+"`Escaped single quote`"
+
+>>> parseSubscript
+A~B~C
+A~B ~C
+A~ B~C
+A\~B~C
+A~B\~C
+
+<<< parseSubscript
+A<sub>B</sub>C
+A~B ~C
+A~ B~C
+A~B~C
+A~B~C
+
+>>> parseSuperscript
+A^B^C
+A^B ^C
+A^ B^C
+A\^B^C
+A^B\^C
+
+<<< parseSuperscript
+A<sup>B</sup>C
+A^B ^C
+A^ B^C
+A^B^C
+A^B^C
+
+>>> parseURL
+https://asciidoctor.org/abc
+https://asciidoctor.org.
+https://asciidoctor.org[Asciidoctor^,role="a,b"].
+\https://example.org.
+irc://irc.freenode.org/#fedora[Fedora IRC channel].
+mailto:ms@kilabit.info.
+mailto:ms@kilabit.info[Mail to me].
+Relative file link:test.html[test.html].
+link:https://kilabit.info[Kilabit^].
+http: this is not link
+
+<<< parseURL
+<a href="https://asciidoctor.org/abc" class="bare">https://asciidoctor.org/abc</a>
+<a href="https://asciidoctor.org" class="bare">https://asciidoctor.org</a>.
+<a href="https://asciidoctor.org" class="a b" target="_blank" rel="noopener">Asciidoctor</a>.
+https://example.org.
+<a href="irc://irc.freenode.org/#fedora">Fedora IRC channel</a>.
+<a href="mailto:ms@kilabit.info">mailto:ms@kilabit.info</a>.
+<a href="mailto:ms@kilabit.info">Mail to me</a>.
+Relative file <a href="test.html">test.html</a>.
+<a href="https://kilabit.info" target="_blank" rel="noopener">Kilabit</a>.
+http: this is not link

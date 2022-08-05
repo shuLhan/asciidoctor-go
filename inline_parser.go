@@ -617,12 +617,16 @@ func (pi *inlineParser) parseFormat(kind int, style int64) bool {
 
 		el     *element
 		idx    int
+		prevc  byte
+		nextc  byte
 		hasEnd bool
 	)
 
 	_, idx = indexByteUnescape(raw, pi.c)
 	for idx >= 0 {
-		var prevc, nextc byte
+		prevc = 0
+		nextc = 0
+
 		if idx > 0 {
 			prevc = raw[idx-1]
 		}

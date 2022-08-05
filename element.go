@@ -256,20 +256,6 @@ func (el *element) backTrimSpace() {
 	el.raw = el.raw[:x+1]
 }
 
-func (el *element) debug(n int) {
-	var x int
-	for x = 0; x < n; x++ {
-		fmt.Printf("\t")
-	}
-	fmt.Printf("el: {kind:%-3d style:%-3d raw:%s}\n", el.kind, el.style, el.raw)
-	if el.child != nil {
-		el.child.debug(n + 1)
-	}
-	if el.next != nil {
-		el.next.debug(n)
-	}
-}
-
 func (el *element) lastSuccessor() (last *element) {
 	if el.child == nil {
 		return nil
