@@ -7,6 +7,32 @@ Shulhan <ms@kilabit.info>
 :sectanchors:
 :sectlinks:
 
+
+[#v0_3_1]
+== asciidoctor-go v0.3.1 (2022-08-06)
+
+[#v0_3_1_chores]
+===  Chores
+
+all: rewrite unit tests for inlineParser using test.Data::
++
+--
+Using string literal for testing string input that may contains backtick
+or double quote make the test code become unreadable and hard to modify.
+
+The test.Data help this by moving the input and expected output into
+a file that can we write as is.
+--
+
+all: cleaning up codes:: Use raw string literal whenever possible.
+
+go.mod: update share to v0.40.0::
++
+--
+This update fix some issues related to new line on test.Data.
+--
+
+
 [#v0_3_0]
 == asciidoctor-go v0.3.0 (2022-07-24)
 
