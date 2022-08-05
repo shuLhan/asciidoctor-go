@@ -13,51 +13,51 @@ import (
 )
 
 const (
-	classNameArticle      = "article"
-	classNameHalignCenter = "halign-center"
-	classNameHalignLeft   = "halign-left"
-	classNameHalignRight  = "halign-right"
-	classNameListingBlock = "listingblock"
-	classNameLiteral      = "literal"
-	classNameLiteralBlock = "literalblock"
-	classNameTableBlock   = "tableblock"
-	classNameToc          = "toc"
-	classNameToc2         = "toc2"
-	classNameTocLeft      = "toc-left"
-	classNameTocRight     = "toc-right"
-	classNameUlist        = "ulist"
-	classNameValignBottom = "valign-bottom"
-	classNameValignMiddle = "valign-middle"
-	classNameValignTop    = "valign-top"
+	classNameArticle      = `article`
+	classNameHalignCenter = `halign-center`
+	classNameHalignLeft   = `halign-left`
+	classNameHalignRight  = `halign-right`
+	classNameListingBlock = `listingblock`
+	classNameLiteral      = `literal`
+	classNameLiteralBlock = `literalblock`
+	classNameTableBlock   = `tableblock`
+	classNameToc          = `toc`
+	classNameToc2         = `toc2`
+	classNameTocLeft      = `toc-left`
+	classNameTocRight     = `toc-right`
+	classNameUlist        = `ulist`
+	classNameValignBottom = `valign-bottom`
+	classNameValignMiddle = `valign-middle`
+	classNameValignTop    = `valign-top`
 )
 
 const (
-	htmlSymbolAmpersand         = "&amp;"
-	htmlSymbolApostrophe        = "&#8217;"
-	htmlSymbolBrokenVerticalBar = "&#166;"
-	htmlSymbolCopyright         = "&#169;"
-	htmlSymbolDegreeSign        = "&#176;"
-	htmlSymbolDoubleLeftArrow   = "&#8656;"
-	htmlSymbolDoubleQuote       = "&#34;"
-	htmlSymbolDoubleRightArrow  = "&#8658;"
-	htmlSymbolEllipsis          = "&#8230;"
-	htmlSymbolEmdash            = "&#8212;"
-	htmlSymbolGreaterthan       = "&gt;"
-	htmlSymbolLeftDoubleQuote   = "&#8220;"
-	htmlSymbolLeftSingleQuote   = "&#8216;"
-	htmlSymbolLessthan          = "&lt;"
-	htmlSymbolNonBreakingSpace  = "&#160;"
-	htmlSymbolPlus              = "&#43;"
-	htmlSymbolRegistered        = "&#174;"
-	htmlSymbolRightDoubleQuote  = "&#8221;"
-	htmlSymbolRightSingleQuote  = "&#8217;"
-	htmlSymbolSingleLeftArrow   = "&#8592;"
-	htmlSymbolSingleQuote       = "&#39;"
-	htmlSymbolSingleRightArrow  = "&#8594;"
-	htmlSymbolThinSpace         = "&#8201;"
-	htmlSymbolTrademark         = "&#8482;"
-	htmlSymbolWordJoiner        = "&#8288;"
-	htmlSymbolZeroWidthSpace    = "&#8203;"
+	htmlSymbolAmpersand         = `&amp;`
+	htmlSymbolApostrophe        = `&#8217;`
+	htmlSymbolBrokenVerticalBar = `&#166;`
+	htmlSymbolCopyright         = `&#169;`
+	htmlSymbolDegreeSign        = `&#176;`
+	htmlSymbolDoubleLeftArrow   = `&#8656;`
+	htmlSymbolDoubleQuote       = `&#34;`
+	htmlSymbolDoubleRightArrow  = `&#8658;`
+	htmlSymbolEllipsis          = `&#8230;`
+	htmlSymbolEmdash            = `&#8212;`
+	htmlSymbolGreaterthan       = `&gt;`
+	htmlSymbolLeftDoubleQuote   = `&#8220;`
+	htmlSymbolLeftSingleQuote   = `&#8216;`
+	htmlSymbolLessthan          = `&lt;`
+	htmlSymbolNonBreakingSpace  = `&#160;`
+	htmlSymbolPlus              = `&#43;`
+	htmlSymbolRegistered        = `&#174;`
+	htmlSymbolRightDoubleQuote  = `&#8221;`
+	htmlSymbolRightSingleQuote  = `&#8217;`
+	htmlSymbolSingleLeftArrow   = `&#8592;`
+	htmlSymbolSingleQuote       = `&#39;`
+	htmlSymbolSingleRightArrow  = `&#8594;`
+	htmlSymbolThinSpace         = `&#8201;`
+	htmlSymbolTrademark         = `&#8482;`
+	htmlSymbolWordJoiner        = `&#8288;`
+	htmlSymbolZeroWidthSpace    = `&#8203;`
 )
 
 func htmlWriteBlockBegin(el *element, out io.Writer, addClass string) {
@@ -69,13 +69,13 @@ func htmlWriteBlockBegin(el *element, out io.Writer, addClass string) {
 
 	var (
 		classes string = el.htmlClasses()
-		c       string = strings.TrimSpace(addClass + " " + classes)
+		c       string = strings.TrimSpace(addClass + ` ` + classes)
 	)
 
 	if len(c) > 0 {
 		fmt.Fprintf(out, ` class="%s">`, c)
 	} else {
-		fmt.Fprint(out, ">")
+		fmt.Fprint(out, `>`)
 	}
 
 	if !(el.isStyleAdmonition() ||
@@ -90,7 +90,7 @@ func htmlWriteBlockBegin(el *element, out io.Writer, addClass string) {
 }
 
 func htmlWriteBlockAdmonition(el *element, out io.Writer) {
-	htmlWriteBlockBegin(el, out, "admonitionblock")
+	htmlWriteBlockBegin(el, out, `admonitionblock`)
 
 	fmt.Fprint(out, "\n<table>\n<tr>\n<td class=\"icon\">")
 
@@ -116,32 +116,32 @@ func htmlWriteBlockAdmonition(el *element, out io.Writer) {
 
 func htmlWriteBlockAudio(el *element, out io.Writer) {
 	var (
-		optControls string = " controls"
+		optControls string = ` controls`
 		src         string = el.Attrs[attrNameSrc]
 
 		optAutoplay string
 		optLoop     string
 	)
 
-	htmlWriteBlockBegin(el, out, "audioblock")
+	htmlWriteBlockBegin(el, out, `audioblock`)
 
 	fmt.Fprintf(out, "\n<div class=%q>", attrValueContent)
 
 	if libstrings.IsContain(el.options, optNameAutoplay) {
-		optAutoplay = " autoplay"
+		optAutoplay = ` autoplay`
 	}
 	if libstrings.IsContain(el.options, optNameNocontrols) {
-		optControls = ""
+		optControls = ``
 	}
 	if libstrings.IsContain(el.options, optNameLoop) {
-		optLoop = " loop"
+		optLoop = ` loop`
 	}
 
 	fmt.Fprintf(out, _htmlBlockAudio, src, optAutoplay, optControls, optLoop)
 }
 
 func htmlWriteBlockExample(doc *Document, el *element, out io.Writer) {
-	htmlWriteBlockBegin(el, out, "exampleblock")
+	htmlWriteBlockBegin(el, out, `exampleblock`)
 	if len(el.rawTitle) > 0 {
 		doc.counterExample++
 		fmt.Fprintf(out, "\n<div class=%q>Example %d. %s</div>",
@@ -151,7 +151,7 @@ func htmlWriteBlockExample(doc *Document, el *element, out io.Writer) {
 }
 
 func htmlWriteBlockImage(doc *Document, el *element, out io.Writer) {
-	htmlWriteBlockBegin(el, out, "imageblock")
+	htmlWriteBlockBegin(el, out, `imageblock`)
 
 	var (
 		src = el.Attrs[attrNameSrc]
@@ -184,7 +184,7 @@ func htmlWriteBlockImage(doc *Document, el *element, out io.Writer) {
 }
 
 func htmlWriteBlockLiteral(el *element, out io.Writer) {
-	htmlWriteBlockBegin(el, out, "")
+	htmlWriteBlockBegin(el, out, ``)
 
 	var (
 		source string
@@ -193,7 +193,7 @@ func htmlWriteBlockLiteral(el *element, out io.Writer) {
 	)
 	source, ok = el.Attrs[attrNameSource]
 	if ok {
-		class = "language-" + source
+		class = `language-` + source
 		fmt.Fprint(out, "\n<div class=\"content\">\n<pre class=\"highlight\">")
 		fmt.Fprintf(out, `<code class=%q data-lang=%q>%s</code></pre>`,
 			class, source, el.raw)
@@ -209,7 +209,7 @@ func htmlWriteBlockOpenBegin(el *element, out io.Writer) {
 }
 
 func htmlWriteBlockQuote(el *element, out io.Writer) {
-	htmlWriteBlockBegin(el, out, "quoteblock")
+	htmlWriteBlockBegin(el, out, `quoteblock`)
 	fmt.Fprintf(out, "\n<blockquote>\n%s", el.raw)
 }
 
@@ -235,7 +235,7 @@ func htmlWriteBlockQuoteEnd(el *element, out io.Writer) {
 }
 
 func htmlWriteBlockSidebar(el *element, out io.Writer) {
-	htmlWriteBlockBegin(el, out, "sidebarblock")
+	htmlWriteBlockBegin(el, out, `sidebarblock`)
 	fmt.Fprintf(out, "\n<div class=%q>", attrValueContent)
 	if len(el.rawTitle) > 0 {
 		fmt.Fprintf(out, "\n<div class=%q>%s</div>", attrValueTitle,
@@ -244,12 +244,12 @@ func htmlWriteBlockSidebar(el *element, out io.Writer) {
 }
 
 func htmlWriteBlockVerse(el *element, out io.Writer) {
-	htmlWriteBlockBegin(el, out, "verseblock")
+	htmlWriteBlockBegin(el, out, `verseblock`)
 	fmt.Fprintf(out, "\n<pre class=%q>%s", attrValueContent, el.raw)
 }
 
 func htmlWriteBlockVerseEnd(el *element, out io.Writer) {
-	fmt.Fprint(out, "</pre>")
+	fmt.Fprint(out, `</pre>`)
 
 	var (
 		v  string
@@ -299,7 +299,7 @@ func htmlWriteBlockVideo(el *element, out io.Writer) {
 		isVimeo = true
 	}
 
-	htmlWriteBlockBegin(el, out, "videoblock")
+	htmlWriteBlockBegin(el, out, `videoblock`)
 
 	fmt.Fprintf(out, "\n<div class=%q>", attrValueContent)
 
@@ -311,14 +311,14 @@ func htmlWriteBlockVideo(el *element, out io.Writer) {
 
 		optFullscreen, noFullscreen = el.Attrs[optVideoNofullscreen]
 		if !noFullscreen {
-			optFullscreen = " allowfullscreen"
+			optFullscreen = ` allowfullscreen`
 		}
 		fmt.Fprintf(out, _htmlBlockVideoYoutube, width, height, src, optFullscreen)
 	} else if isVimeo {
 		fmt.Fprintf(out, _htmlBlockVideoVimeo, width, height, src)
 	} else {
 		var (
-			optControls = " controls"
+			optControls = ` controls`
 
 			optAutoplay string
 			optLoop     string
@@ -332,13 +332,13 @@ func htmlWriteBlockVideo(el *element, out io.Writer) {
 		}
 
 		if libstrings.IsContain(el.options, optNameNocontrols) {
-			optControls = ""
+			optControls = ``
 		}
 		if libstrings.IsContain(el.options, optNameAutoplay) {
-			optAutoplay = " autoplay"
+			optAutoplay = ` autoplay`
 		}
 		if libstrings.IsContain(el.options, optNameLoop) {
-			optLoop = " loop"
+			optLoop = ` loop`
 		}
 
 		fmt.Fprintf(out, _htmlBlockVideo, src, width,
@@ -378,9 +378,9 @@ func htmlWriteFooter(doc *Document, out io.Writer) {
 
 		prefix, ok = doc.Attributes[metaNameVersionLabel]
 		if ok && len(prefix) == 0 {
-			prefix = "Version "
+			prefix = `Version `
 		} else {
-			prefix = " "
+			prefix = ` `
 		}
 
 		fmt.Fprintf(out, "\n%s%s<br>", prefix, doc.Revision.Number)
@@ -422,8 +422,8 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 			authorID = attrValueAuthor
 			emailID = attrValueEmail
 		} else {
-			authorID = fmt.Sprintf("%s%d", attrValueAuthor, x+1)
-			emailID = fmt.Sprintf("%s%d", attrValueEmail, x+1)
+			authorID = fmt.Sprintf(`%s%d`, attrValueAuthor, x+1)
+			emailID = fmt.Sprintf(`%s%d`, attrValueEmail, x+1)
 		}
 
 		fmt.Fprintf(out, "\n<span id=%q class=%q>%s</span><br>",
@@ -441,12 +441,12 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 		if ok && len(prefix) == 0 {
 			prefix = defVersionPrefix
 		} else {
-			prefix = " "
+			prefix = ` `
 		}
 
-		sep = ""
+		sep = ``
 		if len(doc.Revision.Date) > 0 {
-			sep = ","
+			sep = `,`
 		}
 
 		fmt.Fprintf(out, "\n<span id=%q>%s%s%s</span>",
@@ -462,7 +462,7 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 	}
 	fmt.Fprint(out, "\n</div>")
 
-	if doc.tocIsEnabled && (doc.tocPosition == "" ||
+	if doc.tocIsEnabled && (doc.tocPosition == `` ||
 		doc.tocPosition == metaValueAuto ||
 		doc.tocPosition == metaValueLeft ||
 		doc.tocPosition == metaValueRight) {
@@ -473,16 +473,16 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 
 func htmlWriteInlineImage(el *element, out io.Writer) {
 	var (
-		classes = strings.TrimSpace("image " + el.htmlClasses())
+		classes = strings.TrimSpace(`image ` + el.htmlClasses())
 
 		link     string
 		withLink bool
 	)
 
-	fmt.Fprintf(out, "<span class=%q>", classes)
+	fmt.Fprintf(out, `<span class=%q>`, classes)
 	link, withLink = el.Attrs[attrNameLink]
 	if withLink {
-		fmt.Fprintf(out, "<a class=%q href=%q>", attrValueImage, link)
+		fmt.Fprintf(out, `<a class=%q href=%q>`, attrValueImage, link)
 	}
 
 	var (
@@ -503,7 +503,7 @@ func htmlWriteInlineImage(el *element, out io.Writer) {
 		height = fmt.Sprintf(` height="%s"`, height)
 	}
 
-	fmt.Fprintf(out, "<img src=%q alt=%q%s%s>", src, alt, width, height)
+	fmt.Fprintf(out, `<img src=%q alt=%q%s%s>`, src, alt, width, height)
 
 	if withLink {
 		fmt.Fprint(out, `</a>`)
@@ -515,13 +515,13 @@ func htmlWriteInlineImage(el *element, out io.Writer) {
 func htmlWriteListDescription(el *element, out io.Writer) {
 	var openTag string
 	if el.isStyleQandA() {
-		htmlWriteBlockBegin(el, out, "qlist qanda")
+		htmlWriteBlockBegin(el, out, `qlist qanda`)
 		openTag = "\n<ol>"
 	} else if el.isStyleHorizontal() {
-		htmlWriteBlockBegin(el, out, "hdlist")
+		htmlWriteBlockBegin(el, out, `hdlist`)
 		openTag = "\n<table>"
 	} else {
-		htmlWriteBlockBegin(el, out, "dlist")
+		htmlWriteBlockBegin(el, out, `dlist`)
 		openTag = "\n<dl>"
 	}
 

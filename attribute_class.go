@@ -34,5 +34,5 @@ func (aclass *attributeClass) replace(old, new string) {
 // String concat all the attribute class into string separated by single
 // space.
 func (aclass attributeClass) String() string {
-	return strings.Join(aclass, " ")
+	return strings.Join(aclass, ` `)
 }

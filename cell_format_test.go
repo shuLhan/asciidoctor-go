@@ -16,52 +16,52 @@ func TestParseCellFormat(t *testing.T) {
 	}
 
 	var cases = []testCase{{
-		raw: "3*",
+		raw: `3*`,
 		exp: &cellFormat{
 			ndupCol: 3,
 		},
 	}, {
-		raw: "3+",
+		raw: `3+`,
 		exp: &cellFormat{
 			nspanCol: 3,
 		},
 	}, {
-		raw: ".2+",
+		raw: `.2+`,
 		exp: &cellFormat{
 			nspanRow: 2,
 		},
 	}, {
-		raw: "2.3+",
+		raw: `2.3+`,
 		exp: &cellFormat{
 			nspanCol: 2,
 			nspanRow: 3,
 		},
 	}, {
-		raw: "^",
+		raw: `^`,
 		exp: &cellFormat{
 			alignHor: colAlignMiddle,
 		},
 	}, {
-		raw: ".<",
+		raw: `.<`,
 		exp: &cellFormat{
 			alignVer: colAlignTop,
 		},
 	}, {
-		raw: "3+^.^",
+		raw: `3+^.^`,
 		exp: &cellFormat{
 			nspanCol: 3,
 			alignHor: colAlignMiddle,
 			alignVer: colAlignMiddle,
 		},
 	}, {
-		raw: "2*>m",
+		raw: `2*>m`,
 		exp: &cellFormat{
 			ndupCol:  2,
 			alignHor: colAlignBottom,
 			style:    colStyleMonospaced,
 		},
 	}, {
-		raw: ".3+^.>s",
+		raw: `.3+^.>s`,
 		exp: &cellFormat{
 			nspanRow: 3,
 			alignHor: colAlignMiddle,
@@ -69,13 +69,13 @@ func TestParseCellFormat(t *testing.T) {
 			style:    colStyleStrong,
 		},
 	}, {
-		raw: ".^l",
+		raw: `.^l`,
 		exp: &cellFormat{
 			alignVer: colAlignMiddle,
 			style:    colStyleLiteral,
 		},
 	}, {
-		raw: "v",
+		raw: `v`,
 		exp: &cellFormat{
 			style: colStyleVerse,
 		},

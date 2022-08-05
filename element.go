@@ -28,7 +28,7 @@ type element struct {
 	table *elementTable
 
 	// sectnums contain the current section numbers.
-	// It will be set only if attribute "sectnums" is on.
+	// It will be set only if attribute `sectnums` is on.
 	sectnums *sectionCounters
 
 	// The key and value for attribute (lineKindAttribute).
@@ -64,18 +64,18 @@ func (el *element) getListOrderedClass() string {
 func (el *element) getListOrderedType() string {
 	switch el.level {
 	case 2:
-		return "a"
+		return `a`
 	case 3:
-		return "i"
+		return `i`
 	case 4:
-		return "A"
+		return `A`
 	case 5:
-		return "I"
+		return `I`
 	}
-	return ""
+	return ``
 }
 
-// getVideoSource generate video full URL for HTML attribute "src".
+// getVideoSource generate video full URL for HTML attribute `src`.
 func (el *element) getVideoSource() string {
 	var (
 		u          = new(url.URL)
@@ -98,89 +98,89 @@ func (el *element) getVideoSource() string {
 	}
 
 	if isYoutube {
-		u.Scheme = "https"
-		u.Host = "www.youtube.com"
-		u.Path = "/embed/" + src
+		u.Scheme = `https`
+		u.Host = `www.youtube.com`
+		u.Path = `/embed/` + src
 
-		q = append(q, "rel=0")
+		q = append(q, `rel=0`)
 
 		vstr, ok = el.Attrs[attrNameStart]
 		if ok {
-			q = append(q, attrNameStart+"="+vstr)
+			q = append(q, attrNameStart+`=`+vstr)
 		}
 
 		vstr, ok = el.Attrs[attrNameEnd]
 		if ok {
-			q = append(q, attrNameEnd+"="+vstr)
+			q = append(q, attrNameEnd+`=`+vstr)
 		}
 
 		for _, vstr = range el.options {
 			switch vstr {
 			case optNameAutoplay, optNameLoop:
-				q = append(q, vstr+"=1")
+				q = append(q, vstr+`=1`)
 			case optVideoModest:
-				q = append(q, optVideoYoutubeModestbranding+"=1")
+				q = append(q, optVideoYoutubeModestbranding+`=1`)
 			case optNameNocontrols:
-				q = append(q, optNameControls+"=0")
-				q = append(q, optVideoPlaylist+"="+src)
+				q = append(q, optNameControls+`=0`)
+				q = append(q, optVideoPlaylist+`=`+src)
 			case optVideoNofullscreen:
-				q = append(q, optVideoFullscreen+"=0")
-				el.Attrs[optVideoNofullscreen] = ""
+				q = append(q, optVideoFullscreen+`=0`)
+				el.Attrs[optVideoNofullscreen] = ``
 			}
 		}
 
 		vstr, ok = el.Attrs[attrNameTheme]
 		if ok {
-			q = append(q, attrNameTheme+"="+vstr)
+			q = append(q, attrNameTheme+`=`+vstr)
 		}
 
 		vstr, ok = el.Attrs[attrNameLang]
 		if ok {
-			q = append(q, attrNameYoutubeLang+"="+vstr)
+			q = append(q, attrNameYoutubeLang+`=`+vstr)
 		}
 
 	} else if isVimeo {
-		u.Scheme = "https"
-		u.Host = "player.vimeo.com"
-		u.Path = "/video/" + src
+		u.Scheme = `https`
+		u.Host = `player.vimeo.com`
+		u.Path = `/video/` + src
 
 		for _, vstr = range el.options {
 			switch vstr {
 			case optNameAutoplay, optNameLoop:
-				q = append(q, vstr+"=1")
+				q = append(q, vstr+`=1`)
 			}
 		}
 		vstr, ok = el.Attrs[attrNameStart]
 		if ok {
-			fragment = "at=" + vstr
+			fragment = `at=` + vstr
 		}
 
 	} else {
 		for _, vstr = range el.options {
 			switch vstr {
 			case optNameAutoplay, optNameLoop:
-				el.Attrs[optNameNocontrols] = ""
-				el.Attrs[vstr] = ""
+				el.Attrs[optNameNocontrols] = ``
+				el.Attrs[vstr] = ``
 			}
 		}
 
 		vstr, ok = el.Attrs[attrNameStart]
 		if ok {
-			fragment = "t=" + vstr
+			fragment = `t=` + vstr
 			vstr, ok = el.Attrs[attrNameEnd]
 			if ok {
-				fragment += "," + vstr
+				fragment += `,` + vstr
 			}
 		} else if vstr, ok = el.Attrs[attrNameEnd]; ok {
-			fragment = "t=0," + vstr
+			fragment = `t=0,` + vstr
 		}
 
 		if len(fragment) > 0 {
-			src = src + "#" + fragment
+			src = src + `#` + fragment
 		}
 		return src
 	}
-	u.RawQuery = strings.Join(q, "&amp;")
+	u.RawQuery = strings.Join(q, `&amp;`)
 	u.Fragment = fragment
 
 	return u.String()
@@ -222,7 +222,7 @@ func (el *element) WriteString(s string) {
 	el.raw = append(el.raw, []byte(s)...)
 }
 
-// addChild push the "child" to the list of current element's child.
+// addChild push the `child` to the list of current element's child.
 func (el *element) addChild(child *element) {
 	if child == nil {
 		return
@@ -346,7 +346,7 @@ func (el *element) parseBlockImage(doc *Document, line []byte) bool {
 	src = applySubstitutions(doc, src)
 	el.Attrs[attrNameSrc] = string(src)
 
-	attrs = bytes.Split(line[attrBegin+1:attrEnd], []byte(","))
+	attrs = bytes.Split(line[attrBegin+1:attrEnd], []byte(`,`))
 	if el.Attrs == nil {
 		el.Attrs = make(map[string]string)
 	}
@@ -376,7 +376,7 @@ func (el *element) parseBlockImage(doc *Document, line []byte) bool {
 				el.Attrs[attrNameHeight] = string(attrs[2])
 			}
 		}
-		kv = strings.SplitN(attr, "=", 2)
+		kv = strings.SplitN(attr, `=`, 2)
 		if len(kv) != 2 {
 			continue
 		}
@@ -384,8 +384,8 @@ func (el *element) parseBlockImage(doc *Document, line []byte) bool {
 		val = strings.Trim(kv[1], `"`)
 		switch key {
 		case attrNameFloat, attrNameAlign, attrNameRole:
-			if val == "center" {
-				val = "text-center"
+			if val == `center` {
+				val = `text-center`
 			}
 			el.addRole(val)
 		default:
@@ -444,7 +444,7 @@ func (el *element) parseListDescriptionItem(line []byte) {
 		c     byte
 	)
 
-	label, x = indexUnescape(line, []byte("::"))
+	label, x = indexUnescape(line, []byte(`::`))
 	el.rawLabel.Write(label)
 
 	line = line[x+2:]
@@ -523,11 +523,11 @@ func (el *element) parseListUnorderedItem(line []byte) {
 			checklist = line[x : x+3]
 			sym       string
 		)
-		if bytes.Equal(checklist, []byte("[ ]")) {
+		if bytes.Equal(checklist, []byte(`[ ]`)) {
 			sym = symbolUnchecked
-		} else if bytes.Equal(checklist, []byte("[x]")) ||
-			bytes.Equal(checklist, []byte("[X]")) ||
-			bytes.Equal(checklist, []byte("[*]")) {
+		} else if bytes.Equal(checklist, []byte(`[x]`)) ||
+			bytes.Equal(checklist, []byte(`[X]`)) ||
+			bytes.Equal(checklist, []byte(`[*]`)) {
 			sym = symbolChecked
 		}
 		if len(sym) != 0 {
@@ -613,10 +613,10 @@ func (el *element) parseSection(doc *Document, isDiscrete bool) {
 }
 
 func (el *element) parseStyleClass(line []byte) {
-	line = bytes.Trim(line, "[]")
+	line = bytes.Trim(line, `[]`)
 
 	var (
-		parts = bytes.Split(line, []byte("."))
+		parts = bytes.Split(line, []byte(`.`))
 
 		class []byte
 	)
@@ -843,7 +843,7 @@ func (el *element) toHTML(doc *Document, w io.Writer) {
 				label = anchor.label
 			}
 		}
-		fmt.Fprintf(w, "<a href=\"#%s\">%s</a>", href, label)
+		fmt.Fprintf(w, `<a href="#%s">%s</a>`, href, label)
 
 	case elKindMacroTOC:
 		if doc.tocIsEnabled && doc.tocPosition == metaValueMacro {

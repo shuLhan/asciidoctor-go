@@ -16,44 +16,44 @@ func TestParseRevision(t *testing.T) {
 	}
 
 	var cases = []testCase{{
-		raw: "v1",
+		raw: `v1`,
 		exp: Revision{
-			Number: "1",
+			Number: `1`,
 		},
 	}, {
-		raw: "15 Nov, 2020",
+		raw: `15 Nov, 2020`,
 		exp: Revision{
-			Date: "15 Nov, 2020",
+			Date: `15 Nov, 2020`,
 		},
 	}, {
-		raw: ":remark",
+		raw: `:remark`,
 		exp: Revision{
-			Remark: "remark",
+			Remark: `remark`,
 		},
 	}, {
-		raw: "v1, 15 Nov, 2020",
+		raw: `v1, 15 Nov, 2020`,
 		exp: Revision{
-			Number: "1",
-			Date:   "15 Nov, 2020",
+			Number: `1`,
+			Date:   `15 Nov, 2020`,
 		},
 	}, {
-		raw: "v1: remark",
+		raw: `v1: remark`,
 		exp: Revision{
-			Number: "1",
-			Remark: "remark",
+			Number: `1`,
+			Remark: `remark`,
 		},
 	}, {
-		raw: "15 Nov, 2020: remark",
+		raw: `15 Nov, 2020: remark`,
 		exp: Revision{
-			Date:   "15 Nov, 2020",
-			Remark: "remark",
+			Date:   `15 Nov, 2020`,
+			Remark: `remark`,
 		},
 	}, {
-		raw: "v1, 15 Nov: remark",
+		raw: `v1, 15 Nov: remark`,
 		exp: Revision{
-			Number: "1",
-			Date:   "15 Nov",
-			Remark: "remark",
+			Number: `1`,
+			Date:   `15 Nov`,
+			Remark: `remark`,
 		},
 	}}
 
@@ -64,6 +64,6 @@ func TestParseRevision(t *testing.T) {
 
 	for _, c = range cases {
 		got = parseRevision(c.raw)
-		test.Assert(t, "Revision", c.exp, got)
+		test.Assert(t, `Revision`, c.exp, got)
 	}
 }

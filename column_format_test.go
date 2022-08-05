@@ -18,14 +18,14 @@ func TestParseColumnFormat(t *testing.T) {
 	}
 
 	var cases = []testCase{{
-		s:        "3*",
+		s:        `3*`,
 		expNCols: 3,
 		expFormat: &columnFormat{
 			isDefault: true,
 			width:     big.NewRat(1),
 		},
 	}, {
-		s:        "3*^",
+		s:        `3*^`,
 		expNCols: 3,
 		expFormat: &columnFormat{
 			alignHor:  colAlignMiddle,
@@ -33,7 +33,7 @@ func TestParseColumnFormat(t *testing.T) {
 			width:     big.NewRat(1),
 		},
 	}, {
-		s:        "3*.^",
+		s:        `3*.^`,
 		expNCols: 3,
 		expFormat: &columnFormat{
 			alignVer:  colAlignMiddle,
@@ -50,7 +50,7 @@ func TestParseColumnFormat(t *testing.T) {
 
 	for _, c = range cases {
 		gotNCols, gotFormat = parseColumnFormat(c.s)
-		test.Assert(t, c.s+" ncols", c.expNCols, gotNCols)
+		test.Assert(t, c.s+` ncols`, c.expNCols, gotNCols)
 		test.Assert(t, c.s, c.expFormat, gotFormat)
 	}
 }

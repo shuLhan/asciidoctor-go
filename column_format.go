@@ -60,7 +60,7 @@ func newColumnFormat() *columnFormat {
 }
 
 func (f *columnFormat) htmlClasses() string {
-	return strings.Join(f.classes, " ")
+	return strings.Join(f.classes, ` `)
 }
 
 func (f *columnFormat) merge(other *columnFormat) {

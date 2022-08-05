@@ -18,7 +18,7 @@ func TestParseAttrCols(t *testing.T) {
 	}
 
 	var cases = []testCase{{
-		val:   "3*",
+		val:   `3*`,
 		ncols: 3,
 		formats: []*columnFormat{
 			newColumnFormat(),
@@ -26,7 +26,7 @@ func TestParseAttrCols(t *testing.T) {
 			newColumnFormat(),
 		},
 	}, {
-		val:   "3*^",
+		val:   `3*^`,
 		ncols: 3,
 		formats: []*columnFormat{{
 			alignHor: colAlignMiddle,
@@ -39,7 +39,7 @@ func TestParseAttrCols(t *testing.T) {
 			width:    big.NewRat(1),
 		}},
 	}, {
-		val:   "2*,^",
+		val:   `2*,^`,
 		ncols: 2,
 		formats: []*columnFormat{{
 			width: big.NewRat(1),
@@ -48,7 +48,7 @@ func TestParseAttrCols(t *testing.T) {
 			width:    big.NewRat(1),
 		}},
 	}, {
-		val:   "<,^,>",
+		val:   `<,^,>`,
 		ncols: 3,
 		formats: []*columnFormat{{
 			alignHor: colAlignTop,
@@ -61,7 +61,7 @@ func TestParseAttrCols(t *testing.T) {
 			width:    big.NewRat(1),
 		}},
 	}, {
-		val:   "3*.^",
+		val:   `3*.^`,
 		ncols: 3,
 		formats: []*columnFormat{{
 			alignVer: colAlignMiddle,
@@ -74,7 +74,7 @@ func TestParseAttrCols(t *testing.T) {
 			width:    big.NewRat(1),
 		}},
 	}, {
-		val:   "2*,.>",
+		val:   `2*,.>`,
 		ncols: 2,
 		formats: []*columnFormat{{
 			width: big.NewRat(1),
@@ -83,7 +83,7 @@ func TestParseAttrCols(t *testing.T) {
 			width:    big.NewRat(1),
 		}},
 	}, {
-		val:   ".<,.^,.>",
+		val:   `.<,.^,.>`,
 		ncols: 3,
 		formats: []*columnFormat{{
 			alignVer: colAlignTop,
@@ -96,7 +96,7 @@ func TestParseAttrCols(t *testing.T) {
 			width:    big.NewRat(1),
 		}},
 	}, {
-		val:   ".<,.^,^.>",
+		val:   `.<,.^,^.>`,
 		ncols: 3,
 		formats: []*columnFormat{{
 			alignVer: colAlignTop,
@@ -110,7 +110,7 @@ func TestParseAttrCols(t *testing.T) {
 			width:    big.NewRat(1),
 		}},
 	}, {
-		val:   "1,2,6",
+		val:   `1,2,6`,
 		ncols: 3,
 		formats: []*columnFormat{{
 			width: big.NewRat(1),
@@ -120,7 +120,7 @@ func TestParseAttrCols(t *testing.T) {
 			width: big.NewRat(6),
 		}},
 	}, {
-		val:   "50,20,30",
+		val:   `50,20,30`,
 		ncols: 3,
 		formats: []*columnFormat{{
 			width: big.NewRat(50),
@@ -130,7 +130,7 @@ func TestParseAttrCols(t *testing.T) {
 			width: big.NewRat(30),
 		}},
 	}, {
-		val:   ".<2,.^5,^.>3",
+		val:   `.<2,.^5,^.>3`,
 		ncols: 3,
 		formats: []*columnFormat{{
 			alignVer: colAlignTop,
@@ -144,7 +144,7 @@ func TestParseAttrCols(t *testing.T) {
 			width:    big.NewRat(3),
 		}},
 	}, {
-		val:   "h,m,s,e",
+		val:   `h,m,s,e`,
 		ncols: 4,
 		formats: []*columnFormat{{
 			style: colStyleHeader,
@@ -169,7 +169,7 @@ func TestParseAttrCols(t *testing.T) {
 
 	for _, c = range cases {
 		ncols, formats = parseAttrCols(c.val)
-		test.Assert(t, "ncols", c.ncols, ncols)
+		test.Assert(t, `ncols`, c.ncols, ncols)
 		test.Assert(t, c.val, c.formats, formats)
 	}
 }
@@ -182,49 +182,49 @@ func TestParseToRawRows(t *testing.T) {
 	}
 
 	var cases = []testCase{{
-		desc: "empty content",
+		desc: `empty content`,
 		raw:  ``,
 		exp:  make([][]byte, 1),
 	}, {
-		desc: "empty content with no header",
+		desc: `empty content with no header`,
 		raw: `
 `,
 		exp: make([][]byte, 2),
 	}, {
-		desc: "header only",
+		desc: `header only`,
 		raw:  `A | B`,
 		exp: [][]byte{
-			[]byte("A | B"),
+			[]byte(`A | B`),
 		},
 	}, {
-		desc: "without header",
+		desc: `without header`,
 		raw: `
 | A`,
 		exp: [][]byte{
 			nil,
-			[]byte("| A"),
+			[]byte(`| A`),
 		},
 	}, {
-		desc: "header and one row",
+		desc: `header and one row`,
 		raw: `A
 | B
 
 | C`,
 		exp: [][]byte{
-			[]byte("A"),
-			[]byte("| B"),
+			[]byte(`A`),
+			[]byte(`| B`),
 			nil,
-			[]byte("| C"),
+			[]byte(`| C`),
 		},
 	}, {
-		desc: "with no header, consecutive rows",
+		desc: `with no header, consecutive rows`,
 		raw: `
 | A | B
 | C | D`,
 		exp: [][]byte{
 			nil,
-			[]byte("| A | B"),
-			[]byte("| C | D"),
+			[]byte(`| A | B`),
+			[]byte(`| C | D`),
 		},
 	}}
 

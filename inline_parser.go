@@ -159,7 +159,7 @@ func (pi *inlineParser) do() {
 			}
 			if pi.nextc == '*' {
 				if pi.parseFormatUnconstrained(
-					[]byte("**"),
+					[]byte(`**`),
 					elKindUnconstrainedBold,
 					elKindTextBold,
 					styleTextBold) {
@@ -176,7 +176,7 @@ func (pi *inlineParser) do() {
 			}
 			if pi.nextc == '_' {
 				if pi.parseFormatUnconstrained(
-					[]byte("__"),
+					[]byte(`__`),
 					elKindUnconstrainedItalic,
 					elKindTextItalic,
 					styleTextItalic) {
@@ -365,7 +365,7 @@ func (pi *inlineParser) do() {
 					isReplaced = true
 				}
 			} else if len(vbytes) == 2 {
-				if bytes.Equal(vbytes, []byte("TM")) {
+				if bytes.Equal(vbytes, []byte(`TM`)) {
 					pi.current.WriteString(htmlSymbolTrademark)
 					isReplaced = true
 				}
@@ -417,7 +417,7 @@ func (pi *inlineParser) parseCrossRef() bool {
 		idx int
 	)
 
-	raw, idx = indexUnescape(raw, []byte(">>"))
+	raw, idx = indexUnescape(raw, []byte(`>>`))
 	if idx < 0 {
 		return false
 	}
@@ -430,7 +430,7 @@ func (pi *inlineParser) parseCrossRef() bool {
 		parts      [][]byte
 	)
 
-	parts = bytes.Split(raw, []byte(","))
+	parts = bytes.Split(raw, []byte(`,`))
 	href = string(parts[0])
 	if len(parts) >= 2 {
 		label = string(bytes.TrimSpace(parts[1]))
@@ -513,7 +513,7 @@ func (pi *inlineParser) parseInlineIDShort() bool {
 	)
 
 	// Check if we have term at the end.
-	id, idx = indexUnescape(raw, []byte("]#"))
+	id, idx = indexUnescape(raw, []byte(`]#`))
 	if idx < 0 {
 		return false
 	}
@@ -528,7 +528,7 @@ func (pi *inlineParser) parseInlineIDShort() bool {
 		return false
 	}
 
-	stringID = pi.doc.registerAnchor(string(id), "")
+	stringID = pi.doc.registerAnchor(string(id), ``)
 
 	el = &element{
 		elementAttribute: elementAttribute{
@@ -736,7 +736,7 @@ func (pi *inlineParser) parseMacro() bool {
 	}
 
 	switch name {
-	case "":
+	case ``:
 		return false
 	case macroFTP, macroHTTPS, macroHTTP, macroIRC, macroLink, macroMailto:
 		el = pi.parseURL(name)
@@ -859,7 +859,7 @@ func (pi *inlineParser) parsePassthroughTriple() bool {
 	)
 
 	// Check if we have "+++" at the end.
-	raw, idx = indexUnescape(raw, []byte("+++"))
+	raw, idx = indexUnescape(raw, []byte(`+++`))
 	if idx >= 0 {
 		el = &element{
 			kind: elKindPassthroughTriple,

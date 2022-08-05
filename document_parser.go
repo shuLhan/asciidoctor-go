@@ -581,11 +581,11 @@ func (docp *documentParser) parseHeader() {
 		if len(line) == 0 {
 			return
 		}
-		if bytes.HasPrefix(line, []byte("////")) {
+		if bytes.HasPrefix(line, []byte(`////`)) {
 			docp.parseIgnoreCommentBlock()
 			continue
 		}
-		if bytes.HasPrefix(line, []byte("//")) {
+		if bytes.HasPrefix(line, []byte(`//`)) {
 			continue
 		}
 		if line[0] == ':' {
@@ -629,13 +629,13 @@ func (docp *documentParser) parseIgnoreCommentBlock() {
 		if !ok {
 			return
 		}
-		if bytes.HasPrefix(line, []byte("////")) {
+		if bytes.HasPrefix(line, []byte(`////`)) {
 			return
 		}
 	}
 }
 
-// parseListBlock parse block after list continuation "+" until we found
+// parseListBlock parse block after list continuation `+` until we found
 // empty line or non-list line.
 func (docp *documentParser) parseListBlock() (el *element, line []byte) {
 	var ok bool
@@ -810,7 +810,7 @@ func (docp *documentParser) parseListDescription(
 			continue
 		}
 		if docp.kind == elKindListOrderedItem {
-			line = docp.parseListOrdered(listItem, "", line, term)
+			line = docp.parseListOrdered(listItem, ``, line, term)
 			continue
 		}
 		if docp.kind == elKindListUnorderedItem {
@@ -999,7 +999,7 @@ func (docp *documentParser) parseListOrdered(
 				parentListItem = parentListItem.parent
 			}
 
-			line = docp.parseListOrdered(listItem, "", line, term)
+			line = docp.parseListOrdered(listItem, ``, line, term)
 			continue
 		}
 		if docp.kind == elKindListUnorderedItem {
@@ -1234,7 +1234,7 @@ func (docp *documentParser) parseListUnordered(
 				parentListItem = parentListItem.parent
 			}
 
-			line = docp.parseListOrdered(listItem, "", line, term)
+			line = docp.parseListOrdered(listItem, ``, line, term)
 			continue
 		}
 

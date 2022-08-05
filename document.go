@@ -17,9 +17,9 @@ import (
 const (
 	defSectnumlevels  = 3
 	defTOCLevel       = 2
-	defTOCTitle       = "Table of Contents"
+	defTOCTitle       = `Table of Contents`
 	defTitleSeparator = ':'
-	defVersionPrefix  = "version "
+	defVersionPrefix  = `version `
 )
 
 // Document represent content of asciidoc that has been parsed.
@@ -114,18 +114,18 @@ func Open(file string) (doc *Document, err error) {
 
 	raw, err = os.ReadFile(file)
 	if err != nil {
-		return nil, fmt.Errorf("Open %s: %w", file, err)
+		return nil, fmt.Errorf(`Open %s: %w`, file, err)
 	}
 
 	wd, err = os.Getwd()
 	if err != nil {
-		return nil, fmt.Errorf("Open %s: %w", file, err)
+		return nil, fmt.Errorf(`Open %s: %w`, file, err)
 	}
 
 	doc = newDocument()
 	doc.fpath = filepath.Join(wd, file)
 	doc.file = file
-	doc.LastUpdated = fi.ModTime().Round(time.Second).Format("2006-01-02 15:04:05 Z0700")
+	doc.LastUpdated = fi.ModTime().Round(time.Second).Format(`2006-01-02 15:04:05 Z0700`)
 
 	parse(doc, raw)
 
@@ -304,7 +304,7 @@ func (doc *Document) registerAnchor(id, label string) string {
 	for ok {
 		// The ID is duplicate
 		got.counter++
-		id = fmt.Sprintf("%s_%d", id, got.counter)
+		id = fmt.Sprintf(`%s_%d`, id, got.counter)
 		got, ok = doc.anchors[id]
 	}
 	doc.anchors[id] = &anchor{
@@ -359,9 +359,9 @@ func (doc *Document) unpackRawAuthor() {
 		}
 		v = doc.Attributes[metaNameEmail]
 		if len(v) > 0 {
-			sb.WriteString(" <")
+			sb.WriteString(` <`)
 			sb.WriteString(v)
-			sb.WriteString(">")
+			sb.WriteString(`>`)
 		}
 		v = sb.String()
 		if len(v) == 0 {
@@ -371,7 +371,7 @@ func (doc *Document) unpackRawAuthor() {
 	}
 
 	var (
-		rawAuthors    []string = strings.Split(doc.rawAuthors, ";")
+		rawAuthors    []string = strings.Split(doc.rawAuthors, `;`)
 		authorKey              = MetaNameAuthor
 		emailKey               = metaNameEmail
 		initialsKey            = metaNameAuthorInitials
@@ -395,7 +395,7 @@ func (doc *Document) unpackRawAuthor() {
 		doc.Authors = append(doc.Authors, author)
 
 		if len(doc.Authors) >= 2 {
-			sb.WriteString(", ")
+			sb.WriteString(`, `)
 		}
 		sb.WriteString(author.FullName())
 
@@ -408,15 +408,15 @@ func (doc *Document) unpackRawAuthor() {
 			doc.Attributes[lastNameKey] = author.LastName
 
 			// No continue, the first author have two keys, one is
-			// "author" and another is "author_1".
+			// `author` and another is `author_1`.
 		}
 
-		authorKey = fmt.Sprintf("%s_%d", MetaNameAuthor, x+1)
-		emailKey = fmt.Sprintf("%s_%d", metaNameEmail, x+1)
-		initialsKey = fmt.Sprintf("%s_%d", metaNameAuthorInitials, x+1)
-		firstNameKey = fmt.Sprintf("%s_%d", metaNameFirstName, x+1)
-		middleNameKey = fmt.Sprintf("%s_%d", metaNameMiddleName, x+1)
-		lastNameKey = fmt.Sprintf("%s_%d", metaNameLastName, x+1)
+		authorKey = fmt.Sprintf(`%s_%d`, MetaNameAuthor, x+1)
+		emailKey = fmt.Sprintf(`%s_%d`, metaNameEmail, x+1)
+		initialsKey = fmt.Sprintf(`%s_%d`, metaNameAuthorInitials, x+1)
+		firstNameKey = fmt.Sprintf(`%s_%d`, metaNameFirstName, x+1)
+		middleNameKey = fmt.Sprintf(`%s_%d`, metaNameMiddleName, x+1)
+		lastNameKey = fmt.Sprintf(`%s_%d`, metaNameLastName, x+1)
 
 		doc.Attributes[authorKey] = author.FullName()
 		doc.Attributes[emailKey] = author.Email
@@ -482,7 +482,7 @@ func (doc *Document) unpackRawTitle() {
 }
 
 // unpackTitleSeparator set the Title separator using the first character in
-// meta attribute "title-separator" value.
+// meta attribute `title-separator` value.
 func (doc *Document) unpackTitleSeparator() {
 	var (
 		v  string

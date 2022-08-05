@@ -94,10 +94,10 @@ func TestIsValidID(t *testing.T) {
 	}
 
 	var cases = []testCase{{
-		id:  "a",
+		id:  `a`,
 		exp: true,
 	}, {
-		id: "1",
+		id: `1`,
 	}}
 
 	var (

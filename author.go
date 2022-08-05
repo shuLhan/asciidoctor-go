@@ -36,21 +36,21 @@ func parseAuthor(raw string) (author *Author) {
 		}
 	}
 
-	names = strings.Split(raw, " ")
+	names = strings.Split(raw, ` `)
 	if len(names) == 0 {
 		return
 	}
 
 	var initials bytes.Buffer
-	author.FirstName = strings.ReplaceAll(names[0], "_", " ")
+	author.FirstName = strings.ReplaceAll(names[0], `_`, ` `)
 	initials.WriteByte(author.FirstName[0])
 
 	if len(names) >= 2 {
 		lastIdx = len(names) - 1
-		author.LastName = strings.ReplaceAll(names[lastIdx], "_", " ")
+		author.LastName = strings.ReplaceAll(names[lastIdx], `_`, ` `)
 
 		author.MiddleName = strings.ReplaceAll(
-			strings.Join(names[1:lastIdx], " "), "_", " ",
+			strings.Join(names[1:lastIdx], ` `), `_`, ` `,
 		)
 
 		if len(author.MiddleName) > 0 {
@@ -70,10 +70,10 @@ func (author *Author) FullName() string {
 
 	sb.WriteString(author.FirstName)
 	if len(author.MiddleName) > 0 {
-		sb.WriteString(" " + author.MiddleName)
+		sb.WriteString(` ` + author.MiddleName)
 	}
 	if len(author.LastName) > 0 {
-		sb.WriteString(" " + author.LastName)
+		sb.WriteString(` ` + author.LastName)
 	}
 	return sb.String()
 }

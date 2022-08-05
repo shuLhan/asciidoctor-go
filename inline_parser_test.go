@@ -62,22 +62,22 @@ func TestInlineParser_parseAttrRef(t *testing.T) {
 
 	var _testDoc = &Document{
 		Attributes: map[string]string{
-			"x": "https://kilabit.info",
+			`x`: `https://kilabit.info`,
 		},
 	}
 
 	var cases = []testCase{{
-		content: "A {x}[*B*] C",
+		content: `A {x}[*B*] C`,
 		exp:     `A <a href="https://kilabit.info"><strong>B</strong></a> C`,
 	}, {
-		content: "A {x }[*B*] C",
+		content: `A {x }[*B*] C`,
 		exp:     `A <a href="https://kilabit.info"><strong>B</strong></a> C`,
 	}, {
-		content: "A {x }*B* C",
+		content: `A {x }*B* C`,
 		exp:     `A <a href="https://kilabit.info*B*" class="bare">https://kilabit.info*B*</a> C`,
 	}, {
-		content: "A {y }*B* C",
-		exp:     "A {y }<strong>B</strong> C",
+		content: `A {y }*B* C`,
+		exp:     `A {y }<strong>B</strong> C`,
 	}}
 
 	var (
@@ -110,26 +110,26 @@ func TestInlineParser_parseCrossReference(t *testing.T) {
 
 	var _testDoc = &Document{
 		anchors: map[string]*anchor{
-			"x": &anchor{
-				label: "X y",
+			`x`: &anchor{
+				label: `X y`,
 			},
 		},
 		titleID: map[string]string{
-			"X y": "x",
+			`X y`: `x`,
 		},
 	}
 
 	var cases = []testCase{{
-		content: "A <<x>>",
+		content: `A <<x>>`,
 		exp:     `A <a href="#x">X y</a>`,
 	}, {
-		content: "A <<x, Label>>",
+		content: `A <<x, Label>>`,
 		exp:     `A <a href="#x">Label</a>`,
 	}, {
-		content: "A <<X y>>",
+		content: `A <<X y>>`,
 		exp:     `A <a href="#x">X y</a>`,
 	}, {
-		content: "A <<X y,Label>>",
+		content: `A <<X y,Label>>`,
 		exp:     `A <a href="#x">Label</a>`,
 	}}
 
@@ -166,29 +166,29 @@ func TestInlineParser_parseFormat(t *testing.T) {
 	}
 
 	var cases = []testCase{{
-		content: "_A_B",
-		exp:     "_A_B",
+		content: `_A_B`,
+		exp:     `_A_B`,
 	}, {
-		content: "_A_ B",
-		exp:     "<em>A</em> B",
+		content: `_A_ B`,
+		exp:     `<em>A</em> B`,
 	}, {
-		content: "_A _B",
-		exp:     "_A _B",
+		content: `_A _B`,
+		exp:     `_A _B`,
 	}, {
-		content: "*A*B",
-		exp:     "*A*B",
+		content: `*A*B`,
+		exp:     `*A*B`,
 	}, {
-		content: "*A* B",
-		exp:     "<strong>A</strong> B",
+		content: `*A* B`,
+		exp:     `<strong>A</strong> B`,
 	}, {
-		content: "*A *B",
-		exp:     "*A *B",
+		content: `*A *B`,
+		exp:     `*A *B`,
 	}, {
 		content: "`A`B",
 		exp:     "`A`B",
 	}, {
 		content: "`A` B",
-		exp:     "<code>A</code> B",
+		exp:     `<code>A</code> B`,
 	}, {
 		content: "`A `B",
 		exp:     "`A `B",
@@ -231,23 +231,23 @@ func TestInlineParser_parseFormatUnconstrained(t *testing.T) {
 	}
 
 	var cases = []testCase{{
-		content: "__A__B",
-		exp:     "<em>A</em>B",
+		content: `__A__B`,
+		exp:     `<em>A</em>B`,
 	}, {
-		content: "__A *B*__",
-		exp:     "<em>A <strong>B</strong></em>",
+		content: `__A *B*__`,
+		exp:     `<em>A <strong>B</strong></em>`,
 	}, {
-		content: "__A _B_ C__",
-		exp:     "<em>A <em>B</em> C</em>",
+		content: `__A _B_ C__`,
+		exp:     `<em>A <em>B</em> C</em>`,
 	}, {
-		content: "__A B_ C__",
-		exp:     "<em>A B_ C</em>",
+		content: `__A B_ C__`,
+		exp:     `<em>A B_ C</em>`,
 	}, {
-		content: "__A *B*_",
-		exp:     "<em>_A <strong>B</strong></em>",
+		content: `__A *B*_`,
+		exp:     `<em>_A <strong>B</strong></em>`,
 	}, {
-		content: "_A *B*__",
-		exp:     "<em>A <strong>B</strong>_</em>",
+		content: `_A *B*__`,
+		exp:     `<em>A <strong>B</strong>_</em>`,
 	}}
 
 	var (
@@ -724,20 +724,20 @@ func TestInlineParser_parseSuperscript(t *testing.T) {
 	}
 
 	var cases = []testCase{{
-		content: "A^B^C",
-		exp:     "A<sup>B</sup>C",
+		content: `A^B^C`,
+		exp:     `A<sup>B</sup>C`,
 	}, {
-		content: "A^B ^C",
-		exp:     "A^B ^C",
+		content: `A^B ^C`,
+		exp:     `A^B ^C`,
 	}, {
-		content: "A^ B^C",
-		exp:     "A^ B^C",
+		content: `A^ B^C`,
+		exp:     `A^ B^C`,
 	}, {
 		content: `A\^B^C`,
-		exp:     "A^B^C",
+		exp:     `A^B^C`,
 	}, {
 		content: `A^B\^C`,
-		exp:     "A^B^C",
+		exp:     `A^B^C`,
 	}}
 
 	var (

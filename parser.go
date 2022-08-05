@@ -11,13 +11,13 @@ import (
 )
 
 const (
-	macroFTP    = "ftp"
-	macroHTTP   = "http"
-	macroHTTPS  = "https"
-	macroIRC    = "irc"
-	macroImage  = "image"
-	macroLink   = "link"
-	macroMailto = "mailto"
+	macroFTP    = `ftp`
+	macroHTTP   = `http`
+	macroHTTPS  = `https`
+	macroIRC    = `irc`
+	macroImage  = `image`
+	macroLink   = `link`
+	macroMailto = `mailto`
 )
 
 const (
@@ -93,161 +93,161 @@ const (
 )
 
 const (
-	attrNameAlign       = "align"
-	attrNameAlt         = "alt"
-	attrNameAttribution = "attribution"
-	attrNameCaption     = "caption"
-	attrNameCitation    = "citation"
-	attrNameCols        = "cols"
-	attrNameDiscrete    = "discrete"
-	attrNameEnd         = "end"
-	attrNameFloat       = "float"
-	attrNameFrame       = "frame"
-	attrNameGrid        = "grid"
-	attrNameHeight      = "height"
-	attrNameHref        = "href"
-	attrNameIcons       = "icons"
-	attrNameLang        = "lang"
-	attrNameLink        = "link"
-	attrNameOptions     = "options"
-	attrNameOpts        = "opts"
-	attrNamePoster      = "poster"
-	attrNameRefText     = "reftext"
-	attrNameRel         = "rel"
-	attrNameRole        = "role"
-	attrNameSource      = "source"
-	attrNameSrc         = "src"
-	attrNameStart       = "start"
-	attrNameStripes     = "stripes"
-	attrNameTarget      = "target"
-	attrNameTheme       = "theme"
-	attrNameTitle       = "title"
-	attrNameVimeo       = "vimeo"
-	attrNameWidth       = "width"
-	attrNameYoutube     = "youtube"
-	attrNameYoutubeLang = "hl"
+	attrNameAlign       = `align`
+	attrNameAlt         = `alt`
+	attrNameAttribution = `attribution`
+	attrNameCaption     = `caption`
+	attrNameCitation    = `citation`
+	attrNameCols        = `cols`
+	attrNameDiscrete    = `discrete`
+	attrNameEnd         = `end`
+	attrNameFloat       = `float`
+	attrNameFrame       = `frame`
+	attrNameGrid        = `grid`
+	attrNameHeight      = `height`
+	attrNameHref        = `href`
+	attrNameIcons       = `icons`
+	attrNameLang        = `lang`
+	attrNameLink        = `link`
+	attrNameOptions     = `options`
+	attrNameOpts        = `opts`
+	attrNamePoster      = `poster`
+	attrNameRefText     = `reftext`
+	attrNameRel         = `rel`
+	attrNameRole        = `role`
+	attrNameSource      = `source`
+	attrNameSrc         = `src`
+	attrNameStart       = `start`
+	attrNameStripes     = `stripes`
+	attrNameTarget      = `target`
+	attrNameTheme       = `theme`
+	attrNameTitle       = `title`
+	attrNameVimeo       = `vimeo`
+	attrNameWidth       = `width`
+	attrNameYoutube     = `youtube`
+	attrNameYoutubeLang = `hl`
 )
 
 const (
-	attrValueAll       = "all"
-	attrValueAuthor    = "author"
-	attrValueBare      = "bare"
-	attrValueBlank     = "_blank"
-	attrValueCols      = "cols"
-	attrValueContent   = "content"
-	attrValueEmail     = "email"
-	attrValueEven      = "even"
-	attrValueFont      = "font"
-	attrValueFooter    = "footer"
-	attrValueHeader    = "header"
-	attrValueHover     = "hover"
-	attrValueImage     = "image"
-	attrValueNoopener  = "noopener"
-	attrValueNoHeader  = "noheader"
-	attrValueNone      = "none"
-	attrValueOdd       = "odd"
-	attrValueRevDate   = "revdate"
-	attrValueRevNumber = "revnumber"
-	attrValueRows      = "rows"
-	attrValueSides     = "sides"
+	attrValueAll       = `all`
+	attrValueAuthor    = `author`
+	attrValueBare      = `bare`
+	attrValueBlank     = `_blank`
+	attrValueCols      = `cols`
+	attrValueContent   = `content`
+	attrValueEmail     = `email`
+	attrValueEven      = `even`
+	attrValueFont      = `font`
+	attrValueFooter    = `footer`
+	attrValueHeader    = `header`
+	attrValueHover     = `hover`
+	attrValueImage     = `image`
+	attrValueNoopener  = `noopener`
+	attrValueNoHeader  = `noheader`
+	attrValueNone      = `none`
+	attrValueOdd       = `odd`
+	attrValueRevDate   = `revdate`
+	attrValueRevNumber = `revnumber`
+	attrValueRows      = `rows`
+	attrValueSides     = `sides`
 	attrValueTitle     = attrNameTitle
-	attrValueTopbot    = "topbot"
+	attrValueTopbot    = `topbot`
 )
 
 const (
-	classNameArabic       = "arabic"
-	classNameChecklist    = "checklist"
-	classNameFitContent   = "fit-content"
-	classNameFrameAll     = "frame-all"
-	classNameFrameEnds    = "frame-ends"
-	classNameFrameNone    = "frame-none"
-	classNameFrameSides   = "frame-sides"
-	classNameGridAll      = "grid-all"
-	classNameGridCols     = "grid-cols"
-	classNameGridNone     = "grid-none"
-	classNameGridRows     = "grid-rows"
-	classNameLoweralpha   = "loweralpha"
-	classNameLowerroman   = "lowerroman"
-	classNameStretch      = "stretch"
-	classNameStripesAll   = "stripes-all"
-	classNameStripesEven  = "stripes-even"
-	classNameStripesHover = "stripes-hover"
-	classNameStripesOdd   = "stripes-odd"
-	classNameTableblock   = "tableblock"
-	classNameUpperalpha   = "upperalpha"
-	classNameUpperroman   = "upperroman"
+	classNameArabic       = `arabic`
+	classNameChecklist    = `checklist`
+	classNameFitContent   = `fit-content`
+	classNameFrameAll     = `frame-all`
+	classNameFrameEnds    = `frame-ends`
+	classNameFrameNone    = `frame-none`
+	classNameFrameSides   = `frame-sides`
+	classNameGridAll      = `grid-all`
+	classNameGridCols     = `grid-cols`
+	classNameGridNone     = `grid-none`
+	classNameGridRows     = `grid-rows`
+	classNameLoweralpha   = `loweralpha`
+	classNameLowerroman   = `lowerroman`
+	classNameStretch      = `stretch`
+	classNameStripesAll   = `stripes-all`
+	classNameStripesEven  = `stripes-even`
+	classNameStripesHover = `stripes-hover`
+	classNameStripesOdd   = `stripes-odd`
+	classNameTableblock   = `tableblock`
+	classNameUpperalpha   = `upperalpha`
+	classNameUpperroman   = `upperroman`
 )
 
 // List of document metadata.
 const (
-	MetaNameAuthor      = "author"       // May contain the first author full name only.
-	MetaNameAuthorNames = "author_names" // List of author full names, separated by comma.
-	MetaNameDescription = "description"
-	MetaNameGenerator   = "generator"
-	MetaNameKeywords    = "keywords"
+	MetaNameAuthor      = `author`       // May contain the first author full name only.
+	MetaNameAuthorNames = `author_names` // List of author full names, separated by comma.
+	MetaNameDescription = `description`
+	MetaNameGenerator   = `generator`
+	MetaNameKeywords    = `keywords`
 
-	metaNameAuthorInitials = "authorinitials"
-	metaNameDocTitle       = "doctitle"
+	metaNameAuthorInitials = `authorinitials`
+	metaNameDocTitle       = `doctitle`
 	metaNameEmail          = attrValueEmail
-	metaNameFirstName      = "firstname"
-	metaNameIDPrefix       = "idprefix"
-	metaNameIDSeparator    = "idseparator"
-	metaNameLastName       = "lastname"
-	metaNameMiddleName     = "middlename"
-	metaNameNoFooter       = "nofooter"
-	metaNameNoHeader       = "noheader"
-	metaNameNoHeaderFooter = "no-header-footer"
-	metaNameNoTitle        = "notitle"
-	metaNameRevDate        = "revdate"
-	metaNameRevNumber      = "revnumber"
-	metaNameRevRemark      = "revremark"
-	metaNameSectAnchors    = "sectanchors"
-	metaNameSectIDs        = "sectids"
-	metaNameSectLinks      = "sectlinks"
-	metaNameSectNumLevel   = "sectnumlevels"
-	metaNameSectNums       = "sectnums"
-	metaNameShowTitle      = "showtitle"
-	metaNameTOC            = "toc"
-	metaNameTOCLevels      = "toclevels"
-	metaNameTOCTitle       = "toc-title"
-	metaNameTableCaption   = "table-caption"
+	metaNameFirstName      = `firstname`
+	metaNameIDPrefix       = `idprefix`
+	metaNameIDSeparator    = `idseparator`
+	metaNameLastName       = `lastname`
+	metaNameMiddleName     = `middlename`
+	metaNameNoFooter       = `nofooter`
+	metaNameNoHeader       = `noheader`
+	metaNameNoHeaderFooter = `no-header-footer`
+	metaNameNoTitle        = `notitle`
+	metaNameRevDate        = `revdate`
+	metaNameRevNumber      = `revnumber`
+	metaNameRevRemark      = `revremark`
+	metaNameSectAnchors    = `sectanchors`
+	metaNameSectIDs        = `sectids`
+	metaNameSectLinks      = `sectlinks`
+	metaNameSectNumLevel   = `sectnumlevels`
+	metaNameSectNums       = `sectnums`
+	metaNameShowTitle      = `showtitle`
+	metaNameTOC            = `toc`
+	metaNameTOCLevels      = `toclevels`
+	metaNameTOCTitle       = `toc-title`
+	metaNameTableCaption   = `table-caption`
 	metaNameTitle          = attrNameTitle
-	metaNameTitleSeparator = "title-separator"
-	metaNameVersionLabel   = "version-label"
+	metaNameTitleSeparator = `title-separator`
+	metaNameVersionLabel   = `version-label`
 )
 
 // List of possible metadata value.
 const (
-	metaValueAuto     = "auto"
-	metaValueMacro    = "macro"
-	metaValuePreamble = "preamble"
-	metaValueLeft     = "left"
-	metaValueRight    = "right"
+	metaValueAuto     = `auto`
+	metaValueMacro    = `macro`
+	metaValuePreamble = `preamble`
+	metaValueLeft     = `left`
+	metaValueRight    = `right`
 )
 
 const (
-	optNameAutoplay               = "autoplay"
-	optNameAutowidth              = "autowidth"
-	optNameControls               = "controls"
-	optNameLoop                   = "loop"
-	optNameNocontrols             = "nocontrols"
-	optVideoFullscreen            = "fs"
-	optVideoModest                = "modest"
-	optVideoNofullscreen          = "nofullscreen"
-	optVideoPlaylist              = "playlist"
-	optVideoYoutubeModestbranding = "modestbranding"
+	optNameAutoplay               = `autoplay`
+	optNameAutowidth              = `autowidth`
+	optNameControls               = `controls`
+	optNameLoop                   = `loop`
+	optNameNocontrols             = `nocontrols`
+	optVideoFullscreen            = `fs`
+	optVideoModest                = `modest`
+	optVideoNofullscreen          = `nofullscreen`
+	optVideoPlaylist              = `playlist`
+	optVideoYoutubeModestbranding = `modestbranding`
 )
 
 const (
-	prefixInclude = "include::"
+	prefixInclude = `include::`
 )
 
 const (
-	admonitionCaution   = "CAUTION"
-	admonitionImportant = "IMPORTANT"
-	admonitionNote      = "NOTE"
-	admonitionTip       = "TIP"
-	admonitionWarning   = "WARNING"
+	admonitionCaution   = `CAUTION`
+	admonitionImportant = `IMPORTANT`
+	admonitionNote      = `NOTE`
+	admonitionTip       = `TIP`
+	admonitionWarning   = `WARNING`
 )
 
 const (
@@ -285,77 +285,77 @@ const (
 )
 
 const (
-	symbolQuoteDoubleBegin = "&#8220;"
-	symbolQuoteDoubleEnd   = "&#8221;"
-	symbolQuoteSingleBegin = "&#8216;"
-	symbolQuoteSingleEnd   = "&#8217;"
-	symbolChecked          = "&#10003;"
-	symbolUnchecked        = "&#10063;"
+	symbolQuoteDoubleBegin = `&#8220;`
+	symbolQuoteDoubleEnd   = `&#8221;`
+	symbolQuoteSingleBegin = `&#8216;`
+	symbolQuoteSingleEnd   = `&#8217;`
+	symbolChecked          = `&#10003;`
+	symbolUnchecked        = `&#10063;`
 )
 
 var adocStyles map[string]int64 = map[string]int64{
-	"colophon":          styleSectionColophon,
-	"abstract":          styleSectionAbstract,
-	"preface":           styleSectionPreface,
-	"dedication":        styleSectionDedication,
+	`colophon`:          styleSectionColophon,
+	`abstract`:          styleSectionAbstract,
+	`preface`:           styleSectionPreface,
+	`dedication`:        styleSectionDedication,
 	attrNameDiscrete:    styleSectionDiscrete,
-	"partintro":         styleSectionPartIntroduction,
-	"appendix":          styleSectionAppendix,
-	"glossary":          styleSectionGlossary,
-	"bibliography":      styleSectionBibliography,
-	"index":             styleSectionIndex,
-	".lead":             styleParagraphLead,
-	".normal":           styleParagraphNormal,
-	"arabic":            styleNumberingArabic,
-	"decimal":           styleNumberingDecimal,
-	"loweralpha":        styleNumberingLoweralpha,
-	"upperalpha":        styleNumberingUpperalpha,
-	"lowerroman":        styleNumberingLowerroman,
-	"upperroman":        styleNumberingUpperroman,
-	"lowergreek":        styleNumberingLowergreek,
-	"horizontal":        styleDescriptionHorizontal,
-	"qanda":             styleDescriptionQandA,
+	`partintro`:         styleSectionPartIntroduction,
+	`appendix`:          styleSectionAppendix,
+	`glossary`:          styleSectionGlossary,
+	`bibliography`:      styleSectionBibliography,
+	`index`:             styleSectionIndex,
+	`.lead`:             styleParagraphLead,
+	`.normal`:           styleParagraphNormal,
+	`arabic`:            styleNumberingArabic,
+	`decimal`:           styleNumberingDecimal,
+	`loweralpha`:        styleNumberingLoweralpha,
+	`upperalpha`:        styleNumberingUpperalpha,
+	`lowerroman`:        styleNumberingLowerroman,
+	`upperroman`:        styleNumberingUpperroman,
+	`lowergreek`:        styleNumberingLowergreek,
+	`horizontal`:        styleDescriptionHorizontal,
+	`qanda`:             styleDescriptionQandA,
 	admonitionCaution:   styleAdmonition,
 	admonitionImportant: styleAdmonition,
 	admonitionNote:      styleAdmonition,
 	admonitionTip:       styleAdmonition,
 	admonitionWarning:   styleAdmonition,
-	"listing":           styleBlockListing,
-	"quote":             styleQuote,
-	"source":            styleSource,
-	"verse":             styleVerse,
+	`listing`:           styleBlockListing,
+	`quote`:             styleQuote,
+	`source`:            styleSource,
+	`verse`:             styleVerse,
 }
 
 var _attrRef map[string]string = map[string]string{
-	"amp":            "&",
-	"apos":           htmlSymbolSingleQuote, // '
-	"asterisk":       "*",
-	"backslash":      `\`,
-	"backtick":       "`",
-	"blank":          "",
-	"brvbar":         htmlSymbolBrokenVerticalBar, // ¦
-	"caret":          "^",
-	"cpp":            "C++",
-	"deg":            htmlSymbolDegreeSign, // °
-	"empty":          "",
-	"endsb":          "]",
-	"gt":             ">",
-	"ldquo":          htmlSymbolLeftDoubleQuote,
-	"lsquo":          htmlSymbolLeftSingleQuote,
-	"lt":             "<",
-	"nbsp":           htmlSymbolNonBreakingSpace,
-	"plus":           htmlSymbolPlus,
-	"quot":           htmlSymbolDoubleQuote,
-	"rdquo":          htmlSymbolRightDoubleQuote,
-	"rsquo":          htmlSymbolRightSingleQuote,
-	"sp":             " ",
-	"startsb":        "[",
-	"tilde":          "~",
-	"two-colons":     "::",
-	"two-semicolons": ";;",
-	"vbar":           "|",
-	"wj":             htmlSymbolWordJoiner,
-	"zwsp":           htmlSymbolZeroWidthSpace,
+	`amp`:            `&`,
+	`apos`:           htmlSymbolSingleQuote, // '
+	`asterisk`:       `*`,
+	`backslash`:      `\`,
+	`backtick`:       "`",
+	`blank`:          ``,
+	`brvbar`:         htmlSymbolBrokenVerticalBar, // ¦
+	`caret`:          `^`,
+	`cpp`:            `C++`,
+	`deg`:            htmlSymbolDegreeSign, // °
+	`empty`:          ``,
+	`endsb`:          `]`,
+	`gt`:             `>`,
+	`ldquo`:          htmlSymbolLeftDoubleQuote,
+	`lsquo`:          htmlSymbolLeftSingleQuote,
+	`lt`:             `<`,
+	`nbsp`:           htmlSymbolNonBreakingSpace,
+	`plus`:           htmlSymbolPlus,
+	`quot`:           htmlSymbolDoubleQuote,
+	`rdquo`:          htmlSymbolRightDoubleQuote,
+	`rsquo`:          htmlSymbolRightSingleQuote,
+	`sp`:             ` `,
+	`startsb`:        `[`,
+	`tilde`:          `~`,
+	`two-colons`:     `::`,
+	`two-semicolons`: `;;`,
+	`vbar`:           `|`,
+	`wj`:             htmlSymbolWordJoiner,
+	`zwsp`:           htmlSymbolZeroWidthSpace,
 }
 
 func applySubstitutions(doc *Document, content []byte) []byte {
@@ -500,7 +500,7 @@ func isLineDescriptionItem(line []byte) bool {
 		x int
 	)
 
-	_, x = indexUnescape(line, []byte(":: "))
+	_, x = indexUnescape(line, []byte(`:: `))
 	if x > 0 {
 		return true
 	}
@@ -508,7 +508,7 @@ func isLineDescriptionItem(line []byte) bool {
 	if x > 0 {
 		return true
 	}
-	_, x = indexUnescape(line, []byte("::"))
+	_, x = indexUnescape(line, []byte(`::`))
 	return x > 0
 }
 
@@ -578,7 +578,7 @@ func parseAttribute(line []byte, strict bool) (key, value string, ok bool) {
 	)
 
 	if !(ascii.IsAlnum(line[1]) || line[1] == '_') {
-		return "", "", false
+		return ``, ``, false
 	}
 
 	sb.WriteByte(line[1])
@@ -593,11 +593,11 @@ func parseAttribute(line []byte, strict bool) (key, value string, ok bool) {
 			continue
 		}
 		if strict {
-			return "", "", false
+			return ``, ``, false
 		}
 	}
 	if x == len(line) {
-		return "", "", false
+		return ``, ``, false
 	}
 
 	valb = bytes.TrimSpace(line[x+1:])
@@ -634,8 +634,8 @@ func parseAttrRef(doc *Document, content []byte, x int) (newContent []byte, ok b
 
 		// Add prefix "mailto:" if the ref name start with email, so
 		// it can be parsed by caller as macro link.
-		if name == "email" || strings.HasPrefix(name, "email_") {
-			attrValue = "mailto:" + attrValue + "[" + attrValue + "]"
+		if name == `email` || strings.HasPrefix(name, `email_`) {
+			attrValue = `mailto:` + attrValue + `[` + attrValue + `]`
 		}
 	}
 
@@ -650,7 +650,7 @@ func parseAttrRef(doc *Document, content []byte, x int) (newContent []byte, ok b
 // It will return empty id and label if ID is not valid.
 func parseIDLabel(s []byte) (id, label []byte) {
 	var (
-		idLabel [][]byte = bytes.Split(s, []byte(","))
+		idLabel [][]byte = bytes.Split(s, []byte(`,`))
 	)
 
 	id = idLabel[0]
@@ -699,68 +699,68 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 	if len(line) == 0 {
 		return lineKindEmpty, nil, line
 	}
-	if bytes.HasPrefix(line, []byte("////")) {
+	if bytes.HasPrefix(line, []byte(`////`)) {
 		// Check for comment block first, since we use HasPrefix to
 		// check for single line comment.
 		return lineKindBlockComment, spaces, line
 	}
-	if bytes.HasPrefix(line, []byte("//")) {
+	if bytes.HasPrefix(line, []byte(`//`)) {
 		// Use HasPrefix to allow single line comment without space,
 		// for example "//comment".
 		return lineKindComment, spaces, line
 	}
-	if bytes.Equal(line, []byte("'''")) ||
-		bytes.Equal(line, []byte("---")) ||
-		bytes.Equal(line, []byte("- - -")) ||
-		bytes.Equal(line, []byte("***")) ||
-		bytes.Equal(line, []byte("* * *")) {
+	if bytes.Equal(line, []byte(`'''`)) ||
+		bytes.Equal(line, []byte(`---`)) ||
+		bytes.Equal(line, []byte(`- - -`)) ||
+		bytes.Equal(line, []byte(`***`)) ||
+		bytes.Equal(line, []byte(`* * *`)) {
 		return lineKindHorizontalRule, spaces, line
 	}
-	if bytes.Equal(line, []byte("<<<")) {
+	if bytes.Equal(line, []byte(`<<<`)) {
 		return lineKindPageBreak, spaces, line
 	}
-	if bytes.Equal(line, []byte("--")) {
+	if bytes.Equal(line, []byte(`--`)) {
 		return elKindBlockOpen, spaces, line
 	}
-	if bytes.Equal(line, []byte("____")) {
+	if bytes.Equal(line, []byte(`____`)) {
 		return elKindBlockExcerpts, spaces, line
 	}
-	if bytes.Equal(line, []byte("....")) {
+	if bytes.Equal(line, []byte(`....`)) {
 		return elKindBlockLiteral, nil, line
 	}
-	if bytes.Equal(line, []byte("++++")) {
+	if bytes.Equal(line, []byte(`++++`)) {
 		return elKindBlockPassthrough, spaces, line
 	}
-	if bytes.Equal(line, []byte("****")) {
+	if bytes.Equal(line, []byte(`****`)) {
 		return elKindBlockSidebar, nil, line
 	}
-	if bytes.Equal(line, []byte("====")) {
+	if bytes.Equal(line, []byte(`====`)) {
 		return elKindBlockExample, spaces, line
 	}
 
-	if bytes.HasPrefix(line, []byte("|===")) {
+	if bytes.HasPrefix(line, []byte(`|===`)) {
 		return elKindTable, nil, line
 	}
 
-	if bytes.Equal(line, []byte("[listing]")) {
+	if bytes.Equal(line, []byte(`[listing]`)) {
 		return elKindBlockListingNamed, nil, line
 	}
-	if bytes.Equal(line, []byte("[literal]")) {
+	if bytes.Equal(line, []byte(`[literal]`)) {
 		return elKindBlockLiteralNamed, nil, line
 	}
-	if bytes.Equal(line, []byte("toc::[]")) {
+	if bytes.Equal(line, []byte(`toc::[]`)) {
 		return elKindMacroTOC, spaces, line
 	}
-	if bytes.HasPrefix(line, []byte("image::")) {
+	if bytes.HasPrefix(line, []byte(`image::`)) {
 		return elKindBlockImage, spaces, line
 	}
-	if bytes.HasPrefix(line, []byte("include::")) {
+	if bytes.HasPrefix(line, []byte(`include::`)) {
 		return lineKindInclude, nil, line
 	}
-	if bytes.HasPrefix(line, []byte("video::")) {
+	if bytes.HasPrefix(line, []byte(`video::`)) {
 		return elKindBlockVideo, nil, line
 	}
-	if bytes.HasPrefix(line, []byte("audio::")) {
+	if bytes.HasPrefix(line, []byte(`audio::`)) {
 		return elKindBlockAudio, nil, line
 	}
 	if isAdmonition(line) {
@@ -828,15 +828,15 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 			subs [][]byte = bytes.Fields(line)
 		)
 
-		if bytes.Equal(subs[0], []byte("==")) {
+		if bytes.Equal(subs[0], []byte(`==`)) {
 			kind = elKindSectionL1
-		} else if bytes.Equal(subs[0], []byte("===")) {
+		} else if bytes.Equal(subs[0], []byte(`===`)) {
 			kind = elKindSectionL2
-		} else if bytes.Equal(subs[0], []byte("====")) {
+		} else if bytes.Equal(subs[0], []byte(`====`)) {
 			kind = elKindSectionL3
-		} else if bytes.Equal(subs[0], []byte("=====")) {
+		} else if bytes.Equal(subs[0], []byte(`=====`)) {
 			kind = elKindSectionL4
-		} else if bytes.Equal(subs[0], []byte("======")) {
+		} else if bytes.Equal(subs[0], []byte(`======`)) {
 			kind = elKindSectionL5
 		}
 	} else if line[0] == '.' {
@@ -873,9 +873,9 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 				return kind, spaces, line
 			}
 		}
-	} else if bytes.Equal(line, []byte("+")) {
+	} else if bytes.Equal(line, []byte(`+`)) {
 		kind = lineKindListContinue
-	} else if bytes.Equal(line, []byte("----")) {
+	} else if bytes.Equal(line, []byte(`----`)) {
 		kind = elKindBlockListing
 	} else if isLineDescriptionItem(line) {
 		kind = elKindListDescriptionItem

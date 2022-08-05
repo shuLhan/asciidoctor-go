@@ -16,42 +16,42 @@ func Test_parseElementAttribute(t *testing.T) {
 	}
 
 	var cases = []testCase{{
-		raw: "",
+		raw: ``,
 	}, {
-		raw: "[]",
+		raw: `[]`,
 	}, {
-		raw: "[STYLE]",
+		raw: `[STYLE]`,
 		exp: elementAttribute{
-			rawStyle: "STYLE",
+			rawStyle: `STYLE`,
 		},
 	}, {
-		raw: "[style#id]",
+		raw: `[style#id]`,
 		exp: elementAttribute{
-			ID:       "id",
-			rawStyle: "style",
+			ID:       `id`,
+			rawStyle: `style`,
 		},
 	}, {
 		raw: `[#id.role1.role2,options="opt1,opt2"]`,
 		exp: elementAttribute{
-			ID:      "id",
-			roles:   []string{"role1", "role2"},
-			options: []string{"opt1", "opt2"},
+			ID:      `id`,
+			roles:   []string{`role1`, `role2`},
+			options: []string{`opt1`, `opt2`},
 			pos:     1,
 		},
 	}, {
 		raw: `[cols="3*,^"]`,
 		exp: elementAttribute{
 			Attrs: map[string]string{
-				attrNameCols: "3*,^",
+				attrNameCols: `3*,^`,
 			},
 		},
 	}, {
 		raw: `[quote, attribution]`,
 		exp: elementAttribute{
 			Attrs: map[string]string{
-				attrNameAttribution: "attribution",
+				attrNameAttribution: `attribution`,
 			},
-			rawStyle: "quote",
+			rawStyle: `quote`,
 			style:    styleQuote,
 			pos:      1,
 		},
@@ -59,10 +59,10 @@ func Test_parseElementAttribute(t *testing.T) {
 		raw: `[quote, attribution, citation]`,
 		exp: elementAttribute{
 			Attrs: map[string]string{
-				attrNameAttribution: "attribution",
-				attrNameCitation:    "citation",
+				attrNameAttribution: `attribution`,
+				attrNameCitation:    `citation`,
 			},
-			rawStyle: "quote",
+			rawStyle: `quote`,
 			style:    styleQuote,
 			pos:      2,
 		},

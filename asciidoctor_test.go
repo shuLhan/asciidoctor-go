@@ -11,9 +11,9 @@ import (
 )
 
 const (
-	outputCallHtmlWriteHeader = "htmlWriteHeader"
-	outputCallToHTML          = "ToHTML"
-	outputCallToHTMLBody      = "ToHTMLBody"
+	outputCallHtmlWriteHeader = `htmlWriteHeader`
+	outputCallToHTML          = `ToHTML`
+	outputCallToHTMLBody      = `ToHTMLBody`
 )
 
 func TestData(t *testing.T) {
@@ -28,17 +28,17 @@ func TestData(t *testing.T) {
 		err          error
 	)
 
-	listTData, err = test.LoadDataDir("testdata")
+	listTData, err = test.LoadDataDir(`testdata`)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	for _, tdata = range listTData {
-		inputCall = tdata.Flag["input_call"]
-		outputCall = tdata.Flag["output_call"]
+		inputCall = tdata.Flag[`input_call`]
+		outputCall = tdata.Flag[`output_call`]
 
 		for inputName, inputContent = range tdata.Input {
-			subtestName = tdata.Name + "/" + inputName
+			subtestName = tdata.Name + `/` + inputName
 
 			t.Run(subtestName, func(t *testing.T) {
 				var (

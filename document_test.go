@@ -17,12 +17,12 @@ func TestOpen(t *testing.T) {
 		err  error
 	)
 
-	doc, err = Open("testdata/test.adoc")
+	doc, err = Open(`testdata/test.adoc`)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	fout, err = os.OpenFile("testdata/test.got.html",
+	fout, err = os.OpenFile(`testdata/test.got.html`,
 		os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		t.Fatal(err)
@@ -44,38 +44,38 @@ func TestParse_document_title(t *testing.T) {
 	var cases = []testCase{{
 		content: `= Main: sub`,
 		exp: DocumentTitle{
-			Main: "Main",
-			Sub:  "sub",
+			Main: `Main`,
+			Sub:  `sub`,
 			sep:  defTitleSeparator,
 		},
-		expString: "Main: sub",
+		expString: `Main: sub`,
 	}, {
 		// Without space after separator
 		content: `= Main:sub`,
 		exp: DocumentTitle{
-			Main: "Main:sub",
+			Main: `Main:sub`,
 			sep:  defTitleSeparator,
 		},
-		expString: "Main:sub",
+		expString: `Main:sub`,
 	}, {
 		// With multiple separator after separator
 		content: `= a: b: c`,
 		exp: DocumentTitle{
-			Main: "a: b",
-			Sub:  "c",
+			Main: `a: b`,
+			Sub:  `c`,
 			sep:  defTitleSeparator,
 		},
-		expString: "a: b: c",
+		expString: `a: b: c`,
 	}, {
 		// With custom separator.
 		content: `:title-separator: x
 = Mainx sub`,
 		exp: DocumentTitle{
-			Main: "Main",
-			Sub:  "sub",
+			Main: `Main`,
+			Sub:  `sub`,
 			sep:  'x',
 		},
-		expString: "Mainx sub",
+		expString: `Mainx sub`,
 	}}
 
 	var (
@@ -85,9 +85,9 @@ func TestParse_document_title(t *testing.T) {
 
 	for _, c = range cases {
 		got = Parse([]byte(c.content))
-		test.Assert(t, "Main", c.exp.Main, got.Title.Main)
-		test.Assert(t, "Sub", c.exp.Sub, got.Title.Sub)
-		test.Assert(t, "sep", c.exp.sep, got.Title.sep)
-		test.Assert(t, "String", c.expString, got.Title.String())
+		test.Assert(t, `Main`, c.exp.Main, got.Title.Main)
+		test.Assert(t, `Sub`, c.exp.Sub, got.Title.Sub)
+		test.Assert(t, `sep`, c.exp.sep, got.Title.sep)
+		test.Assert(t, `String`, c.expString, got.Title.String())
 	}
 }

@@ -47,7 +47,7 @@ func (sec *sectionCounters) String() string {
 		if sec.nums[x] == 0 {
 			break
 		}
-		fmt.Fprintf(&sb, "%d.", sec.nums[x])
+		fmt.Fprintf(&sb, `%d.`, sec.nums[x])
 	}
 	sb.WriteByte(' ')
 	return sb.String()

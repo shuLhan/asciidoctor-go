@@ -132,7 +132,7 @@ func (table *elementTable) initializeClassAndStyles(ea *elementAttribute) {
 				continue
 			}
 			if v[len(v)-1] != '%' {
-				v += "%"
+				v += `%`
 			}
 			table.styles[k] = v
 			withWidth = true
@@ -246,7 +246,7 @@ func (table *elementTable) htmlStyle() string {
 	)
 
 	for k, v = range table.styles {
-		fmt.Fprintf(&buf, "%s: %s;", k, v)
+		fmt.Fprintf(&buf, `%s: %s;`, k, v)
 	}
 	return buf.String()
 }
@@ -269,7 +269,7 @@ func parseAttrCols(val string) (ncols int, formats []*columnFormat) {
 	}
 
 	var (
-		rawFormat = strings.Split(val, ",")
+		rawFormat = strings.Split(val, `,`)
 
 		format      *columnFormat
 		n           int

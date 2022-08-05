@@ -33,12 +33,12 @@ func (ea *elementAttribute) addRole(role string) {
 
 func (ea *elementAttribute) htmlClasses() string {
 	if len(ea.roles) == 0 {
-		return ""
+		return ``
 	}
-	return strings.Join(ea.roles, " ")
+	return strings.Join(ea.roles, ` `)
 }
 
-// parseElementAttribute parse list of attributes in between "[" "]".
+// parseElementAttribute parse list of attributes in between `[` `]`.
 //
 //	BLOCK_ATTRS = BLOCK_ATTR *("," BLOCK_ATTR)
 //
@@ -141,13 +141,13 @@ func (ea *elementAttribute) parseNamedValue(prevc byte, str string) {
 	}
 
 	var (
-		kv  []string = strings.Split(str, "=")
+		kv  []string = strings.Split(str, `=`)
 		key          = kv[0]
 		val          = strings.TrimSpace(kv[1])
 	)
 
 	if len(val) == 0 {
-		ea.Attrs[key] = ""
+		ea.Attrs[key] = ``
 		return
 	}
 	if val[0] == '"' {
@@ -158,7 +158,7 @@ func (ea *elementAttribute) parseNamedValue(prevc byte, str string) {
 	}
 
 	var (
-		rawvals []string = strings.Split(val, ",")
+		rawvals []string = strings.Split(val, `,`)
 		vals             = make([]string, 0, len(rawvals))
 
 		v string
@@ -213,14 +213,14 @@ func (ea *elementAttribute) setByPreviousChar(prevc byte, str string) {
 				case styleSource:
 					ea.Attrs[attrNameSource] = str
 				default:
-					ea.Attrs[str] = ""
+					ea.Attrs[str] = ``
 				}
 			case 2:
 				switch ea.style {
 				case styleQuote, styleVerse:
 					ea.Attrs[attrNameCitation] = str
 				default:
-					ea.Attrs[str] = ""
+					ea.Attrs[str] = ``
 				}
 			}
 		}
