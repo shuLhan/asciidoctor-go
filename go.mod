@@ -5,6 +5,6 @@ module git.sr.ht/~shulhan/asciidoctor-go
 
 go 1.18
 
-require github.com/shuLhan/share v0.40.0
+require github.com/shuLhan/share v0.41.0
 
 //replace github.com/shuLhan/share => ../share
