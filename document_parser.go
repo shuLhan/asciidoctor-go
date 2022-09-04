@@ -49,16 +49,13 @@ func parseSub(parentDoc *Document, content []byte) (subdoc *Document) {
 	return subdoc
 }
 
-func (docp *documentParser) consumeLinesUntil(
-	el *element, term int, terms []int,
-) (
-	line []byte,
-) {
+func (docp *documentParser) consumeLinesUntil(el *element, term int, terms []int) (line []byte) {
 	var (
-		elInclude *elementInclude
-		spaces    []byte
-		t         int
+		logp = `consumeLinesUntil`
 
+		elInclude    *elementInclude
+		spaces       []byte
+		t            int
 		ok           bool
 		allowComment bool
 	)
@@ -68,7 +65,7 @@ func (docp *documentParser) consumeLinesUntil(
 		allowComment = true
 	}
 	for {
-		spaces, line, ok = docp.line()
+		spaces, line, ok = docp.line(logp)
 		if !ok {
 			break
 		}
@@ -131,6 +128,8 @@ func (docp *documentParser) include(el *elementInclude) {
 	var (
 		includedLines = bytes.Split(content, []byte("\n"))
 		newLines      = make([][]byte, 0, len(docp.lines)+len(includedLines))
+
+		line []byte
 	)
 
 	// Do not add the "include" directive
@@ -139,11 +138,17 @@ func (docp *documentParser) include(el *elementInclude) {
 	newLines = append(newLines, includedLines...)
 	newLines = append(newLines, docp.lines[docp.lineNum+1:]...)
 	docp.lines = newLines
+
+	if debug.Value == 2 {
+		for _, line = range includedLines {
+			fmt.Printf("%s\n", line)
+		}
+	}
 }
 
 // line return the next line in the content of raw document.
 // It will return ok as false if there are no more line.
-func (docp *documentParser) line() (spaces, line []byte, ok bool) {
+func (docp *documentParser) line(logp string) (spaces, line []byte, ok bool) {
 	docp.prevKind = docp.kind
 
 	if docp.lineNum >= len(docp.lines) {
@@ -151,27 +156,29 @@ func (docp *documentParser) line() (spaces, line []byte, ok bool) {
 	}
 
 	line = docp.lines[docp.lineNum]
+	if debug.Value == 2 {
+		fmt.Printf("line %3d: %s: %s\n", docp.lineNum, logp, line)
+	}
 	docp.lineNum++
 
 	docp.kind, spaces, line = whatKindOfLine(line)
-	if debug.Value == 2 {
-		fmt.Printf("line %3d: kind %3d: %s\n", docp.lineNum, docp.kind, line)
-	}
 	return spaces, line, true
 }
 
 func (docp *documentParser) parseBlock(parent *element, term int) {
 	var (
-		el = &element{
+		logp = `parseBlock`
+		el   = &element{
 			kind: elKindUnknown,
 		}
 
-		line []byte
-		ok   bool
+		line   []byte
+		isTerm bool
+		ok     bool
 	)
-	for {
+	for !isTerm {
 		if len(line) == 0 {
-			_, line, ok = docp.line()
+			_, line, ok = docp.line(logp)
 			if !ok {
 				return
 			}
@@ -179,7 +186,8 @@ func (docp *documentParser) parseBlock(parent *element, term int) {
 
 		switch docp.kind {
 		case term:
-			return
+			isTerm = true
+			continue
 		case lineKindEmpty:
 			line = nil
 			continue
@@ -234,7 +242,7 @@ func (docp *documentParser) parseBlock(parent *element, term int) {
 
 		case lineKindInclude:
 			var (
-				elInclude = parseInclude(docp.doc, []byte(line))
+				elInclude *elementInclude = parseInclude(docp.doc, []byte(line))
 			)
 
 			if elInclude == nil {
@@ -566,6 +574,7 @@ func (docp *documentParser) parseHeader() {
 	)
 
 	var (
+		logp      = `parseHeader`
 		state int = stateBegin
 
 		key   string
@@ -574,7 +583,7 @@ func (docp *documentParser) parseHeader() {
 		ok    bool
 	)
 	for {
-		_, line, ok = docp.line()
+		_, line, ok = docp.line(logp)
 		if !ok {
 			return
 		}
@@ -620,12 +629,14 @@ func (docp *documentParser) parseHeader() {
 
 func (docp *documentParser) parseIgnoreCommentBlock() {
 	var (
+		logp = `parseIgnoreCommentBlock`
+
 		line []byte
 		ok   bool
 	)
 
 	for {
-		_, line, ok = docp.line()
+		_, line, ok = docp.line(logp)
 		if !ok {
 			return
 		}
@@ -638,9 +649,14 @@ func (docp *documentParser) parseIgnoreCommentBlock() {
 // parseListBlock parse block after list continuation `+` until we found
 // empty line or non-list line.
 func (docp *documentParser) parseListBlock() (el *element, line []byte) {
-	var ok bool
+	var (
+		logp = `parseListBlock`
+
+		ok bool
+	)
+
 	for {
-		_, line, ok = docp.line()
+		_, line, ok = docp.line(logp)
 		if !ok {
 			break
 		}
@@ -750,12 +766,11 @@ func (docp *documentParser) parseListBlock() (el *element, line []byte) {
 	return el, line
 }
 
-func (docp *documentParser) parseListDescription(
-	parent, el *element, line []byte, term int,
-) (
-	got []byte,
-) {
+// parseListDescription parse the list description item, line that end with
+// "::" WSP, and its content.
+func (docp *documentParser) parseListDescription(parent, el *element, line []byte, term int) (got []byte) {
 	var (
+		logp = `parseListDescription`
 		list = &element{
 			elementAttribute: elementAttribute{
 				style: el.style,
@@ -769,6 +784,8 @@ func (docp *documentParser) parseListDescription(
 			},
 			kind: elKindListDescriptionItem,
 		}
+
+		ok bool
 	)
 
 	listItem.parseListDescriptionItem(line)
@@ -777,10 +794,9 @@ func (docp *documentParser) parseListDescription(
 	parent.addChild(list)
 
 	line = nil
-	var ok bool
 	for {
 		if len(line) == 0 {
-			_, line, ok = docp.line()
+			_, line, ok = docp.line(logp)
 			if !ok {
 				break
 			}
@@ -794,6 +810,20 @@ func (docp *documentParser) parseListDescription(
 			continue
 		}
 		if docp.kind == lineKindComment {
+			line = nil
+			continue
+		}
+		if docp.kind == lineKindInclude {
+			var elInclude = parseInclude(docp.doc, line)
+			if elInclude == nil {
+				el.Write(line)
+				el.WriteByte('\n')
+				line = nil
+				continue
+			}
+			// Include the content of file into the current
+			// document.
+			docp.include(elInclude)
 			line = nil
 			continue
 		}
@@ -916,12 +946,9 @@ func (docp *documentParser) parseListDescription(
 // parseListOrdered parser the content as list until it found line that is not
 // list-item.
 // On success it will return non-empty line and terminator character.
-func (docp *documentParser) parseListOrdered(
-	parent *element, title string, line []byte, term int,
-) (
-	got []byte,
-) {
+func (docp *documentParser) parseListOrdered(parent *element, title string, line []byte, term int) (got []byte) {
 	var (
+		logp = `parseListOrdered`
 		list = &element{
 			kind:     elKindListOrdered,
 			rawTitle: title,
@@ -932,6 +959,7 @@ func (docp *documentParser) parseListOrdered(
 
 		el             *element
 		parentListItem *element
+		ok             bool
 	)
 
 	listItem.parseListOrderedItem(line)
@@ -939,11 +967,10 @@ func (docp *documentParser) parseListOrdered(
 	list.addChild(listItem)
 	parent.addChild(list)
 
-	var ok bool
 	line = nil
 	for {
 		if len(line) == 0 {
-			_, line, ok = docp.line()
+			_, line, ok = docp.line(logp)
 			if !ok {
 				break
 			}
@@ -1138,12 +1165,9 @@ func (docp *documentParser) parseListOrdered(
 	return line
 }
 
-func (docp *documentParser) parseListUnordered(
-	parent, el *element, line []byte, term int,
-) (
-	got []byte,
-) {
+func (docp *documentParser) parseListUnordered(parent, el *element, line []byte, term int) (got []byte) {
 	var (
+		logp = `parseListUnordered`
 		list = &element{
 			elementAttribute: elementAttribute{
 				roles: []string{classNameUlist},
@@ -1154,8 +1178,8 @@ func (docp *documentParser) parseListUnordered(
 
 		listItem       *element
 		parentListItem *element
-
-		role string
+		role           string
+		ok             bool
 	)
 
 	if len(el.rawStyle) > 0 {
@@ -1180,11 +1204,10 @@ func (docp *documentParser) parseListUnordered(
 	}
 	parent.addChild(list)
 
-	var ok bool
 	line = nil
 	for {
 		if len(line) == 0 {
-			_, line, ok = docp.line()
+			_, line, ok = docp.line(logp)
 			if !ok {
 				break
 			}
@@ -1386,9 +1409,7 @@ func (docp *documentParser) parseListUnordered(
 	return line
 }
 
-func (docp *documentParser) parseParagraph(
-	parent, el *element, line []byte, term int,
-) []byte {
+func (docp *documentParser) parseParagraph(parent, el *element, line []byte, term int) []byte {
 	el.kind = elKindParagraph
 	el.Write(line)
 	el.WriteByte('\n')

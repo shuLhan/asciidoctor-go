@@ -998,6 +998,10 @@ include::{includedir}/fragment1.adoc[]
 include::{sourcedir}/anchor.go[]
 ----
 
+include::_includes/list_desc_00.adoc[]
+
+include::_includes/list_desc_01.adoc[]
+
 
 == Images
 
