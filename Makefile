@@ -20,4 +20,4 @@ test-parser:
 	go test -v -run=Open .
 
 serve-doc:
-	ciigo serve .
+	ciigo serve _doc/
