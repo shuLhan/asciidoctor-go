@@ -8,6 +8,52 @@ Shulhan <ms@kilabit.info>
 :sectlinks:
 
 
+[#v0_3_2]
+== asciidoctor-go v0.3.2 (2022-09-05)
+
+[#v0_3_2_bug_fix]
+===  Bug fix
+
+all: fix parsing list description inside include directive::
++
+--
+Previously, given the following include statements in the main document
+
+----
+include::list_desc.adoc[]
+
+include::list_desc.adoc[]
+----
+
+Where list_desc.adoc content is,
+
+----
+Item 00::
++
+--
+* Bullet 0
++
+Description 0.
+
+* Bullet 1
+--
+----
+
+The first include is parsed correctly, but the second include is parsed
+as is.
+--
+
+[#v0_3_2_chores]
+=== Chores
+
+all: update share module to v0.41.0::
+
+all: move all documentation into directory _doc::
++
+While at it reformat the README, add section for development, add
+link for Go documentation.
+
+
 [#v0_3_1]
 == asciidoctor-go v0.3.1 (2022-08-06)
 
