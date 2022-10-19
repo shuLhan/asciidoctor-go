@@ -11,16 +11,6 @@ import (
 )
 
 const (
-	macroFTP    = `ftp`
-	macroHTTP   = `http`
-	macroHTTPS  = `https`
-	macroIRC    = `irc`
-	macroImage  = `image`
-	macroLink   = `link`
-	macroMailto = `mailto`
-)
-
-const (
 	elKindUnknown                int = iota
 	elKindDocHeader                  // Wrapper.
 	elKindPreamble                   // Wrapper.
@@ -46,6 +36,7 @@ const (
 	elKindBlockSidebar               // "****"
 	elKindBlockVideo                 // "video::"
 	elKindCrossReference             // "<<" REF ("," LABEL) ">>"
+	elKindFootnote                   // footnote:id[]
 	elKindInlineID                   // "[[" REF_ID "]]" TEXT
 	elKindInlineIDShort              // "[#" REF_ID "]#" TEXT "#"
 	elKindInlineImage                // Inline macro for "image:"

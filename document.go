@@ -38,6 +38,9 @@ type Document struct {
 	// its ID.
 	titleID map[string]string
 
+	// List of footnote ID and its text.
+	footnotes []*macro
+
 	Revision Revision
 
 	LastUpdated string
@@ -273,6 +276,8 @@ func (doc *Document) toHTMLBody(buf *bytes.Buffer, withHeaderFooter bool) {
 
 	htmlWriteBody(doc, buf)
 
+	htmlWriteFootnoteDefs(doc, buf)
+
 	if withHeaderFooter {
 		_, ok = doc.Attributes[metaNameNoFooter]
 		if !ok {
@@ -311,6 +316,29 @@ func (doc *Document) registerAnchor(id, label string) string {
 		label: label,
 	}
 	return id
+}
+
+// registerFootnote add footnote with id and text, where id is optional.
+// If the id already exist it will return true.
+func (doc *Document) registerFootnote(id string, rawContent []byte) (mcr *macro, exist bool) {
+	if len(id) != 0 {
+		// Find existing footnote with the same ID.
+		for _, mcr = range doc.footnotes {
+			if mcr.key == id {
+				return mcr, true
+			}
+		}
+	}
+
+	mcr = &macro{
+		key:        id,
+		rawContent: rawContent,
+	}
+	doc.footnotes = append(doc.footnotes, mcr)
+
+	mcr.level = len(doc.footnotes)
+
+	return mcr, false
 }
 
 // tocHTML write table of contents with HTML template into out.

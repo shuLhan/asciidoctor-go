@@ -831,6 +831,9 @@ func (el *element) toHTML(doc *Document, w io.Writer) {
 		}
 		fmt.Fprintf(w, `<a href="#%s">%s</a>`, href, label)
 
+	case elKindFootnote:
+		htmlWriteFootnote(el, w)
+
 	case elKindMacroTOC:
 		if doc.tocIsEnabled && doc.tocPosition == metaValueMacro {
 			doc.tocHTML(w)

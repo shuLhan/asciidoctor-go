@@ -96,3 +96,39 @@ func TestInlineParser_parseInlineID_isForToC(t *testing.T) {
 		test.Assert(t, c.content, c.exp, got)
 	}
 }
+
+func TestInlineParser_macro_footnote(t *testing.T) {
+	var (
+		testFiles = []string{
+			`testdata/inline_parser/macro_footnote_test.txt`,
+			`testdata/inline_parser/macro_footnote_externalized_test.txt`,
+		}
+
+		testFile string
+		got      bytes.Buffer
+		tdata    *test.Data
+		doc      *Document
+		exp      []byte
+		err      error
+	)
+
+	for _, testFile = range testFiles {
+		tdata, err = test.LoadData(testFile)
+		if err != nil {
+			t.Fatalf(`%s: %s`, testFile, err)
+		}
+
+		doc = Parse(tdata.Input[`input.adoc`])
+
+		err = doc.ToHTMLEmbedded(&got)
+		if err != nil {
+			t.Fatalf(`%s: %s`, testFile, err)
+		}
+
+		exp = tdata.Output[`output.html`]
+
+		test.Assert(t, testFile, string(exp), got.String())
+
+		got.Reset()
+	}
+}

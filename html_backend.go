@@ -393,6 +393,54 @@ func htmlWriteFooter(doc *Document, out io.Writer) {
 	fmt.Fprint(out, "\n</div>\n</div>")
 }
 
+// htmlWriteFootnote generate HTML content for footnote.
+// Each unique footnote will have its id, so it can be referenced at footer.
+func htmlWriteFootnote(el *element, out io.Writer) {
+	if len(el.ID) != 0 {
+		// The first footnote with explicit ID.
+		fmt.Fprintf(out, `<sup class="footnote" id="_footnote_%s">[<a id="_footnoteref_%d" class="footnote" href="#_footnotedef_%d" title="View footnote.">%d</a>]</sup>`,
+			el.ID, el.level, el.level, el.level)
+
+	} else if len(el.key) != 0 {
+		// The first footnote without ID.
+		fmt.Fprintf(out, `<sup class="footnote">[<a id="_footnoteref_%d" class="footnote" href="#_footnotedef_%d" title="View footnote.">%d</a>]</sup>`,
+			el.level, el.level, el.level)
+	} else {
+		// The next footnote with same ID.
+		fmt.Fprintf(out, `<sup class="footnoteref">[<a class="footnote" href="#_footnotedef_%d" title="View footnote.">%d</a>]</sup>`,
+			el.level, el.level)
+	}
+}
+
+func htmlWriteFootnoteDefs(doc *Document, out io.Writer) {
+	if len(doc.footnotes) == 0 {
+		return
+	}
+
+	fmt.Fprint(out, "\n")
+	fmt.Fprint(out, `<div id="footnotes">`)
+	fmt.Fprint(out, "\n")
+	fmt.Fprint(out, `<hr>`)
+	fmt.Fprint(out, "\n")
+
+	var (
+		mcr *macro
+	)
+	for _, mcr = range doc.footnotes {
+		fmt.Fprintf(out, `<div class="footnote" id="_footnotedef_%d">`, mcr.level)
+		fmt.Fprint(out, "\n")
+		fmt.Fprintf(out, `<a href="#_footnoteref_%d">%d</a>. `, mcr.level, mcr.level)
+		if mcr.content != nil {
+			mcr.content.toHTML(doc, out)
+		}
+		fmt.Fprint(out, "\n")
+		fmt.Fprint(out, `</div>`)
+		fmt.Fprint(out, "\n")
+	}
+	fmt.Fprint(out, `</div>`)
+	fmt.Fprint(out, "\n")
+}
+
 func htmlWriteHeader(doc *Document, out io.Writer) {
 	fmt.Fprint(out, "\n<div id=\"header\">")
 

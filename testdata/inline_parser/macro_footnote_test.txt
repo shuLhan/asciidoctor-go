@@ -1,0 +1,55 @@
+
+>>> input.adoc
+
+The hail-and-rainbow protocol can be initiated at five levels:
+
+. doublefootnote:[The _double_ hail-and-rainbow level makes my toes tingle.]
+. tertiary
+. supernumerary
+. supermassive
+. apocalyptic
+
+A bold statement!footnote:disclaimer[Opinions are my own.]
+
+Another outrageous statement.footnote:disclaimer[]
+
+<<< output.html
+
+<div class="paragraph">
+<p>The hail-and-rainbow protocol can be initiated at five levels:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>double<sup class="footnote">[<a id="_footnoteref_1" class="footnote" href="#_footnotedef_1" title="View footnote.">1</a>]</sup>
+</p>
+</li>
+<li>
+<p>tertiary</p>
+</li>
+<li>
+<p>supernumerary</p>
+</li>
+<li>
+<p>supermassive</p>
+</li>
+<li>
+<p>apocalyptic</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>A bold statement!<sup class="footnote" id="_footnote_disclaimer">[<a id="_footnoteref_2" class="footnote" href="#_footnotedef_2" title="View footnote.">2</a>]</sup></p>
+</div>
+<div class="paragraph">
+<p>Another outrageous statement.<sup class="footnoteref">[<a class="footnote" href="#_footnotedef_2" title="View footnote.">2</a>]</sup></p>
+</div>
+<div id="footnotes">
+<hr>
+<div class="footnote" id="_footnotedef_1">
+<a href="#_footnoteref_1">1</a>. The <em>double</em> hail-and-rainbow level makes my toes tingle.
+</div>
+<div class="footnote" id="_footnotedef_2">
+<a href="#_footnoteref_2">2</a>. Opinions are my own.
+</div>
+</div>

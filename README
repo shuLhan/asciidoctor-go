@@ -90,6 +90,7 @@ The numbered one is based on the old documentation.
 ** 27.2. Defining an Anchor
 ** 27.3. Internal Cross References
 ** 27.5. Customizing the Cross Reference Text
+* https://docs.asciidoctor.org/asciidoc/latest/macros/footnote/[Footnotes]
 * 28. Include Directive
 ** 28.1. Anatomy
 ** 28.2. Processing

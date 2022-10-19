@@ -397,20 +397,6 @@ func (pi *inlineParser) escape() {
 	pi.prev = pi.c
 }
 
-func (pi *inlineParser) getBackMacroName() (macroName string, lastc byte) {
-	var (
-		raw   []byte = pi.current.raw
-		start int    = len(raw) - 1
-	)
-	for start >= 0 {
-		if !ascii.IsAlpha(raw[start]) {
-			return string(raw[start+1:]), raw[start]
-		}
-		start--
-	}
-	return string(raw), 0
-}
-
 func (pi *inlineParser) parseCrossRef() bool {
 	var (
 		raw []byte = pi.content[pi.x+2:]
@@ -729,51 +715,48 @@ func (pi *inlineParser) parseInlineImage() *element {
 
 func (pi *inlineParser) parseMacro() bool {
 	var (
-		el    *element
-		name  string
-		lastc byte
+		el   *element
+		name string
+		n    int
 	)
 
-	name, lastc = pi.getBackMacroName()
-	if lastc == '\\' || len(name) == 0 {
+	name = pi.parseMacroName(pi.current.raw)
+	if len(name) == 0 {
 		return false
 	}
 
 	switch name {
-	case ``:
-		return false
+	case macroFootnote:
+		el, n = pi.parseMacroFootnote(pi.content[pi.x+1:])
+		if el == nil {
+			return false
+		}
+
+		pi.x += n
+		pi.prev = 0
+
 	case macroFTP, macroHTTPS, macroHTTP, macroIRC, macroLink, macroMailto:
 		el = pi.parseURL(name)
 		if el == nil {
 			return false
 		}
 
-		pi.current.raw = pi.current.raw[:len(pi.current.raw)-len(name)]
-
-		pi.current.addChild(el)
-		el = &element{
-			kind: elKindText,
-		}
-		pi.current.addChild(el)
-		pi.current = el
-		return true
 	case macroImage:
 		el = pi.parseInlineImage()
 		if el == nil {
 			return false
 		}
-
-		pi.current.raw = pi.current.raw[:len(pi.current.raw)-len(name)]
-
-		pi.current.addChild(el)
-		el = &element{
-			kind: elKindText,
-		}
-		pi.current.addChild(el)
-		pi.current = el
-		return true
 	}
-	return false
+
+	pi.current.raw = pi.current.raw[:len(pi.current.raw)-len(name)]
+
+	pi.current.addChild(el)
+	el = &element{
+		kind: elKindText,
+	}
+	pi.current.addChild(el)
+	pi.current = el
+	return true
 }
 
 func (pi *inlineParser) parsePassthrough() bool {
