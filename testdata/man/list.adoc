@@ -1,0 +1,98 @@
+= asciidoctor-go(7)
+John Doe
+v0.3.2
+:doctype: manpage
+:manmanual: ASCIIDOCTOR-GO
+:mansource: ASCIIDOCTOR-GO
+:man-linkstyle: pass:[blue R < >]
+
+== Name
+
+asciidoctor-go - the Go module to parse the AsciiDoc markup.
+
+== Synopsis
+
+*asciidoctor-go* [_OPTION_]... _FILE_...
+
+== Ordered list
+
+. Item 1.
++
+Description for item 1.
+
+. Item 2
++
+--
+Literal block inside Item 2,
+----
+Literal block.
+----
+--
+
+. Item 3
++
+--
+Unordered list inside item 3,
+
+* Sub item 3.1
+* Sub item 3.2
+--
+
+. Item 4
+.. Item 4.1
+.. Item 4.2
+
+== Unordered list
+
+* Item 1.
++
+Description for item 1.
+
+* Item 2
++
+--
+Literal block inside Item 2,
+
+----
+Literal block.
+----
+--
+
+* Item 3
++
+--
+Ordered list inside unordered item 3,
+
+. Sub item 3.1
+. Sub item 3.2
+--
+
+* Item 4
+** Item 4.1
+** Item 4.2
+
+
+== Description list
+
+Item 1::
++
+Description for item 1.
+
+Item 2::
++
+--
+Literal block inside Item 2,
+
+----
+Literal block.
+----
+--
+
+Item 3::
++
+--
+Unordered list inside item 3,
+
+* Sub item 3.1
+* Sub item 3.2
+--

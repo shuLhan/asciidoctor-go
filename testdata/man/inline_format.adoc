@@ -1,0 +1,24 @@
+= asciidoctor-go(7)
+John Doe
+v0.3.2
+:doctype: manpage
+:manmanual: ASCIIDOCTOR-GO
+:mansource: ASCIIDOCTOR-GO
+:man-linkstyle: pass:[blue R < >]
+
+== Name
+
+asciidoctor-go - the Go module to parse the AsciiDoc markup.
+
+== Synopsis
+
+*asciidoctor-go* [_OPTION_]... _FILE_...
+
+== Escaped characters
+
+Back\slash \ .
+Min-us - .
+
+== Inline format
+
+*bold* _italic_ `mono`.

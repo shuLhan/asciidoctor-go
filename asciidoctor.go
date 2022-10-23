@@ -6,6 +6,10 @@ package asciidoctor
 import "github.com/shuLhan/share/lib/math/big"
 
 const (
+	_lf = "\n"
+)
+
+var (
 	Version = `0.3.2`
 )
 
