@@ -5,3 +5,4 @@
 /cover.out
 /testdata/*.html
 /testdata/_includes/*.html
+/testdata/man/*.got.7

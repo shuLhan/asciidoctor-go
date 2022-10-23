@@ -1,0 +1,27 @@
+= asciidoctor-go(7)
+John Doe
+v0.3.2
+:doctype: manpage
+:manmanual: ASCIIDOCTOR-GO
+:mansource: ASCIIDOCTOR-GO
+:man-linkstyle: pass:[blue R < >]
+
+== Name
+
+asciidoctor-go - the Go module to parse the AsciiDoc markup.
+
+== Synopsis
+
+*asciidoctor-go* [_OPTION_]... _FILE_...
+
+== Section level 1
+
+Content of section level 1.
+
+=== Subsection level 2
+
+Content of subsection level 2.
+
+==== Subsection level 3
+
+Content of subsection level 3.

@@ -195,6 +195,12 @@ func (el *element) hasStyle(s int64) bool {
 	return el.style&s > 0
 }
 
+func (el *element) isSection() bool {
+	return el.kind == elKindSectionL1 || el.kind == elKindSectionL2 ||
+		el.kind == elKindSectionL3 || el.kind == elKindSectionL4 ||
+		el.kind == elKindSectionL5
+}
+
 func (el *element) isStyleAdmonition() bool {
 	return isStyleAdmonition(el.style)
 }
