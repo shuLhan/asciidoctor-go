@@ -684,33 +684,27 @@ func (pi *inlineParser) parseFormatUnconstrained(
 	return false
 }
 
-func (pi *inlineParser) parseInlineImage() *element {
+func parseInlineImage(doc *Document, content []byte) (elImage *element, n int) {
 	var (
-		content []byte = pi.content[pi.x+1:]
-
-		elImage   *element
 		lineImage []byte
-		idx       int
 	)
 
-	_, idx = indexByteUnescape(content, ']')
-	if idx < 0 {
-		return nil
+	_, n = indexByteUnescape(content, ']')
+	if n < 0 {
+		return nil, 0
 	}
 
-	lineImage = content[:idx+1]
+	lineImage = content[:n+1]
 	elImage = &element{
 		elementAttribute: elementAttribute{
 			Attrs: make(map[string]string),
 		},
 		kind: elKindInlineImage,
 	}
-	if elImage.parseBlockImage(pi.doc, lineImage) {
-		pi.x += idx + 2
-		pi.prev = 0
-		return elImage
+	if elImage.parseBlockImage(doc, lineImage) {
+		return elImage, n + 2
 	}
-	return nil
+	return nil, 0
 }
 
 func (pi *inlineParser) parseMacro() bool {
@@ -720,32 +714,35 @@ func (pi *inlineParser) parseMacro() bool {
 		n    int
 	)
 
-	name = pi.parseMacroName(pi.current.raw)
+	name = parseMacroName(pi.current.raw)
 	if len(name) == 0 {
 		return false
 	}
 
 	switch name {
 	case macroFootnote:
-		el, n = pi.parseMacroFootnote(pi.content[pi.x+1:])
+		el, n = parseMacroFootnote(pi.doc, pi.content[pi.x+1:])
 		if el == nil {
 			return false
 		}
-
 		pi.x += n
 		pi.prev = 0
 
 	case macroFTP, macroHTTPS, macroHTTP, macroIRC, macroLink, macroMailto:
-		el = pi.parseURL(name)
+		el, n = parseURL(pi.doc, name, pi.content[pi.x+1:])
 		if el == nil {
 			return false
 		}
+		pi.x += n
+		pi.prev = 0
 
 	case macroImage:
-		el = pi.parseInlineImage()
+		el, n = parseInlineImage(pi.doc, pi.content[pi.x+1:])
 		if el == nil {
 			return false
 		}
+		pi.x += n
+		pi.prev = 0
 	}
 
 	pi.current.raw = pi.current.raw[:len(pi.current.raw)-len(name)]
@@ -939,13 +936,12 @@ func (pi *inlineParser) parseSuperscript() bool {
 // and optional role.
 //
 // The current state of p.x is equal to ":".
-func (pi *inlineParser) parseURL(scheme string) (el *element) {
+func parseURL(doc *Document, scheme string, content []byte) (el *element, n int) {
 	var (
-		x       int
-		idx     int
-		c       byte
-		uri     []byte
-		content []byte
+		x   int
+		idx int
+		c   byte
+		uri []byte
 	)
 	if scheme != macroLink {
 		uri = []byte(scheme)
@@ -959,7 +955,6 @@ func (pi *inlineParser) parseURL(scheme string) (el *element) {
 		kind: elKindURL,
 	}
 
-	content = pi.content[pi.x+1:]
 	for ; x < len(content); x++ {
 		c = content[x]
 		if c == '[' || ascii.IsSpace(c) {
@@ -973,29 +968,26 @@ func (pi *inlineParser) parseURL(scheme string) (el *element) {
 		}
 		if c == '.' || c == ',' || c == ';' {
 			uri = uri[:len(uri)-1]
-			pi.prev = 0
-			pi.x += x
+			n = x
 		} else {
-			pi.x += x + 1
-			pi.prev = c
+			n = x + 1
 		}
 	}
 
-	uri = applySubstitutions(pi.doc, uri)
+	uri = applySubstitutions(doc, uri)
 	el.Attrs[attrNameHref] = string(uri)
 
 	if c != '[' {
 		el.raw = uri
-		return el
+		return el, n
 	}
 
 	_, idx = indexByteUnescape(content[x:], ']')
 	if idx < 0 {
-		return nil
+		return nil, 0
 	}
 
-	pi.x += x + idx + 2
-	pi.prev = 0
+	n = x + idx + 2
 
 	var attr []byte = content[x : x+idx+1]
 	el.style = styleLink
@@ -1003,7 +995,7 @@ func (pi *inlineParser) parseURL(scheme string) (el *element) {
 	if len(el.Attrs) == 0 {
 		// empty "[]"
 		el.raw = uri
-		return el
+		return el, n
 	}
 	if len(el.rawStyle) >= 1 {
 		var (
@@ -1017,10 +1009,10 @@ func (pi *inlineParser) parseURL(scheme string) (el *element) {
 			el.rawStyle = el.rawStyle[:l-1]
 			el.Attrs[attrNameRel] = attrValueNoopener
 		}
-		child = parseInlineMarkup(pi.doc, []byte(el.rawStyle))
+		child = parseInlineMarkup(doc, []byte(el.rawStyle))
 		el.addChild(child)
 	}
-	return el
+	return el, n
 }
 
 func (pi *inlineParser) terminate(kind int, style int64) {

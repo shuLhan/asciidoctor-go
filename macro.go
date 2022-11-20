@@ -56,7 +56,7 @@ type macro struct {
 // be ignored.
 //
 // If macro name and value valid it will return the element for that macro.
-func (pi *inlineParser) parseMacroName(textBefore []byte) (macroName string) {
+func parseMacroName(textBefore []byte) (macroName string) {
 	var (
 		x int = len(textBefore) - 1
 
@@ -103,7 +103,7 @@ func (pi *inlineParser) parseMacroName(textBefore []byte) (macroName string) {
 // defined; if its already defined, the STRING is ignored.
 //
 // It will return an element if footnote is valid.
-func (pi *inlineParser) parseMacroFootnote(text []byte) (el *element, n int) {
+func parseMacroFootnote(doc *Document, text []byte) (el *element, n int) {
 	var (
 		mcr    *macro
 		id     string
@@ -131,7 +131,7 @@ func (pi *inlineParser) parseMacroFootnote(text []byte) (el *element, n int) {
 
 	n += x + 2
 
-	mcr, exist = pi.doc.registerFootnote(id, vbytes)
+	mcr, exist = doc.registerFootnote(id, vbytes)
 	if exist {
 		id = ``
 		vbytes = nil
@@ -153,7 +153,7 @@ func (pi *inlineParser) parseMacroFootnote(text []byte) (el *element, n int) {
 	}
 
 	if vbytes != nil {
-		mcr.content = parseInlineMarkup(pi.doc, vbytes)
+		mcr.content = parseInlineMarkup(doc, vbytes)
 	}
 
 	return el, n
