@@ -9,6 +9,7 @@ import (
 	"github.com/shuLhan/share/lib/ascii"
 )
 
+// List of macro names.
 const (
 	macroFTP      = `ftp`
 	macroFootnote = `footnote`
@@ -18,6 +19,7 @@ const (
 	macroImage    = `image`
 	macroLink     = `link`
 	macroMailto   = `mailto`
+	macroPass     = `pass`
 )
 
 var (
@@ -30,6 +32,7 @@ var (
 		macroImage:    elKindInlineImage,
 		macroLink:     elKindURL,
 		macroMailto:   elKindURL,
+		macroPass:     elKindText,
 	}
 )
 
@@ -44,7 +47,7 @@ type macro struct {
 	// val represent the text for URL or image and footnote.
 	rawContent []byte
 
-	// level represent footnoted index number.
+	// level represent footnote index number.
 	level int
 }
 
@@ -155,6 +158,72 @@ func parseMacroFootnote(doc *Document, text []byte) (el *element, n int) {
 	if vbytes != nil {
 		mcr.content = parseInlineMarkup(doc, vbytes)
 	}
+
+	return el, n
+}
+
+// parseMacroPass parse the macro for passthrough.
+//
+//	"pass:" *(SUB) "[" TEXT "]"
+//
+//	SUB      = SUB_KIND *("," SUB_KIND)
+//
+//	SUB_KIND = "c" / "q" / "a" / "r" / "m" / "p" / "n" / "v"
+func parseMacroPass(text []byte) (el *element, n int) {
+	var (
+		x int
+		c byte
+	)
+
+	el = &element{
+		kind: elKindInlinePass,
+	}
+
+	// Consume the substitutions until "[" or spaces.
+	// Spaces automatically stop the process.
+	// Other characters except the sub kinds are ignored.
+	for ; x < len(text); x++ {
+		c = text[x]
+		if c == '[' {
+			break
+		}
+		if c == ',' {
+			continue
+		}
+		if ascii.IsSpace(c) {
+			return nil, 0
+		}
+		switch c {
+		case 'c':
+			el.applySubs |= passSubChar
+		case 'q':
+			el.applySubs |= passSubQuote
+		case 'a':
+			el.applySubs |= passSubAttr
+		case 'r':
+			el.applySubs |= passSubRepl
+		case 'm':
+			el.applySubs |= passSubMacro
+		case 'p':
+			el.applySubs |= passSubPostRepl
+		case 'n':
+			el.applySubs |= passSubNormal
+		case 'v':
+			el.applySubs |= passSubChar
+		}
+	}
+	if c != '[' {
+		return nil, 0
+	}
+	x++
+	n = x
+
+	el.raw, x = parseClosedBracket(text[x:], '[', ']')
+	if x < 0 {
+		return nil, 0
+	}
+
+	n += x + 2
 
 	return el, n
 }

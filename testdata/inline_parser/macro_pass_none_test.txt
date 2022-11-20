@@ -1,0 +1,29 @@
+
+>>> pass_none.adoc
+
+pass:[char: < > &].
+
+pass:[quote: _emphasis_, *strong*],
+pass:[`monospace`, ^superscript^, ~subscript~],
+pass:["`double curved quotes`", and '`single curved quotes`'].
+
+pass:[attributes: {meta-A}, {meta-b}, and {meta-not_exist}].
+
+pass:[replacement: (C) (R) (TM) -- ... -> => <- <= user's input].
+
+<<< pass_none.html
+
+<div class="paragraph">
+<p>char: < > &.</p>
+</div>
+<div class="paragraph">
+<p>quote: _emphasis_, *strong*,
+`monospace`, ^superscript^, ~subscript~,
+"`double curved quotes`", and '`single curved quotes`'.</p>
+</div>
+<div class="paragraph">
+<p>attributes: {meta-A}, {meta-b}, and {meta-not_exist}.</p>
+</div>
+<div class="paragraph">
+<p>replacement: (C) (R) (TM) -- ... -> => <- <= user's input.</p>
+</div>

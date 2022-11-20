@@ -45,6 +45,9 @@ type element struct {
 	rawLabel bytes.Buffer
 	level    int // The number of dot for ordered list, or '*' for unordered list.
 	kind     int
+
+	// List of substitutions to be applied on raw.
+	applySubs int
 }
 
 func (el *element) getListOrderedClass() string {
@@ -869,6 +872,9 @@ func (el *element) toHTML(doc *Document, w io.Writer) {
 
 	case elKindInlineImage:
 		htmlWriteInlineImage(el, w)
+
+	case elKindInlinePass:
+		htmlWriteInlinePass(doc, el, w)
 
 	case elKindListDescription:
 		htmlWriteListDescription(el, w)

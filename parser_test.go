@@ -87,6 +87,51 @@ func TestGenerateID(t *testing.T) {
 	}
 }
 
+func TestParseClosedBracket(t *testing.T) {
+	type testCase struct {
+		input  string
+		expOut string
+		expIdx int
+	}
+
+	var cases = []testCase{{
+		input:  `test:[]] input`,
+		expOut: `test:[]`,
+		expIdx: 7,
+	}, {
+		input:  `[test:[]]] input`,
+		expOut: `[test:[]]`,
+		expIdx: 9,
+	}, {
+		input:  `[test:[]] input`,
+		expOut: ``,
+		expIdx: -1,
+	}, {
+		input:  `test:\[\]] input`,
+		expOut: `test:[]`,
+		expIdx: 9,
+	}, {
+		input:  `test:\x\]] input`,
+		expOut: `test:\x]`,
+		expIdx: 9,
+	}}
+
+	var (
+		c      testCase
+		got    []byte
+		gotIdx int
+	)
+
+	for _, c = range cases {
+		t.Logf(`input: %s`, c.input)
+
+		got, gotIdx = parseClosedBracket([]byte(c.input), '[', ']')
+
+		test.Assert(t, `got`, c.expOut, string(got))
+		test.Assert(t, `got index`, c.expIdx, gotIdx)
+	}
+}
+
 func TestIsValidID(t *testing.T) {
 	type testCase struct {
 		id  string

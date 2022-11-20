@@ -40,6 +40,7 @@ const (
 	elKindInlineID                   // "[[" REF_ID "]]" TEXT
 	elKindInlineIDShort              // "[#" REF_ID "]#" TEXT "#"
 	elKindInlineImage                // Inline macro for "image:"
+	elKindInlinePass                 // Inline macro for passthrough "pass:"
 	elKindInlineParagraph            //
 	elKindListOrdered                // Wrapper.
 	elKindListOrderedItem            // 30: Line start with ". "
@@ -635,6 +636,67 @@ func parseAttrRef(doc *Document, content []byte, x int) (newContent []byte, ok b
 	newContent = append(newContent, attrValue...)
 	newContent = append(newContent, rest...)
 	return newContent, true
+}
+
+// parseClosedBracket parse the text in input until we found the last close
+// bracket.
+// It will skip any open-close brackets inside input.
+// For example, parsing ("test:[]]", '[', ']') will return ("test:[]", 7).
+//
+// If no closed bracket found it will return (nil, -1).
+func parseClosedBracket(input []byte, openb, closedb byte) (out []byte, idx int) {
+	var (
+		openCount int
+		c         byte
+		isEsc     bool
+	)
+
+	out = make([]byte, 0, len(input))
+
+	for idx, c = range input {
+		if c == '\\' {
+			if isEsc {
+				out = append(out, '\\')
+				isEsc = false
+			} else {
+				isEsc = true
+			}
+			continue
+		}
+
+		if c == closedb {
+			if isEsc {
+				out = append(out, c)
+				isEsc = false
+				continue
+			}
+			if openCount == 0 {
+				return out, idx
+			}
+			openCount--
+			out = append(out, c)
+			continue
+		}
+
+		if c == openb {
+			out = append(out, c)
+			if isEsc {
+				isEsc = false
+			} else {
+				openCount++
+			}
+			continue
+		}
+
+		if isEsc {
+			out = append(out, '\\')
+			isEsc = false
+		}
+		out = append(out, c)
+	}
+
+	// No closed bracket found.
+	return nil, -1
 }
 
 // parseIDLabel parse the string "ID (,LABEL)" into ID and label.

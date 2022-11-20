@@ -1,0 +1,16 @@
+Test macro pass with special character substitutions only.
+
+>>> pass_c.adoc
+
+pass:c[char: < > &].
+
+pass:c[replacement: (C) (R) (TM) -- ... -> => <- <= user's input].
+
+<<< pass_c.html
+
+<div class="paragraph">
+<p>char: &lt; &gt; &amp;.</p>
+</div>
+<div class="paragraph">
+<p>replacement: (C) (R) (TM) -- ... -&gt; =&gt; &lt;- &lt;= user's input.</p>
+</div>

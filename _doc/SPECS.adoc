@@ -476,6 +476,8 @@ exist, otherwise it would be considered as normal text.
 
 ==  Passthrough
 
+{url_ref}/pass/[Reference^]
+
 ----
 PASSTHROUGH_SINGLE = FORMAT_BEGIN "+" TEXT "+" FORMAT_END
 
@@ -484,7 +486,39 @@ PASSTHROUGH_DOUBLE = "++" TEXT "++"
 PASSTHROUGH_TRIPLE = "+++" TEXT "+++"
 
 PASSTHROUGH_BLOCK  = "++++" LF 1*LINE "++++" LF
+
+PASSTHROUGH_MACRO  = "pass:" *(PASSMACRO_SUB) "[" TEXT "]"
+
+PASSMACRO_SUB      = PASSMACRO_CHAR *("," PASSMACRO_CHAR)
+
+PASSMACRO_CHAR     = "c" / "q" / "a" / "r" / "m" / "p"
+                   / PASSMACRO_GROUP_NORMAL
+                   / PASSMACRO_GROUP_VERBATIM
+
+PASSMACRO_GROUP_NORMAL   = "n" ; equal to "c,q,r,m,p"
+
+PASSMACRO_GROUP_VERBATIM = "v" ; equal to "c"
 ----
+
+The "c" allow
+{url_ref}/subs/special-characters/[special character substitutions].
+
+The "q" allow
+{url_ref}/subs/quotes/[quotes substitutions].
+
+The "a" allow
+{url_ref}/subs/attributes/[attributes references substitutions].
+
+The "r" allow
+{url_ref}/subs/replacements/[character replacement substitutions].
+
+The "m" allow
+{url_ref}/subs/macros/[macro substitutions].
+
+The "p" allow
+{url_ref}/subs/post-replacements/[post-replacement substitutions].
+
+The substitutions are applied in above order.
 
 
 ==  URLs

@@ -743,6 +743,14 @@ func (pi *inlineParser) parseMacro() bool {
 		}
 		pi.x += n
 		pi.prev = 0
+
+	case macroPass:
+		el, n = parseMacroPass(pi.content[pi.x+1:])
+		if el == nil {
+			return false
+		}
+		pi.x += n
+		pi.prev = 0
 	}
 
 	pi.current.raw = pi.current.raw[:len(pi.current.raw)-len(name)]
@@ -934,8 +942,6 @@ func (pi *inlineParser) parseSuperscript() bool {
 
 // parseURL parser the URL, an optional text, optional attribute for target,
 // and optional role.
-//
-// The current state of p.x is equal to ":".
 func parseURL(doc *Document, scheme string, content []byte) (el *element, n int) {
 	var (
 		x   int
@@ -1066,7 +1072,7 @@ func (pi *inlineParser) terminate(kind int, style int64) {
 
 // indexByteUnescape find the index of the first unescaped byte `c` on
 // slice of byte `in`.
-// It will return nil and -1 if no unescape byte `c` found.
+// It will return nil and -1 if no unescaped byte `c` found.
 func indexByteUnescape(in []byte, c byte) (out []byte, idx int) {
 	var (
 		x     int

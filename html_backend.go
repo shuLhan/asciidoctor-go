@@ -9,6 +9,7 @@ import (
 	"io"
 	"strings"
 
+	libascii "github.com/shuLhan/share/lib/ascii"
 	libstrings "github.com/shuLhan/share/lib/strings"
 )
 
@@ -59,6 +60,519 @@ const (
 	htmlSymbolWordJoiner        = `&#8288;`
 	htmlSymbolZeroWidthSpace    = `&#8203;`
 )
+
+// htmlSubs apply the text substitutions to element.raw based on applySubs in
+// the following order: c, q, a, r, m, p.
+// If applySubs is 0, it will return element.raw as is.
+func htmlSubs(doc *Document, el *element) []byte {
+	var (
+		input = el.raw
+	)
+	if el.applySubs == 0 {
+		return input
+	}
+	if el.applySubs&passSubChar != 0 {
+		input = htmlSubsChar(input)
+	}
+	if el.applySubs&passSubQuote != 0 {
+		input = htmlSubsQuote(input)
+	}
+	if el.applySubs&passSubAttr != 0 {
+		input = htmlSubsAttr(doc, input)
+	}
+	if el.applySubs&passSubRepl != 0 {
+		input = htmlSubsRepl(input)
+	}
+	if el.applySubs&passSubMacro != 0 {
+		input = htmlSubsMacro(doc, input, el.kind == elKindInlinePass)
+	}
+	return input
+}
+
+// htmlSubsChar replace character '<', '>', and '&' with "&lt;", "&gt;", and
+// "&amp;".
+//
+// Ref: https://docs.asciidoctor.org/asciidoc/latest/subs/special-characters/
+func htmlSubsChar(input []byte) []byte {
+	var (
+		bb bytes.Buffer
+		c  byte
+	)
+	for _, c = range input {
+		if c == '<' {
+			bb.WriteString(`&lt;`)
+			continue
+		}
+		if c == '>' {
+			bb.WriteString(`&gt;`)
+			continue
+		}
+		if c == '&' {
+			bb.WriteString(`&amp;`)
+			continue
+		}
+		bb.WriteByte(c)
+	}
+	return bb.Bytes()
+}
+
+// htmlSubsQuote replace inline markup with its HTML markup.
+// The following inline markup ara parsed and substitutes,
+//
+//   - emphasis: _word_ with "<em>word</em>".
+//   - strong: *word* with "<strong>word</strong>".
+//   - monospace: `word` with "<code>word</code>".
+//   - superscript: ^word^ with "<sup>word</sup>".
+//   - subscript: ~word~ with "<sub>word</sub>".
+//   - double curved quotes: "`word`" with "&#8220;word&#8221;"
+//   - single curved quotes: '`word`' with "&#8216;word&#8217;"
+//
+// Ref: https://docs.asciidoctor.org/asciidoc/latest/subs/quotes/
+func htmlSubsQuote(input []byte) []byte {
+	var (
+		bb    bytes.Buffer
+		x     int
+		idx   int
+		text  []byte
+		c1    byte
+		nextc byte
+	)
+	for x < len(input) {
+		c1 = input[x]
+
+		x++
+		if x == len(input) {
+			// Nothing left to parsed.
+			bb.WriteByte(c1)
+			break
+		}
+		nextc = input[x]
+
+		if c1 == '_' {
+			text, idx = indexByteUnescape(input[x:], c1)
+			if text == nil {
+				bb.WriteByte(c1)
+				continue
+			}
+			bb.WriteString(`<em>`)
+			bb.Write(text)
+			bb.WriteString(`</em>`)
+			x = x + idx + 1
+			continue
+		}
+		if c1 == '*' {
+			text, idx = indexByteUnescape(input[x:], c1)
+			if text == nil {
+				bb.WriteByte(c1)
+				continue
+			}
+			bb.WriteString(`<strong>`)
+			bb.Write(text)
+			bb.WriteString(`</strong>`)
+			x = x + idx + 1
+			continue
+		}
+		if c1 == '`' {
+			text, idx = indexByteUnescape(input[x:], c1)
+			if text == nil {
+				bb.WriteByte(c1)
+				continue
+			}
+			bb.WriteString(`<code>`)
+			bb.Write(text)
+			bb.WriteString(`</code>`)
+			x = x + idx + 1
+			continue
+		}
+		if c1 == '^' {
+			text, idx = indexByteUnescape(input[x:], c1)
+			if text == nil {
+				bb.WriteByte(c1)
+				continue
+			}
+			bb.WriteString(`<sup>`)
+			bb.Write(text)
+			bb.WriteString(`</sup>`)
+			x = x + idx + 1
+			continue
+		}
+		if c1 == '~' {
+			text, idx = indexByteUnescape(input[x:], c1)
+			if text == nil {
+				bb.WriteByte(c1)
+				continue
+			}
+			bb.WriteString(`<sub>`)
+			bb.Write(text)
+			bb.WriteString(`</sub>`)
+			x = x + idx + 1
+			continue
+		}
+		if c1 == '"' {
+			if nextc != '`' {
+				bb.WriteByte(c1)
+				continue
+			}
+			if x+1 == len(input) {
+				bb.WriteByte(c1)
+				continue
+			}
+
+			text, idx = indexUnescape(input[x+1:], []byte("`\""))
+			if text == nil {
+				bb.WriteByte(c1)
+				continue
+			}
+			bb.WriteString(htmlSymbolLeftDoubleQuote)
+			bb.Write(text)
+			bb.WriteString(htmlSymbolRightDoubleQuote)
+			x = x + idx + 3
+			continue
+		}
+		if c1 == '\'' {
+			if nextc != '`' {
+				bb.WriteByte(c1)
+				continue
+			}
+			if x+1 == len(input) {
+				bb.WriteByte(c1)
+				continue
+			}
+
+			text, idx = indexUnescape(input[x+1:], []byte("`'"))
+			if text == nil {
+				bb.WriteByte(c1)
+				continue
+			}
+			bb.WriteString(htmlSymbolLeftSingleQuote)
+			bb.Write(text)
+			bb.WriteString(htmlSymbolRightSingleQuote)
+			x = x + idx + 3
+			continue
+		}
+		bb.WriteByte(c1)
+	}
+	return bb.Bytes()
+}
+
+// htmlSubsAttr replace attribute (the `{...}`) with its values.
+//
+// Ref: https://docs.asciidoctor.org/asciidoc/latest/subs/attributes/
+func htmlSubsAttr(doc *Document, input []byte) []byte {
+	var (
+		bb     bytes.Buffer
+		key    string
+		val    string
+		vbytes []byte
+		idx    int
+		x      int
+		c      byte
+		ok     bool
+	)
+
+	for x < len(input) {
+		c = input[x]
+		x++
+		if c != '{' {
+			bb.WriteByte(c)
+			continue
+		}
+
+		vbytes, idx = indexByteUnescape(input[x:], '}')
+		if vbytes == nil {
+			bb.WriteByte(c)
+			continue
+		}
+		vbytes = bytes.TrimSpace(vbytes)
+		vbytes = bytes.ToLower(vbytes)
+
+		key = string(vbytes)
+		val, ok = _attrRef[key]
+		if ok {
+			bb.WriteString(val)
+			x = x + idx + 1
+			continue
+		}
+
+		val, ok = doc.Attributes[key]
+		if !ok {
+			bb.WriteByte(c)
+			continue
+		}
+
+		// Add prefix "mailto:" if the ref name start with email, so
+		// it can be parsed by caller as macro link.
+		if key == `email` || strings.HasPrefix(key, `email_`) {
+			val = `mailto:` + val + `[` + val + `]`
+		}
+
+		bb.WriteString(val)
+		x = x + idx + 1
+	}
+
+	return bb.Bytes()
+}
+
+// htmlSubsRepl substitutes special characters with HTML unicode.
+//
+// The special characters are,
+//
+//   - (C) replaced with &#169;
+//   - (R)  : &#174;
+//   - (TM) : &#8482;
+//   - --   : &#8212; Only replaced if between two word characters, between a
+//     word character and a line boundary, or flanked by spaces.
+//     When flanked by space characters (e.g., a -- b), the normal spaces are
+//     replaced by thin spaces (&#8201;).
+//   - ...  : &#8230;
+//   - ->   : &#8594;
+//   - =>   : &#8658;
+//   - <-   : &#8592;
+//   - <=   : &#8656;
+//   - '    : &#8217;
+//
+// According to [the documentation], this substitution step also recognizes
+// HTML and XML character references as well as decimal and hexadecimal
+// Unicode code points, but we only cover the above right now.
+//
+// [the documentation]: https://docs.asciidoctor.org/asciidoc/latest/subs/replacements/
+func htmlSubsRepl(input []byte) (out []byte) {
+	var (
+		text  []byte
+		x     int
+		idx   int
+		c1    byte
+		nextc byte
+		prevc byte
+	)
+
+	out = make([]byte, 0, len(input))
+
+	for x < len(input) {
+		prevc = c1
+		c1 = input[x]
+
+		x++
+		if x == len(input) {
+			out = append(out, c1)
+			break
+		}
+		nextc = input[x]
+
+		if c1 == '(' {
+			text, idx = indexByteUnescape(input[x:], ')')
+			if len(text) == 1 {
+				if text[0] == 'C' {
+					out = append(out, []byte(htmlSymbolCopyright)...)
+					x = x + idx + 1
+					c1 = ')'
+					continue
+				}
+				if text[0] == 'R' {
+					out = append(out, []byte(htmlSymbolRegistered)...)
+					x = x + idx + 1
+					c1 = ')'
+					continue
+				}
+			} else if len(text) == 2 {
+				if text[0] == 'T' && text[1] == 'M' {
+					out = append(out, []byte(htmlSymbolTrademark)...)
+					x = x + idx + 1
+					c1 = ')'
+					continue
+				}
+			}
+
+			out = append(out, c1)
+			continue
+		}
+		if c1 == '-' {
+			if nextc == '>' {
+				out = append(out, []byte(htmlSymbolSingleRightArrow)...)
+				x++
+				c1 = nextc
+				continue
+			}
+			if nextc == '-' {
+				if x+1 >= len(input) {
+					out = append(out, c1)
+					continue
+				}
+				// set c1 to the third character after '--'.
+				c1 = input[x+1]
+				if libascii.IsSpace(prevc) && libascii.IsSpace(c1) {
+					out = out[:len(out)-1]
+					out = append(out, []byte(htmlSymbolThinSpace)...)
+					out = append(out, []byte(htmlSymbolEmdash)...)
+					out = append(out, []byte(htmlSymbolThinSpace)...)
+					x += 2
+					continue
+				}
+				if libascii.IsAlpha(prevc) && libascii.IsAlpha(c1) {
+					out = append(out, []byte(htmlSymbolEmdash)...)
+					x++
+					continue
+				}
+			}
+			out = append(out, c1)
+			continue
+		}
+		if c1 == '=' {
+			if nextc == '>' {
+				out = append(out, []byte(htmlSymbolDoubleRightArrow)...)
+				x++
+				c1 = nextc
+				continue
+			}
+			out = append(out, c1)
+			continue
+		}
+		if c1 == '<' {
+			if nextc == '-' {
+				out = append(out, []byte(htmlSymbolSingleLeftArrow)...)
+				x++
+				continue
+			}
+			if nextc == '=' {
+				out = append(out, []byte(htmlSymbolDoubleLeftArrow)...)
+				x++
+				continue
+			}
+			out = append(out, c1)
+			continue
+		}
+		if c1 == '.' {
+			if nextc != '.' {
+				out = append(out, c1)
+				continue
+			}
+			if x+1 >= len(input) {
+				out = append(out, c1)
+				continue
+			}
+			// Set c1 to the third character.
+			c1 = input[x+1]
+			if c1 == '.' {
+				out = append(out, []byte(htmlSymbolEllipsis)...)
+				x += 2
+				continue
+			}
+			out = append(out, c1)
+			continue
+		}
+		if c1 == '\'' {
+			if libascii.IsAlpha(prevc) {
+				out = append(out, []byte(htmlSymbolApostrophe)...)
+				continue
+			}
+			out = append(out, c1)
+			continue
+		}
+		out = append(out, c1)
+	}
+	return out
+}
+
+// htmlSubsMacro substitutes macro with its HTML markup.
+func htmlSubsMacro(doc *Document, input []byte, isInlinePass bool) (out []byte) {
+	var (
+		el        *element
+		bb        bytes.Buffer
+		macroName string
+		x         int
+		n         int
+		c         byte
+	)
+
+	for x < len(input) {
+		c = input[x]
+		if c != ':' {
+			out = append(out, c)
+			x++
+			continue
+		}
+
+		macroName = parseMacroName(input[:x])
+		if len(macroName) == 0 {
+			out = append(out, c)
+			x++
+			continue
+		}
+
+		switch macroName {
+		case macroFootnote:
+			el, n = parseMacroFootnote(doc, input[x+1:])
+			if el == nil {
+				out = append(out, c)
+				x++
+				continue
+			}
+			x += n
+			n = len(out)
+			out = out[:n-len(macroName)] // Undo the macro name
+			bb.Reset()
+			htmlWriteFootnote(el, &bb)
+			out = append(out, bb.Bytes()...)
+
+		case macroFTP, macroHTTPS, macroHTTP, macroIRC, macroLink, macroMailto:
+			el, n = parseURL(doc, macroName, input[x+1:])
+			if el == nil {
+				out = append(out, c)
+				x++
+				continue
+			}
+			x += n
+			n = len(out)
+			out = out[:n-len(macroName)]
+			bb.Reset()
+			htmlWriteURLBegin(el, &bb)
+			if el.child != nil {
+				el.child.toHTML(doc, &bb)
+			}
+			htmlWriteURLEnd(&bb)
+			out = append(out, bb.Bytes()...)
+
+		case macroImage:
+			el, n = parseInlineImage(doc, input[x+1:])
+			if el == nil {
+				out = append(out, c)
+				x++
+				continue
+			}
+			x += n
+			n = len(out)
+			out = out[:n-len(macroName)]
+			bb.Reset()
+			htmlWriteInlineImage(el, &bb)
+			out = append(out, bb.Bytes()...)
+
+		case macroPass:
+			if isInlinePass {
+				// Prevent recursive substitutions.
+				out = append(out, c)
+				x++
+				continue
+			}
+			el, n = parseMacroPass(input[x+1:])
+			if el == nil {
+				out = append(out, c)
+				x++
+				continue
+			}
+			x += n
+			n = len(out)
+			out = out[:n-len(macroName)]
+			bb.Reset()
+			htmlWriteInlinePass(doc, el, &bb)
+			out = append(out, bb.Bytes()...)
+
+		default:
+			out = append(out, c)
+			x++
+		}
+	}
+	return out
+}
 
 func htmlWriteBlockBegin(el *element, out io.Writer, addClass string) {
 	fmt.Fprint(out, "\n<div")
@@ -558,6 +1072,13 @@ func htmlWriteInlineImage(el *element, out io.Writer) {
 	}
 
 	fmt.Fprint(out, `</span>`)
+}
+
+func htmlWriteInlinePass(doc *Document, el *element, out io.Writer) {
+	var (
+		text []byte = htmlSubs(doc, el)
+	)
+	fmt.Fprint(out, string(text))
 }
 
 func htmlWriteListDescription(el *element, out io.Writer) {

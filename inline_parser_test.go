@@ -6,6 +6,7 @@ package asciidoctor
 import (
 	"bytes"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/shuLhan/share/lib/test"
@@ -130,5 +131,52 @@ func TestInlineParser_macro_footnote(t *testing.T) {
 		test.Assert(t, testFile, string(exp), got.String())
 
 		got.Reset()
+	}
+}
+
+func TestInlineParser_macro_pass(t *testing.T) {
+	var (
+		testFiles = []string{
+			`testdata/inline_parser/macro_pass_none_test.txt`,
+			`testdata/inline_parser/macro_pass_c_test.txt`,
+			`testdata/inline_parser/macro_pass_q_test.txt`,
+			`testdata/inline_parser/macro_pass_a_test.txt`,
+			`testdata/inline_parser/macro_pass_r_test.txt`,
+			`testdata/inline_parser/macro_pass_m_test.txt`,
+		}
+
+		testFile   string
+		inputName  string
+		outputName string
+		got        bytes.Buffer
+		tdata      *test.Data
+		doc        *Document
+		exp        []byte
+		err        error
+	)
+
+	for _, testFile = range testFiles {
+		tdata, err = test.LoadData(testFile)
+		if err != nil {
+			t.Fatalf(`%s: %s`, testFile, err)
+		}
+
+		for inputName = range tdata.Input {
+			t.Logf(`%s: %s`, testFile, inputName)
+
+			outputName = strings.Replace(inputName, `.adoc`, `.html`, 1)
+
+			doc = Parse(tdata.Input[inputName])
+
+			got.Reset()
+			err = doc.ToHTMLEmbedded(&got)
+			if err != nil {
+				t.Fatalf(`%s: %s`, inputName, err)
+			}
+
+			exp = tdata.Output[outputName]
+
+			test.Assert(t, inputName, string(exp), got.String())
+		}
 	}
 }

@@ -1,0 +1,32 @@
+Test macro pass with macro only.
+
+>>> pass_m.adoc
+
+pass:m[Text with footnote:id[footnote]].
+
+pass:m[Text with http://127.0.0.1[HTTP URL]].
+
+pass:m[Text with image:test.jpg[image]].
+
+pass:m[Text with pass:[_none_] and pass:c[<_char_>]].
+
+<<< pass_m.html
+
+<div class="paragraph">
+<p>Text with <sup class="footnote" id="_footnote_id">[<a id="_footnoteref_1" class="footnote" href="#_footnotedef_1" title="View footnote.">1</a>]</sup>.</p>
+</div>
+<div class="paragraph">
+<p>Text with <a href="http://127.0.0.1">HTTP URL</a>.</p>
+</div>
+<div class="paragraph">
+<p>Text with <span class="image"><img src="test.jpg" alt="image"></span>.</p>
+</div>
+<div class="paragraph">
+<p>Text with pass:[_none_] and pass:c[<_char_>].</p>
+</div>
+<div id="footnotes">
+<hr>
+<div class="footnote" id="_footnotedef_1">
+<a href="#_footnoteref_1">1</a>. footnote
+</div>
+</div>

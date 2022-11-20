@@ -1,0 +1,15 @@
+Test macro pass with inline markup substitutions only.
+
+>>> pass_q.adoc
+
+pass:q[quote: _emphasis_, *strong*],
+pass:q[`monospace`, ^superscript^, ~subscript~],
+pass:q["`double curved quotes`", and '`single curved quotes`'].
+
+<<< pass_q.html
+
+<div class="paragraph">
+<p>quote: <em>emphasis</em>, <strong>strong</strong>,
+<code>monospace</code>, <sup>superscript</sup>, <sub>subscript</sub>,
+&#8220;double curved quotes&#8221;, and &#8216;single curved quotes&#8217;.</p>
+</div>

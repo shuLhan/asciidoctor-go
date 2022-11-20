@@ -1,0 +1,13 @@
+Test macro pass with attribute substitutions only.
+
+>>> pass_a.adoc
+:meta-a: meta A
+:meta-b: meta B
+
+pass:a[attributes: {meta-A}, {meta-b}, and {meta-not_exist}].
+
+<<< pass_a.html
+
+<div class="paragraph">
+<p>attributes: meta A, meta B, and {meta-not_exist}.</p>
+</div>
