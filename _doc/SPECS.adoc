@@ -133,9 +133,9 @@ DOC_ATTRIBUTE  = ":" DOC_ATTR_KEY ":" *STRING LF
 DOC_ATTR_KEY   = ( "toc" / "sectanchors" / "sectlinks"
                /   "imagesdir" / "data-uri" / *META_KEY ) LF
 
-META_KEY_CHAR  = (A..Z | a..z | 0..9 | '_')
+META_KEY       = 1*(META_KEY_CHAR / '_') *(META_KEY_CHAR / '-')
 
-META_KEY       = 1META_KEY_CHAR *(META_KEY_CHAR | '-')
+META_KEY_CHAR  = (A..Z | a..z | 0..9)
 ----
 
 
