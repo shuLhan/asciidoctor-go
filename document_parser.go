@@ -948,13 +948,15 @@ func (docp *documentParser) parseListDescription(parent, el *element, line []byt
 // On success it will return non-empty line and terminator character.
 func (docp *documentParser) parseListOrdered(parent *element, title string, line []byte, term int) (got []byte) {
 	var (
-		logp = `parseListOrdered`
-		list = &element{
+		logp       = `parseListOrdered`
+		itemNumber = 1
+		list       = &element{
 			kind:     elKindListOrdered,
 			rawTitle: title,
 		}
 		listItem = &element{
-			kind: elKindListOrderedItem,
+			kind:           elKindListOrderedItem,
+			listItemNumber: itemNumber,
 		}
 
 		el             *element
@@ -1006,6 +1008,8 @@ func (docp *documentParser) parseListOrdered(parent *element, title string, line
 
 			el.parseListOrderedItem(line)
 			if listItem.level == el.level {
+				itemNumber++
+				el.listItemNumber = itemNumber
 				list.addChild(el)
 				listItem = el
 				line = nil
@@ -1018,8 +1022,7 @@ func (docp *documentParser) parseListOrdered(parent *element, title string, line
 			// ... Next list
 			parentListItem = parent
 			for parentListItem != nil {
-				if parentListItem.kind == docp.kind &&
-					parentListItem.level == el.level {
+				if parentListItem.kind == docp.kind && parentListItem.level == el.level {
 					list.postParseList(docp.doc, elKindListOrderedItem)
 					return line
 				}

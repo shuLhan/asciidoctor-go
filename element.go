@@ -42,9 +42,10 @@ type element struct {
 
 	elementAttribute
 
-	rawLabel bytes.Buffer
-	level    int // The number of dot for ordered list, or '*' for unordered list.
-	kind     int
+	rawLabel       bytes.Buffer
+	level          int // The number of dot for ordered list, or '*' for unordered list.
+	listItemNumber int // The counter for list item, start from 1.
+	kind           int
 
 	// List of substitutions to be applied on raw.
 	applySubs int
