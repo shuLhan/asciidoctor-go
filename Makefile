@@ -3,10 +3,10 @@
 
 .PHONY: all lint test-parser serve-doc
 
-all: lint test
+all: test lint
 
 lint:
-	golangci-lint run ./...
+	-golangci-lint run ./...
 	-fieldalignment ./...
 
 test:
