@@ -13,12 +13,6 @@ const (
 <meta name="viewport" content="width=device-width, initial-scale=1.0">`
 )
 
-const (
-	_htmlPreambleBegin = `
-<div id="preamble">
-<div class="sectionbody">`
-)
-
 // HTML templates for table of contents.
 const (
 	_htmlToCBegin = `

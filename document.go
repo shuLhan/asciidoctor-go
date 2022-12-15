@@ -85,19 +85,10 @@ func newDocument() (doc *Document) {
 		header: &element{
 			kind: elKindDocHeader,
 		},
-		preamble: &element{
-			elementAttribute: elementAttribute{
-				Attrs: make(map[string]string),
-			},
-			kind: elKindPreamble,
-		},
 		content: &element{
 			kind: elKindDocContent,
 		},
 	}
-
-	doc.content.addChild(doc.preamble)
-
 	return doc
 }
 
@@ -157,7 +148,16 @@ func parse(doc *Document, content []byte) {
 		doc.sectLevel, _ = strconv.Atoi(sectLevel)
 	}
 
-	docp.parseBlock(doc.preamble, 0)
+	if docp.hasPreamble() {
+		doc.preamble = &element{
+			elementAttribute: elementAttribute{
+				Attrs: make(map[string]string),
+			},
+			kind: elKindPreamble,
+		}
+		docp.parseBlock(doc.preamble, 0)
+	}
+	docp.parseBlock(doc.content, 0)
 }
 
 // ToHTMLEmbedded convert the Document object into HTML with content only,

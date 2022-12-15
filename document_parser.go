@@ -118,6 +118,27 @@ func (docp *documentParser) consumeLinesUntil(el *element, term int, terms []int
 	return line
 }
 
+// hasPreamble will return true if the contents contains preamble, indicated
+// by the first section that found after current line.
+func (docp *documentParser) hasPreamble() bool {
+	var (
+		start = docp.lineNum
+
+		line []byte
+		kind int
+	)
+	for ; start < len(docp.lines); start++ {
+		line = docp.lines[start]
+		kind, _, _ = whatKindOfLine(line)
+		if kind == elKindSectionL1 || kind == elKindSectionL2 ||
+			kind == elKindSectionL3 || kind == elKindSectionL4 ||
+			kind == elKindSectionL5 {
+			return true
+		}
+	}
+	return false
+}
+
 func (docp *documentParser) include(el *elementInclude) {
 	var (
 		content []byte = bytes.ReplaceAll(el.content, []byte("\r\n"), []byte("\n"))
@@ -336,9 +357,15 @@ func (docp *documentParser) parseBlock(parent *element, term int) {
 			el = new(element)
 			continue
 
-		case elKindSectionL1, elKindSectionL2,
-			elKindSectionL3, elKindSectionL4,
-			elKindSectionL5:
+		case elKindSectionL1, elKindSectionL2, elKindSectionL3, elKindSectionL4, elKindSectionL5:
+			if parent.kind == elKindPreamble {
+				docp.kind = lineKindEmpty
+				docp.prevKind = lineKindEmpty
+				docp.lineNum--
+				isTerm = true
+				continue
+			}
+
 			if term == elKindBlockOpen {
 				line = docp.parseParagraph(parent, el, line, term)
 				parent.addChild(el)

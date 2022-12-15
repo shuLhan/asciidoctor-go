@@ -12,6 +12,8 @@ import "github.com/shuLhan/share/lib/math/big"
 const (
 	// Version of this module.
 	Version = `0.3.3-dev`
+
+	_lf = "\n"
 )
 
 func init() {

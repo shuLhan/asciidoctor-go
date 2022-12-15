@@ -865,6 +865,21 @@ func htmlWriteBlockVideo(el *element, out io.Writer) {
 func htmlWriteBody(doc *Document, out *bytes.Buffer) {
 	if !doc.isEmbedded {
 		fmt.Fprint(out, "\n<div id=\"content\">")
+
+		if doc.preamble != nil {
+			fmt.Fprint(out, _lf+`<div id="preamble">`)
+			fmt.Fprint(out, _lf+`<div class="sectionbody">`)
+
+			if doc.preamble.child != nil {
+				doc.preamble.child.toHTML(doc, out)
+			}
+
+			fmt.Fprint(out, _lf+`</div>`)
+			if doc.tocIsEnabled && doc.tocPosition == metaValuePreamble {
+				doc.tocHTML(out)
+			}
+			fmt.Fprint(out, _lf+`</div>`)
+		}
 	}
 
 	if doc.content.child != nil {

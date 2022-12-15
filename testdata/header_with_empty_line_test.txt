@@ -17,12 +17,8 @@ Below is empty line with spaces.
 </div>
 </div>
 <div id="content">
-<div id="preamble">
-<div class="sectionbody">
 <div class="paragraph">
 <p>= Title</p>
-</div>
-</div>
 </div>
 </div>
 <div id="footer">

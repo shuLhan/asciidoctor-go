@@ -843,11 +843,6 @@ func (el *element) toHTML(doc *Document, w io.Writer) {
 			doc.tocHTML(w)
 		}
 
-	case elKindPreamble:
-		if !doc.isEmbedded {
-			fmt.Fprint(w, _htmlPreambleBegin)
-		}
-
 	case elKindSectionDiscrete:
 		hmltWriteSectionDiscrete(doc, el, w)
 
@@ -1051,17 +1046,6 @@ func (el *element) toHTML(doc *Document, w io.Writer) {
 	}
 
 	switch el.kind {
-	case elKindPreamble:
-		if !doc.isEmbedded {
-			fmt.Fprint(w, "\n</div>")
-		}
-		if doc.tocIsEnabled && doc.tocPosition == metaValuePreamble {
-			doc.tocHTML(w)
-		}
-		if !doc.isEmbedded {
-			fmt.Fprint(w, "\n</div>")
-		}
-
 	case elKindSectionL1, elKindSectionL2, elKindSectionL3,
 		elKindSectionL4, elKindSectionL5:
 		if el.kind == elKindSectionL1 {

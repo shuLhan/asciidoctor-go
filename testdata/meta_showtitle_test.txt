@@ -11,10 +11,6 @@ output_call: ToHTMLBody
 </div>
 </div>
 <div id="content">
-<div id="preamble">
-<div class="sectionbody">
-</div>
-</div>
 </div>
 <div id="footer">
 <div id="footer-text">
@@ -32,10 +28,6 @@ output_call: ToHTMLBody
 </div>
 </div>
 <div id="content">
-<div id="preamble">
-<div class="sectionbody">
-</div>
-</div>
 </div>
 <div id="footer">
 <div id="footer-text">
