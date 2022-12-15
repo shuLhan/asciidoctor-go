@@ -129,6 +129,7 @@ Supported metadata or attribute references,
 * `idprefix`
 * `idseparator`
 * `lastname(_x)`
+* `last-update-label`
 * `middlename(_x)`
 * `nofooter`
 * `noheader`

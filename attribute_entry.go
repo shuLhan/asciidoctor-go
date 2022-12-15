@@ -11,11 +11,13 @@ type AttributeEntry map[string]string
 
 func newAttributeEntry() AttributeEntry {
 	return AttributeEntry{
-		MetaNameGenerator:    `asciidoctor-go ` + Version,
-		metaNameSectIDs:      ``,
-		metaNameShowTitle:    ``,
-		metaNameTableCaption: ``,
-		metaNameVersionLabel: ``,
+		MetaNameGenerator:       `asciidoctor-go ` + Version,
+		metaNameLastUpdateLabel: `Last updated`,
+		metaNameLastUpdateValue: ``,
+		metaNameSectIDs:         ``,
+		metaNameShowTitle:       ``,
+		metaNameTableCaption:    ``,
+		metaNameVersionLabel:    ``,
 	}
 }
 

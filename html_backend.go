@@ -880,28 +880,33 @@ func htmlWriteBody(doc *Document, out *bytes.Buffer) {
 }
 
 func htmlWriteFooter(doc *Document, out io.Writer) {
+	var (
+		label string
+		value string
+		ok    bool
+	)
+
 	fmt.Fprint(out, `
 <div id="footer">
 <div id="footer-text">`)
 
 	if len(doc.Revision.Number) > 0 {
-		var (
-			prefix string
-			ok     bool
-		)
-
-		prefix, ok = doc.Attributes[metaNameVersionLabel]
-		if ok && len(prefix) == 0 {
-			prefix = `Version `
+		label, ok = doc.Attributes[metaNameVersionLabel]
+		if ok && len(label) == 0 {
+			label = `Version `
 		} else {
-			prefix = ` `
+			label = ` `
 		}
 
-		fmt.Fprintf(out, "\n%s%s<br>", prefix, doc.Revision.Number)
+		fmt.Fprintf(out, "\n%s%s<br>", label, doc.Revision.Number)
 	}
 
-	if len(doc.LastUpdated) > 0 {
-		fmt.Fprintf(out, "\nLast updated %s", doc.LastUpdated)
+	label, ok = doc.Attributes[metaNameLastUpdateLabel]
+	if ok {
+		value = doc.Attributes[metaNameLastUpdateValue]
+		if len(value) != 0 {
+			fmt.Fprintf(out, "\n%s %s", label, value)
+		}
 	}
 
 	fmt.Fprint(out, "\n</div>\n</div>")

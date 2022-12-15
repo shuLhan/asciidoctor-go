@@ -43,7 +43,6 @@ type Document struct {
 
 	Revision Revision
 
-	LastUpdated string
 	file        string
 	fpath       string
 	rawAuthors  string
@@ -128,7 +127,7 @@ func Open(file string) (doc *Document, err error) {
 	doc = newDocument()
 	doc.fpath = filepath.Join(wd, file)
 	doc.file = file
-	doc.LastUpdated = fi.ModTime().Round(time.Second).Format(`2006-01-02 15:04:05 Z0700`)
+	doc.Attributes[metaNameLastUpdateValue] = fi.ModTime().Round(time.Second).Format(`2006-01-02 15:04:05 Z0700`)
 
 	parse(doc, raw)
 
