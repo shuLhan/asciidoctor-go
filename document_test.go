@@ -22,8 +22,11 @@ func TestOpen(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	fout, err = os.OpenFile(`testdata/test.got.html`,
-		os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
+	// Since we cannot overwrite the asciidoctor output for
+	// generator, we override ourself.
+	doc.Attributes[MetaNameGenerator] = `Asciidoctor 2.0.18`
+
+	fout, err = os.OpenFile(`testdata/test.got.html`, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		t.Fatal(err)
 	}

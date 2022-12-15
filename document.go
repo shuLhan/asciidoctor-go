@@ -186,9 +186,9 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 
 	fmt.Fprint(buf, _htmlBegin)
 
-	metaValue = doc.Attributes[MetaNameAuthorNames]
+	metaValue = doc.Attributes[MetaNameGenerator]
 	if len(metaValue) > 0 {
-		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", MetaNameAuthor, metaValue)
+		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", MetaNameGenerator, metaValue)
 	}
 
 	metaValue = doc.Attributes[MetaNameDescription]
@@ -196,21 +196,20 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", MetaNameDescription, metaValue)
 	}
 
-	metaValue = doc.Attributes[MetaNameGenerator]
-	if len(metaValue) > 0 {
-		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", MetaNameGenerator, metaValue)
-	}
-
 	metaValue = doc.Attributes[MetaNameKeywords]
 	if len(metaValue) > 0 {
 		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", MetaNameKeywords, metaValue)
+	}
+
+	metaValue = doc.Attributes[MetaNameAuthorNames]
+	if len(metaValue) > 0 {
+		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", MetaNameAuthor, metaValue)
 	}
 
 	var title string = doc.Title.String()
 	if len(title) > 0 {
 		fmt.Fprintf(buf, "\n<title>%s</title>", title)
 	}
-	fmt.Fprint(buf, "\n<style>\n\n</style>")
 
 	fmt.Fprintf(buf, "\n</head>\n<body class=%q>", doc.classes.String())
 

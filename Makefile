@@ -14,7 +14,7 @@ test:
 	go tool cover -html=cover.out -o cover.html
 
 test-parser:
-	asciidoctor --attribute stylesheet=empty.css \
+	asciidoctor --attribute stylesheet! \
 		--out-file=testdata/test.exp.html \
 		testdata/test.adoc
 	go test -v -run=Open .
