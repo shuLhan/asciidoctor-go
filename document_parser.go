@@ -6,7 +6,9 @@ package asciidoctor
 import (
 	"bytes"
 	"fmt"
+	"io"
 
+	"github.com/shuLhan/share/lib/ascii"
 	"github.com/shuLhan/share/lib/debug"
 )
 
@@ -196,6 +198,78 @@ func (docp *documentParser) line(logp string) (spaces, line []byte, ok bool) {
 	return spaces, line, true
 }
 
+// parseAttribute parse document attribute and return its key and optional
+// value.
+func (docp *documentParser) parseAttribute(line []byte, strict bool) (key, value string, ok bool) {
+	var (
+		bb bytes.Buffer
+		p  int
+		x  int
+	)
+
+	if !(ascii.IsAlnum(line[1]) || line[1] == '_') {
+		return ``, ``, false
+	}
+
+	bb.WriteByte(line[1])
+	x = 2
+	for ; x < len(line); x++ {
+		if line[x] == ':' {
+			break
+		}
+		if ascii.IsAlnum(line[x]) || line[x] == '_' ||
+			line[x] == '-' || line[x] == '!' {
+			bb.WriteByte(line[x])
+			continue
+		}
+		if strict {
+			return ``, ``, false
+		}
+	}
+	if x == len(line) {
+		return ``, ``, false
+	}
+
+	key = bb.String()
+
+	line = line[x+1:]
+	p = len(line)
+	if p > 0 && line[p-1] == '\\' {
+		bb.Reset()
+		line = line[:p-1]
+		bb.Write(line)
+		docp.parseMultiline(&bb)
+		line = bb.Bytes()
+	}
+
+	line = bytes.TrimSpace(line)
+	value = string(line)
+
+	return key, value, true
+}
+
+// parseMultiline multiline value where each line end with `\`.
+func (docp *documentParser) parseMultiline(out io.Writer) {
+	var (
+		isMultiline = true
+
+		line []byte
+		p    int
+	)
+	for isMultiline && docp.lineNum < len(docp.lines) {
+		line = docp.lines[docp.lineNum]
+		p = len(line)
+
+		if line[p-1] == '\\' {
+			line = line[:p-1]
+		} else {
+			isMultiline = false
+		}
+		_, _ = out.Write(line)
+		docp.lineNum++
+	}
+}
+
 func (docp *documentParser) parseBlock(parent *element, term int) {
 	var (
 		logp = `parseBlock`
@@ -297,7 +371,7 @@ func (docp *documentParser) parseBlock(parent *element, term int) {
 
 		case lineKindAttribute:
 			var (
-				key, value, ok = parseAttribute(line, false)
+				key, value, ok = docp.parseAttribute(line, false)
 			)
 			if ok {
 				if key == attrNameIcons {
@@ -635,7 +709,7 @@ func (docp *documentParser) parseHeader() {
 			continue
 		}
 		if line[0] == ':' {
-			key, value, ok = parseAttribute(line, false)
+			key, value, ok = docp.parseAttribute(line, false)
 			if ok {
 				docp.doc.Attributes.apply(key, value)
 			}

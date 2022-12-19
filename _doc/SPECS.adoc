@@ -128,7 +128,7 @@ DOC_REV_DATE     = 1*2DIGIT 3*ALPHA 4*DIGIT
 There are also metadata which affect how the document rendered,
 
 ----
-DOC_ATTRIBUTE  = ":" DOC_ATTR_KEY ":" *STRING LF
+DOC_ATTRIBUTE  = ":" DOC_ATTR_KEY ":" *LINE ("\" *LINE) LF
 
 DOC_ATTR_KEY   = ( "toc" / "sectanchors" / "sectlinks"
                /   "imagesdir" / "data-uri" / *META_KEY ) LF

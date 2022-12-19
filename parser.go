@@ -553,52 +553,6 @@ func isValidID(id []byte) bool {
 	return true
 }
 
-// parseAttribute parse document attribute and return its key and optional
-// value.
-//
-//	DOC_ATTRIBUTE  = ":" DOC_ATTR_KEY ":" *STRING LF
-//
-//	DOC_ATTR_KEY   = ( "toc" / "sectanchors" / "sectlinks"
-//	               /   "imagesdir" / "data-uri" / *META_KEY ) LF
-//
-//	META_KEY_CHAR  = (A..Z | a..z | 0..9 | '_')
-//
-//	META_KEY       = 1META_KEY_CHAR *(META_KEY_CHAR | '-')
-func parseAttribute(line []byte, strict bool) (key, value string, ok bool) {
-	var (
-		sb   strings.Builder
-		valb []byte
-		x    int
-	)
-
-	if !(ascii.IsAlnum(line[1]) || line[1] == '_') {
-		return ``, ``, false
-	}
-
-	sb.WriteByte(line[1])
-	x = 2
-	for ; x < len(line); x++ {
-		if line[x] == ':' {
-			break
-		}
-		if ascii.IsAlnum(line[x]) || line[x] == '_' ||
-			line[x] == '-' || line[x] == '!' {
-			sb.WriteByte(line[x])
-			continue
-		}
-		if strict {
-			return ``, ``, false
-		}
-	}
-	if x == len(line) {
-		return ``, ``, false
-	}
-
-	valb = bytes.TrimSpace(line[x+1:])
-
-	return sb.String(), string(valb), true
-}
-
 // parseAttrRef parse the attribute reference, an attribute key wrapped by
 // "{" "}".  If the attribute reference exist, replace the content with the
 // attribute value and reset the parser state to zero.
