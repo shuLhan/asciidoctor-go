@@ -26,6 +26,16 @@ func newDocumentParser(doc *Document, content []byte) (docp *documentParser) {
 	content = bytes.ReplaceAll(content, []byte("\r\n"), []byte("\n"))
 	docp.lines = bytes.Split(content, []byte("\n"))
 
+	var (
+		wspaces = "\t\n\v\f\r \x85\xA0"
+
+		line []byte
+		x    int
+	)
+	for x, line = range docp.lines {
+		docp.lines[x] = bytes.TrimRight(line, wspaces)
+	}
+
 	return docp
 }
 
