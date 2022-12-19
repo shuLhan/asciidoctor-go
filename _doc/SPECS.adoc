@@ -157,6 +157,8 @@ HTML format for rendering section header,
 
 ==  Document preamble
 
+{url_ref}/blocks/preamble-and-lead/[Reference^]
+
 Any content after document title and before the new section is considered as
 document preamble and its rendered inside the "content", not "header".
 

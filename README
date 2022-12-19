@@ -34,7 +34,7 @@ The numbered one is based on the old documentation.
 ** {url_ref}/document/author-information/[Author information^]
 ** {url_ref}/document/revision-information/[Revision information^]
 ** {url_ref}/document/metadata/[Metadata^]
-* 15. Preamble
+* {url_ref}/blocks/preamble-and-lead/[Preamble^]
 * 16. Sections
 ** 16.1. Titles as HTML headings
 ** 16.2. Auto-generated IDs

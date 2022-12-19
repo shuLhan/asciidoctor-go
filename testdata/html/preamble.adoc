@@ -1,0 +1,11 @@
+= Title
+John Doe <john@doe.tld>
+v1.0, 15 Dec 2022
+:last-update-label!:
+:idprefix:
+
+This is preamble.
+
+== Section 2
+
+Section 2 content.
