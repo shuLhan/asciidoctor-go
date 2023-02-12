@@ -112,6 +112,10 @@ func TestDocument_ToHTML(t *testing.T) {
 			name:        `preamble`,
 			fileAdoc:    `testdata/html/preamble.adoc`,
 			fileExpHtml: `testdata/html/preamble.exp.html`,
+		}, {
+			name:        `substitutions`,
+			fileAdoc:    `testdata/html/substitutions.adoc`,
+			fileExpHtml: `testdata/html/substitutions.exp.html`,
 		}}
 
 		c   testCase

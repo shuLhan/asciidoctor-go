@@ -95,20 +95,41 @@ func htmlSubs(doc *Document, el *element) []byte {
 // Ref: https://docs.asciidoctor.org/asciidoc/latest/subs/special-characters/
 func htmlSubsChar(input []byte) []byte {
 	var (
-		bb bytes.Buffer
-		c  byte
+		max = len(input)
+
+		x     int
+		bb    bytes.Buffer
+		prevc byte
+		c     byte
+		nextc byte
 	)
-	for _, c = range input {
+	for ; x < max; x++ {
+		prevc = c
+		c = input[x]
+		if x < (max - 1) {
+			nextc = input[x+1]
+		} else {
+			nextc = 0
+		}
 		if c == '<' {
-			bb.WriteString(`&lt;`)
+			if nextc == '-' || nextc == '=' || nextc == '<' {
+				bb.WriteByte(c)
+			} else {
+				bb.WriteString(htmlSymbolLessthan)
+
+			}
 			continue
 		}
 		if c == '>' {
-			bb.WriteString(`&gt;`)
+			if prevc == '-' || prevc == '=' {
+				bb.WriteByte(c)
+			} else {
+				bb.WriteString(htmlSymbolGreaterthan)
+			}
 			continue
 		}
 		if c == '&' {
-			bb.WriteString(`&amp;`)
+			bb.WriteString(htmlSymbolAmpersand)
 			continue
 		}
 		bb.WriteByte(c)
@@ -454,6 +475,7 @@ func htmlSubsRepl(input []byte) (out []byte) {
 			c1 = input[x+1]
 			if c1 == '.' {
 				out = append(out, []byte(htmlSymbolEllipsis)...)
+				out = append(out, []byte(htmlSymbolZeroWidthSpace)...)
 				x += 2
 				continue
 			}

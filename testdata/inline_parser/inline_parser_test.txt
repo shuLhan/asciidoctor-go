@@ -1,11 +1,11 @@
 Various tests for inlineParser.
 
->>>
+>>> inlineMarkup
 *A _B `C_ D` E*
 A * B *, C *=*.
 *A _B `C D* E_ F.
 
-<<<
+<<< inlineMarkup
 <strong>A <em>B <code>C</code></em><code> D</code> E</strong>
 A * B <strong>, C *=</strong>.
 <strong>A <em>B `C D</em></strong><em> E</em> F.

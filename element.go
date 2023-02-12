@@ -979,7 +979,11 @@ func (el *element) toHTML(doc *Document, w io.Writer) {
 		fmt.Fprint(w, symbolQuoteSingleEnd, string(el.raw))
 
 	case elKindText:
-		fmt.Fprint(w, string(el.raw))
+		if el.applySubs == 0 {
+			el.applySubs = passSubNormal
+		}
+		var text = htmlSubs(doc, el)
+		fmt.Fprint(w, string(text))
 
 	case elKindTextBold:
 		if el.hasStyle(styleTextBold) {

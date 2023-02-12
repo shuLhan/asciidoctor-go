@@ -146,12 +146,6 @@ func (pi *inlineParser) do() {
 					continue
 				}
 			}
-			if ascii.IsAlpha(pi.prev) {
-				pi.current.WriteString(htmlSymbolApostrophe)
-				pi.x++
-				pi.prev = pi.c
-				continue
-			}
 		} else if pi.c == '*' {
 			if pi.isEscaped {
 				pi.escape()
@@ -256,36 +250,6 @@ func (pi *inlineParser) do() {
 				if pi.parseCrossRef() {
 					continue
 				}
-			} else if pi.nextc == '-' {
-				pi.current.WriteString(htmlSymbolSingleLeftArrow)
-				pi.x += 2
-				pi.prev = pi.nextc
-				continue
-			} else if pi.nextc == '=' {
-				pi.current.WriteString(htmlSymbolDoubleLeftArrow)
-				pi.x += 2
-				pi.prev = pi.nextc
-				continue
-			}
-			pi.current.WriteString(htmlSymbolLessthan)
-			pi.x++
-			pi.prev = pi.c
-			continue
-		} else if pi.c == '>' {
-			if pi.isEscaped {
-				pi.escape()
-				continue
-			}
-			pi.current.WriteString(htmlSymbolGreaterthan)
-			pi.x++
-			pi.prev = pi.c
-			continue
-		} else if pi.c == '&' {
-			if ascii.IsSpace(pi.prev) && ascii.IsSpace(pi.nextc) {
-				pi.current.WriteString(htmlSymbolAmpersand)
-				pi.x += 2
-				pi.prev = pi.nextc
-				continue
 			}
 		} else if pi.c == '{' {
 			if pi.isEscaped {
@@ -298,81 +262,6 @@ func (pi *inlineParser) do() {
 				pi.content = vbytes
 				pi.x = 0
 				pi.prev = 0
-				continue
-			}
-		} else if pi.c == '-' {
-			if pi.isEscaped {
-				pi.escape()
-				continue
-			}
-			if pi.prev != '-' {
-				if pi.nextc == '-' && pi.nextcc != '-' {
-					if ascii.IsSpace(pi.prev) && ascii.IsSpace(pi.nextcc) {
-						pi.current.backTrimSpace()
-						pi.current.WriteString(htmlSymbolThinSpace)
-					}
-					pi.current.WriteString(htmlSymbolEmdash)
-					if ascii.IsSpace(pi.nextcc) {
-						pi.current.WriteString(htmlSymbolThinSpace)
-						pi.x++
-					}
-					pi.x += 2
-					pi.prev = pi.nextc
-					continue
-				}
-			} else if pi.nextc == '>' {
-				pi.current.WriteString(htmlSymbolSingleRightArrow)
-				pi.x += 2
-				pi.prev = pi.nextc
-				continue
-			}
-		} else if pi.c == '=' {
-			if pi.isEscaped {
-				pi.escape()
-				continue
-			}
-			if pi.nextc == '>' {
-				pi.current.WriteString(htmlSymbolDoubleRightArrow)
-				pi.x += 2
-				pi.prev = pi.nextc
-				continue
-			}
-		} else if pi.c == '.' {
-			if pi.isEscaped {
-				pi.escape()
-				continue
-			}
-			if pi.nextc == '.' && pi.nextcc == '.' {
-				pi.current.WriteString(htmlSymbolEllipsis)
-				pi.current.WriteString(htmlSymbolZeroWidthSpace)
-				pi.x += 3
-				pi.prev = pi.c
-				continue
-			}
-		} else if pi.c == '(' {
-			if pi.isEscaped {
-				pi.escape()
-				continue
-			}
-			var isReplaced bool
-			vbytes, _ = indexByteUnescape(pi.content[pi.x+1:], ')')
-			if len(vbytes) == 1 {
-				if vbytes[0] == 'C' {
-					pi.current.WriteString(htmlSymbolCopyright)
-					isReplaced = true
-				} else if vbytes[0] == 'R' {
-					pi.current.WriteString(htmlSymbolRegistered)
-					isReplaced = true
-				}
-			} else if len(vbytes) == 2 {
-				if bytes.Equal(vbytes, []byte(`TM`)) {
-					pi.current.WriteString(htmlSymbolTrademark)
-					isReplaced = true
-				}
-			}
-			if isReplaced {
-				pi.x += len(vbytes) + 2
-				pi.prev = ')'
 				continue
 			}
 		}
