@@ -136,17 +136,22 @@ func (docp *documentParser) hasPreamble() bool {
 	var (
 		start = docp.lineNum
 
-		line []byte
-		kind int
+		notEmtpy int
+		line     []byte
+		kind     int
 	)
 	for ; start < len(docp.lines); start++ {
 		line = docp.lines[start]
+		if len(line) == 0 {
+			continue
+		}
 		kind, _, _ = whatKindOfLine(line)
 		if kind == elKindSectionL1 || kind == elKindSectionL2 ||
 			kind == elKindSectionL3 || kind == elKindSectionL4 ||
 			kind == elKindSectionL5 {
-			return true
+			return notEmtpy > 0
 		}
+		notEmtpy++
 	}
 	return false
 }

@@ -13,8 +13,6 @@ Below is empty line with spaces.
 <<<
 
 <div id="header">
-<div class="details">
-</div>
 </div>
 <div id="content">
 <div class="paragraph">

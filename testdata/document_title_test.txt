@@ -7,8 +7,6 @@ output_call: htmlWriteHeader
 
 <div id="header">
 <h1>Main: sub</h1>
-<div class="details">
-</div>
 </div>
 
 >>> Without space after separator
@@ -18,8 +16,6 @@ output_call: htmlWriteHeader
 
 <div id="header">
 <h1>Main:sub</h1>
-<div class="details">
-</div>
 </div>
 
 >>> With multiple separator after separator
@@ -29,8 +25,6 @@ output_call: htmlWriteHeader
 
 <div id="header">
 <h1>a: b: c</h1>
-<div class="details">
-</div>
 </div>
 
 >>> With custom separator
@@ -41,6 +35,4 @@ output_call: htmlWriteHeader
 
 <div id="header">
 <h1>Mainx sub</h1>
-<div class="details">
-</div>
 </div>

@@ -260,6 +260,22 @@ func (doc *Document) generateClasses() {
 	}
 }
 
+func (doc *Document) haveHeader() bool {
+	if len(doc.Authors) > 0 {
+		return true
+	}
+	if len(doc.Revision.Number) > 0 {
+		return true
+	}
+	if len(doc.Revision.Date) > 0 {
+		return true
+	}
+	if len(doc.Revision.Remark) > 0 {
+		return true
+	}
+	return false
+}
+
 func (doc *Document) toHTMLBody(buf *bytes.Buffer, withHeaderFooter bool) {
 	var (
 		ok bool

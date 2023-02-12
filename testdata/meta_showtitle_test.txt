@@ -7,8 +7,6 @@ output_call: ToHTMLBody
 
 <div id="header">
 <h1>Abc</h1>
-<div class="details">
-</div>
 </div>
 <div id="content">
 </div>
@@ -24,8 +22,6 @@ output_call: ToHTMLBody
 <<< With meta showtitle off
 
 <div id="header">
-<div class="details">
-</div>
 </div>
 <div id="content">
 </div>

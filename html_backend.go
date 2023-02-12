@@ -979,6 +979,8 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 	fmt.Fprint(out, "\n<div id=\"header\">")
 
 	var (
+		haveHeader = doc.haveHeader()
+
 		author *Author
 		prefix string
 		sep    string
@@ -996,7 +998,9 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 		}
 	}
 
-	fmt.Fprint(out, "\n<div class=\"details\">")
+	if haveHeader {
+		fmt.Fprint(out, "\n<div class=\"details\">")
+	}
 
 	var authorID, emailID string
 	for x, author = range doc.Authors {
@@ -1042,7 +1046,9 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 		fmt.Fprintf(out, "\n<br><span id=%q>%s</span>",
 			metaNameRevRemark, doc.Revision.Remark)
 	}
-	fmt.Fprint(out, "\n</div>")
+	if haveHeader {
+		fmt.Fprint(out, "\n</div>")
+	}
 
 	if doc.tocIsEnabled && (doc.tocPosition == `` ||
 		doc.tocPosition == metaValueAuto ||
