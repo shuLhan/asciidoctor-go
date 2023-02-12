@@ -8,6 +8,81 @@ Shulhan <ms@kilabit.info>
 :sectlinks:
 
 
+[#v0_4_0]
+== asciidoctor-go v0.4.0 (2023-02-12)
+
+[#v0_4_0_new_features]
+===  New features
+
+all: add support for document attribute "last-update-label"::
++
+--
+By default the last-update-label value set to "Last updated" and the value is
+the document modification time.
+
+If the label is suppressed with "!", no "Last updated" will be print on the
+footer.
+--
+
+
+all: implement inline macro for passthrough ("pass:")::
++
+--
+The inline passthrough "pass:" can be used to control the substitutions
+applied to a run of text.
+
+Ref: https://docs.asciidoctor.org/asciidoc/latest/pass/pass-macro/
+--
+
+
+all: implement macro "footnote:"::
++
+--
+Macro footnote grammar,
+
+----
+"footnote:" [ REF_ID ] "[" STRING "]"
+----
+
+In asciidoctor, footnote can be placed anywhere, even after WORD without
+space in between.
+
+The REF_ID, define the unique ID for footnote and can be used to reference
+the previous footnote.
+The first footnote with REF_ID, should have the STRING defined.
+The next footnote with the same REF_ID, should not have the STRING
+defined; if its defined, the STRING is ignored.
+--
+
+
+[#v0_4_0_bug_fixes]
+===  Bug fixes
+
+all: detach parsing preamble from content::
++
+This is to prevent empty preamble being rendered in HTML content.
+
+
+all: fix the orders of generated HTML meta::
++
+--
+The meta tags from original asciidoctor are ordered as viewport, generator,
+description, keywords, and then author.
+
+While at it remove empty style tag due to when testing we use empty.css not
+"stylesheet!".
+--
+
+
+[#v0_4_0_enhancements]
+===  Enhancements
+
+all: support multi line attribute values::
++
+If the attribute value end with backslash '\\', the value continue to the
+next line.
+
+
 [#v0_3_2]
 == asciidoctor-go v0.3.2 (2022-09-05)
 
