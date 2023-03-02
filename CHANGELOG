@@ -1,0 +1,313 @@
+// SPDX-FileCopyrightText: 2021 M. Shulhan <ms@kilabit.info>
+// SPDX-License-Identifier: GPL-3.0-or-later
+= Changelog for asciidoctor-go
+Shulhan <ms@kilabit.info>
+21 February 2022
+:toc:
+:sectanchors:
+:sectlinks:
+
+
+[#v0_4_0]
+== asciidoctor-go v0.4.0 (2023-02-12)
+
+[#v0_4_0_new_features]
+===  New features
+
+all: add support for document attribute "last-update-label"::
++
+--
+By default the last-update-label value set to "Last updated" and the value is
+the document modification time.
+
+If the label is suppressed with "!", no "Last updated" will be print on the
+footer.
+--
+
+
+all: implement inline macro for passthrough ("pass:")::
++
+--
+The inline passthrough "pass:" can be used to control the substitutions
+applied to a run of text.
+
+Ref: https://docs.asciidoctor.org/asciidoc/latest/pass/pass-macro/
+--
+
+
+all: implement macro "footnote:"::
++
+--
+Macro footnote grammar,
+
+----
+"footnote:" [ REF_ID ] "[" STRING "]"
+----
+
+In asciidoctor, footnote can be placed anywhere, even after WORD without
+space in between.
+
+The REF_ID, define the unique ID for footnote and can be used to reference
+the previous footnote.
+The first footnote with REF_ID, should have the STRING defined.
+The next footnote with the same REF_ID, should not have the STRING
+defined; if its defined, the STRING is ignored.
+--
+
+
+[#v0_4_0_bug_fixes]
+===  Bug fixes
+
+all: detach parsing preamble from content::
++
+This is to prevent empty preamble being rendered in HTML content.
+
+
+all: fix the orders of generated HTML meta::
++
+--
+The meta tags from original asciidoctor are ordered as viewport, generator,
+description, keywords, and then author.
+
+While at it remove empty style tag due to when testing we use empty.css not
+"stylesheet!".
+--
+
+
+[#v0_4_0_enhancements]
+===  Enhancements
+
+all: support multi line attribute values::
++
+If the attribute value end with backslash '\\', the value continue to the
+next line.
+
+
+[#v0_3_2]
+== asciidoctor-go v0.3.2 (2022-09-05)
+
+[#v0_3_2_bug_fix]
+===  Bug fix
+
+all: fix parsing list description inside include directive::
++
+--
+Previously, given the following include statements in the main document
+
+----
+include::list_desc.adoc[]
+
+include::list_desc.adoc[]
+----
+
+Where list_desc.adoc content is,
+
+----
+Item 00::
++
+--
+* Bullet 0
++
+Description 0.
+
+* Bullet 1
+--
+----
+
+The first include is parsed correctly, but the second include is parsed
+as is.
+--
+
+[#v0_3_2_chores]
+=== Chores
+
+all: update share module to v0.41.0::
+
+all: move all documentation into directory _doc::
++
+While at it reformat the README, add section for development, add
+link for Go documentation.
+
+
+[#v0_3_1]
+== asciidoctor-go v0.3.1 (2022-08-06)
+
+[#v0_3_1_chores]
+===  Chores
+
+all: rewrite unit tests for inlineParser using test.Data::
++
+--
+Using string literal for testing string input that may contains backtick
+or double quote make the test code become unreadable and hard to modify.
+
+The test.Data help this by moving the input and expected output into
+a file that can we write as is.
+--
+
+all: cleaning up codes:: Use raw string literal whenever possible.
+
+go.mod: update share to v0.40.0::
++
+--
+This update fix some issues related to new line on test.Data.
+--
+
+
+[#v0_3_0]
+== asciidoctor-go v0.3.0 (2022-07-24)
+
+This release set the minimum Go version to 1.18.
+
+[#v0_3_0_breaking_changes]
+===  Breaking changes
+
+all: refactoring handling generate ref ID::
++
+--
+Previously, we always set the ID prefix and separator default to "\_" if
+its not set, this cause all of the ID is prefixed with "\_".
+
+This changes use strict rules when generating ID following the Mozilla
+specification [1] and latest AsciiDoc Language [2].
+
+The idprefix must be ASCII string.
+It must start with "\_", "-", or ASCII letters, otherwise the "\_" will
+be added to the beginning.
+If one of the character is not valid, it will replaced with "\_".
+
+The `idseparator` can be empty or single ASCII character ('\_' or '-',
+ASCII letter, or digit).
+It is used to replace invalid characters in the REF_ID.
+
+[1] https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/id
+
+[2] https://docs.asciidoctor.org/asciidoc/latest/sections/id-prefix-and-separator/
+--
+
+[#v0_3_0_enhancements]
+===  Enhancements
+
+all: sort the generated HTML meta by names::
++
+--
+The order of meta names are "author", "description", "generator", and
+then "keywords".
+--
+
+all: store the list of author names under Attributes "author_names"::
++
+--
+Previously, to get list of author names, we need to iterate each of
+the Authors field.
+
+This changes set the Attributes "author_names" to list of author full
+names, each separated by comma.
+--
+
+all: add default metadata "generator"::
++
+--
+The generator metadata contains the library name and its current version.
+--
+
+all: realign all structs::
++
+--
+This is to minimize memory allocation when using asciidoctor.
+--
+
+[#v0_3_0_chores]
+===  Chores
+
+all: rewrite test using lib/test.Data::
++
+--
+Previously, to test parser and check the generated HTML, we write AsciDoc
+input and expected HTML output using literal string `...`.
+The text of input and output sometimes long, take multiple lines, which
+makes the test code ugly, hard to write, and read.
+
+Using lib/test.Data we can write the input and output as the AsciiDoc
+markup and the HTML markup as is, simplify writing the test and more
+readable.
+--
+
+
+[#v0_2_0]
+== asciidoctor-go v0.2.0 (2022-03-04)
+
+This release changes the license of asciidoctor-go from BSD to GPL 3.0 or
+later.
+
+[#v0_2_0_bug_fixes]
+===  Bug fixes
+
+all: fix list check box text get cut one character::
++
+--
+Given the following asciidoc check box markup,
+
+	* [ ] abc
+
+It will rendereded as "&#10063; bc" instead of "&#10063; abc".
+--
+
+[#v0_2_0_chores]
+===  Chores
+
+all: replace bytes.Title and strings.Title with function::
++
+--
+Both of those functions has been deprecated.
+
+Since the Title function is to convert the adminition string into a
+human title (first letter uppercase), we can use a function to do that.
+Any unknown admonition will be returned as is.
+--
+
+
+[#v0_1_1]
+==  asciidoctor-go v0.1.1 (2021-12-06)
+
+
+[#v0_1_1_bug_fixes]
+=== Bug fixes
+
+all: fix parsing and rendering cross reference::
++
+--
+Previously, when parsing cross reference we assume that if the string
+contains upper-case letter then it's a label so we store it as title
+to search for ID later.
+
+The bug is when ID is set manually and its contains upper-case for
+example "[#Id]".
+
+This changes fix this issue by storing cross reference first, not
+assuming it as ID or title, and then when doing rendering we check
+whether its ID or title.
+--
+
+all: allow colon ':' and  period '.' on the ID::
++
+--
+According to XML spec [1], the colon is allowed as the first and the next
+character.  While period is only allowed on the next characters.
+
+[1] https://www.w3.org/TR/REC-xml/#NT-Name
+--
+
+
+[#v0_1_0]
+==  asciidoctor-go v0.1.0 (2021-03-06)
+
+The asciidoctor-go is the Go module to parse the AsciiDoc (TM) markup
+and convert it into HTML5.
+
+This first release bring almost all AsciiDoc syntax except for include
+directive, inter-document cross-reference, macros, and non-primary syntax
+features.
+
+I hope this library can be useful for Gophers who need the power of AsciiDoc
+in their workflows.
