@@ -1,0 +1,127 @@
+Test block image "image::".
+output_call: 
+
+>>> block_image
+:image-sunset: sunset.jpg
+:test-url: https://kilabit.info
+
+image::sunset.jpg[]
+
+image::{image-sunset}[Block image with attribute ref, link={test-url}].
+
+image::sunset.jpg[
+This is become paragraph.
+
+image::sunset.jpg]
+
+image::sunset.jpg[Multi
+line text].
+
+image::sunset.jpg[1,abc,def]
+image::sunset.jpg[1,abc,def,ghi]
+
+image::notexist.jpg[]
+
+image::https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg[Tux,250,350]
+
+image::sunset.png[Tiger1,100,100,float="right",align="center"]
+
+image::sunset.png[Tiger2,100,100,float="righx"]
+
+image::sunset.png[Tiger3,100,100,floax="right"]
+
+image::sunset.png[Tiger4,100,100,role="right"]
+
+image::sunset.png[Tiger5,100,100,role="righx"]
+
+image::sunset.png[Tiger6,100,100,role="right left"]
+
+[.right.text-center]
+image::sunset.png[Tiger7,100,100]
+
+[.righx.center]
+image::sunset.png[Tiger8,100,100]
+
+<<< block_image
+
+<div class="imageblock">
+<div class="content">
+<img src="sunset.jpg" alt="sunset">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="sunset.jpg" alt="Block image with attribute ref">
+</div>
+</div>
+<div class="paragraph">
+<p>image::sunset.jpg[
+This is become paragraph.</p>
+</div>
+<div class="paragraph">
+<p>image::sunset.jpg]</p>
+</div>
+<div class="paragraph">
+<p>image::sunset.jpg[Multi
+line text].</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="sunset.jpg" alt="1">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="sunset.jpg" alt="1">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="notexist.jpg" alt="notexist">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg" alt="Tux" width="250" height="350">
+</div>
+</div>
+<div class="imageblock right text-center">
+<div class="content">
+<img src="sunset.png" alt="Tiger1" width="100" height="100">
+</div>
+</div>
+<div class="imageblock righx">
+<div class="content">
+<img src="sunset.png" alt="Tiger2" width="100" height="100">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="sunset.png" alt="Tiger3" width="100" height="100">
+</div>
+</div>
+<div class="imageblock right">
+<div class="content">
+<img src="sunset.png" alt="Tiger4" width="100" height="100">
+</div>
+</div>
+<div class="imageblock righx">
+<div class="content">
+<img src="sunset.png" alt="Tiger5" width="100" height="100">
+</div>
+</div>
+<div class="imageblock right left">
+<div class="content">
+<img src="sunset.png" alt="Tiger6" width="100" height="100">
+</div>
+</div>
+<div class="imageblock right text-center">
+<div class="content">
+<img src="sunset.png" alt="Tiger7" width="100" height="100">
+</div>
+</div>
+<div class="imageblock righx center">
+<div class="content">
+<img src="sunset.png" alt="Tiger8" width="100" height="100">
+</div>
+</div>
