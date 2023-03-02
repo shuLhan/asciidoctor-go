@@ -8,6 +8,57 @@ Shulhan <ms@kilabit.info>
 :sectlinks:
 
 
+[#v0_4_1]
+== asciidoctor-go v0.4.1 (2023-03-03)
+
+[#v0_4_1__bug_fixes]
+===  Bug fixes
+
+all: fix empty line printed on ToHTMLBody or ToHTMLEmbedded::
++
+--
+Given the following adoc,
+
+----
+= T
+----
+
+If we call ToHTMLBody, the output is
+
+----
+(empty line here)
+<div id="header">
+<h1>T</h1>
+----
+
+This changes remove the empty line at the top.
+--
+
+
+all: ignore parsing block image in paragraph::
++
+--
+Previously, if we have block image in paragraph, we parse it as inline
+image but with invalid src, for example
+
+----
+image::my.png[multi
+line].
+----
+
+would be parsed as <img src=":imy.png" alt="multi line">.
+This is incorrect according to asciidoctor output.
+--
+
+
+[#v0_4_1__enhancements]
+===  Enhancements
+
+all: handle empty preamble::
++
+If the document contains empty preamble do not output the HTML wrapper of it.
+
+
 [#v0_4_0]
 == asciidoctor-go v0.4.0 (2023-02-12)
 
