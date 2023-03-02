@@ -4,7 +4,6 @@ output_call: ToHTMLBody
 = Abc
 
 <<<
-
 <div id="header">
 <h1>Abc</h1>
 </div>
@@ -20,7 +19,6 @@ output_call: ToHTMLBody
 :showtitle!:
 
 <<< With meta showtitle off
-
 <div id="header">
 </div>
 <div id="content">

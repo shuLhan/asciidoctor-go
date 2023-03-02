@@ -976,7 +976,7 @@ func htmlWriteFootnoteDefs(doc *Document, out io.Writer) {
 }
 
 func htmlWriteHeader(doc *Document, out io.Writer) {
-	fmt.Fprint(out, "\n<div id=\"header\">")
+	fmt.Fprint(out, `<div id="header">`)
 
 	var (
 		haveHeader = doc.haveHeader()

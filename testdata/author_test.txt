@@ -5,7 +5,6 @@ output_call: htmlWriteHeader
 A B
 
 <<< single author
-
 <div id="header">
 <h1>T</h1>
 <div class="details">
@@ -18,7 +17,6 @@ A B
 A B <a@b>
 
 <<< single author with email
-
 <div id="header">
 <h1>T</h1>
 <div class="details">
@@ -32,7 +30,6 @@ A B <a@b>
 A B <a@b>; C <c@c>; D e_f G <>;
 
 <<< Multiple authors
-
 <div id="header">
 <h1>T</h1>
 <div class="details">
@@ -50,7 +47,6 @@ A B <a@b>; C <c@c>; D e_f G <>;
 :email: a@b
 
 <<< Meta author
-
 <div id="header">
 <h1>T</h1>
 <div class="details">

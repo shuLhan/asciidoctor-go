@@ -211,7 +211,7 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 		fmt.Fprintf(buf, "\n<title>%s</title>", title)
 	}
 
-	fmt.Fprintf(buf, "\n</head>\n<body class=%q>", doc.classes.String())
+	fmt.Fprintf(buf, "\n</head>\n<body class=%q>\n", doc.classes.String())
 
 	var (
 		isWithHeaderFooter = true
