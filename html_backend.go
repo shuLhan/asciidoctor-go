@@ -731,21 +731,25 @@ func htmlWriteBlockQuoteEnd(el *element, out io.Writer) {
 	fmt.Fprint(out, "\n</blockquote>")
 
 	var (
-		v  string
-		ok bool
+		v               string
+		withAttribution bool
+		withCitation    bool
 	)
 
-	v, ok = el.Attrs[attrNameAttribution]
-	if ok {
-		fmt.Fprintf(out, "\n<div class=%q>\n&#8212; %s",
-			attrNameAttribution, v)
+	v, withAttribution = el.Attrs[attrNameAttribution]
+	if withAttribution {
+		fmt.Fprintf(out, "\n<div class=%q>\n&#8212; %s", attrNameAttribution, v)
 	}
 
-	v, ok = el.Attrs[attrNameCitation]
-	if ok {
+	v, withCitation = el.Attrs[attrNameCitation]
+	if withCitation {
 		fmt.Fprintf(out, "<br>\n<cite>%s</cite>", v)
 	}
-	fmt.Fprint(out, "\n</div>\n</div>")
+
+	if withAttribution {
+		fmt.Fprint(out, "\n</div>")
+	}
+	fmt.Fprint(out, "\n</div>")
 }
 
 func htmlWriteBlockSidebar(el *element, out io.Writer) {

@@ -1,0 +1,91 @@
+Test [quote] and ____.
+
+>>> blockquote
+= Title
+
+== Section 1
+
+[quote]
+Quote in
+section 1.
+
+== Section 2
+
+[quote, John Doe]
+Quote from
+Section 2.
+
+== Section 3
+
+____
+Quote from
+section 3.
+____
+
+== Section 4
+
+[quote, John Doe, Section 4]
+____
+Quote from
+section 4.
+____
+
+<<< blockquote
+
+<div class="sect1">
+<h2 id="section_1">Section 1</h2>
+<div class="sectionbody">
+<div class="quoteblock">
+<blockquote>
+Quote in
+section 1.
+</blockquote>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="section_2">Section 2</h2>
+<div class="sectionbody">
+<div class="quoteblock">
+<blockquote>
+Quote from
+Section 2.
+</blockquote>
+<div class="attribution">
+&#8212; John Doe
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="section_3">Section 3</h2>
+<div class="sectionbody">
+<div class="quoteblock">
+<blockquote>
+
+<div class="paragraph">
+<p>Quote from
+section 3.</p>
+</div>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="section_4">Section 4</h2>
+<div class="sectionbody">
+<div class="quoteblock">
+<blockquote>
+
+<div class="paragraph">
+<p>Quote from
+section 4.</p>
+</div>
+</blockquote>
+<div class="attribution">
+&#8212; John Doe<br>
+<cite>Section 4</cite>
+</div>
+</div>
+</div>
+</div>
