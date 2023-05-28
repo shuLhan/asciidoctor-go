@@ -52,7 +52,7 @@ The numbered one is based on the old documentation.
   * Quotation Marks and Apostrophes
   * Subscript and Superscript
   * Monospace
-* Unordered Lists
+* Unordered Lists (See Notes below)
   * Nested
   * Complex List Content
   * Custom Markers
@@ -144,9 +144,12 @@ Additional metadata provides by this library,
 
 * `author_names` - list of author full names separated by comma.
 
+###  Notes
+
+#### Unsupported markup
 
 The following markup will not supported because its functionality is duplicate
-with others markup or not secure,
+or inconsistent with others markup, or not secure,
 
 * Header
   * Subtitle partitioning.
@@ -166,6 +169,34 @@ with others markup or not secure,
     Rationale: security and unreliable network connections.
   * Caching URI Content
 
+
+####  Unordered list item with hyphen
+
+The unordered list item with hyphen ('-') cause too much confusion and
+inconsistency.
+
+Case one, given the following markup,
+
+```
+- Item 1
++
+"A line
+of quote"
+-- Author
+```
+
+Is the "Author" the sub item in list or we are parsing author of quote
+paragraph?
+
+Case two, the writer want to write em dash (`&#8212;` in HTML Unicode) but
+somehow the editor wrap it and start in new line.
+
+As a reminder, the official documentation only recommend using hyphen for
+simple list item
+
+> You should reserve the hyphen for lists that only have a single level
+> because the hyphen marker (-) doesn’t work for nested lists.
+> -- <https://docs.asciidoctor.org/asciidoc/latest/lists/unordered/#basic-unordered-list>
 
 ###  TODO
 

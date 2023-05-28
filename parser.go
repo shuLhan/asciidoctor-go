@@ -45,7 +45,7 @@ const (
 	elKindListOrdered                // Wrapper.
 	elKindListOrderedItem            // 30: Line start with ". "
 	elKindListUnordered              // Wrapper.
-	elKindListUnorderedItem          // Line start with "* "
+	elKindListUnorderedItem          // Line start with "* " or "- "
 	elKindListDescription            // Wrapper.
 	elKindListDescriptionItem        // Line that has "::" + WSP
 	elKindMacroTOC                   // "toc::[]"
@@ -799,7 +799,7 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 			return elKindListDescriptionItem, spaces, line
 		}
 
-		if line[0] != '*' && line[0] != '.' {
+		if line[0] != '*' && line[0] != '-' && line[0] != '.' {
 			return elKindLiteralParagraph, spaces, line
 		}
 	}
@@ -865,23 +865,42 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 				}
 			}
 		}
-	} else if line[0] == '*' {
+	} else if line[0] == '*' || line[0] == '-' {
 		if len(line) <= 1 {
 			kind = lineKindText
-		} else {
-			x = 0
-			for ; x < len(line); x++ {
-				if line[x] == '*' {
-					continue
-				}
-				if line[x] == ' ' || line[x] == '\t' {
-					kind = elKindListUnorderedItem
-					return kind, spaces, line
-				}
-				kind = lineKindText
+			return kind, spaces, line
+		}
+
+		var (
+			listItemChar = line[0]
+			count        = 0
+		)
+		x = 0
+		for ; x < len(line); x++ {
+			if line[x] == listItemChar {
+				count++
+				continue
+			}
+			if line[x] == ' ' || line[x] == '\t' {
+				kind = elKindListUnorderedItem
 				return kind, spaces, line
 			}
+			// Break on the first non-space, so from above
+			// condition we have,
+			// - item
+			// -- item
+			// --- item
+			// ---- // block listing
+			// --unknown // break here
+			break
 		}
+		if listItemChar == '-' && count == 4 && x == len(line) {
+			kind = elKindBlockListing
+		} else {
+			kind = lineKindText
+		}
+		return kind, spaces, line
+
 	} else if bytes.Equal(line, []byte(`+`)) {
 		kind = lineKindListContinue
 	} else if bytes.Equal(line, []byte(`----`)) {

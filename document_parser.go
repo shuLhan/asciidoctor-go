@@ -841,8 +841,6 @@ func (docp *documentParser) parseListBlock() (el *element, line []byte) {
 				lineKindEmpty,
 				[]int{
 					lineKindListContinue,
-					elKindListOrderedItem,
-					elKindListUnorderedItem,
 					elKindListDescriptionItem,
 				})
 			el.postParseParagraph(nil)

@@ -480,7 +480,7 @@ This line separated by comment.
 ==  Description list
 toc::[]
 
-`CPU`:: The brain
+`AAA`:: The brain
 of
 the
 computer.
@@ -489,23 +489,23 @@ Hard drive:: Permanent storage for operating system and/or user files.
 With `[horizontal]` style,
 
 [horizontal]
-CPU:: The brain of the computer.
+BBB:: The brain of the computer.
 Hard drive:: Permanent storage for operating system and/or user files.
 
 With title,
 
 .A title
-CPU:: The brain of the computer.
+CCC:: The brain of the computer.
 Hard drive:: Permanent storage for operating system and/or user files.
 
 Indented with space
 
-  CPU:: The brain of the computer.
+  DDD:: The brain of the computer.
   Hard drive:: Permanent storage for operating system and/or user files.
 
 With continuation "+",
 
-CPU::
+EEE::
 +
 The brain of the computer.
 Hard drive::

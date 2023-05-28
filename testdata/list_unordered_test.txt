@@ -1,0 +1,157 @@
+Parsing and rendering unordered list item with '*' and '-'.
+
+>>> with_star
+= Unordered list with star
+
+With star,
+
+* Star 1
+* Star 2
+** Star 2.1
+*** Star 2.1.1
+** Star 2.2
+* Star 3
+* Star 4
+
+<<< with_star
+
+<div class="paragraph">
+<p>With star,</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Star 1</p>
+</li>
+<li>
+<p>Star 2</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Star 2.1</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Star 2.1.1</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Star 2.2</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Star 3</p>
+</li>
+<li>
+<p>Star 4</p>
+</li>
+</ul>
+</div>
+
+>>> with_dash
+= Unordered list with dash
+
+With dash,
+
+- Dash 1
+- Dash 2
+-- Dash 2.1
+--- Dash 2.1.1
+-- Dash 2.2
+- Dash 3
+- Dash 4
+
+<<< with_dash
+
+<div class="paragraph">
+<p>With dash,</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Dash 1</p>
+</li>
+<li>
+<p>Dash 2</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Dash 2.1</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Dash 2.1.1</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Dash 2.2</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Dash 3</p>
+</li>
+<li>
+<p>Dash 4</p>
+</li>
+</ul>
+</div>
+
+>>> quoted_paragraph
+= Quoted paragraph
+
+"A line
+of Quote"
+-- Author Name, Citation Name
+
+<<< quoted_paragraph
+
+<div class="quoteblock">
+<blockquote>
+A line
+of Quote
+</blockquote>
+<div class="attribution">
+&#8212; Author Name<br>
+<cite>Citation Name</cite>
+</div>
+</div>
+
+>>> list_item_with_quoted_paragraph
+= List item with quote paragraph
+
+* List item 1
++
+"a quote"
+-- Thomas Jefferson, Papers of Thomas Jefferson: Volume 11
+
+* List item 2
+
+<<< list_item_with_quoted_paragraph
+
+<div class="ulist">
+<ul>
+<li>
+<p>List item 1</p>
+<div class="quoteblock">
+<blockquote>
+a quote
+</blockquote>
+<div class="attribution">
+&#8212; Thomas Jefferson<br>
+<cite>Papers of Thomas Jefferson: Volume 11</cite>
+</div>
+</div>
+</li>
+<li>
+<p>List item 2</p>
+</li>
+</ul>
+</div>

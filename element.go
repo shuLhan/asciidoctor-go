@@ -43,7 +43,7 @@ type element struct {
 	elementAttribute
 
 	rawLabel       bytes.Buffer
-	level          int // The number of dot for ordered list, or '*' for unordered list.
+	level          int // The number of dot for ordered list, or '*'/'-' for unordered list.
 	listItemNumber int // The counter for list item, start from 1.
 	kind           int
 
@@ -494,7 +494,7 @@ func (el *element) parseListUnorderedItem(line []byte) {
 	)
 
 	for ; x < len(line); x++ {
-		if line[x] == '*' {
+		if line[x] == '*' || line[x] == '-' {
 			el.level++
 			continue
 		}
