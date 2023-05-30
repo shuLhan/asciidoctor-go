@@ -429,8 +429,11 @@ This line separated by comment.
 * square two
 
 [circle]
-* circle one
-* circle two
+* circles
+** all
+*** the
+**** way
+***** down
 
 [disc]
 * disc one
@@ -451,6 +454,17 @@ This line separated by comment.
 [what.is]
 * what one
 * what two
+
+With mixed marker,
+
+[square]
+* square l1
+** square l2
+[circle]
+*** circle l3
+**** circle l4
+* circle l1
+
 
 === Checklist
 

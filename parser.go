@@ -256,6 +256,11 @@ const (
 	styleSectionGlossary
 	styleSectionBibliography
 	styleSectionIndex
+	styleListMarkerCircle
+	styleListMarkerDisc
+	styleListMarkerNone
+	styleListMarkerSquare
+	styleListMarkerUnstyled
 	styleParagraphLead
 	styleParagraphNormal
 	styleLink
@@ -298,6 +303,11 @@ var adocStyles map[string]int64 = map[string]int64{
 	`glossary`:          styleSectionGlossary,
 	`bibliography`:      styleSectionBibliography,
 	`index`:             styleSectionIndex,
+	`circle`:            styleListMarkerCircle,
+	`disc`:              styleListMarkerDisc,
+	`none`:              styleListMarkerNone,
+	`square`:            styleListMarkerSquare,
+	`unstyled`:          styleListMarkerUnstyled,
 	`.lead`:             styleParagraphLead,
 	`.normal`:           styleParagraphNormal,
 	`arabic`:            styleNumberingArabic,

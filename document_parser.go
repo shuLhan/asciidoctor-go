@@ -1292,6 +1292,7 @@ func (docp *documentParser) parseListUnordered(parent, el *element, line []byte,
 			kind:     elKindListUnordered,
 			rawTitle: el.rawTitle,
 		}
+		elAttr = &elementAttribute{}
 
 		listItem       *element
 		parentListItem *element
@@ -1382,6 +1383,12 @@ func (docp *documentParser) parseListUnordered(parent, el *element, line []byte,
 			el = &element{
 				kind: elKindListUnorderedItem,
 			}
+			if len(elAttr.rawStyle) > 0 {
+				el.addRole(el.rawStyle)
+				el.rawStyle = elAttr.rawStyle
+				elAttr = &elementAttribute{}
+			}
+
 			el.parseListUnorderedItem(line)
 			if listItem.level == el.level {
 				list.addChild(el)
@@ -1402,10 +1409,8 @@ func (docp *documentParser) parseListUnordered(parent, el *element, line []byte,
 			// *** Next list
 			parentListItem = parent
 			for parentListItem != nil {
-				if parentListItem.kind == docp.kind &&
-					parentListItem.level == el.level {
-					list.postParseList(docp.doc,
-						elKindListUnorderedItem)
+				if parentListItem.kind == docp.kind && parentListItem.level == el.level {
+					list.postParseList(docp.doc, elKindListUnorderedItem)
 					return line
 				}
 				parentListItem = parentListItem.parent
@@ -1508,7 +1513,6 @@ func (docp *documentParser) parseListUnordered(parent, el *element, line []byte,
 			docp.kind == elKindSectionL4 ||
 			docp.kind == elKindSectionL5 ||
 			docp.kind == lineKindAdmonition ||
-			docp.kind == lineKindAttributeElement ||
 			docp.kind == lineKindBlockTitle ||
 			docp.kind == lineKindID ||
 			docp.kind == lineKindIDShort ||
@@ -1516,6 +1520,18 @@ func (docp *documentParser) parseListUnordered(parent, el *element, line []byte,
 			if docp.prevKind == lineKindEmpty {
 				break
 			}
+		}
+		if docp.kind == lineKindAttributeElement {
+			if docp.prevKind == lineKindEmpty {
+				break
+			}
+			// Case:
+			// * item 1
+			// [circle] <-- we are here.
+			// ** item 2
+			elAttr.parseElementAttribute(line)
+			line = nil
+			continue
 		}
 
 		listItem.Write(bytes.TrimSpace(line))

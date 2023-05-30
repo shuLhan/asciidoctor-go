@@ -52,14 +52,15 @@ The numbered one is based on the old documentation.
   * Quotation Marks and Apostrophes
   * Subscript and Superscript
   * Monospace
-* Unordered Lists (See Notes below)
-  * Nested
-  * Complex List Content
-  * Custom Markers
+* List
+  * Unordered Lists (See Notes below)
+    * Nested
+    * Complex List Content
+    * Custom Markers
+  * Ordered Lists
+    * Nested
+    * Numbering Styles
   * Checklist
-* Ordered Lists
-  * Nested
-  * Numbering Styles
 * Description List
   * Question and Answer Style List
 * Tables

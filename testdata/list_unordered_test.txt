@@ -155,3 +155,157 @@ a quote
 </li>
 </ul>
 </div>
+
+>>> with_title
+
+.Possible DefOps manual locations
+* West wood maze
+** Maze heart
+*** Reflection pool
+** Secret exit
+* Untracked file in git repository
+
+<<< with_title
+
+<div class="ulist">
+<div class="title">Possible DefOps manual locations</div>
+<ul>
+<li>
+<p>West wood maze</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Maze heart</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Reflection pool</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Secret exit</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Untracked file in git repository</p>
+</li>
+</ul>
+</div>
+
+>>> with_square_marker
+
+[square]
+* one
+* two
+* three
+
+<<< with_square_marker
+
+<div class="ulist square">
+<ul class="square">
+<li>
+<p>one</p>
+</li>
+<li>
+<p>two</p>
+</li>
+<li>
+<p>three</p>
+</li>
+</ul>
+</div>
+
+>>> with_circle_marker
+
+[circle]
+* circles
+** all
+*** the
+**** way
+***** down
+
+<<< with_circle_marker
+
+<div class="ulist circle">
+<ul class="circle">
+<li>
+<p>circles</p>
+<div class="ulist">
+<ul>
+<li>
+<p>all</p>
+<div class="ulist">
+<ul>
+<li>
+<p>the</p>
+<div class="ulist">
+<ul>
+<li>
+<p>way</p>
+<div class="ulist">
+<ul>
+<li>
+<p>down</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+
+>>> with_mixed_marker
+
+[square]
+* square l1
+** square l2
+[circle]
+*** circle l3
+**** circle l4
+* circle l1
+
+<<< with_mixed_marker
+
+<div class="ulist square">
+<ul class="square">
+<li>
+<p>square l1</p>
+<div class="ulist">
+<ul>
+<li>
+<p>square l2</p>
+<div class="ulist circle">
+<ul class="circle">
+<li>
+<p>circle l3</p>
+<div class="ulist">
+<ul>
+<li>
+<p>circle l4</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>circle l1</p>
+</li>
+</ul>
+</div>
