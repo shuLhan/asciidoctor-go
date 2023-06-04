@@ -2,10 +2,72 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 = Changelog for asciidoctor-go
 Shulhan <ms@kilabit.info>
-21 February 2022
 :toc:
-:sectanchors:
 :sectlinks:
+
+
+[#v0_5_0]
+== asciidoctor-go v0.5.0 (2023-06-04)
+
+[#v0_5_0__new_features]
+===  New features
+
+all: add support for unordered list with '-'::
++
+--
+The unordered list item with hyphen ('-') cause too much confusion and
+inconsistency, nevertheless most of still use it.
+
+Case one, given the following markup,
+
+----
+- Item 1
++
+"A line
+of quote"
+-- Author
+----
+
+Is the "Author" the sub item in list or we are parsing author of quote
+paragraph?
+
+Case two, the writer want to write em dash (`&#8212;` in HTML Unicode) but
+somehow the editor wrap it and start in new line.
+
+As a reminder, the official documentation only recommend using hyphen for
+simple list item [1].
+
+[1] https://docs.asciidoctor.org/asciidoc/latest/lists/unordered/#basic-unordered-list
+--
+
+[#v0_5_0__bug_fixes]
+===  Bug fixes
+
+all: fix rendering blockquote without attribution::
++
+--
+Previously, in the htmlWriteBlockQuoteEnd, if attribution is set
+we add HTML tag <div> and close it later after we add citation.
+
+The issue is we did not check if attribution is true again when we
+add closing tag for div, which make the div above of blockquote get
+closed.
+--
+
+all: handle custom marker in between unordered list::
++
+--
+Given the following markup,
+
+----
+[square]
+* item 1
+[circle]
+** item 2
+----
+
+The list on item 2 now start with `<div class="ulist circle">`.
+--
 
 
 [#v0_4_1]

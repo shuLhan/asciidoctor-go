@@ -11,7 +11,7 @@ import "github.com/shuLhan/share/lib/math/big"
 
 const (
 	// Version of this module.
-	Version = `0.4.1`
+	Version = `0.5.0`
 
 	_lf = "\n"
 )
