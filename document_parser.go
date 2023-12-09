@@ -9,8 +9,9 @@ import (
 	"io"
 
 	"github.com/shuLhan/share/lib/ascii"
-	"github.com/shuLhan/share/lib/debug"
 )
+
+const debugLevel = 0
 
 type documentParser struct {
 	doc      *Document
@@ -179,7 +180,7 @@ func (docp *documentParser) include(el *elementInclude) {
 	newLines = append(newLines, docp.lines[docp.lineNum+1:]...)
 	docp.lines = newLines
 
-	if debug.Value == 2 {
+	if debugLevel >= 2 {
 		for _, line = range includedLines {
 			fmt.Printf("%s\n", line)
 		}
@@ -196,7 +197,7 @@ func (docp *documentParser) line(logp string) (spaces, line []byte, ok bool) {
 	}
 
 	line = docp.lines[docp.lineNum]
-	if debug.Value == 2 {
+	if debugLevel >= 2 {
 		fmt.Printf("line %3d: %s: %s\n", docp.lineNum, logp, line)
 	}
 	docp.lineNum++
