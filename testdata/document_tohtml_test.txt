@@ -1,0 +1,110 @@
+output_call: ToHTML
+
+>>> header
+= Title
+John Doe <john@doe.tld>
+v1.0, 15 Dec 2022
+:description: Multiline \
+description \
+with backslash
+:keywords: multiline, \
+key, \
+words
+:last-update-label!:
+
+Document body.
+
+<<< header
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="asciidoctor-go 0.5.0">
+<meta name="description" content="Multiline description with backslash">
+<meta name="keywords" content="multiline, key, words">
+<meta name="author" content="John Doe">
+<title>Title</title>
+</head>
+<body class="article">
+<div id="header">
+<h1>Title</h1>
+<div class="details">
+<span id="author" class="author">John Doe</span><br>
+<span id="email" class="email"><a href="mailto:john@doe.tld">john@doe.tld</a></span><br>
+<span id="revnumber">version 1.0,</span>
+<span id="revdate">15 Dec 2022</span>
+</div>
+</div>
+<div id="content">
+<div class="paragraph">
+<p>Document body.</p>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 1.0<br>
+</div>
+</div>
+</body>
+</html>
+
+>>> preamble
+= Title
+John Doe <john@doe.tld>
+v1.0, 15 Dec 2022
+:last-update-label!:
+:idprefix:
+
+This is preamble.
+
+== Section 2
+
+Section 2 content.
+
+<<< preamble
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="asciidoctor-go 0.5.0">
+<meta name="author" content="John Doe">
+<title>Title</title>
+</head>
+<body class="article">
+<div id="header">
+<h1>Title</h1>
+<div class="details">
+<span id="author" class="author">John Doe</span><br>
+<span id="email" class="email"><a href="mailto:john@doe.tld">john@doe.tld</a></span><br>
+<span id="revnumber">version 1.0,</span>
+<span id="revdate">15 Dec 2022</span>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This is preamble.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="section_2">Section 2</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Section 2 content.</p>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 1.0<br>
+</div>
+</div>
+</body>
+</html>

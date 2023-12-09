@@ -4,7 +4,6 @@
 package asciidoctor
 
 import (
-	"bytes"
 	"os"
 	"testing"
 
@@ -93,55 +92,5 @@ func TestParse_document_title(t *testing.T) {
 		test.Assert(t, `Sub`, c.exp.Sub, got.Title.Sub)
 		test.Assert(t, `sep`, c.exp.sep, got.Title.sep)
 		test.Assert(t, `String`, c.expString, got.Title.String())
-	}
-}
-
-func TestDocument_ToHTML(t *testing.T) {
-	type testCase struct {
-		name        string
-		fileAdoc    string
-		fileExpHTML string
-	}
-
-	var (
-		cases = []testCase{{
-			name:        `header`,
-			fileAdoc:    `testdata/html/header.adoc`,
-			fileExpHTML: `testdata/html/header.exp.html`,
-		}, {
-			name:        `preamble`,
-			fileAdoc:    `testdata/html/preamble.adoc`,
-			fileExpHTML: `testdata/html/preamble.exp.html`,
-		}}
-
-		c   testCase
-		doc *Document
-		err error
-		got bytes.Buffer
-		exp []byte
-	)
-
-	for _, c = range cases {
-		doc, err = Open(c.fileAdoc)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		// Since we cannot overwrite the asciidoctor output for
-		// generator, we override ourself.
-		doc.Attributes[MetaNameGenerator] = `Asciidoctor 2.0.18`
-
-		got.Reset()
-
-		err = doc.ToHTML(&got)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		exp, err = os.ReadFile(c.fileExpHTML)
-		if err != nil {
-			t.Fatal(err)
-		}
-		test.Assert(t, c.name, string(exp), got.String())
 	}
 }
