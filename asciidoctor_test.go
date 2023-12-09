@@ -20,11 +20,13 @@ func TestData(t *testing.T) {
 	var (
 		listTData    []*test.Data
 		tdata        *test.Data
-		inputCall    string
+		bbuf         bytes.Buffer
 		outputCall   string
 		inputName    string
 		subtestName  string
 		inputContent []byte
+		exp          []byte
+		got          []byte
 		err          error
 	)
 
@@ -34,28 +36,15 @@ func TestData(t *testing.T) {
 	}
 
 	for _, tdata = range listTData {
-		inputCall = tdata.Flag[`input_call`]
 		outputCall = tdata.Flag[`output_call`]
 
 		for inputName, inputContent = range tdata.Input {
 			subtestName = tdata.Name + `/` + inputName
 
 			t.Run(subtestName, func(t *testing.T) {
-				var (
-					doc  *Document
-					bbuf bytes.Buffer
-					exp  []byte
-					got  []byte
-				)
-
-				exp = tdata.Output[inputName]
-
 				bbuf.Reset()
 
-				switch inputCall {
-				default:
-					doc = Parse(inputContent)
-				}
+				var doc = Parse(inputContent)
 
 				switch outputCall {
 				case outputCallHTMLWriteHeader:
@@ -73,6 +62,7 @@ func TestData(t *testing.T) {
 					got = bbuf.Bytes()
 				}
 
+				exp = tdata.Output[inputName]
 				test.Assert(t, subtestName, string(exp), string(got))
 			})
 		}

@@ -61,6 +61,8 @@ func parseSub(parentDoc *Document, content []byte) (subdoc *Document) {
 	return subdoc
 }
 
+// consumeLinesUntil given an element el, consume all lines until we found
+// a line with kind match with term or match with one in terms.
 func (docp *documentParser) consumeLinesUntil(el *element, term int, terms []int) (line []byte) {
 	var (
 		logp = `consumeLinesUntil`
@@ -148,7 +150,9 @@ func (docp *documentParser) hasPreamble() bool {
 		kind, _, _ = whatKindOfLine(line)
 		if kind == elKindSectionL1 || kind == elKindSectionL2 ||
 			kind == elKindSectionL3 || kind == elKindSectionL4 ||
-			kind == elKindSectionL5 {
+			kind == elKindSectionL5 ||
+			kind == lineKindID ||
+			kind == lineKindIDShort {
 			return notEmtpy > 0
 		}
 		notEmtpy++
@@ -276,9 +280,7 @@ func (docp *documentParser) parseMultiline(out io.Writer) {
 func (docp *documentParser) parseBlock(parent *element, term int) {
 	var (
 		logp = `parseBlock`
-		el   = &element{
-			kind: elKindUnknown,
-		}
+		el   = &element{}
 
 		line   []byte
 		isTerm bool
@@ -314,13 +316,19 @@ func (docp *documentParser) parseBlock(parent *element, term int) {
 			continue
 
 		case lineKindID:
+			if parent.kind == elKindPreamble {
+				docp.kind = lineKindEmpty
+				docp.prevKind = lineKindEmpty
+				docp.lineNum--
+				isTerm = true
+				continue
+			}
 			var (
 				idLabel   = line[2 : len(line)-2]
 				id, label = parseIDLabel(idLabel)
 			)
 			if len(id) > 0 {
-				el.ID = docp.doc.registerAnchor(
-					string(id), string(label))
+				el.ID = docp.doc.registerAnchor(string(id), string(label))
 				line = nil
 				continue
 			}
@@ -330,6 +338,14 @@ func (docp *documentParser) parseBlock(parent *element, term int) {
 			continue
 
 		case lineKindIDShort:
+			if parent.kind == elKindPreamble {
+				docp.kind = lineKindEmpty
+				docp.prevKind = lineKindEmpty
+				docp.lineNum--
+				isTerm = true
+				continue
+			}
+
 			var (
 				id    = line[2 : len(line)-1]
 				label []byte
@@ -338,8 +354,7 @@ func (docp *documentParser) parseBlock(parent *element, term int) {
 			id, label = parseIDLabel(id)
 
 			if len(id) > 0 {
-				el.ID = docp.doc.registerAnchor(
-					string(id), string(label))
+				el.ID = docp.doc.registerAnchor(string(id), string(label))
 				line = nil
 				continue
 			}

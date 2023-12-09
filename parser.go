@@ -665,7 +665,7 @@ func parseClosedBracket(input []byte, openb, closedb byte) (out []byte, idx int)
 	return nil, -1
 }
 
-// parseIDLabel parse the string "ID (,LABEL)" into ID and label.
+// parseIDLabel parse the string "ID (,LABEL)" into id and label.
 // It will return empty id and label if ID is not valid.
 func parseIDLabel(s []byte) (id, label []byte) {
 	var idLabel = bytes.Split(s, []byte(`,`))

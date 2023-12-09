@@ -1,0 +1,70 @@
+output_call: ToHTMLBody
+
+>>> without_preamble
+= Without preamble
+
+[#foo_v1_1_0]
+== foo v1.1.0 (2023-02-01)
+
+[#foo_v1_0_0]
+== foo v1.0.0 (2023-01-01)
+
+<<< without_preamble
+<div id="header">
+<h1>Without preamble</h1>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="foo_v1_1_0">foo v1.1.0 (2023-02-01)</h2>
+<div class="sectionbody">
+</div>
+</div>
+<div class="sect1">
+<h2 id="foo_v1_0_0">foo v1.0.0 (2023-01-01)</h2>
+<div class="sectionbody">
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+</div>
+</div>
+
+>>> with_preamble
+= With preamble
+
+This is a preamble.
+
+[#foo_v1_1_0]
+== foo v1.1.0 (2023-02-01)
+
+[#foo_v1_0_0]
+== foo v1.0.0 (2023-01-01)
+
+<<< with_preamble
+<div id="header">
+<h1>With preamble</h1>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This is a preamble.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="foo_v1_1_0">foo v1.1.0 (2023-02-01)</h2>
+<div class="sectionbody">
+</div>
+</div>
+<div class="sect1">
+<h2 id="foo_v1_0_0">foo v1.0.0 (2023-01-01)</h2>
+<div class="sectionbody">
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+</div>
+</div>
