@@ -201,14 +201,12 @@ func (pi *inlineParser) do() {
 				}
 			}
 			if pi.nextc == '"' {
-				if pi.parseQuoteEnd([]byte("`\""),
-					elKindSymbolQuoteDoubleEnd) {
+				if pi.parseQuoteEnd(elKindSymbolQuoteDoubleEnd) {
 					continue
 				}
 			}
 			if pi.nextc == '\'' {
-				if pi.parseQuoteEnd([]byte("`'"),
-					elKindSymbolQuoteSingleEnd) {
+				if pi.parseQuoteEnd(elKindSymbolQuoteSingleEnd) {
 					continue
 				}
 
@@ -399,7 +397,7 @@ func (pi *inlineParser) escape() {
 
 func (pi *inlineParser) parseCrossRef() bool {
 	var (
-		raw []byte = pi.content[pi.x+2:]
+		raw = pi.content[pi.x+2:]
 		idx int
 	)
 
@@ -447,7 +445,7 @@ func (pi *inlineParser) parseCrossRef() bool {
 // parseInlineID parse the ID and optional label between "[[" "]]".
 func (pi *inlineParser) parseInlineID() bool {
 	var (
-		raw []byte = pi.content[pi.x+2:]
+		raw = pi.content[pi.x+2:]
 
 		el       *element
 		stringID string
@@ -490,7 +488,7 @@ func (pi *inlineParser) parseInlineID() bool {
 // "#".
 func (pi *inlineParser) parseInlineIDShort() bool {
 	var (
-		raw []byte = pi.content[pi.x+2:]
+		raw = pi.content[pi.x+2:]
 
 		el       *element
 		stringID string
@@ -537,14 +535,14 @@ func (pi *inlineParser) parseQuoteBegin(quoteEnd []byte, kind int) bool {
 		return false
 	}
 
-	var c byte = pi.content[pi.x+2]
+	var c = pi.content[pi.x+2]
 	if ascii.IsSpace(c) {
 		return false
 	}
 
 	var (
-		raw []byte = pi.content[pi.x+2:]
-		idx int    = bytes.LastIndex(raw, quoteEnd)
+		raw = pi.content[pi.x+2:]
+		idx = bytes.LastIndex(raw, quoteEnd)
 	)
 
 	if idx < 0 {
@@ -564,7 +562,7 @@ func (pi *inlineParser) parseQuoteBegin(quoteEnd []byte, kind int) bool {
 	return true
 }
 
-func (pi *inlineParser) parseQuoteEnd(quoteEnd []byte, kind int) bool {
+func (pi *inlineParser) parseQuoteEnd(kind int) bool {
 	if ascii.IsSpace(pi.prev) {
 		// This is not the end that we looking for.
 		return false
@@ -599,7 +597,7 @@ func (pi *inlineParser) parseFormat(kind int, style int64) bool {
 	}
 
 	var (
-		raw []byte = pi.content[pi.x+1:]
+		raw = pi.content[pi.x+1:]
 
 		el     *element
 		idx    int
@@ -665,7 +663,7 @@ func (pi *inlineParser) parseFormatUnconstrained(
 
 	// Do we have the end format?
 	var (
-		raw []byte = pi.content[pi.x+2:]
+		raw = pi.content[pi.x+2:]
 		el  *element
 	)
 
@@ -828,7 +826,7 @@ func (pi *inlineParser) parsePassthrough() bool {
 
 func (pi *inlineParser) parsePassthroughDouble() bool {
 	var (
-		raw []byte = pi.content[pi.x+2:]
+		raw = pi.content[pi.x+2:]
 		idx int
 		el  *element
 	)
@@ -852,7 +850,7 @@ func (pi *inlineParser) parsePassthroughDouble() bool {
 
 func (pi *inlineParser) parsePassthroughTriple() bool {
 	var (
-		raw []byte = pi.content[pi.x+3:]
+		raw = pi.content[pi.x+3:]
 		idx int
 		el  *element
 	)
@@ -1002,7 +1000,7 @@ func parseURL(doc *Document, scheme string, content []byte) (el *element, n int)
 
 	n = x + idx + 2
 
-	var attr []byte = content[x : x+idx+1]
+	var attr = content[x : x+idx+1]
 	el.style = styleLink
 	el.parseElementAttribute(attr)
 	if len(el.Attrs) == 0 {
@@ -1012,7 +1010,7 @@ func parseURL(doc *Document, scheme string, content []byte) (el *element, n int)
 	}
 	if len(el.rawStyle) >= 1 {
 		var (
-			l int = len(el.rawStyle)
+			l = len(el.rawStyle)
 
 			child *element
 		)
@@ -1030,8 +1028,8 @@ func parseURL(doc *Document, scheme string, content []byte) (el *element, n int)
 
 func (pi *inlineParser) terminate(kind int, style int64) {
 	var (
-		el       *element = pi.current
-		stateTmp          = &inlineParserState{}
+		el       = pi.current
+		stateTmp = &inlineParserState{}
 	)
 
 	for el.parent != nil {
@@ -1111,7 +1109,7 @@ func indexByteUnescape(in []byte, c byte) (out []byte, idx int) {
 
 func indexUnescape(in []byte, token []byte) (out []byte, idx int) {
 	var (
-		tokenLen int = len(token)
+		tokenLen = len(token)
 
 		tmp   []byte
 		x     int

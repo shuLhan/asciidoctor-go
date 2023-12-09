@@ -61,7 +61,7 @@ type macro struct {
 // If macro name and value valid it will return the element for that macro.
 func parseMacroName(textBefore []byte) (macroName string) {
 	var (
-		x int = len(textBefore) - 1
+		x = len(textBefore) - 1
 
 		ok bool
 	)

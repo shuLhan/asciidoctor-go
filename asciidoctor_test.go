@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	outputCallHtmlWriteHeader = `htmlWriteHeader`
+	outputCallHTMLWriteHeader = `htmlWriteHeader`
 	outputCallToHTML          = `ToHTML`
 	outputCallToHTMLBody      = `ToHTMLBody`
 )
@@ -58,7 +58,7 @@ func TestData(t *testing.T) {
 				}
 
 				switch outputCall {
-				case outputCallHtmlWriteHeader:
+				case outputCallHTMLWriteHeader:
 					htmlWriteHeader(doc, &bbuf)
 				case outputCallToHTML:
 					err = doc.ToHTML(&bbuf)

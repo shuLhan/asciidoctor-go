@@ -12,7 +12,7 @@ func (pis *inlineParserState) push(c int) {
 }
 
 func (pis *inlineParserState) pop() (c int) {
-	var size int = len(pis.stack)
+	var size = len(pis.stack)
 	if size > 0 {
 		c = pis.stack[size-1]
 		pis.stack = pis.stack[:size-1]

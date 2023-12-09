@@ -100,18 +100,18 @@ func TestDocument_ToHTML(t *testing.T) {
 	type testCase struct {
 		name        string
 		fileAdoc    string
-		fileExpHtml string
+		fileExpHTML string
 	}
 
 	var (
 		cases = []testCase{{
 			name:        `header`,
 			fileAdoc:    `testdata/html/header.adoc`,
-			fileExpHtml: `testdata/html/header.exp.html`,
+			fileExpHTML: `testdata/html/header.exp.html`,
 		}, {
 			name:        `preamble`,
 			fileAdoc:    `testdata/html/preamble.adoc`,
-			fileExpHtml: `testdata/html/preamble.exp.html`,
+			fileExpHTML: `testdata/html/preamble.exp.html`,
 		}}
 
 		c   testCase
@@ -138,7 +138,7 @@ func TestDocument_ToHTML(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		exp, err = os.ReadFile(c.fileExpHtml)
+		exp, err = os.ReadFile(c.fileExpHTML)
 		if err != nil {
 			t.Fatal(err)
 		}

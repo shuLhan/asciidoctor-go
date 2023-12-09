@@ -134,7 +134,7 @@ func Parse(content []byte) (doc *Document) {
 
 func parse(doc *Document, content []byte) {
 	var (
-		docp *documentParser = newDocumentParser(doc, content)
+		docp = newDocumentParser(doc, content)
 
 		sectLevel string
 		ok        bool
@@ -206,7 +206,7 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", MetaNameAuthor, metaValue)
 	}
 
-	var title string = doc.Title.String()
+	var title = doc.Title.String()
 	if len(title) > 0 {
 		fmt.Fprintf(buf, "\n<title>%s</title>", title)
 	}
@@ -413,13 +413,13 @@ func (doc *Document) unpackRawAuthor() {
 	}
 
 	var (
-		rawAuthors    []string = strings.Split(doc.rawAuthors, `;`)
-		authorKey              = MetaNameAuthor
-		emailKey               = metaNameEmail
-		initialsKey            = metaNameAuthorInitials
-		firstNameKey           = metaNameFirstName
-		middleNameKey          = metaNameMiddleName
-		lastNameKey            = metaNameLastName
+		rawAuthors    = strings.Split(doc.rawAuthors, `;`)
+		authorKey     = MetaNameAuthor
+		emailKey      = metaNameEmail
+		initialsKey   = metaNameAuthorInitials
+		firstNameKey  = metaNameFirstName
+		middleNameKey = metaNameMiddleName
+		lastNameKey   = metaNameLastName
 
 		author    *Author
 		rawAuthor string

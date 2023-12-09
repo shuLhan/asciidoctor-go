@@ -157,9 +157,7 @@ func (docp *documentParser) hasPreamble() bool {
 }
 
 func (docp *documentParser) include(el *elementInclude) {
-	var (
-		content []byte = bytes.ReplaceAll(el.content, []byte("\r\n"), []byte("\n"))
-	)
+	var content = bytes.ReplaceAll(el.content, []byte("\r\n"), []byte("\n"))
 
 	content = bytes.TrimRight(content, "\n")
 
@@ -351,9 +349,7 @@ func (docp *documentParser) parseBlock(parent *element, term int) {
 			continue
 
 		case lineKindInclude:
-			var (
-				elInclude *elementInclude = parseInclude(docp.doc, []byte(line))
-			)
+			var elInclude = parseInclude(docp.doc, []byte(line))
 
 			if elInclude == nil {
 				el.Write(line)
@@ -466,7 +462,7 @@ func (docp *documentParser) parseBlock(parent *element, term int) {
 			// BUG: "= =a" could become "a", it should be "=a"
 			el.Write(bytes.TrimLeft(line, "= \t"))
 
-			var isDiscrete bool = el.style&styleSectionDiscrete > 0
+			var isDiscrete = el.style&styleSectionDiscrete > 0
 			if isDiscrete {
 				el.kind = elKindSectionDiscrete
 				el.level = docp.kind
@@ -588,7 +584,7 @@ func (docp *documentParser) parseBlock(parent *element, term int) {
 			continue
 
 		case elKindBlockImage:
-			var lineImage []byte = bytes.TrimRight(line[7:], " \t")
+			var lineImage = bytes.TrimRight(line[7:], " \t")
 			if el.parseBlockImage(docp.doc, lineImage) {
 				el.kind = docp.kind
 				line = nil
@@ -690,8 +686,8 @@ func (docp *documentParser) parseHeader() {
 	)
 
 	var (
-		logp      = `parseHeader`
-		state int = stateBegin
+		logp  = `parseHeader`
+		state = stateBegin
 
 		key   string
 		value string
@@ -942,7 +938,6 @@ func (docp *documentParser) parseListDescription(parent, el *element, line []byt
 			continue
 		}
 		if docp.kind == lineKindListContinue {
-			var el *element
 			el, line = docp.parseListBlock()
 			if el != nil {
 				listItem.addChild(el)
@@ -976,7 +971,7 @@ func (docp *documentParser) parseListDescription(parent, el *element, line []byt
 				continue
 			}
 
-			var parentListItem *element = parent
+			var parentListItem = parent
 			for parentListItem != nil {
 				if parentListItem.kind == docp.kind &&
 					parentListItem.level == el.level {

@@ -5,6 +5,7 @@ package asciidoctor
 
 import "fmt"
 
+// DocumentTitle contains the main and optional sub title.
 type DocumentTitle struct {
 	el *element
 

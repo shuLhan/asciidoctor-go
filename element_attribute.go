@@ -135,15 +135,15 @@ func (ea *elementAttribute) parseElementAttribute(raw []byte) {
 	}
 }
 
-func (ea *elementAttribute) parseNamedValue(prevc byte, str string) {
+func (ea *elementAttribute) parseNamedValue(str string) {
 	if ea.Attrs == nil {
 		ea.Attrs = make(map[string]string)
 	}
 
 	var (
-		kv  []string = strings.Split(str, `=`)
-		key          = kv[0]
-		val          = strings.TrimSpace(kv[1])
+		kv  = strings.Split(str, `=`)
+		key = kv[0]
+		val = strings.TrimSpace(kv[1])
 	)
 
 	if len(val) == 0 {
@@ -158,8 +158,8 @@ func (ea *elementAttribute) parseNamedValue(prevc byte, str string) {
 	}
 
 	var (
-		rawvals []string = strings.Split(val, `,`)
-		vals             = make([]string, 0, len(rawvals))
+		rawvals = strings.Split(val, `,`)
+		vals    = make([]string, 0, len(rawvals))
 
 		v string
 	)
@@ -186,7 +186,7 @@ func (ea *elementAttribute) setByPreviousChar(prevc byte, str string) {
 	switch prevc {
 	case 0:
 		if strings.IndexByte(str, '=') > 0 {
-			ea.parseNamedValue(prevc, str)
+			ea.parseNamedValue(str)
 		} else {
 			ea.rawStyle = str
 			ea.style = parseStyle(str)
@@ -199,7 +199,7 @@ func (ea *elementAttribute) setByPreviousChar(prevc byte, str string) {
 		ea.options = append(ea.options, str)
 	case ',':
 		if strings.IndexByte(str, '=') > 0 {
-			ea.parseNamedValue(prevc, str)
+			ea.parseNamedValue(str)
 		} else {
 			if ea.Attrs == nil {
 				ea.Attrs = make(map[string]string)

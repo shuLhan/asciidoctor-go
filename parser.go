@@ -292,7 +292,7 @@ const (
 	symbolUnchecked        = `&#10063;`
 )
 
-var adocStyles map[string]int64 = map[string]int64{
+var adocStyles = map[string]int64{
 	`colophon`:          styleSectionColophon,
 	`abstract`:          styleSectionAbstract,
 	`preface`:           styleSectionPreface,
@@ -330,7 +330,7 @@ var adocStyles map[string]int64 = map[string]int64{
 	`verse`:             styleVerse,
 }
 
-var _attrRef map[string]string = map[string]string{
+var _attrRef = map[string]string{
 	`amp`:            `&`,
 	`apos`:           htmlSymbolSingleQuote, // '
 	`asterisk`:       `*`,
@@ -668,9 +668,7 @@ func parseClosedBracket(input []byte, openb, closedb byte) (out []byte, idx int)
 // parseIDLabel parse the string "ID (,LABEL)" into ID and label.
 // It will return empty id and label if ID is not valid.
 func parseIDLabel(s []byte) (id, label []byte) {
-	var (
-		idLabel [][]byte = bytes.Split(s, []byte(`,`))
-	)
+	var idLabel = bytes.Split(s, []byte(`,`))
 
 	id = idLabel[0]
 	if len(idLabel) >= 2 {
@@ -683,9 +681,7 @@ func parseIDLabel(s []byte) (id, label []byte) {
 }
 
 func parseInlineMarkup(doc *Document, content []byte) (container *element) {
-	var (
-		pi *inlineParser = newInlineParser(doc, content)
-	)
+	var pi = newInlineParser(doc, content)
 
 	pi.do()
 	return pi.container
@@ -818,8 +814,8 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 		kind = lineKindAttribute
 	} else if line[0] == '[' {
 		var (
-			newline []byte = bytes.TrimRight(line, " \t")
-			l       int    = len(newline)
+			newline = bytes.TrimRight(line, " \t")
+			l       = len(newline)
 		)
 
 		if newline[l-1] != ']' {
@@ -843,9 +839,7 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 		}
 		return lineKindAttributeElement, spaces, line
 	} else if line[0] == '=' {
-		var (
-			subs [][]byte = bytes.Fields(line)
-		)
+		var subs = bytes.Fields(line)
 
 		if bytes.Equal(subs[0], []byte(`==`)) {
 			kind = elKindSectionL1

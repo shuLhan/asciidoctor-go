@@ -33,7 +33,7 @@ func (sec *sectionCounters) set(level int) *sectionCounters {
 		sec.nums[level]++
 		sec.curr = level
 	}
-	var clone sectionCounters = *sec
+	var clone = *sec
 	return &clone
 }
 

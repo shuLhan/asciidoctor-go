@@ -582,8 +582,8 @@ func htmlWriteBlockBegin(el *element, out io.Writer, addClass string) {
 	}
 
 	var (
-		classes string = el.htmlClasses()
-		c       string = strings.TrimSpace(addClass + ` ` + classes)
+		classes = el.htmlClasses()
+		c       = strings.TrimSpace(addClass + ` ` + classes)
 	)
 
 	if len(c) > 0 {
@@ -608,9 +608,7 @@ func htmlWriteBlockAdmonition(el *element, out io.Writer) {
 
 	fmt.Fprint(out, "\n<table>\n<tr>\n<td class=\"icon\">")
 
-	var (
-		iconsFont string = el.Attrs[attrNameIcons]
-	)
+	var iconsFont = el.Attrs[attrNameIcons]
 
 	if iconsFont == attrValueFont {
 		fmt.Fprintf(out, _htmlAdmonitionIconsFont,
@@ -630,8 +628,8 @@ func htmlWriteBlockAdmonition(el *element, out io.Writer) {
 
 func htmlWriteBlockAudio(el *element, out io.Writer) {
 	var (
-		optControls string = ` controls`
-		src         string = el.Attrs[attrNameSrc]
+		optControls = ` controls`
+		src         = el.Attrs[attrNameSrc]
 
 		optAutoplay string
 		optLoop     string
@@ -1078,8 +1076,8 @@ func htmlWriteInlineImage(el *element, out io.Writer) {
 	}
 
 	var (
-		src string = el.Attrs[attrNameSrc]
-		alt string = el.Attrs[attrNameAlt]
+		src = el.Attrs[attrNameSrc]
+		alt = el.Attrs[attrNameAlt]
 
 		width  string
 		height string
@@ -1105,9 +1103,8 @@ func htmlWriteInlineImage(el *element, out io.Writer) {
 }
 
 func htmlWriteInlinePass(doc *Document, el *element, out io.Writer) {
-	var (
-		text []byte = htmlSubs(doc, el)
-	)
+	var text = htmlSubs(doc, el)
+
 	fmt.Fprint(out, string(text))
 }
 
@@ -1139,8 +1136,8 @@ func htmlWriteListDescriptionEnd(el *element, out io.Writer) {
 
 func htmlWriteListOrdered(el *element, out io.Writer) {
 	var (
-		class string = el.getListOrderedClass()
-		tipe  string = el.getListOrderedType()
+		class = el.getListOrderedClass()
+		tipe  = el.getListOrderedType()
 	)
 
 	if len(tipe) > 0 {
@@ -1254,7 +1251,7 @@ func hmltWriteSectionDiscrete(doc *Document, el *element, out io.Writer) {
 
 func htmlWriteTable(doc *Document, el *element, out io.Writer) {
 	var (
-		table *elementTable = el.table
+		table = el.table
 
 		footer *tableRow
 		format *columnFormat
@@ -1305,7 +1302,7 @@ func htmlWriteTable(doc *Document, el *element, out io.Writer) {
 	fmt.Fprint(out, "\n</colgroup>")
 
 	var (
-		rows []*tableRow = table.rows
+		rows = table.rows
 		row  *tableRow
 	)
 
@@ -1504,9 +1501,9 @@ func htmlWriteURLBegin(el *element, out io.Writer) {
 	fmt.Fprintf(out, "<a href=\"%s\"", el.Attrs[attrNameHref])
 
 	var (
-		classes string = el.htmlClasses()
-		target  string = el.Attrs[attrNameTarget]
-		rel     string = el.Attrs[attrNameRel]
+		classes = el.htmlClasses()
+		target  = el.Attrs[attrNameTarget]
+		rel     = el.Attrs[attrNameRel]
 	)
 
 	if len(classes) > 0 {

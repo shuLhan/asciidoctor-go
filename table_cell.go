@@ -17,7 +17,7 @@ func (tc *tableCell) writeByte(b byte) {
 }
 
 func (tc *tableCell) endWithLF() bool {
-	var l int = len(tc.content)
+	var l = len(tc.content)
 	if l == 0 {
 		return false
 	}

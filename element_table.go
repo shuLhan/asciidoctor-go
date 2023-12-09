@@ -310,7 +310,7 @@ func parseAttrCols(val string) (ncols int, formats []*columnFormat) {
 // parseToRawRows convert raw table content into multiple raw rows.
 func parseToRawRows(raw []byte) (rows [][]byte) {
 	var (
-		lines [][]byte = bytes.Split(raw, []byte{'\n'})
+		lines = bytes.Split(raw, []byte{'\n'})
 		line  []byte
 	)
 
