@@ -7,11 +7,11 @@ import (
 	"bytes"
 	"strings"
 
-	"github.com/shuLhan/share/lib/parser"
+	libstrings "github.com/shuLhan/share/lib/strings"
 )
 
 type tableParser struct {
-	p     *parser.Parser
+	p     *libstrings.Parser
 	cells []*tableCell
 	nrow  int
 	x     int
@@ -19,7 +19,7 @@ type tableParser struct {
 
 func newTableParser(content []byte) (pt *tableParser) {
 	pt = &tableParser{
-		p: parser.New(string(content), "|\n"),
+		p: libstrings.NewParser(string(content), "|\n"),
 	}
 	pt.toCells()
 	return pt
@@ -28,7 +28,7 @@ func newTableParser(content []byte) (pt *tableParser) {
 // toCells parse the raw table content into cells.
 func (pt *tableParser) toCells() {
 	var (
-		token, c  = pt.p.TokenEscaped('\\')
+		token, c  = pt.p.ReadEscaped('\\')
 		tokenTrim = strings.TrimSpace(token)
 		l         = len(tokenTrim)
 		cell      = &tableCell{}
@@ -49,7 +49,7 @@ func (pt *tableParser) toCells() {
 			// Case 2.
 			pt.cells = append(pt.cells, nil)
 		}
-		token, c = pt.p.TokenEscaped('\\')
+		token, c = pt.p.ReadEscaped('\\')
 		tokenTrim = strings.TrimSpace(token)
 		l = len(tokenTrim)
 	}
@@ -75,7 +75,7 @@ func (pt *tableParser) toCells() {
 		}
 	}
 
-	token, c = pt.p.TokenEscaped('\\')
+	token, c = pt.p.ReadEscaped('\\')
 	tokenTrim = strings.TrimSpace(token)
 	l = len(tokenTrim)
 	for {
@@ -101,7 +101,7 @@ func (pt *tableParser) toCells() {
 			pt.addCell(cell)
 			break
 		}
-		token, c = pt.p.TokenEscaped('\\')
+		token, c = pt.p.ReadEscaped('\\')
 		tokenTrim = strings.TrimSpace(token)
 		l = len(tokenTrim)
 	}
