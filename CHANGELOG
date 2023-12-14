@@ -6,6 +6,50 @@ Shulhan <ms@kilabit.info>
 :sectlinks:
 
 
+[#v0_5_1]
+== asciidoctor-go v0.5.1 (2023-12-14)
+
+[#v0_5_1__bug_fixes]
+=== Bug fixes
+
+all: fix custom IDs on first section always got replaced::
++
+--
+Any custom ID on the first section always replaced with the subsection
+because, first, when detecting preamble we did not check for line with
+kind ID "[[...]]" an short ID "[#...]".
+Second, when parsing preamble we did not stop when we found line kind
+ID and short ID.
+
+This preamble thing is kind of annoying.
+We need to revisit again how to detect preamble, maybe not calling
+separate block parser, but making it linear as the default first child of
+parent element.
+--
+
+[#v0_5_1__chores]
+=== Chores
+
+all: replace "lib/parser" with "strings/parser"::
++
+The lib/parser has been deprecated in share module.
+
+all: remove dependency to "github.com/shuLhan/share/lib/debug"::
+
+all: replace linter golangci-lint with revive and shadow::
++
+--
+The golangci-lint does not output any results anymore
+Either we are getting good at writing Go or the linter itself is become
+less good.
+We also have seen that the latest golangci-lint is failed to build
+with Go tip, a simple "make" on the golangci-lint never success in my
+experiences.
+
+This changes fix all the output reported by the revive and shadow.
+--
+
+
 [#v0_5_0]
 == asciidoctor-go v0.5.0 (2023-06-04)
 
