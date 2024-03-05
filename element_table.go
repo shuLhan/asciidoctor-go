@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/shuLhan/share/lib/math/big"
-	libstrings "github.com/shuLhan/share/lib/strings"
+	"git.sr.ht/~shulhan/pakakeh.go/lib/math/big"
+	libstrings "git.sr.ht/~shulhan/pakakeh.go/lib/strings"
 )
 
 type elementTable struct {

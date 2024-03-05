@@ -34,7 +34,7 @@ all: replace "lib/parser" with "strings/parser"::
 +
 The lib/parser has been deprecated in share module.
 
-all: remove dependency to "github.com/shuLhan/share/lib/debug"::
+all: remove dependency to "git.sr.ht/~shulhan/pakakeh.go/lib/debug"::
 
 all: replace linter golangci-lint with revive and shadow::
 +

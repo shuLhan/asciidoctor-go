@@ -21,7 +21,7 @@ Document body.
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="asciidoctor-go 0.5.0">
+<meta name="generator" content="asciidoctor-go 0.5.1">
 <meta name="description" content="Multiline description with backslash">
 <meta name="keywords" content="multiline, key, words">
 <meta name="author" content="John Doe">
@@ -70,7 +70,7 @@ Section 2 content.
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="asciidoctor-go 0.5.0">
+<meta name="generator" content="asciidoctor-go 0.5.1">
 <meta name="author" content="John Doe">
 <title>Title</title>
 </head>

@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/shuLhan/share/lib/ascii"
+	"git.sr.ht/~shulhan/pakakeh.go/lib/ascii"
 )
 
 // element is the building block of asciidoc document.

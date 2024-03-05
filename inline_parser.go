@@ -6,7 +6,7 @@ package asciidoctor
 import (
 	"bytes"
 
-	"github.com/shuLhan/share/lib/ascii"
+	"git.sr.ht/~shulhan/pakakeh.go/lib/ascii"
 )
 
 // inlineParser is the one that responsible to parse text that contains inline

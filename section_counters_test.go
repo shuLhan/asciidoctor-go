@@ -6,7 +6,7 @@ package asciidoctor
 import (
 	"testing"
 
-	"github.com/shuLhan/share/lib/test"
+	"git.sr.ht/~shulhan/pakakeh.go/lib/test"
 )
 
 func TestSectionCounters(t *testing.T) {

@@ -7,7 +7,7 @@
 // [AsciiDoc markup]: https://asciidoctor.org/docs/what-is-asciidoc
 package asciidoctor
 
-import "github.com/shuLhan/share/lib/math/big"
+import "git.sr.ht/~shulhan/pakakeh.go/lib/math/big"
 
 const (
 	// Version of this module.

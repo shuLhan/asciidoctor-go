@@ -5,6 +5,6 @@ module git.sr.ht/~shulhan/asciidoctor-go
 
 go 1.20
 
-require github.com/shuLhan/share v0.51.0
+require git.sr.ht/~shulhan/pakakeh.go v0.53.2-0.20240305092154-76510776395b
 
-//replace github.com/shuLhan/share => ../share
+//replace git.sr.ht/~shulhan/pakakeh.go => ../pakakeh.go

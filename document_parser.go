@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/shuLhan/share/lib/ascii"
+	"git.sr.ht/~shulhan/pakakeh.go/lib/ascii"
 )
 
 const debugLevel = 0

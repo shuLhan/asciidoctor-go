@@ -6,8 +6,8 @@ package asciidoctor
 import (
 	"testing"
 
-	"github.com/shuLhan/share/lib/math/big"
-	"github.com/shuLhan/share/lib/test"
+	"git.sr.ht/~shulhan/pakakeh.go/lib/math/big"
+	"git.sr.ht/~shulhan/pakakeh.go/lib/test"
 )
 
 func TestParseColumnFormat(t *testing.T) {

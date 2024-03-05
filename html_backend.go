@@ -9,8 +9,8 @@ import (
 	"io"
 	"strings"
 
-	libascii "github.com/shuLhan/share/lib/ascii"
-	libstrings "github.com/shuLhan/share/lib/strings"
+	libascii "git.sr.ht/~shulhan/pakakeh.go/lib/ascii"
+	libstrings "git.sr.ht/~shulhan/pakakeh.go/lib/strings"
 )
 
 const (

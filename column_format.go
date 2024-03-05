@@ -6,8 +6,8 @@ package asciidoctor
 import (
 	"strings"
 
-	"github.com/shuLhan/share/lib/ascii"
-	"github.com/shuLhan/share/lib/math/big"
+	"git.sr.ht/~shulhan/pakakeh.go/lib/ascii"
+	"git.sr.ht/~shulhan/pakakeh.go/lib/math/big"
 )
 
 const (

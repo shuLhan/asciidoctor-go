@@ -6,7 +6,7 @@ package asciidoctor
 import (
 	"strings"
 
-	libstrings "github.com/shuLhan/share/lib/strings"
+	libstrings "git.sr.ht/~shulhan/pakakeh.go/lib/strings"
 )
 
 type attributeClass []string
