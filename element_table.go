@@ -174,8 +174,7 @@ func (table *elementTable) initializeClassAndStyles(ea *elementAttribute) {
 		}
 	}
 	for _, k = range ea.options {
-		switch k {
-		case optNameAutowidth:
+		if k == optNameAutowidth {
 			withWidth = true
 			table.classes.add(classNameFitContent)
 

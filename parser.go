@@ -375,6 +375,12 @@ func applySubstitutions(doc *Document, content []byte) []byte {
 	)
 	for x < len(raw) {
 		c = raw[x]
+
+		// We use if-condition with "continue" to break and continue
+		// the for-loop, so it is not possible to use switch-case
+		// here.
+		//
+		//nolint:gocritic
 		if c == '{' {
 			newRaw, ok = parseAttrRef(doc, raw, x)
 			if ok {
@@ -462,7 +468,7 @@ func generateID(doc *Document, str string) string {
 		bout = append(bout, '_')
 	} else if !ascii.IsAlpha(bout[0]) && bout[0] != '_' {
 		bout = append(bout, '_')
-		copy(bout[1:], bout[:])
+		copy(bout[1:], bout)
 		bout[0] = '_'
 	}
 
@@ -471,17 +477,18 @@ func generateID(doc *Document, str string) string {
 
 func isAdmonition(line []byte) bool {
 	var x int
-	if bytes.HasPrefix(line, []byte(admonitionCaution)) {
+	switch {
+	case bytes.HasPrefix(line, []byte(admonitionCaution)):
 		x = len(admonitionCaution)
-	} else if bytes.HasPrefix(line, []byte(admonitionImportant)) {
+	case bytes.HasPrefix(line, []byte(admonitionImportant)):
 		x = len(admonitionImportant)
-	} else if bytes.HasPrefix(line, []byte(admonitionNote)) {
+	case bytes.HasPrefix(line, []byte(admonitionNote)):
 		x = len(admonitionNote)
-	} else if bytes.HasPrefix(line, []byte(admonitionTip)) {
+	case bytes.HasPrefix(line, []byte(admonitionTip)):
 		x = len(admonitionTip)
-	} else if bytes.HasPrefix(line, []byte(admonitionWarning)) {
+	case bytes.HasPrefix(line, []byte(admonitionWarning)):
 		x = len(admonitionWarning)
-	} else {
+	default:
 		return false
 	}
 	if x >= len(line) {
@@ -810,9 +817,10 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 		}
 	}
 
-	if line[0] == ':' {
+	switch line[0] {
+	case ':':
 		kind = lineKindAttribute
-	} else if line[0] == '[' {
+	case '[':
 		var (
 			newline = bytes.TrimRight(line, " \t")
 			l       = len(newline)
@@ -838,26 +846,28 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 			}
 		}
 		return lineKindAttributeElement, spaces, line
-	} else if line[0] == '=' {
+	case '=':
 		var subs = bytes.Fields(line)
 
-		if bytes.Equal(subs[0], []byte(`==`)) {
+		switch string(subs[0]) {
+		case `==`:
 			kind = elKindSectionL1
-		} else if bytes.Equal(subs[0], []byte(`===`)) {
+		case `===`:
 			kind = elKindSectionL2
-		} else if bytes.Equal(subs[0], []byte(`====`)) {
+		case `====`:
 			kind = elKindSectionL3
-		} else if bytes.Equal(subs[0], []byte(`=====`)) {
+		case `=====`:
 			kind = elKindSectionL4
-		} else if bytes.Equal(subs[0], []byte(`======`)) {
+		case `======`:
 			kind = elKindSectionL5
 		}
-	} else if line[0] == '.' {
-		if len(line) <= 1 {
+	case '.':
+		switch {
+		case len(line) <= 1:
 			kind = lineKindText
-		} else if ascii.IsAlnum(line[1]) {
+		case ascii.IsAlnum(line[1]):
 			kind = lineKindBlockTitle
-		} else {
+		default:
 			x = 0
 			for ; x < len(line); x++ {
 				if line[x] == '.' {
@@ -869,7 +879,7 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 				}
 			}
 		}
-	} else if line[0] == '*' || line[0] == '-' {
+	case '*', '-':
 		if len(line) <= 1 {
 			kind = lineKindText
 			return kind, spaces, line
@@ -904,13 +914,17 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 			kind = lineKindText
 		}
 		return kind, spaces, line
-
-	} else if bytes.Equal(line, []byte(`+`)) {
-		kind = lineKindListContinue
-	} else if bytes.Equal(line, []byte(`----`)) {
-		kind = elKindBlockListing
-	} else if isLineDescriptionItem(line) {
-		kind = elKindListDescriptionItem
+	default:
+		switch string(line) {
+		case `+`:
+			kind = lineKindListContinue
+		case `----`:
+			kind = elKindBlockListing
+		default:
+			if isLineDescriptionItem(line) {
+				kind = elKindListDescriptionItem
+			}
+		}
 	}
 	return kind, spaces, line
 }

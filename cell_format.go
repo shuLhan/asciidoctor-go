@@ -37,13 +37,14 @@ func parseCellFormat(raw string) (cf *cellFormat) {
 		if len(raw) == 0 {
 			return nil
 		}
-		if raw[0] == '*' {
+		switch raw[0] {
+		case '*':
 			cf.ndupCol = n
 			x = 1
-		} else if raw[0] == '+' {
+		case '+':
 			cf.nspanCol = n
 			x = 1
-		} else if raw[0] == '.' {
+		case '.':
 			cf.nspanCol = n
 			n, raw = parseCellFormatDigits(raw[1:])
 			if n == 0 {
@@ -56,7 +57,7 @@ func parseCellFormat(raw string) (cf *cellFormat) {
 			}
 			x = 1
 			cf.nspanRow = n
-		} else {
+		default:
 			return nil
 		}
 	}

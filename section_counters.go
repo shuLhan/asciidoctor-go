@@ -16,16 +16,17 @@ type sectionCounters struct {
 }
 
 func (sec *sectionCounters) set(level int) *sectionCounters {
-	if level == sec.curr {
+	switch {
+	case level == sec.curr:
 		sec.nums[level]++
-	} else if level > sec.curr {
+	case level > sec.curr:
 		// Check if the section level out of sequence.
 		if level > sec.curr+1 {
 			level = sec.curr + 1
 		}
 		sec.nums[level] = 1
 		sec.curr = level
-	} else {
+	default:
 		var x int
 		for x = sec.curr; x > level; x-- {
 			sec.nums[x] = 0

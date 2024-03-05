@@ -101,7 +101,8 @@ func (el *element) getVideoSource() string {
 		isVimeo = true
 	}
 
-	if isYoutube {
+	switch {
+	case isYoutube:
 		u.Scheme = `https`
 		u.Host = `www.youtube.com`
 		u.Path = `/embed/` + src
@@ -143,7 +144,7 @@ func (el *element) getVideoSource() string {
 			q = append(q, attrNameYoutubeLang+`=`+vstr)
 		}
 
-	} else if isVimeo {
+	case isVimeo:
 		u.Scheme = `https`
 		u.Host = `player.vimeo.com`
 		u.Path = `/video/` + src
@@ -159,7 +160,7 @@ func (el *element) getVideoSource() string {
 			fragment = `at=` + vstr
 		}
 
-	} else {
+	default:
 		for _, vstr = range el.options {
 			switch vstr {
 			case optNameAutoplay, optNameLoop:
@@ -729,15 +730,16 @@ func (el *element) postParseParagraphAsQuote(lines [][]byte) bool {
 	secondLastIdx = len(lines) - 2
 
 	for x, line = range lines[:len(lines)-1] {
-		if x == 0 {
+		switch x {
+		case 0:
 			if x == secondLastIdx {
 				el.Write(line[1 : len(line)-1])
 			} else {
 				el.Write(line[1:])
 			}
-		} else if x == secondLastIdx {
+		case secondLastIdx:
 			el.Write(line[:len(line)-1])
-		} else {
+		default:
 			el.Write(line)
 		}
 		el.WriteByte('\n')
@@ -828,10 +830,8 @@ func (el *element) toHTML(doc *Document, w io.Writer) {
 					label = href
 				}
 			}
-		} else {
-			if len(label) == 0 {
-				label = anchor.label
-			}
+		} else if len(label) == 0 {
+			label = anchor.label
 		}
 		fmt.Fprintf(w, `<a href="#%s">%s</a>`, href, label)
 
@@ -851,13 +851,14 @@ func (el *element) toHTML(doc *Document, w io.Writer) {
 		htmlWriteSection(doc, el, w)
 
 	case elKindParagraph:
-		if el.isStyleAdmonition() {
+		switch {
+		case el.isStyleAdmonition():
 			htmlWriteBlockAdmonition(el, w)
-		} else if el.isStyleQuote() {
+		case el.isStyleQuote():
 			htmlWriteBlockQuote(el, w)
-		} else if el.isStyleVerse() {
+		case el.isStyleVerse():
 			htmlWriteBlockVerse(el, w)
-		} else {
+		default:
 			htmlWriteParagraphBegin(el, w)
 		}
 
@@ -893,11 +894,12 @@ func (el *element) toHTML(doc *Document, w io.Writer) {
 			label.Write(el.rawLabel.Bytes())
 		}
 
-		if el.isStyleQandA() {
+		switch {
+		case el.isStyleQandA():
 			format = _htmlListDescriptionItemQandABegin
-		} else if el.isStyleHorizontal() {
+		case el.isStyleHorizontal():
 			format = _htmlListDescriptionItemHorizontalBegin
-		} else {
+		default:
 			format = _htmlListDescriptionItemBegin
 		}
 		fmt.Fprintf(w, format, label.String())
@@ -919,13 +921,14 @@ func (el *element) toHTML(doc *Document, w io.Writer) {
 		htmlWriteBlockImage(doc, el, w)
 
 	case elKindBlockOpen:
-		if el.isStyleAdmonition() {
+		switch {
+		case el.isStyleAdmonition():
 			htmlWriteBlockAdmonition(el, w)
-		} else if el.isStyleQuote() {
+		case el.isStyleQuote():
 			htmlWriteBlockQuote(el, w)
-		} else if el.isStyleVerse() {
+		case el.isStyleVerse():
 			htmlWriteBlockVerse(el, w)
-		} else {
+		default:
 			htmlWriteBlockOpenBegin(el, w)
 		}
 
@@ -1054,13 +1057,14 @@ func (el *element) toHTML(doc *Document, w io.Writer) {
 		fmt.Fprint(w, "\n</div>")
 
 	case elKindParagraph:
-		if el.isStyleAdmonition() {
+		switch {
+		case el.isStyleAdmonition():
 			fmt.Fprint(w, _htmlAdmonitionEnd)
-		} else if el.isStyleQuote() {
+		case el.isStyleQuote():
 			htmlWriteBlockQuoteEnd(el, w)
-		} else if el.isStyleVerse() {
+		case el.isStyleVerse():
 			htmlWriteBlockVerseEnd(el, w)
-		} else {
+		default:
 			fmt.Fprint(w, "</p>\n</div>")
 		}
 
@@ -1069,11 +1073,13 @@ func (el *element) toHTML(doc *Document, w io.Writer) {
 
 	case elKindListDescriptionItem:
 		var format string
-		if el.isStyleQandA() {
+
+		switch {
+		case el.isStyleQandA():
 			format = "\n</li>"
-		} else if el.isStyleHorizontal() {
+		case el.isStyleHorizontal():
 			format = "\n</td>\n</tr>"
-		} else {
+		default:
 			format = "\n</dd>"
 		}
 		fmt.Fprint(w, format)
@@ -1093,13 +1099,14 @@ func (el *element) toHTML(doc *Document, w io.Writer) {
 		}
 
 	case elKindBlockOpen:
-		if el.isStyleAdmonition() {
+		switch {
+		case el.isStyleAdmonition():
 			fmt.Fprint(w, _htmlAdmonitionEnd)
-		} else if el.isStyleQuote() {
+		case el.isStyleQuote():
 			htmlWriteBlockQuoteEnd(el, w)
-		} else if el.isStyleVerse() {
+		case el.isStyleVerse():
 			htmlWriteBlockVerseEnd(el, w)
-		} else {
+		default:
 			fmt.Fprint(w, "\n</div>\n</div>")
 		}
 	case elKindBlockExcerpts:

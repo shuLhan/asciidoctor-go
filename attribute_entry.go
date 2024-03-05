@@ -22,11 +22,12 @@ func newAttributeEntry() AttributeEntry {
 }
 
 func (entry *AttributeEntry) apply(key, val string) {
-	if key[0] == '!' {
+	switch {
+	case key[0] == '!':
 		delete(*entry, strings.TrimSpace(key[1:]))
-	} else if key[len(key)-1] == '!' {
+	case key[len(key)-1] == '!':
 		delete(*entry, strings.TrimSpace(key[:len(key)-1]))
-	} else {
+	default:
 		(*entry)[key] = val
 	}
 }

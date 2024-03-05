@@ -819,7 +819,8 @@ func htmlWriteBlockVideo(el *element, out io.Writer) {
 
 	fmt.Fprintf(out, "\n<div class=%q>", attrValueContent)
 
-	if isYoutube {
+	switch {
+	case isYoutube:
 		var (
 			optFullscreen string
 			noFullscreen  bool
@@ -830,9 +831,9 @@ func htmlWriteBlockVideo(el *element, out io.Writer) {
 			optFullscreen = ` allowfullscreen`
 		}
 		fmt.Fprintf(out, _htmlBlockVideoYoutube, width, height, src, optFullscreen)
-	} else if isVimeo {
+	case isVimeo:
 		fmt.Fprintf(out, _htmlBlockVideoVimeo, width, height, src)
-	} else {
+	default:
 		var (
 			optControls = ` controls`
 
@@ -932,16 +933,17 @@ func htmlWriteFooter(doc *Document, out io.Writer) {
 // htmlWriteFootnote generate HTML content for footnote.
 // Each unique footnote will have its id, so it can be referenced at footer.
 func htmlWriteFootnote(el *element, out io.Writer) {
-	if len(el.ID) != 0 {
+	switch {
+	case len(el.ID) != 0:
 		// The first footnote with explicit ID.
 		fmt.Fprintf(out, `<sup class="footnote" id="_footnote_%s">[<a id="_footnoteref_%d" class="footnote" href="#_footnotedef_%d" title="View footnote.">%d</a>]</sup>`,
 			el.ID, el.level, el.level, el.level)
 
-	} else if len(el.key) != 0 {
+	case len(el.key) != 0:
 		// The first footnote without ID.
 		fmt.Fprintf(out, `<sup class="footnote">[<a id="_footnoteref_%d" class="footnote" href="#_footnotedef_%d" title="View footnote.">%d</a>]</sup>`,
 			el.level, el.level, el.level)
-	} else {
+	default:
 		// The next footnote with same ID.
 		fmt.Fprintf(out, `<sup class="footnoteref">[<a class="footnote" href="#_footnotedef_%d" title="View footnote.">%d</a>]</sup>`,
 			el.level, el.level)
@@ -1110,13 +1112,14 @@ func htmlWriteInlinePass(doc *Document, el *element, out io.Writer) {
 
 func htmlWriteListDescription(el *element, out io.Writer) {
 	var openTag string
-	if el.isStyleQandA() {
+	switch {
+	case el.isStyleQandA() == true:
 		htmlWriteBlockBegin(el, out, `qlist qanda`)
 		openTag = "\n<ol>"
-	} else if el.isStyleHorizontal() {
+	case el.isStyleHorizontal() == true:
 		htmlWriteBlockBegin(el, out, `hdlist`)
 		openTag = "\n<table>"
-	} else {
+	default:
 		htmlWriteBlockBegin(el, out, `dlist`)
 		openTag = "\n<dl>"
 	}
@@ -1125,11 +1128,12 @@ func htmlWriteListDescription(el *element, out io.Writer) {
 }
 
 func htmlWriteListDescriptionEnd(el *element, out io.Writer) {
-	if el.isStyleQandA() {
+	switch {
+	case el.isStyleQandA() == true:
 		fmt.Fprintf(out, "\n</ol>\n</div>")
-	} else if el.isStyleHorizontal() {
+	case el.isStyleHorizontal() == true:
 		fmt.Fprintf(out, "\n</table>\n</div>")
-	} else {
+	default:
 		fmt.Fprintf(out, "\n</dl>\n</div>")
 	}
 }
