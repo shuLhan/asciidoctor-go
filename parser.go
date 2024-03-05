@@ -718,6 +718,8 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 
 	line = bytes.TrimRight(line, " \f\n\r\t\v")
 
+	// All of the comparison MUST be in order.
+
 	if len(line) == 0 {
 		return lineKindEmpty, nil, line
 	}
@@ -731,47 +733,36 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 		// for example "//comment".
 		return lineKindComment, spaces, line
 	}
-	if bytes.Equal(line, []byte(`'''`)) ||
-		bytes.Equal(line, []byte(`---`)) ||
-		bytes.Equal(line, []byte(`- - -`)) ||
-		bytes.Equal(line, []byte(`***`)) ||
-		bytes.Equal(line, []byte(`* * *`)) {
+
+	var strline = string(line)
+
+	switch strline {
+	case `'''`, `---`, `- - -`, `***`, `* * *`:
 		return lineKindHorizontalRule, spaces, line
-	}
-	if bytes.Equal(line, []byte(`<<<`)) {
+	case `<<<`:
 		return lineKindPageBreak, spaces, line
-	}
-	if bytes.Equal(line, []byte(`--`)) {
+	case `--`:
 		return elKindBlockOpen, spaces, line
-	}
-	if bytes.Equal(line, []byte(`____`)) {
+	case `____`:
 		return elKindBlockExcerpts, spaces, line
-	}
-	if bytes.Equal(line, []byte(`....`)) {
+	case `....`:
 		return elKindBlockLiteral, nil, line
-	}
-	if bytes.Equal(line, []byte(`++++`)) {
+	case `++++`:
 		return elKindBlockPassthrough, spaces, line
-	}
-	if bytes.Equal(line, []byte(`****`)) {
+	case `****`:
 		return elKindBlockSidebar, nil, line
-	}
-	if bytes.Equal(line, []byte(`====`)) {
+	case `====`:
 		return elKindBlockExample, spaces, line
+	case `[listing]`:
+		return elKindBlockListingNamed, nil, line
+	case `[literal]`:
+		return elKindBlockLiteralNamed, nil, line
+	case `toc::[]`:
+		return elKindMacroTOC, spaces, line
 	}
 
 	if bytes.HasPrefix(line, []byte(`|===`)) {
 		return elKindTable, nil, line
-	}
-
-	if bytes.Equal(line, []byte(`[listing]`)) {
-		return elKindBlockListingNamed, nil, line
-	}
-	if bytes.Equal(line, []byte(`[literal]`)) {
-		return elKindBlockLiteralNamed, nil, line
-	}
-	if bytes.Equal(line, []byte(`toc::[]`)) {
-		return elKindMacroTOC, spaces, line
 	}
 	if bytes.HasPrefix(line, []byte(`image::`)) {
 		return elKindBlockImage, spaces, line

@@ -511,14 +511,14 @@ func (el *element) parseListUnorderedItem(line []byte) {
 	}
 	if len(line[x:]) > 3 {
 		var (
-			checklist = line[x : x+3]
-			sym       string
+			checklist    = line[x : x+3]
+			strchecklist = string(checklist)
+			sym          string
 		)
-		if bytes.Equal(checklist, []byte(`[ ]`)) {
+		switch strchecklist {
+		case `[ ]`:
 			sym = symbolUnchecked
-		} else if bytes.Equal(checklist, []byte(`[x]`)) ||
-			bytes.Equal(checklist, []byte(`[X]`)) ||
-			bytes.Equal(checklist, []byte(`[*]`)) {
+		case `[x]`, `[X]`, `[*]`:
 			sym = symbolChecked
 		}
 		if len(sym) != 0 {
@@ -532,7 +532,6 @@ func (el *element) parseListUnorderedItem(line []byte) {
 				}
 				break
 			}
-
 		}
 	}
 	el.Write(line[x:])
