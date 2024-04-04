@@ -6,6 +6,29 @@ Shulhan <ms@kilabit.info>
 :sectlinks:
 
 
+[#v0_5_2]
+== asciidoctor-go v0.5.2 (2023-04-04)
+
+This release only contains chores.
+
+all: replace module "share" with "pakakeh.go"::
++
+--
+The "share" module has been moved to new repository with new name at
+"https://sr.ht/~shulhan/pakakeh.go".
+For more information see the change logs at "pakakeh.go" module.
+--
+
+all: comply with linter recommendations::
++
+Most of the code changes related to refactoring if-else witch switch
+statement.
+
+all: replace if-else bytes.Equals with static string case comparisons::
++
+Using string instead of [bytes.Equal] give code much more readable.
+
+
 [#v0_5_1]
 == asciidoctor-go v0.5.1 (2023-12-14)
 
