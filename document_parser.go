@@ -702,7 +702,7 @@ func (docp *documentParser) parseHeader() {
 	if !ok {
 		return
 	}
-	if docp.kind == lineKindText && isTitle(line) {
+	if docp.kind == elKindSectionL0 {
 		docp.doc.header.Write(bytes.TrimSpace(line[2:]))
 		docp.doc.Title.raw = string(docp.doc.header.raw)
 

@@ -15,6 +15,7 @@ const (
 	elKindDocHeader                  // Wrapper.
 	elKindPreamble                   // Wrapper.
 	elKindDocContent                 // Wrapper.
+	elKindSectionL0                  // Line started with "="
 	elKindSectionL1                  // Line started with "=="
 	elKindSectionL2                  // 5: Line started with "==="
 	elKindSectionL3                  // Line started with "===="
@@ -535,15 +536,6 @@ func isStyleVerse(style int64) bool {
 	return style&styleVerse > 0
 }
 
-func isTitle(line []byte) bool {
-	if line[0] == '=' || line[0] == '#' {
-		if len(line) > 1 && (line[1] == ' ' || line[1] == '\t') {
-			return true
-		}
-	}
-	return false
-}
-
 // isValidID will return true if id is valid HTML ref ID according to
 // [Mozilla specification], where the first character is either '-', '_', or
 // ASCII letter, and the rest is either '-', '_', ASCII letter or digit.
@@ -841,6 +833,8 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 		var subs = bytes.Fields(line)
 
 		switch string(subs[0]) {
+		case `=`:
+			kind = elKindSectionL0
 		case `==`:
 			kind = elKindSectionL1
 		case `===`:
@@ -852,6 +846,8 @@ func whatKindOfLine(line []byte) (kind int, spaces, got []byte) {
 		case `======`:
 			kind = elKindSectionL5
 		}
+		return kind, spaces, line
+
 	case '.':
 		switch {
 		case len(line) <= 1:
