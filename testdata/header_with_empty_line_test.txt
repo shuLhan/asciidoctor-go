@@ -12,11 +12,9 @@ Below is empty line with spaces.
 
 <<<
 <div id="header">
+<h1>Title</h1>
 </div>
 <div id="content">
-<div class="paragraph">
-<p>= Title</p>
-</div>
 </div>
 <div id="footer">
 <div id="footer-text">

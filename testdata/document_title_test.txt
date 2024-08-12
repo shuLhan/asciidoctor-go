@@ -25,8 +25,8 @@ output_call: htmlWriteHeader
 </div>
 
 >>> With custom separator
-:title-separator: x
 = Mainx sub
+:title-separator: x
 
 <<< With custom separator
 <div id="header">

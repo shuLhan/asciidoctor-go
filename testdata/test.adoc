@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: 2020 M. Shulhan <ms@kilabit.info>
 // SPDX-License-Identifier: GPL-3.0-or-later
 = _Example `Document` **title**_
-:metadata key: value
 Author A <a@a.com>; Author mid_dle B <b@b.com>
-:unclosed metadata:
 v1.1.1, 18 July 2020: remark
+:metadata key: value
+:unclosed metadata:
 :sectnums:
 :sectlinks:
 :sectanchors:

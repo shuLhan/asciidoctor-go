@@ -71,8 +71,9 @@ func TestParse_document_title(t *testing.T) {
 		expString: `a: b: c`,
 	}, {
 		// With custom separator.
-		content: `:title-separator: x
-= Mainx sub`,
+		content: `
+= Mainx sub
+:title-separator: x`,
 		exp: DocumentTitle{
 			Main: `Main`,
 			Sub:  `sub`,

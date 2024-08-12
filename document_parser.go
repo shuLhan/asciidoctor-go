@@ -686,72 +686,76 @@ func (docp *documentParser) parseBlock(parent *element, term int) {
 // The document attributes can be in any order, but the author and revision
 // MUST be in order.
 //
-//	DOC_HEADER  = *(DOC_ATTRIBUTE / COMMENTS)
-//	              "=" SP *ADOC_WORD LF
+//	DOC_HEADER  = [ "=" SP *ADOC_WORD LF
+//	              [ DOC_AUTHORS LF
+//	              [ DOC_REVISION LF ]]]
 //	              (*DOC_ATTRIBUTE)
-//	              DOC_AUTHORS LF
-//	              (*DOC_ATTRIBUTE)
-//	              DOC_REVISION LF
-//	              (*DOC_ATTRIBUTE)
+//	              LF
 func (docp *documentParser) parseHeader() {
-	const (
-		stateBegin int = iota
-		stateTitle
-		stateAuthor
-		stateRevision
-	)
-
 	var (
-		logp  = `parseHeader`
-		state = stateBegin
-
-		key   string
-		value string
-		line  []byte
-		ok    bool
+		logp = `parseHeader`
+		line []byte
+		ok   bool
 	)
-	for {
+
+	line, ok = docp.skipCommentAndEmptyLine()
+	if !ok {
+		return
+	}
+	if docp.kind == lineKindText && isTitle(line) {
+		docp.doc.header.Write(bytes.TrimSpace(line[2:]))
+		docp.doc.Title.raw = string(docp.doc.header.raw)
+
 		_, line, ok = docp.line(logp)
 		if !ok {
 			return
 		}
-		if len(line) == 0 {
+		if docp.kind == lineKindText {
+			docp.doc.rawAuthors = string(line)
+
+			_, line, ok = docp.line(logp)
+			if !ok {
+				return
+			}
+			if docp.kind == lineKindText {
+				docp.doc.rawRevision = string(line)
+				line = nil
+			}
+		}
+	}
+
+	// Parse the rest of attributes until we found an empty line or
+	// line with non-attribute.
+	for {
+		if line == nil {
+			_, line, ok = docp.line(logp)
+			if !ok {
+				return
+			}
+		}
+		if docp.kind == lineKindEmpty {
 			return
 		}
-		if bytes.HasPrefix(line, []byte(`////`)) {
+		if docp.kind == lineKindBlockComment {
 			docp.parseIgnoreCommentBlock()
+			line = nil
 			continue
 		}
-		if bytes.HasPrefix(line, []byte(`//`)) {
+		if docp.kind == lineKindComment {
+			line = nil
 			continue
 		}
-		if line[0] == ':' {
+		if docp.kind == lineKindAttribute {
+			var key, value string
 			key, value, ok = docp.parseAttribute(line, false)
 			if ok {
 				docp.doc.Attributes.apply(key, value)
 			}
+			line = nil
 			continue
 		}
-		if state == stateBegin {
-			if isTitle(line) {
-				docp.doc.header.Write(bytes.TrimSpace(line[2:]))
-				docp.doc.Title.raw = string(docp.doc.header.raw)
-				state = stateTitle
-			} else {
-				docp.doc.rawAuthors = string(line)
-				state = stateAuthor
-			}
-			continue
-		}
-		switch state {
-		case stateTitle:
-			docp.doc.rawAuthors = string(line)
-			state = stateAuthor
-
-		case stateAuthor:
-			docp.doc.rawRevision = string(line)
-			state = stateRevision
-		}
+		docp.lineNum--
+		break
 	}
 }
 
@@ -1571,4 +1575,27 @@ func (docp *documentParser) parseParagraph(parent, el *element, line []byte, ter
 	el.postParseParagraph(parent)
 	el.parseInlineMarkup(docp.doc, elKindText)
 	return line
+}
+
+func (docp *documentParser) skipCommentAndEmptyLine() (line []byte, ok bool) {
+	var logp = `skipCommentAndEmptyLine`
+
+	for {
+		_, line, ok = docp.line(logp)
+		if !ok {
+			return nil, false
+		}
+		if docp.kind == lineKindEmpty {
+			continue
+		}
+		if docp.kind == lineKindBlockComment {
+			docp.parseIgnoreCommentBlock()
+			continue
+		}
+		if docp.kind == lineKindComment {
+			continue
+		}
+		break
+	}
+	return line, true
 }

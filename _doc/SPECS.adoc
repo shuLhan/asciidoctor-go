@@ -67,21 +67,19 @@ REF_ID    = 1*ALPHA *("-" / "_" / ALPHA / DIGIT)
 {url_ref}/document/header/[Reference^].
 
 Document header consist of title and optional authors, a revision, and zero or
-more metadata.
-The document metadata can be in any order, before or after title, but the
-author and revision MUST be after title and in order.
+more attributes.
+The author and revision MUST be after title and in order.
+The document attributes can be in any order, after title, author or
+revision.
 
 ----
-DOC_HEADER     = *(DOC_ATTRIBUTE / COMMENTS)
-                 "=" SP DOC_TITLE LF
+DOC_HEADER     = [ "=" SP DOC_TITLE LF
+                 [ DOC_AUTHORS LF
+                 [ DOC_REVISION LF ]]]
                  (*DOC_ATTRIBUTE)
-                 DOC_AUTHORS LF
-                 (*DOC_ATTRIBUTE)
-                 DOC_REVISION LF
-                 (*DOC_ATTRIBUTE)
+                 LF
 ----
 
-There are no empty line before and after the document header.
 An empty line mark as the end of document header.
 
 ===  Title
