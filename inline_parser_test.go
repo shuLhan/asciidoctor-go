@@ -15,8 +15,10 @@ import (
 func TestInlineParser(t *testing.T) {
 	var (
 		_testDoc = &Document{
-			Attributes: map[string]string{
-				`x`: `https://kilabit.info`,
+			Attributes: DocumentAttribute{
+				Entry: map[string]string{
+					`x`: `https://kilabit.info`,
+				},
 			},
 
 			anchors: map[string]*anchor{

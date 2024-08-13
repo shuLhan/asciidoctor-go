@@ -380,7 +380,7 @@ func generateID(doc *Document, str string) string {
 		ok   bool
 	)
 
-	v, ok = doc.Attributes[docAttrIDPrefix]
+	v, ok = doc.Attributes.Entry[docAttrIDPrefix]
 	if ok {
 		v = strings.TrimSpace(v)
 		if len(v) > 0 {
@@ -390,7 +390,7 @@ func generateID(doc *Document, str string) string {
 
 	bout = make([]byte, 0, len(str))
 
-	v, ok = doc.Attributes[docAttrIDSeparator]
+	v, ok = doc.Attributes.Entry[docAttrIDSeparator]
 	if ok {
 		v = strings.TrimSpace(v)
 		if len(v) == 0 {
@@ -536,7 +536,7 @@ func parseAttrRef(doc *Document, content []byte, x int) (newContent []byte, ok b
 	name = string(bytes.TrimSpace(bytes.ToLower(attrName)))
 	attrValue, ok = _attrRef[name]
 	if !ok {
-		attrValue, ok = doc.Attributes[name]
+		attrValue, ok = doc.Attributes.Entry[name]
 		if !ok {
 			return nil, false
 		}

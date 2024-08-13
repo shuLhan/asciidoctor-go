@@ -118,7 +118,7 @@ func Open(file string) (doc *Document, err error) {
 	doc = newDocument()
 	doc.fpath = filepath.Join(wd, file)
 	doc.file = file
-	doc.Attributes[docAttrLastUpdateValue] = fi.ModTime().Round(time.Second).Format(`2006-01-02 15:04:05 Z0700`)
+	doc.Attributes.Entry[docAttrLastUpdateValue] = fi.ModTime().Round(time.Second).Format(`2006-01-02 15:04:05 Z0700`)
 
 	parse(doc, raw)
 
@@ -143,7 +143,7 @@ func parse(doc *Document, content []byte) {
 	docp.parseHeader()
 	docp.doc.postParseHeader()
 
-	sectLevel, ok = doc.Attributes[docAttrSectNumLevel]
+	sectLevel, ok = doc.Attributes.Entry[docAttrSectNumLevel]
 	if ok {
 		doc.sectLevel, _ = strconv.Atoi(sectLevel)
 	}
@@ -186,22 +186,22 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 
 	fmt.Fprint(buf, _htmlBegin)
 
-	docAttrValue = doc.Attributes[DocAttrGenerator]
+	docAttrValue = doc.Attributes.Entry[DocAttrGenerator]
 	if len(docAttrValue) > 0 {
 		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", DocAttrGenerator, docAttrValue)
 	}
 
-	docAttrValue = doc.Attributes[DocAttrDescription]
+	docAttrValue = doc.Attributes.Entry[DocAttrDescription]
 	if len(docAttrValue) > 0 {
 		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", DocAttrDescription, docAttrValue)
 	}
 
-	docAttrValue = doc.Attributes[DocAttrKeywords]
+	docAttrValue = doc.Attributes.Entry[DocAttrKeywords]
 	if len(docAttrValue) > 0 {
 		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", DocAttrKeywords, docAttrValue)
 	}
 
-	docAttrValue = doc.Attributes[DocAttrAuthorNames]
+	docAttrValue = doc.Attributes.Entry[DocAttrAuthorNames]
 	if len(docAttrValue) > 0 {
 		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", DocAttrAuthor, docAttrValue)
 	}
@@ -217,7 +217,7 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 		isWithHeaderFooter = true
 		ok                 bool
 	)
-	_, ok = doc.Attributes[docAttrNoHeaderFooter]
+	_, ok = doc.Attributes.Entry[docAttrNoHeaderFooter]
 	if ok {
 		isWithHeaderFooter = false
 	}
@@ -244,7 +244,7 @@ func (doc *Document) ToHTMLBody(out io.Writer) (err error) {
 
 func (doc *Document) generateClasses() {
 	doc.classes.add(classNameArticle)
-	doc.tocPosition, doc.tocIsEnabled = doc.Attributes[docAttrTOC]
+	doc.tocPosition, doc.tocIsEnabled = doc.Attributes.Entry[docAttrTOC]
 
 	switch doc.tocPosition {
 	case docAttrValueLeft:
@@ -282,7 +282,7 @@ func (doc *Document) toHTMLBody(buf *bytes.Buffer, withHeaderFooter bool) {
 	)
 
 	if withHeaderFooter {
-		_, ok = doc.Attributes[docAttrNoHeader]
+		_, ok = doc.Attributes.Entry[docAttrNoHeader]
 		if !ok {
 			htmlWriteHeader(doc, buf)
 		}
@@ -293,7 +293,7 @@ func (doc *Document) toHTMLBody(buf *bytes.Buffer, withHeaderFooter bool) {
 	htmlWriteFootnoteDefs(doc, buf)
 
 	if withHeaderFooter {
-		_, ok = doc.Attributes[docAttrNoFooter]
+		_, ok = doc.Attributes.Entry[docAttrNoFooter]
 		if !ok {
 			htmlWriteFooter(doc, buf)
 		}
@@ -362,7 +362,7 @@ func (doc *Document) tocHTML(out io.Writer) {
 		ok bool
 	)
 
-	v, ok = doc.Attributes[docAttrTOCLevels]
+	v, ok = doc.Attributes.Entry[docAttrTOCLevels]
 	if ok {
 		doc.TOCLevel, _ = strconv.Atoi(v)
 		if doc.TOCLevel <= 0 {
@@ -370,7 +370,7 @@ func (doc *Document) tocHTML(out io.Writer) {
 		}
 	}
 
-	v, ok = doc.Attributes[docAttrTOCTitle]
+	v, ok = doc.Attributes.Entry[docAttrTOCTitle]
 	if ok && len(v) > 0 {
 		doc.tocTitle = v
 	}
@@ -395,11 +395,11 @@ func (doc *Document) unpackRawAuthor() {
 	)
 
 	if len(doc.rawAuthors) == 0 {
-		v = doc.Attributes[DocAttrAuthor]
+		v = doc.Attributes.Entry[DocAttrAuthor]
 		if len(v) > 0 {
 			sb.WriteString(v)
 		}
-		v = doc.Attributes[docAttrEmail]
+		v = doc.Attributes.Entry[docAttrEmail]
 		if len(v) > 0 {
 			sb.WriteString(` <`)
 			sb.WriteString(v)
@@ -442,12 +442,12 @@ func (doc *Document) unpackRawAuthor() {
 		sb.WriteString(author.FullName())
 
 		if x == 0 {
-			doc.Attributes[authorKey] = author.FullName()
-			doc.Attributes[emailKey] = author.Email
-			doc.Attributes[initialsKey] = author.Initials
-			doc.Attributes[firstNameKey] = author.FirstName
-			doc.Attributes[middleNameKey] = author.MiddleName
-			doc.Attributes[lastNameKey] = author.LastName
+			doc.Attributes.Entry[authorKey] = author.FullName()
+			doc.Attributes.Entry[emailKey] = author.Email
+			doc.Attributes.Entry[initialsKey] = author.Initials
+			doc.Attributes.Entry[firstNameKey] = author.FirstName
+			doc.Attributes.Entry[middleNameKey] = author.MiddleName
+			doc.Attributes.Entry[lastNameKey] = author.LastName
 
 			// No continue, the first author have two keys, one is
 			// `author` and another is `author_1`.
@@ -460,31 +460,31 @@ func (doc *Document) unpackRawAuthor() {
 		middleNameKey = fmt.Sprintf(`%s_%d`, docAttrMiddleName, x+1)
 		lastNameKey = fmt.Sprintf(`%s_%d`, docAttrLastName, x+1)
 
-		doc.Attributes[authorKey] = author.FullName()
-		doc.Attributes[emailKey] = author.Email
-		doc.Attributes[initialsKey] = author.Initials
-		doc.Attributes[firstNameKey] = author.FirstName
-		doc.Attributes[middleNameKey] = author.MiddleName
-		doc.Attributes[lastNameKey] = author.LastName
+		doc.Attributes.Entry[authorKey] = author.FullName()
+		doc.Attributes.Entry[emailKey] = author.Email
+		doc.Attributes.Entry[initialsKey] = author.Initials
+		doc.Attributes.Entry[firstNameKey] = author.FirstName
+		doc.Attributes.Entry[middleNameKey] = author.MiddleName
+		doc.Attributes.Entry[lastNameKey] = author.LastName
 	}
 
 	v = sb.String()
 	if len(v) > 0 {
-		doc.Attributes[DocAttrAuthorNames] = v
+		doc.Attributes.Entry[DocAttrAuthorNames] = v
 	}
 }
 
 func (doc *Document) unpackRawRevision() {
 	if len(doc.rawRevision) > 0 {
 		doc.Revision = parseRevision(doc.rawRevision)
-		doc.Attributes[docAttrRevNumber] = doc.Revision.Number
-		doc.Attributes[docAttrRevDate] = doc.Revision.Date
-		doc.Attributes[docAttrRevRemark] = doc.Revision.Remark
+		doc.Attributes.Entry[docAttrRevNumber] = doc.Revision.Number
+		doc.Attributes.Entry[docAttrRevDate] = doc.Revision.Date
+		doc.Attributes.Entry[docAttrRevRemark] = doc.Revision.Remark
 		return
 	}
-	doc.Revision.Number = doc.Attributes[docAttrRevNumber]
-	doc.Revision.Date = doc.Attributes[docAttrRevDate]
-	doc.Revision.Remark = doc.Attributes[docAttrRevRemark]
+	doc.Revision.Number = doc.Attributes.Entry[docAttrRevNumber]
+	doc.Revision.Date = doc.Attributes.Entry[docAttrRevDate]
+	doc.Revision.Remark = doc.Attributes.Entry[docAttrRevRemark]
 }
 
 func (doc *Document) unpackRawTitle() {
@@ -495,9 +495,9 @@ func (doc *Document) unpackRawTitle() {
 	)
 
 	if len(doc.Title.raw) == 0 {
-		doc.Title.raw = doc.Attributes[docAttrDocTitle]
+		doc.Title.raw = doc.Attributes.Entry[docAttrDocTitle]
 		if len(doc.Title.raw) == 0 {
-			doc.Title.raw = doc.Attributes[docAttrTitle]
+			doc.Title.raw = doc.Attributes.Entry[docAttrTitle]
 			if len(doc.Title.raw) == 0 {
 				return
 			}
@@ -506,7 +506,7 @@ func (doc *Document) unpackRawTitle() {
 
 	doc.Title.el = parseInlineMarkup(doc, []byte(doc.Title.raw))
 	title = doc.Title.el.toText()
-	doc.Attributes[docAttrDocTitle] = title
+	doc.Attributes.Entry[docAttrDocTitle] = title
 
 	for x = len(title) - 1; x > 0; x-- {
 		if title[x] == doc.Title.sep {
@@ -531,7 +531,7 @@ func (doc *Document) unpackTitleSeparator() {
 		ok bool
 	)
 
-	v, ok = doc.Attributes[docAttrTitleSeparator]
+	v, ok = doc.Attributes.Entry[docAttrTitleSeparator]
 	if ok {
 		v = strings.TrimSpace(v)
 		if len(v) > 0 {

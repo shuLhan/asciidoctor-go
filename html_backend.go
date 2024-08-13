@@ -294,7 +294,7 @@ func htmlSubsAttr(doc *Document, input []byte) []byte {
 			continue
 		}
 
-		val, ok = doc.Attributes[key]
+		val, ok = doc.Attributes.Entry[key]
 		if !ok {
 			bb.WriteByte(c)
 			continue
@@ -909,7 +909,7 @@ func htmlWriteFooter(doc *Document, out io.Writer) {
 <div id="footer-text">`)
 
 	if len(doc.Revision.Number) > 0 {
-		label, ok = doc.Attributes[docAttrVersionLabel]
+		label, ok = doc.Attributes.Entry[docAttrVersionLabel]
 		if ok && len(label) == 0 {
 			label = `Version `
 		} else {
@@ -919,9 +919,9 @@ func htmlWriteFooter(doc *Document, out io.Writer) {
 		fmt.Fprintf(out, "\n%s%s<br>", label, doc.Revision.Number)
 	}
 
-	label, ok = doc.Attributes[docAttrLastUpdateLabel]
+	label, ok = doc.Attributes.Entry[docAttrLastUpdateLabel]
 	if ok {
-		value = doc.Attributes[docAttrLastUpdateValue]
+		value = doc.Attributes.Entry[docAttrLastUpdateValue]
 		if len(value) != 0 {
 			fmt.Fprintf(out, "\n%s %s", label, value)
 		}
@@ -992,9 +992,9 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 		ok     bool
 	)
 
-	_, ok = doc.Attributes[docAttrShowTitle]
+	_, ok = doc.Attributes.Entry[docAttrShowTitle]
 	if ok {
-		_, ok = doc.Attributes[docAttrNoTitle]
+		_, ok = doc.Attributes.Entry[docAttrNoTitle]
 		if !ok && doc.Title.el != nil {
 			fmt.Fprint(out, "\n<h1>")
 			doc.Title.el.toHTML(doc, out)
@@ -1027,7 +1027,7 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 	}
 
 	if len(doc.Revision.Number) > 0 {
-		prefix, ok = doc.Attributes[docAttrVersionLabel]
+		prefix, ok = doc.Attributes.Entry[docAttrVersionLabel]
 		if ok && len(prefix) == 0 {
 			prefix = defVersionPrefix
 		} else {
@@ -1206,11 +1206,11 @@ func htmlWriteSection(doc *Document, el *element, out io.Writer) {
 		withSectlinks   bool
 	)
 
-	_, withSectAnchors = doc.Attributes[docAttrSectAnchors]
+	_, withSectAnchors = doc.Attributes.Entry[docAttrSectAnchors]
 	if withSectAnchors {
 		fmt.Fprintf(out, `<a class="anchor" href="#%s"></a>`, el.ID)
 	}
-	_, withSectlinks = doc.Attributes[docAttrSectLinks]
+	_, withSectlinks = doc.Attributes.Entry[docAttrSectLinks]
 	if withSectlinks {
 		fmt.Fprintf(out, `<a class="link" href="#%s">`, el.ID)
 	}
@@ -1283,7 +1283,7 @@ func htmlWriteTable(doc *Document, el *element, out io.Writer) {
 		)
 
 		doc.counterTable++
-		_, withTableCaption = doc.Attributes[docAttrTableCaption]
+		_, withTableCaption = doc.Attributes.Entry[docAttrTableCaption]
 
 		if withTableCaption {
 			caption, ok = el.Attrs[attrNameCaption]

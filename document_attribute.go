@@ -56,27 +56,36 @@ const (
 
 // DocumentAttribute contains the mapping of global attribute keys in the
 // headers with its value.
-type DocumentAttribute map[string]string
+type DocumentAttribute struct {
+	Entry map[string]string
+}
 
 func newDocumentAttribute() DocumentAttribute {
 	return DocumentAttribute{
-		DocAttrGenerator:       `asciidoctor-go ` + Version,
-		docAttrLastUpdateLabel: `Last updated`,
-		docAttrLastUpdateValue: ``,
-		docAttrSectIDs:         ``,
-		docAttrShowTitle:       ``,
-		docAttrTableCaption:    ``,
-		docAttrVersionLabel:    ``,
+		Entry: map[string]string{
+			DocAttrGenerator:       `asciidoctor-go ` + Version,
+			docAttrLastUpdateLabel: `Last updated`,
+			docAttrLastUpdateValue: ``,
+			docAttrSectIDs:         ``,
+			docAttrShowTitle:       ``,
+			docAttrTableCaption:    ``,
+			docAttrVersionLabel:    ``,
+		},
 	}
 }
 
-func (entry *DocumentAttribute) apply(key, val string) {
-	switch {
-	case key[0] == '!':
-		delete(*entry, strings.TrimSpace(key[1:]))
-	case key[len(key)-1] == '!':
-		delete(*entry, strings.TrimSpace(key[:len(key)-1]))
-	default:
-		(*entry)[key] = val
+func (docAttr *DocumentAttribute) apply(key, val string) {
+	if key[0] == '!' {
+		key = strings.TrimSpace(key[1:])
+		delete(docAttr.Entry, key)
+		return
 	}
+	var n = len(key)
+	if key[n-1] == '!' {
+		key = strings.TrimSpace(key[:n-1])
+		delete(docAttr.Entry, key)
+		return
+	}
+
+	docAttr.Entry[key] = val
 }

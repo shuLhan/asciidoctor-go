@@ -51,8 +51,8 @@ func parseSub(parentDoc *Document, content []byte) (subdoc *Document) {
 
 	subdoc = newDocument()
 
-	for k, v = range parentDoc.Attributes {
-		subdoc.Attributes[k] = v
+	for k, v = range parentDoc.Attributes.Entry {
+		subdoc.Attributes.Entry[k] = v
 	}
 
 	docp = newDocumentParser(subdoc, content)
