@@ -119,11 +119,11 @@ DOC_REV_VERSION  = "v" 1*DIGIT "." 1*DIGIT "." 1*DIGIT
 DOC_REV_DATE     = 1*2DIGIT 3*ALPHA 4*DIGIT
 ----
 
-===  Metadata
+===  Attributes
 
 {url_ref}/document/metadata/[Reference^].
 
-There are also metadata which affect how the document rendered,
+There are also document attributes which affect how the document rendered,
 
 ----
 DOC_ATTRIBUTE  = ":" DOC_ATTR_KEY ":" *LINE ("\" *LINE) LF

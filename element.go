@@ -578,7 +578,7 @@ func (el *element) parseSection(doc *Document, isDiscrete bool) {
 	el.Text = container.toText()
 
 	if len(el.ID) == 0 {
-		_, ok = doc.Attributes[metaNameSectIDs]
+		_, ok = doc.Attributes[docAttrSectIDs]
 		if ok {
 			el.ID = generateID(doc, el.Text)
 			el.ID = doc.registerAnchor(el.ID, el.Text)
@@ -596,7 +596,7 @@ func (el *element) parseSection(doc *Document, isDiscrete bool) {
 	}
 	doc.titleID[el.Text] = el.ID
 
-	_, ok = doc.Attributes[metaNameSectNums]
+	_, ok = doc.Attributes[docAttrSectNums]
 	if ok && !isDiscrete {
 		el.sectnums = doc.sectnums.set(el.level)
 	}
@@ -838,7 +838,7 @@ func (el *element) toHTML(doc *Document, w io.Writer) {
 		htmlWriteFootnote(el, w)
 
 	case elKindMacroTOC:
-		if doc.tocIsEnabled && doc.tocPosition == metaValueMacro {
+		if doc.tocIsEnabled && doc.tocPosition == docAttrValueMacro {
 			doc.tocHTML(w)
 		}
 

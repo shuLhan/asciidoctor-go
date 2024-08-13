@@ -118,7 +118,7 @@ func Open(file string) (doc *Document, err error) {
 	doc = newDocument()
 	doc.fpath = filepath.Join(wd, file)
 	doc.file = file
-	doc.Attributes[metaNameLastUpdateValue] = fi.ModTime().Round(time.Second).Format(`2006-01-02 15:04:05 Z0700`)
+	doc.Attributes[docAttrLastUpdateValue] = fi.ModTime().Round(time.Second).Format(`2006-01-02 15:04:05 Z0700`)
 
 	parse(doc, raw)
 
@@ -143,7 +143,7 @@ func parse(doc *Document, content []byte) {
 	docp.parseHeader()
 	docp.doc.postParseHeader()
 
-	sectLevel, ok = doc.Attributes[metaNameSectNumLevel]
+	sectLevel, ok = doc.Attributes[docAttrSectNumLevel]
 	if ok {
 		doc.sectLevel, _ = strconv.Atoi(sectLevel)
 	}
@@ -176,7 +176,7 @@ func (doc *Document) ToHTMLEmbedded(out io.Writer) (err error) {
 // ToHTML convert the Document object into full HTML document.
 func (doc *Document) ToHTML(out io.Writer) (err error) {
 	var (
-		metaValue string
+		docAttrValue string
 	)
 
 	doc.generateClasses()
@@ -186,24 +186,24 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 
 	fmt.Fprint(buf, _htmlBegin)
 
-	metaValue = doc.Attributes[MetaNameGenerator]
-	if len(metaValue) > 0 {
-		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", MetaNameGenerator, metaValue)
+	docAttrValue = doc.Attributes[DocAttrGenerator]
+	if len(docAttrValue) > 0 {
+		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", DocAttrGenerator, docAttrValue)
 	}
 
-	metaValue = doc.Attributes[MetaNameDescription]
-	if len(metaValue) > 0 {
-		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", MetaNameDescription, metaValue)
+	docAttrValue = doc.Attributes[DocAttrDescription]
+	if len(docAttrValue) > 0 {
+		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", DocAttrDescription, docAttrValue)
 	}
 
-	metaValue = doc.Attributes[MetaNameKeywords]
-	if len(metaValue) > 0 {
-		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", MetaNameKeywords, metaValue)
+	docAttrValue = doc.Attributes[DocAttrKeywords]
+	if len(docAttrValue) > 0 {
+		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", DocAttrKeywords, docAttrValue)
 	}
 
-	metaValue = doc.Attributes[MetaNameAuthorNames]
-	if len(metaValue) > 0 {
-		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", MetaNameAuthor, metaValue)
+	docAttrValue = doc.Attributes[DocAttrAuthorNames]
+	if len(docAttrValue) > 0 {
+		fmt.Fprintf(buf, "\n<meta name=%q content=%q>", DocAttrAuthor, docAttrValue)
 	}
 
 	var title = doc.Title.String()
@@ -217,7 +217,7 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 		isWithHeaderFooter = true
 		ok                 bool
 	)
-	_, ok = doc.Attributes[metaNameNoHeaderFooter]
+	_, ok = doc.Attributes[docAttrNoHeaderFooter]
 	if ok {
 		isWithHeaderFooter = false
 	}
@@ -244,14 +244,14 @@ func (doc *Document) ToHTMLBody(out io.Writer) (err error) {
 
 func (doc *Document) generateClasses() {
 	doc.classes.add(classNameArticle)
-	doc.tocPosition, doc.tocIsEnabled = doc.Attributes[metaNameTOC]
+	doc.tocPosition, doc.tocIsEnabled = doc.Attributes[docAttrTOC]
 
 	switch doc.tocPosition {
-	case metaValueLeft:
+	case docAttrValueLeft:
 		doc.classes.add(classNameToc2)
 		doc.classes.add(classNameTocLeft)
 		doc.tocClasses.add(classNameToc2)
-	case metaValueRight:
+	case docAttrValueRight:
 		doc.classes.add(classNameToc2)
 		doc.classes.add(classNameTocRight)
 		doc.tocClasses.add(classNameToc2)
@@ -282,7 +282,7 @@ func (doc *Document) toHTMLBody(buf *bytes.Buffer, withHeaderFooter bool) {
 	)
 
 	if withHeaderFooter {
-		_, ok = doc.Attributes[metaNameNoHeader]
+		_, ok = doc.Attributes[docAttrNoHeader]
 		if !ok {
 			htmlWriteHeader(doc, buf)
 		}
@@ -293,7 +293,7 @@ func (doc *Document) toHTMLBody(buf *bytes.Buffer, withHeaderFooter bool) {
 	htmlWriteFootnoteDefs(doc, buf)
 
 	if withHeaderFooter {
-		_, ok = doc.Attributes[metaNameNoFooter]
+		_, ok = doc.Attributes[docAttrNoFooter]
 		if !ok {
 			htmlWriteFooter(doc, buf)
 		}
@@ -362,7 +362,7 @@ func (doc *Document) tocHTML(out io.Writer) {
 		ok bool
 	)
 
-	v, ok = doc.Attributes[metaNameTOCLevels]
+	v, ok = doc.Attributes[docAttrTOCLevels]
 	if ok {
 		doc.TOCLevel, _ = strconv.Atoi(v)
 		if doc.TOCLevel <= 0 {
@@ -370,7 +370,7 @@ func (doc *Document) tocHTML(out io.Writer) {
 		}
 	}
 
-	v, ok = doc.Attributes[metaNameTOCTitle]
+	v, ok = doc.Attributes[docAttrTOCTitle]
 	if ok && len(v) > 0 {
 		doc.tocTitle = v
 	}
@@ -395,11 +395,11 @@ func (doc *Document) unpackRawAuthor() {
 	)
 
 	if len(doc.rawAuthors) == 0 {
-		v = doc.Attributes[MetaNameAuthor]
+		v = doc.Attributes[DocAttrAuthor]
 		if len(v) > 0 {
 			sb.WriteString(v)
 		}
-		v = doc.Attributes[metaNameEmail]
+		v = doc.Attributes[docAttrEmail]
 		if len(v) > 0 {
 			sb.WriteString(` <`)
 			sb.WriteString(v)
@@ -414,12 +414,12 @@ func (doc *Document) unpackRawAuthor() {
 
 	var (
 		rawAuthors    = strings.Split(doc.rawAuthors, `;`)
-		authorKey     = MetaNameAuthor
-		emailKey      = metaNameEmail
-		initialsKey   = metaNameAuthorInitials
-		firstNameKey  = metaNameFirstName
-		middleNameKey = metaNameMiddleName
-		lastNameKey   = metaNameLastName
+		authorKey     = DocAttrAuthor
+		emailKey      = docAttrEmail
+		initialsKey   = docAttrAuthorInitials
+		firstNameKey  = docAttrFirstName
+		middleNameKey = docAttrMiddleName
+		lastNameKey   = docAttrLastName
 
 		author    *Author
 		rawAuthor string
@@ -453,12 +453,12 @@ func (doc *Document) unpackRawAuthor() {
 			// `author` and another is `author_1`.
 		}
 
-		authorKey = fmt.Sprintf(`%s_%d`, MetaNameAuthor, x+1)
-		emailKey = fmt.Sprintf(`%s_%d`, metaNameEmail, x+1)
-		initialsKey = fmt.Sprintf(`%s_%d`, metaNameAuthorInitials, x+1)
-		firstNameKey = fmt.Sprintf(`%s_%d`, metaNameFirstName, x+1)
-		middleNameKey = fmt.Sprintf(`%s_%d`, metaNameMiddleName, x+1)
-		lastNameKey = fmt.Sprintf(`%s_%d`, metaNameLastName, x+1)
+		authorKey = fmt.Sprintf(`%s_%d`, DocAttrAuthor, x+1)
+		emailKey = fmt.Sprintf(`%s_%d`, docAttrEmail, x+1)
+		initialsKey = fmt.Sprintf(`%s_%d`, docAttrAuthorInitials, x+1)
+		firstNameKey = fmt.Sprintf(`%s_%d`, docAttrFirstName, x+1)
+		middleNameKey = fmt.Sprintf(`%s_%d`, docAttrMiddleName, x+1)
+		lastNameKey = fmt.Sprintf(`%s_%d`, docAttrLastName, x+1)
 
 		doc.Attributes[authorKey] = author.FullName()
 		doc.Attributes[emailKey] = author.Email
@@ -470,21 +470,21 @@ func (doc *Document) unpackRawAuthor() {
 
 	v = sb.String()
 	if len(v) > 0 {
-		doc.Attributes[MetaNameAuthorNames] = v
+		doc.Attributes[DocAttrAuthorNames] = v
 	}
 }
 
 func (doc *Document) unpackRawRevision() {
 	if len(doc.rawRevision) > 0 {
 		doc.Revision = parseRevision(doc.rawRevision)
-		doc.Attributes[metaNameRevNumber] = doc.Revision.Number
-		doc.Attributes[metaNameRevDate] = doc.Revision.Date
-		doc.Attributes[metaNameRevRemark] = doc.Revision.Remark
+		doc.Attributes[docAttrRevNumber] = doc.Revision.Number
+		doc.Attributes[docAttrRevDate] = doc.Revision.Date
+		doc.Attributes[docAttrRevRemark] = doc.Revision.Remark
 		return
 	}
-	doc.Revision.Number = doc.Attributes[metaNameRevNumber]
-	doc.Revision.Date = doc.Attributes[metaNameRevDate]
-	doc.Revision.Remark = doc.Attributes[metaNameRevRemark]
+	doc.Revision.Number = doc.Attributes[docAttrRevNumber]
+	doc.Revision.Date = doc.Attributes[docAttrRevDate]
+	doc.Revision.Remark = doc.Attributes[docAttrRevRemark]
 }
 
 func (doc *Document) unpackRawTitle() {
@@ -495,9 +495,9 @@ func (doc *Document) unpackRawTitle() {
 	)
 
 	if len(doc.Title.raw) == 0 {
-		doc.Title.raw = doc.Attributes[metaNameDocTitle]
+		doc.Title.raw = doc.Attributes[docAttrDocTitle]
 		if len(doc.Title.raw) == 0 {
-			doc.Title.raw = doc.Attributes[metaNameTitle]
+			doc.Title.raw = doc.Attributes[docAttrTitle]
 			if len(doc.Title.raw) == 0 {
 				return
 			}
@@ -506,7 +506,7 @@ func (doc *Document) unpackRawTitle() {
 
 	doc.Title.el = parseInlineMarkup(doc, []byte(doc.Title.raw))
 	title = doc.Title.el.toText()
-	doc.Attributes[metaNameDocTitle] = title
+	doc.Attributes[docAttrDocTitle] = title
 
 	for x = len(title) - 1; x > 0; x-- {
 		if title[x] == doc.Title.sep {
@@ -531,7 +531,7 @@ func (doc *Document) unpackTitleSeparator() {
 		ok bool
 	)
 
-	v, ok = doc.Attributes[metaNameTitleSeparator]
+	v, ok = doc.Attributes[docAttrTitleSeparator]
 	if ok {
 		v = strings.TrimSpace(v)
 		if len(v) > 0 {

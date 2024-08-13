@@ -171,55 +171,6 @@ const (
 	classNameUpperroman   = `upperroman`
 )
 
-// List of document metadata.
-const (
-	MetaNameAuthor      = `author`       // May contain the first author full name only.
-	MetaNameAuthorNames = `author_names` // List of author full names, separated by comma.
-	MetaNameDescription = `description`
-	MetaNameGenerator   = `generator`
-	MetaNameKeywords    = `keywords`
-
-	metaNameAuthorInitials  = `authorinitials`
-	metaNameDocTitle        = `doctitle`
-	metaNameEmail           = attrValueEmail
-	metaNameFirstName       = `firstname`
-	metaNameIDPrefix        = `idprefix`
-	metaNameIDSeparator     = `idseparator`
-	metaNameLastName        = `lastname`
-	metaNameLastUpdateLabel = `last-update-label`
-	metaNameLastUpdateValue = `last-update-value`
-	metaNameMiddleName      = `middlename`
-	metaNameNoFooter        = `nofooter`
-	metaNameNoHeader        = `noheader`
-	metaNameNoHeaderFooter  = `no-header-footer`
-	metaNameNoTitle         = `notitle`
-	metaNameRevDate         = `revdate`
-	metaNameRevNumber       = `revnumber`
-	metaNameRevRemark       = `revremark`
-	metaNameSectAnchors     = `sectanchors`
-	metaNameSectIDs         = `sectids`
-	metaNameSectLinks       = `sectlinks`
-	metaNameSectNumLevel    = `sectnumlevels`
-	metaNameSectNums        = `sectnums`
-	metaNameShowTitle       = `showtitle`
-	metaNameTOC             = `toc`
-	metaNameTOCLevels       = `toclevels`
-	metaNameTOCTitle        = `toc-title`
-	metaNameTableCaption    = `table-caption`
-	metaNameTitle           = attrNameTitle
-	metaNameTitleSeparator  = `title-separator`
-	metaNameVersionLabel    = `version-label`
-)
-
-// List of possible metadata value.
-const (
-	metaValueAuto     = `auto`
-	metaValueMacro    = `macro`
-	metaValuePreamble = `preamble`
-	metaValueLeft     = `left`
-	metaValueRight    = `right`
-)
-
 const (
 	optNameAutoplay               = `autoplay`
 	optNameAutowidth              = `autowidth`
@@ -406,8 +357,8 @@ func applySubstitutions(doc *Document, content []byte) []byte {
 // generateID generate ID for anchor.
 // This function follow the [Mozilla specification].
 //
-// The generated ID is affected by the following metadata: `idprefix` and
-// `idseparator`.
+// The generated ID is affected by the following document attributes:
+// `idprefix` and `idseparator`.
 //
 // The idprefix must be ASCII string.
 // It must start with '_', '-', or ASCII letters, otherwise the '_' will be
@@ -429,7 +380,7 @@ func generateID(doc *Document, str string) string {
 		ok   bool
 	)
 
-	v, ok = doc.Attributes[metaNameIDPrefix]
+	v, ok = doc.Attributes[docAttrIDPrefix]
 	if ok {
 		v = strings.TrimSpace(v)
 		if len(v) > 0 {
@@ -439,11 +390,12 @@ func generateID(doc *Document, str string) string {
 
 	bout = make([]byte, 0, len(str))
 
-	v, ok = doc.Attributes[metaNameIDSeparator]
+	v, ok = doc.Attributes[docAttrIDSeparator]
 	if ok {
 		v = strings.TrimSpace(v)
 		if len(v) == 0 {
-			// idseparator metadata exist and set to empty.
+			// idseparator document attribute exist and set to
+			// empty.
 			idSep = 0
 		} else {
 			c = v[0]

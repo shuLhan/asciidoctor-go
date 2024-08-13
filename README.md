@@ -115,7 +115,7 @@ The numbered one is based on the old documentation.
 * Open Blocks
 * Predefined Attributes for Character Replacements
 
-Supported metadata or attribute references,
+Supported document attribute references,
 
 * `author(_x)`
 * `authorinitials(_x)`
@@ -141,7 +141,7 @@ Supported metadata or attribute references,
 * `version-label`
 
 
-Additional metadata provides by this library,
+Additional document attribute provides by this library,
 
 * `author_names` - list of author full names separated by comma.
 

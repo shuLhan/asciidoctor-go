@@ -878,7 +878,7 @@ func htmlWriteBody(doc *Document, out *bytes.Buffer) {
 			}
 
 			fmt.Fprint(out, _lf+`</div>`)
-			if doc.tocIsEnabled && doc.tocPosition == metaValuePreamble {
+			if doc.tocIsEnabled && doc.tocPosition == docAttrValuePreamble {
 				doc.tocHTML(out)
 			}
 			fmt.Fprint(out, _lf+`</div>`)
@@ -909,7 +909,7 @@ func htmlWriteFooter(doc *Document, out io.Writer) {
 <div id="footer-text">`)
 
 	if len(doc.Revision.Number) > 0 {
-		label, ok = doc.Attributes[metaNameVersionLabel]
+		label, ok = doc.Attributes[docAttrVersionLabel]
 		if ok && len(label) == 0 {
 			label = `Version `
 		} else {
@@ -919,9 +919,9 @@ func htmlWriteFooter(doc *Document, out io.Writer) {
 		fmt.Fprintf(out, "\n%s%s<br>", label, doc.Revision.Number)
 	}
 
-	label, ok = doc.Attributes[metaNameLastUpdateLabel]
+	label, ok = doc.Attributes[docAttrLastUpdateLabel]
 	if ok {
-		value = doc.Attributes[metaNameLastUpdateValue]
+		value = doc.Attributes[docAttrLastUpdateValue]
 		if len(value) != 0 {
 			fmt.Fprintf(out, "\n%s %s", label, value)
 		}
@@ -992,9 +992,9 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 		ok     bool
 	)
 
-	_, ok = doc.Attributes[metaNameShowTitle]
+	_, ok = doc.Attributes[docAttrShowTitle]
 	if ok {
-		_, ok = doc.Attributes[metaNameNoTitle]
+		_, ok = doc.Attributes[docAttrNoTitle]
 		if !ok && doc.Title.el != nil {
 			fmt.Fprint(out, "\n<h1>")
 			doc.Title.el.toHTML(doc, out)
@@ -1027,7 +1027,7 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 	}
 
 	if len(doc.Revision.Number) > 0 {
-		prefix, ok = doc.Attributes[metaNameVersionLabel]
+		prefix, ok = doc.Attributes[docAttrVersionLabel]
 		if ok && len(prefix) == 0 {
 			prefix = defVersionPrefix
 		} else {
@@ -1048,16 +1048,16 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 	}
 	if len(doc.Revision.Remark) > 0 {
 		fmt.Fprintf(out, "\n<br><span id=%q>%s</span>",
-			metaNameRevRemark, doc.Revision.Remark)
+			docAttrRevRemark, doc.Revision.Remark)
 	}
 	if haveHeader {
 		fmt.Fprint(out, "\n</div>")
 	}
 
 	if doc.tocIsEnabled && (doc.tocPosition == `` ||
-		doc.tocPosition == metaValueAuto ||
-		doc.tocPosition == metaValueLeft ||
-		doc.tocPosition == metaValueRight) {
+		doc.tocPosition == docAttrValueAuto ||
+		doc.tocPosition == docAttrValueLeft ||
+		doc.tocPosition == docAttrValueRight) {
 		doc.tocHTML(out)
 	}
 	fmt.Fprint(out, "\n</div>")
@@ -1206,11 +1206,11 @@ func htmlWriteSection(doc *Document, el *element, out io.Writer) {
 		withSectlinks   bool
 	)
 
-	_, withSectAnchors = doc.Attributes[metaNameSectAnchors]
+	_, withSectAnchors = doc.Attributes[docAttrSectAnchors]
 	if withSectAnchors {
 		fmt.Fprintf(out, `<a class="anchor" href="#%s"></a>`, el.ID)
 	}
-	_, withSectlinks = doc.Attributes[metaNameSectLinks]
+	_, withSectlinks = doc.Attributes[docAttrSectLinks]
 	if withSectlinks {
 		fmt.Fprintf(out, `<a class="link" href="#%s">`, el.ID)
 	}
@@ -1283,7 +1283,7 @@ func htmlWriteTable(doc *Document, el *element, out io.Writer) {
 		)
 
 		doc.counterTable++
-		_, withTableCaption = doc.Attributes[metaNameTableCaption]
+		_, withTableCaption = doc.Attributes[docAttrTableCaption]
 
 		if withTableCaption {
 			caption, ok = el.Attrs[attrNameCaption]
