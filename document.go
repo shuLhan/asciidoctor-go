@@ -31,7 +31,7 @@ type Document struct {
 	preamble *element
 	content  *element
 
-	Attributes AttributeEntry
+	Attributes DocumentAttribute
 	sectnums   *sectionCounters
 
 	// titleID is the reverse of anchors, it contains mapping of title and
@@ -76,7 +76,7 @@ func newDocument() (doc *Document) {
 		TOCLevel:   defTOCLevel,
 		tocClasses: attributeClass{},
 		tocTitle:   defTOCTitle,
-		Attributes: newAttributeEntry(),
+		Attributes: newDocumentAttribute(),
 		classes:    attributeClass{},
 		anchors:    make(map[string]*anchor),
 		titleID:    make(map[string]string),

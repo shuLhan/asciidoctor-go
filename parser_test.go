@@ -19,7 +19,7 @@ func TestGenerateID(t *testing.T) {
 	var cases = []testCase{{
 		desc: `Without idprefix and idseparator`,
 		doc: &Document{
-			Attributes: AttributeEntry{},
+			Attributes: DocumentAttribute{},
 		},
 		inputExp: map[string]string{
 			`a b c`:  `a_b_c`,
@@ -28,7 +28,7 @@ func TestGenerateID(t *testing.T) {
 	}, {
 		desc: `With idprefix`,
 		doc: &Document{
-			Attributes: AttributeEntry{
+			Attributes: DocumentAttribute{
 				metaNameIDPrefix: `123`,
 			},
 		},
@@ -39,7 +39,7 @@ func TestGenerateID(t *testing.T) {
 	}, {
 		desc: `With empty idseparator`,
 		doc: &Document{
-			Attributes: AttributeEntry{
+			Attributes: DocumentAttribute{
 				metaNameIDSeparator: ``,
 			},
 		},
@@ -50,7 +50,7 @@ func TestGenerateID(t *testing.T) {
 	}, {
 		desc: `With idseparator`,
 		doc: &Document{
-			Attributes: AttributeEntry{
+			Attributes: DocumentAttribute{
 				metaNameIDSeparator: `-`,
 			},
 		},
@@ -61,7 +61,7 @@ func TestGenerateID(t *testing.T) {
 	}, {
 		desc: `With idprefix and idseparator`,
 		doc: &Document{
-			Attributes: AttributeEntry{
+			Attributes: DocumentAttribute{
 				metaNameIDPrefix:    `id_`,
 				metaNameIDSeparator: `-`,
 			},

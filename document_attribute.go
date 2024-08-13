@@ -5,12 +5,12 @@ package asciidoctor
 
 import "strings"
 
-// AttributeEntry contains the mapping of global attribute keys in the headers
-// with its value.
-type AttributeEntry map[string]string
+// DocumentAttribute contains the mapping of global attribute keys in the
+// headers with its value.
+type DocumentAttribute map[string]string
 
-func newAttributeEntry() AttributeEntry {
-	return AttributeEntry{
+func newDocumentAttribute() DocumentAttribute {
+	return DocumentAttribute{
 		MetaNameGenerator:       `asciidoctor-go ` + Version,
 		metaNameLastUpdateLabel: `Last updated`,
 		metaNameLastUpdateValue: ``,
@@ -21,7 +21,7 @@ func newAttributeEntry() AttributeEntry {
 	}
 }
 
-func (entry *AttributeEntry) apply(key, val string) {
+func (entry *DocumentAttribute) apply(key, val string) {
 	switch {
 	case key[0] == '!':
 		delete(*entry, strings.TrimSpace(key[1:]))
