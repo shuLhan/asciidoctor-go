@@ -3,7 +3,11 @@
 
 package asciidoctor
 
-import "strings"
+import (
+	"fmt"
+	"strconv"
+	"strings"
+)
 
 // List of document attribute.
 const (
@@ -22,6 +26,7 @@ const (
 	docAttrLastName        = `lastname`
 	docAttrLastUpdateLabel = `last-update-label`
 	docAttrLastUpdateValue = `last-update-value`
+	docAttrLevelOffset     = `leveloffset`
 	docAttrMiddleName      = `middlename`
 	docAttrNoFooter        = `nofooter`
 	docAttrNoHeader        = `noheader`
@@ -57,7 +62,8 @@ const (
 // DocumentAttribute contains the mapping of global attribute keys in the
 // headers with its value.
 type DocumentAttribute struct {
-	Entry map[string]string
+	Entry       map[string]string
+	LevelOffset int
 }
 
 func newDocumentAttribute() DocumentAttribute {
@@ -74,18 +80,33 @@ func newDocumentAttribute() DocumentAttribute {
 	}
 }
 
-func (docAttr *DocumentAttribute) apply(key, val string) {
+func (docAttr *DocumentAttribute) apply(key, val string) (err error) {
 	if key[0] == '!' {
 		key = strings.TrimSpace(key[1:])
 		delete(docAttr.Entry, key)
-		return
+		return nil
 	}
 	var n = len(key)
 	if key[n-1] == '!' {
 		key = strings.TrimSpace(key[:n-1])
 		delete(docAttr.Entry, key)
-		return
+		return nil
 	}
 
+	if key == docAttrLevelOffset {
+		var offset int64
+		offset, err = strconv.ParseInt(val, 10, 32)
+		if err != nil {
+			return fmt.Errorf(`DocumentAttribute: %s: invalid value %q`, key, val)
+		}
+		if val[0] == '+' || val[0] == '-' {
+			docAttr.LevelOffset += int(offset)
+			goto valid
+		}
+		docAttr.LevelOffset = int(offset)
+	}
+
+valid:
 	docAttr.Entry[key] = val
+	return nil
 }

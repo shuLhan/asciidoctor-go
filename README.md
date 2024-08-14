@@ -126,6 +126,8 @@ Supported document attribute references,
 * `idseparator`
 * `lastname(_x)`
 * `last-update-label`
+* [`leveloffset`](https://docs.asciidoctor.org/asciidoc/latest/directives/include-with-leveloffset/).
+Only on document attributes, not on include directive.
 * `middlename(_x)`
 * `nofooter`
 * `noheader`
@@ -216,7 +218,6 @@ List of features which may be implemented,
 * Cross References
   * Inter-document Cross References
 * Include Directive
-  * Partitioning large documents and using leveloffset
   * AsciiDoc vs non-AsciiDoc files
   * Normalize Block Indentation
   * Include a File Multiple Times in the Same Document

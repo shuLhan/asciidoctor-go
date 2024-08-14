@@ -1,0 +1,17 @@
+Test the ":leveloffset:" document attribute.
+
+>>> leveloffset
+:leveloffset: +1
+
+include::testdata/_includes/section.adoc[]
+
+<<< leveloffset
+
+<div class="sect1">
+<h2 id="section_1">Section 1</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This is included with leveloffset +1.</p>
+</div>
+</div>
+</div>

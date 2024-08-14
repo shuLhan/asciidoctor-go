@@ -141,19 +141,20 @@ func (docp *documentParser) hasPreamble() bool {
 
 		notEmtpy int
 		line     []byte
-		kind     int
 	)
 	for ; start < len(docp.lines); start++ {
 		line = docp.lines[start]
 		if len(line) == 0 {
 			continue
 		}
-		kind, _, _ = whatKindOfLine(line)
-		if kind == elKindSectionL1 || kind == elKindSectionL2 ||
-			kind == elKindSectionL3 || kind == elKindSectionL4 ||
-			kind == elKindSectionL5 ||
-			kind == lineKindID ||
-			kind == lineKindIDShort {
+		_, _ = docp.whatKindOfLine(line)
+		if docp.kind == elKindSectionL1 ||
+			docp.kind == elKindSectionL2 ||
+			docp.kind == elKindSectionL3 ||
+			docp.kind == elKindSectionL4 ||
+			docp.kind == elKindSectionL5 ||
+			docp.kind == lineKindID ||
+			docp.kind == lineKindIDShort {
 			return notEmtpy > 0
 		}
 		notEmtpy++
@@ -202,7 +203,7 @@ func (docp *documentParser) line(logp string) (spaces, line []byte, ok bool) {
 	}
 	docp.lineNum++
 
-	docp.kind, spaces, line = whatKindOfLine(line)
+	spaces, line = docp.whatKindOfLine(line)
 	return spaces, line, true
 }
 
@@ -397,7 +398,7 @@ func (docp *documentParser) parseBlock(parent *element, term int) {
 					}
 					el.Attrs[key] = value
 				} else {
-					docp.doc.Attributes.apply(key, value)
+					_ = docp.doc.Attributes.apply(key, value)
 					parent.addChild(&element{
 						kind:  docp.kind,
 						key:   key,
@@ -749,7 +750,7 @@ func (docp *documentParser) parseHeader() {
 			var key, value string
 			key, value, ok = docp.parseAttribute(line, false)
 			if ok {
-				docp.doc.Attributes.apply(key, value)
+				_ = docp.doc.Attributes.apply(key, value)
 			}
 			line = nil
 			continue
@@ -1598,4 +1599,248 @@ func (docp *documentParser) skipCommentAndEmptyLine() (line []byte, ok bool) {
 		break
 	}
 	return line, true
+}
+
+// whatKindOfLine return the kind of line.
+// It will return lineKindText if the line does not match with known syntax.
+func (docp *documentParser) whatKindOfLine(line []byte) (spaces, got []byte) {
+	docp.kind = lineKindText
+
+	line = bytes.TrimRight(line, " \f\n\r\t\v")
+
+	// All of the comparison MUST be in order.
+
+	if len(line) == 0 {
+		docp.kind = lineKindEmpty
+		return nil, line
+	}
+	if bytes.HasPrefix(line, []byte(`////`)) {
+		// Check for comment block first, since we use HasPrefix to
+		// check for single line comment.
+		docp.kind = lineKindBlockComment
+		return spaces, line
+	}
+	if bytes.HasPrefix(line, []byte(`//`)) {
+		// Use HasPrefix to allow single line comment without space,
+		// for example "//comment".
+		docp.kind = lineKindComment
+		return spaces, line
+	}
+
+	var strline = string(line)
+
+	switch strline {
+	case `'''`, `---`, `- - -`, `***`, `* * *`:
+		docp.kind = lineKindHorizontalRule
+		return spaces, line
+	case `<<<`:
+		docp.kind = lineKindPageBreak
+		return spaces, line
+	case `--`:
+		docp.kind = elKindBlockOpen
+		return spaces, line
+	case `____`:
+		docp.kind = elKindBlockExcerpts
+		return spaces, line
+	case `....`:
+		docp.kind = elKindBlockLiteral
+		return nil, line
+	case `++++`:
+		docp.kind = elKindBlockPassthrough
+		return spaces, line
+	case `****`:
+		docp.kind = elKindBlockSidebar
+		return nil, line
+	case `====`:
+		docp.kind = elKindBlockExample
+		return spaces, line
+	case `[listing]`:
+		docp.kind = elKindBlockListingNamed
+		return nil, line
+	case `[literal]`:
+		docp.kind = elKindBlockLiteralNamed
+		return nil, line
+	case `toc::[]`:
+		docp.kind = elKindMacroTOC
+		return spaces, line
+	}
+
+	if bytes.HasPrefix(line, []byte(`|===`)) {
+		docp.kind = elKindTable
+		return nil, line
+	}
+	if bytes.HasPrefix(line, []byte(`image::`)) {
+		docp.kind = elKindBlockImage
+		return spaces, line
+	}
+	if bytes.HasPrefix(line, []byte(`include::`)) {
+		docp.kind = lineKindInclude
+		return nil, line
+	}
+	if bytes.HasPrefix(line, []byte(`video::`)) {
+		docp.kind = elKindBlockVideo
+		return nil, line
+	}
+	if bytes.HasPrefix(line, []byte(`audio::`)) {
+		docp.kind = elKindBlockAudio
+		return nil, line
+	}
+	if isAdmonition(line) {
+		docp.kind = lineKindAdmonition
+		return nil, line
+	}
+
+	var (
+		x        int
+		r        byte
+		hasSpace bool
+	)
+	for x, r = range line {
+		if r == ' ' || r == '\t' {
+			hasSpace = true
+			continue
+		}
+		break
+	}
+	if hasSpace {
+		spaces = line[:x]
+		line = line[x:]
+
+		// A line indented with space only allowed on list item,
+		// otherwise it would be set as literal paragraph.
+
+		if isLineDescriptionItem(line) {
+			docp.kind = elKindListDescriptionItem
+			return spaces, line
+		}
+
+		if line[0] != '*' && line[0] != '-' && line[0] != '.' {
+			docp.kind = elKindLiteralParagraph
+			return spaces, line
+		}
+	}
+
+	switch line[0] {
+	case ':':
+		docp.kind = lineKindAttribute
+	case '[':
+		var (
+			newline = bytes.TrimRight(line, " \t")
+			l       = len(newline)
+		)
+
+		if newline[l-1] != ']' {
+			return nil, line
+		}
+		if l >= 5 {
+			// [[x]]
+			if newline[1] == '[' && newline[l-2] == ']' {
+				docp.kind = lineKindID
+				return nil, line
+			}
+		}
+		if l >= 4 {
+			// [#x]
+			if line[1] == '#' {
+				docp.kind = lineKindIDShort
+				return nil, line
+			}
+			// [.x]
+			if line[1] == '.' {
+				docp.kind = lineKindStyleClass
+				return nil, line
+			}
+		}
+		docp.kind = lineKindAttributeElement
+		return spaces, line
+	case '=', '#':
+		var subs = bytes.Fields(line)
+
+		switch string(subs[0]) {
+		case `=`, `#`:
+			docp.kind = elKindSectionL0
+		case `==`, `##`:
+			docp.kind = elKindSectionL1
+		case `===`, `###`:
+			docp.kind = elKindSectionL2
+		case `====`, `####`:
+			docp.kind = elKindSectionL3
+		case `=====`, `#####`:
+			docp.kind = elKindSectionL4
+		case `======`, `######`:
+			docp.kind = elKindSectionL5
+		default:
+			return spaces, line
+		}
+		docp.kind += docp.doc.Attributes.LevelOffset
+		if docp.kind < elKindSectionL0 || docp.kind > elKindSectionL5 {
+			docp.kind = elKindText
+		}
+		return spaces, line
+
+	case '.':
+		switch {
+		case len(line) <= 1:
+			docp.kind = lineKindText
+		case ascii.IsAlnum(line[1]):
+			docp.kind = lineKindBlockTitle
+		default:
+			x = 0
+			for ; x < len(line); x++ {
+				if line[x] == '.' {
+					continue
+				}
+				if line[x] == ' ' || line[x] == '\t' {
+					docp.kind = elKindListOrderedItem
+					return spaces, line
+				}
+			}
+		}
+	case '*', '-':
+		if len(line) <= 1 {
+			return spaces, line
+		}
+
+		var (
+			listItemChar = line[0]
+			count        = 0
+		)
+		x = 0
+		for ; x < len(line); x++ {
+			if line[x] == listItemChar {
+				count++
+				continue
+			}
+			if line[x] == ' ' || line[x] == '\t' {
+				docp.kind = elKindListUnorderedItem
+				return spaces, line
+			}
+			// Break on the first non-space, so from above
+			// condition we have,
+			// - item
+			// -- item
+			// --- item
+			// ---- // block listing
+			// --unknown // break here
+			break
+		}
+		if listItemChar == '-' && count == 4 && x == len(line) {
+			docp.kind = elKindBlockListing
+		} else {
+			docp.kind = lineKindText
+		}
+		return spaces, line
+	default:
+		switch string(line) {
+		case `+`:
+			docp.kind = lineKindListContinue
+		case `----`:
+			docp.kind = elKindBlockListing
+		default:
+			if isLineDescriptionItem(line) {
+				docp.kind = elKindListDescriptionItem
+			}
+		}
+	}
+	return spaces, line
 }
