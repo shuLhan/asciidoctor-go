@@ -601,7 +601,7 @@ func (docp *documentParser) parseBlock(parent *element, term int) {
 			continue
 
 		case elKindBlockImage:
-			var lineImage = bytes.TrimRight(line[7:], " \t")
+			var lineImage = line[7:]
 			if el.parseBlockImage(docp.doc, lineImage) {
 				el.kind = docp.kind
 				line = nil
@@ -1606,8 +1606,6 @@ func (docp *documentParser) skipCommentAndEmptyLine() (line []byte, ok bool) {
 func (docp *documentParser) whatKindOfLine(line []byte) (spaces, got []byte) {
 	docp.kind = lineKindText
 
-	line = bytes.TrimRight(line, " \f\n\r\t\v")
-
 	// All of the comparison MUST be in order.
 
 	if len(line) == 0 {
@@ -1725,16 +1723,15 @@ func (docp *documentParser) whatKindOfLine(line []byte) (spaces, got []byte) {
 		docp.kind = lineKindAttribute
 	case '[':
 		var (
-			newline = bytes.TrimRight(line, " \t")
-			l       = len(newline)
+			l = len(line)
 		)
 
-		if newline[l-1] != ']' {
+		if line[l-1] != ']' {
 			return nil, line
 		}
 		if l >= 5 {
 			// [[x]]
-			if newline[1] == '[' && newline[l-2] == ']' {
+			if line[1] == '[' && line[l-2] == ']' {
 				docp.kind = lineKindID
 				return nil, line
 			}

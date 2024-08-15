@@ -276,7 +276,7 @@ func (el *element) lastSuccessor() (last *element) {
 }
 
 func (el *element) parseBlockAudio(doc *Document, line []byte) bool {
-	line = bytes.TrimRight(line[7:], " \t")
+	line = line[7:]
 
 	var attrBegin = bytes.IndexByte(line, '[')
 	if attrBegin < 0 {
@@ -620,7 +620,7 @@ func (el *element) parseStyleClass(line []byte) {
 }
 
 func (el *element) parseBlockVideo(doc *Document, line []byte) bool {
-	line = bytes.TrimRight(line[7:], " \t")
+	line = line[7:]
 
 	var (
 		attrBegin = bytes.IndexByte(line, '[')
@@ -783,9 +783,6 @@ func (el *element) removeLastIfEmpty() {
 	}
 	if c.prev != nil {
 		c.prev.next = nil
-		if c.prev.kind == elKindText {
-			el.raw = bytes.TrimRight(el.raw, " \t")
-		}
 	} else if c.parent != nil {
 		c.parent.child = nil
 	}
