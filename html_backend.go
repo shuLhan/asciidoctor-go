@@ -1113,10 +1113,10 @@ func htmlWriteInlinePass(doc *Document, el *element, out io.Writer) {
 func htmlWriteListDescription(el *element, out io.Writer) {
 	var openTag string
 	switch {
-	case el.isStyleQandA() == true:
+	case el.isStyleQandA():
 		htmlWriteBlockBegin(el, out, `qlist qanda`)
 		openTag = "\n<ol>"
-	case el.isStyleHorizontal() == true:
+	case el.isStyleHorizontal():
 		htmlWriteBlockBegin(el, out, `hdlist`)
 		openTag = "\n<table>"
 	default:
@@ -1129,9 +1129,9 @@ func htmlWriteListDescription(el *element, out io.Writer) {
 
 func htmlWriteListDescriptionEnd(el *element, out io.Writer) {
 	switch {
-	case el.isStyleQandA() == true:
+	case el.isStyleQandA():
 		fmt.Fprintf(out, "\n</ol>\n</div>")
-	case el.isStyleHorizontal() == true:
+	case el.isStyleHorizontal():
 		fmt.Fprintf(out, "\n</table>\n</div>")
 	default:
 		fmt.Fprintf(out, "\n</dl>\n</div>")
