@@ -219,8 +219,9 @@ func (el *element) Write(b []byte) {
 	el.raw = append(el.raw, b...)
 }
 
-func (el *element) WriteByte(b byte) {
+func (el *element) WriteByte(b byte) error {
 	el.raw = append(el.raw, b)
+	return nil
 }
 
 func (el *element) WriteString(s string) {
