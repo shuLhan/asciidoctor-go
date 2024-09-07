@@ -6,6 +6,58 @@ Shulhan <ms@kilabit.info>
 :sectlinks:
 
 
+[#v0_6_0]
+== asciidoctor-go v0.6.0 (2024-09-07)
+
+[#v0_6_0__breaking_changes]
+=== Breaking changes
+
+all: rename struct "AttributeEntry" to "DocumentAttribute"::
++
+This is to make the struct is clear that it represent the document
+attribute.
+
+all: rename struct "AttributeEntry" to "DocumentAttribute"::
++
+This is to make the struct is clear that it represent the document
+attribute.
+
+all: refactoring DocumentAttribute into struct::
++
+Using struct limit the value to only string, while some attributes
+can be an integer value, for example "leveloffset".
+
+[#v0_6_0__new_features]
+=== New features
+
+all: support document attribute "leveloffset"::
++
+--
+The ":leveloffset:" on document attribute allow increment
+or decrement the heading level on included files.
+
+Reference: https://docs.asciidoctor.org/asciidoc/latest/directives/include-with-leveloffset/
+--
+
+[#v0_6_0__enhancements]
+=== Enhancements
+
+all: use strict document header format::
++
+--
+Previously, an empty line before Document Title cause the parser
+stop parsing the document header, now an empty lines are skipped.
+Also document attribute can be place anywhere, either before or
+after title, and in between attributes; now it can be only placed
+after revision or author or title.
+--
+
+all: remove unnecessary TrimRight::
++
+Each lines to be parsed has been trimmed on the first load, so
+there is no need to do it again, on some cases.
+
+
 [#v0_5_2]
 == asciidoctor-go v0.5.2 (2023-04-04)
 
