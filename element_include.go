@@ -48,7 +48,7 @@ func parseInclude(doc *Document, line []byte) (el *elementInclude) {
 
 	el.content, err = os.ReadFile(el.fpath)
 	if err != nil {
-		log.Printf(`parseInclude %q: %s`, doc.file, err)
+		log.Printf(`parseInclude %q: %s`, el.fpath, err)
 		return nil
 	}
 
