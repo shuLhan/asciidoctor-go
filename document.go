@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -96,7 +95,6 @@ func newDocument() (doc *Document) {
 func Open(file string) (doc *Document, err error) {
 	var (
 		fi  os.FileInfo
-		wd  string
 		raw []byte
 	)
 
@@ -110,13 +108,7 @@ func Open(file string) (doc *Document, err error) {
 		return nil, fmt.Errorf(`Open %s: %w`, file, err)
 	}
 
-	wd, err = os.Getwd()
-	if err != nil {
-		return nil, fmt.Errorf(`Open %s: %w`, file, err)
-	}
-
 	doc = newDocument()
-	doc.fpath = filepath.Join(wd, file)
 	doc.file = file
 	doc.Attributes.Entry[docAttrLastUpdateValue] = fi.ModTime().Round(time.Second).Format(`2006-01-02 15:04:05 Z0700`)
 

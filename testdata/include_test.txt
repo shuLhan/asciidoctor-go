@@ -1,12 +1,12 @@
 Test include directive with list description that contains open block.
 
->>> list_description
+>>> include
 
 include::testdata/_includes/list_desc_00.adoc[]
 
 include::testdata/_includes/list_desc_01.adoc[]
 
-<<< list_description
+<<< include
 
 <div class="dlist">
 <dl>
