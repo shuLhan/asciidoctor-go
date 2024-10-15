@@ -21,4 +21,4 @@ test-parser:
 	go test -v -run=Open .
 
 serve-doc:
-	ciigo serve _doc/
+	ciigo -address=127.0.0.1:31904 serve _doc/
