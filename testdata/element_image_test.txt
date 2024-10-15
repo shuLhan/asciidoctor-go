@@ -1,0 +1,35 @@
+>>> empty_block_image
+
+image::[]
+
+<<< empty_block_image
+
+<div class="imageblock">
+<div class="content">
+<img src="" alt="">
+</div>
+</div>
+
+>>> with_absolute_path
+
+image::/absolute/path.png[Image alt text]
+
+<<< with_absolute_path
+
+<div class="imageblock">
+<div class="content">
+<img src="/absolute/path.png" alt="Image alt text">
+</div>
+</div>
+
+>>> with_attr_link
+
+image::/image/path.png[Image alt text,link="{dummy}/link"]
+
+<<< with_attr_link
+
+<div class="imageblock">
+<div class="content">
+<img src="/image/path.png" alt="Image alt text">
+</div>
+</div>

@@ -1063,47 +1063,6 @@ func htmlWriteHeader(doc *Document, out io.Writer) {
 	fmt.Fprint(out, "\n</div>")
 }
 
-func htmlWriteInlineImage(el *element, out io.Writer) {
-	var (
-		classes = strings.TrimSpace(`image ` + el.htmlClasses())
-
-		link     string
-		withLink bool
-	)
-
-	fmt.Fprintf(out, `<span class=%q>`, classes)
-	link, withLink = el.Attrs[attrNameLink]
-	if withLink {
-		fmt.Fprintf(out, `<a class=%q href=%q>`, attrValueImage, link)
-	}
-
-	var (
-		src = el.Attrs[attrNameSrc]
-		alt = el.Attrs[attrNameAlt]
-
-		width  string
-		height string
-		ok     bool
-	)
-
-	width, ok = el.Attrs[attrNameWidth]
-	if ok {
-		width = fmt.Sprintf(` width="%s"`, width)
-	}
-	height, ok = el.Attrs[attrNameHeight]
-	if ok {
-		height = fmt.Sprintf(` height="%s"`, height)
-	}
-
-	fmt.Fprintf(out, `<img src=%q alt=%q%s%s>`, src, alt, width, height)
-
-	if withLink {
-		fmt.Fprint(out, `</a>`)
-	}
-
-	fmt.Fprint(out, `</span>`)
-}
-
 func htmlWriteInlinePass(doc *Document, el *element, out io.Writer) {
 	var text = htmlSubs(doc, el)
 

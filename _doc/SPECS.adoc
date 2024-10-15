@@ -346,12 +346,13 @@ ABSOLUTE_PATH     = "/" WORD *( "/" WORD )
 RELATIVE_PATH     = ( "." / ".." ) "/" WORD * ( "/" WORD )
 ----
 
+
 ==  Images
 
-===  Inline image
+===  Block image
 
 ----
-IMAGE_INLINE  = "image:" URL "[" (IMAGE_ATTRS) "]"
+BLOCK_IMAGE   = "image::" URL "[" IMAGE_ATTRS "]"
 
 IMAGE_ATTRS   = TEXT ("," IMAGE_WIDTH ("," IMAGE_HEIGHT)) *("," IMAGE_OPTS)
 
@@ -359,6 +360,13 @@ IMAGE_OPTS    = IMAGE_OPT_KEY "=" 1*VCHAR
 
 IMAGE_OPT_KEY = "title" / "float" / "align" / "role" / "link"
 ----
+
+===  Inline image
+
+----
+IMAGE_INLINE  = "image:" URL "[" (IMAGE_ATTRS) "]"
+----
+
 
 ==  Video
 

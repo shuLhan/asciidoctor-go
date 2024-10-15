@@ -694,36 +694,6 @@ func (pi *inlineParser) parseFormatUnconstrained(
 	return false
 }
 
-func parseInlineImage(doc *Document, content []byte) (elImage *element, n int) {
-	var (
-		lineImage []byte
-	)
-
-	// If the next character is ':' (as in block "image::") mark it as
-	// invalid inline image, since this is block image that has been
-	// parsed but invalid (probably missing '[]').
-	if content[0] == ':' {
-		return nil, 0
-	}
-
-	_, n = indexByteUnescape(content, ']')
-	if n < 0 {
-		return nil, 0
-	}
-
-	lineImage = content[:n+1]
-	elImage = &element{
-		elementAttribute: elementAttribute{
-			Attrs: make(map[string]string),
-		},
-		kind: elKindInlineImage,
-	}
-	if elImage.parseBlockImage(doc, lineImage) {
-		return elImage, n + 2
-	}
-	return nil, 0
-}
-
 func (pi *inlineParser) parseMacro() bool {
 	var (
 		el   *element
