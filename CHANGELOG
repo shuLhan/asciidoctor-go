@@ -6,6 +6,24 @@ Shulhan <ms@kilabit.info>
 :sectlinks:
 
 
+[#v0_6_1]
+== asciidoctor-go v0.6.1 (2024-12-08)
+
+[#v0_6_1__bug_fixes]
+=== Bug fixes
+
+all: fix error log when failed to open included file::
++
+The log use the wrong variable when printing path for failed include
+file.
+
+all: fix reading include file when parent path is absolute::
++
+Previously, if the parent document is opened using absolute path and
+it contains include directive, the included file will fail to read
+because the parent path is joined with current working directory.
+
+
 [#v0_6_0]
 == asciidoctor-go v0.6.0 (2024-09-07)
 
