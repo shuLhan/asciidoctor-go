@@ -3,8 +3,8 @@
 
 module git.sr.ht/~shulhan/asciidoctor-go
 
-go 1.21
+go 1.22.0
 
-require git.sr.ht/~shulhan/pakakeh.go v0.57.0
+require git.sr.ht/~shulhan/pakakeh.go v0.58.1
 
 //replace git.sr.ht/~shulhan/pakakeh.go => ../pakakeh.go
