@@ -62,8 +62,8 @@ func parseSub(parentDoc *Document, content []byte) (subdoc *Document) {
 	return subdoc
 }
 
-// consumeLinesUntil given an element el, consume all lines until we found
-// a line with kind match with term or match with one in terms.
+// consumeLinesUntil given an element el, consume lines until we found a line
+// with kind match with term OR match with one of kind in the terms.
 func (docp *documentParser) consumeLinesUntil(el *element, term int, terms []int) (line []byte) {
 	var (
 		logp = `consumeLinesUntil`
@@ -1283,8 +1283,14 @@ func (docp *documentParser) parseListOrdered(parent *element, title string, line
 			docp.kind == lineKindAttributeElement ||
 			docp.kind == lineKindBlockTitle ||
 			docp.kind == lineKindID ||
-			docp.kind == lineKindIDShort ||
-			docp.kind == lineKindText {
+			docp.kind == lineKindIDShort {
+			if docp.prevKind == lineKindEmpty ||
+				docp.prevKind == lineKindComment ||
+				docp.prevKind == lineKindBlockComment {
+				break
+			}
+		}
+		if docp.kind == lineKindText {
 			if docp.prevKind == lineKindEmpty {
 				break
 			}
@@ -1531,8 +1537,14 @@ func (docp *documentParser) parseListUnordered(parent, el *element, line []byte,
 			docp.kind == lineKindAdmonition ||
 			docp.kind == lineKindBlockTitle ||
 			docp.kind == lineKindID ||
-			docp.kind == lineKindIDShort ||
-			docp.kind == lineKindText {
+			docp.kind == lineKindIDShort {
+			if docp.prevKind == lineKindEmpty ||
+				docp.prevKind == lineKindComment ||
+				docp.prevKind == lineKindBlockComment {
+				break
+			}
+		}
+		if docp.kind == lineKindText {
 			if docp.prevKind == lineKindEmpty {
 				break
 			}
