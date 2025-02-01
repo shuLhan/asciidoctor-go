@@ -6,6 +6,10 @@ The asciidoctor-go is the Go module to parse the
 [AsciiDoc markup](https://asciidoctor.org/docs/what-is-asciidoc)
 and convert it into HTML5.
 
+For the front-end tooling that use this library to build static website
+see
+[ciigo](https://sr.ht/~shulhan/ciigo).
+
 ##  Documentation
 
 [Go documentation](https://pkg.go.dev/git.sr.ht/~shulhan/asciidoctor-go).
