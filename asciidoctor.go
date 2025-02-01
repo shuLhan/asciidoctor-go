@@ -11,7 +11,7 @@ import "git.sr.ht/~shulhan/pakakeh.go/lib/math/big"
 
 const (
 	// Version of this module.
-	Version = `0.6.1`
+	Version = `0.6.2`
 
 	_lf = "\n"
 )
