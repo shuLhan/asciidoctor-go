@@ -16,7 +16,7 @@ test:
 
 .PHONY: test-parser
 test-parser:
-	asciidoctor --attribute stylesheet! \
+	asciidoctor \
 		--out-file=testdata/test.exp.html \
 		testdata/test.adoc
 	go test -v -run=Open .

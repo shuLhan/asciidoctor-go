@@ -11,6 +11,7 @@ with backslash
 key, \
 words
 :last-update-label!:
+:stylesheet!:
 
 Document body.
 
@@ -56,6 +57,7 @@ John Doe <john@doe.tld>
 v1.0, 15 Dec 2022
 :last-update-label!:
 :idprefix:
+:stylesheet!:
 
 This is preamble.
 

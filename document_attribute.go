@@ -41,6 +41,7 @@ const (
 	docAttrSectNumLevel    = `sectnumlevels`
 	docAttrSectNums        = `sectnums`
 	docAttrShowTitle       = `showtitle`
+	docAttrStylesheet      = `stylesheet`
 	docAttrTOC             = `toc`
 	docAttrTOCLevels       = `toclevels`
 	docAttrTOCTitle        = `toc-title`
@@ -74,6 +75,7 @@ func newDocumentAttribute() DocumentAttribute {
 			docAttrLastUpdateValue: ``,
 			docAttrSectIDs:         ``,
 			docAttrShowTitle:       ``,
+			docAttrStylesheet:      ``,
 			docAttrTableCaption:    ``,
 			docAttrVersionLabel:    ``,
 		},

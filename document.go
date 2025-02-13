@@ -203,12 +203,18 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 		fmt.Fprintf(buf, "\n<title>%s</title>", title)
 	}
 
+	var ok bool
+
+	_, ok = doc.Attributes.Entry[docAttrStylesheet]
+	if ok {
+		buf.WriteByte('\n')
+		buf.WriteString(_defaultCSS)
+	}
+
 	fmt.Fprintf(buf, "\n</head>\n<body class=%q>\n", doc.classes.String())
 
-	var (
-		isWithHeaderFooter = true
-		ok                 bool
-	)
+	var isWithHeaderFooter = true
+
 	_, ok = doc.Attributes.Entry[docAttrNoHeaderFooter]
 	if ok {
 		isWithHeaderFooter = false

@@ -142,6 +142,7 @@ Only on document attributes, not on include directive.
 * `sectnumlevels`
 * `sectnums`
 * `showtitle`
+* `stylesheet`
 * `table-caption`
 * `title-separator`
 * `version-label`
