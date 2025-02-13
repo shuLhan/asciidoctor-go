@@ -309,3 +309,42 @@ a quote
 </li>
 </ul>
 </div>
+
+>>> with_marker_none
+
+[none]
+* none l1.1
+** none l2.1
+*** none l3.1
+** none l2.2
+* none l1.2
+
+<<< with_marker_none
+
+<div class="ulist none">
+<ul class="none">
+<li>
+<p>none l1.1</p>
+<div class="ulist">
+<ul>
+<li>
+<p>none l2.1</p>
+<div class="ulist">
+<ul>
+<li>
+<p>none l3.1</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>none l2.2</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>none l1.2</p>
+</li>
+</ul>
+</div>

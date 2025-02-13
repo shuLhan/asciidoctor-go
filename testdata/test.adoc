@@ -440,8 +440,11 @@ This line separated by comment.
 * disc two
 
 [none]
-* none one
-* none two
+* none 1.1
+** none 2.1
+*** none 3.1
+** none 2.2
+* none 1.2
 
 [no-bullet]
 * no bullet one
