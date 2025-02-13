@@ -56,17 +56,25 @@ The numbered one is based on the old documentation.
   * Quotation Marks and Apostrophes
   * Subscript and Superscript
   * Monospace
-* List
-  * Unordered Lists (See Notes below)
-    * Nested
-    * Complex List Content
-    * Custom Markers
-  * Ordered Lists
-    * Nested
-    * Numbering Styles
-  * Checklist
-* Description List
-  * Question and Answer Style List
+* Lists &#x221A;
+  * [Unordered Lists](https://docs.asciidoctor.org/asciidoc/latest/lists/unordered/) &#x221A; (see Notes below)
+    * Basic unordered list &#x221A;
+    * Nested unordered list &#x221A;
+    * Markers &#x221A;
+      * Default markers &#x221A;
+      * Custom markers &#x221A;
+  * [Ordered Lists](https://docs.asciidoctor.org/asciidoc/latest/lists/ordered/) &#x221A;
+    * Basic ordered list &#x221A;
+    * Nested ordered list &#x221A;
+    * Number styles &#x221A;
+  * [Checklists](https://docs.asciidoctor.org/asciidoc/latest/lists/checklist/) &#x221A;
+  * [Separating Lists](https://docs.asciidoctor.org/asciidoc/latest/lists/separating/) &#x221A;
+* Description Lists
+  * [Description Lists](https://docs.asciidoctor.org/asciidoc/latest/lists/description/)
+    * Basic description list &#x221A;
+    * Mixing lists &#x221A;
+    * Nested description list &#x221A;
+  * Question and Answer Lists &#x221A;
 * Tables
   * Columns
   * Column formatting
