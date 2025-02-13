@@ -4,7 +4,9 @@
 package asciidoctor
 
 import (
+	"bytes"
 	"os"
+	"regexp"
 	"testing"
 
 	"git.sr.ht/~shulhan/pakakeh.go/lib/test"
@@ -12,11 +14,9 @@ import (
 
 func TestOpen(t *testing.T) {
 	var (
-		doc  *Document
-		fout *os.File
-		err  error
+		doc *Document
+		err error
 	)
-
 	doc, err = Open(`testdata/test.adoc`)
 	if err != nil {
 		t.Fatal(err)
@@ -26,12 +26,18 @@ func TestOpen(t *testing.T) {
 	// generator, we override ourself.
 	doc.Attributes.Entry[DocAttrGenerator] = `Asciidoctor 2.0.18`
 
-	fout, err = os.OpenFile(`testdata/test.got.html`, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
+	var buf bytes.Buffer
+
+	err = doc.ToHTML(&buf)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = doc.ToHTML(fout)
+	var redactLastUpdated = regexp.MustCompile(`Last updated (.*)`)
+	var got = redactLastUpdated.ReplaceAll(buf.Bytes(),
+		[]byte(`Last updated [REDACTED]`))
+
+	err = os.WriteFile(`testdata/test.got.html`, got, 0600)
 	if err != nil {
 		t.Fatal(err)
 	}

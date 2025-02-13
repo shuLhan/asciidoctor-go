@@ -19,6 +19,7 @@ test-parser:
 	asciidoctor \
 		--out-file=testdata/test.exp.html \
 		testdata/test.adoc
+	sed -i 's/Last updated \(.*\)/Last updated [REDACTED]/' testdata/test.exp.html
 	go test -v -run=Open .
 
 .PHONY: serve-doc
