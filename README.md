@@ -131,6 +131,7 @@ Supported document attribute references,
 
 * `author(_x)`
 * `authorinitials(_x)`
+* `docdir`
 * `doctitle`
 * `email(_x)`
 * `firstname(_x)`

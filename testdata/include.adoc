@@ -1,3 +1,5 @@
+= Include
+
 include::_includes/list_desc_00.adoc[]
 
-include::_includes/list_desc_01.adoc[]
+include::{docdir}/_includes/list_desc_01.adoc[]

@@ -12,6 +12,7 @@ const (
 	DocAttrKeywords    = `keywords`
 
 	docAttrAuthorInitials  = `authorinitials`
+	docAttrDocdir          = `docdir`
 	docAttrDocTitle        = `doctitle`
 	docAttrEmail           = attrValueEmail
 	docAttrFirstName       = `firstname`

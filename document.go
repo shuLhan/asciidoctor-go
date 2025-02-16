@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -42,8 +43,13 @@ type Document struct {
 
 	Revision Revision
 
-	file        string
-	fpath       string
+	file string
+
+	// docdir contains the directory where file located.
+	// This is the default value when ":docdir:" attribute is set and
+	// empty.
+	docdir string
+
 	rawAuthors  string
 	rawRevision string
 	tocPosition string
@@ -110,7 +116,11 @@ func Open(file string) (doc *Document, err error) {
 
 	doc = newDocument()
 	doc.file = file
-	doc.Attributes.Entry[docAttrLastUpdateValue] = fi.ModTime().Round(time.Second).Format(`2006-01-02 15:04:05 Z0700`)
+	doc.docdir = filepath.Dir(file)
+
+	var modTime = fi.ModTime().Round(time.Second).Format(`2006-01-02 15:04:05 Z0700`)
+	doc.Attributes.Entry[docAttrLastUpdateValue] = modTime
+	doc.Attributes.Entry[docAttrDocdir] = doc.docdir
 
 	parse(doc, raw)
 
@@ -303,6 +313,13 @@ func (doc *Document) setAttribute(key, val string) (err error) {
 			doc.Attributes.LevelOffset = int(offset)
 		}
 		doc.Attributes.Entry[key] = val
+
+	case docAttrDocdir:
+		if val == `` {
+			doc.Attributes.Entry[key] = doc.docdir
+		} else {
+			doc.Attributes.Entry[key] = val
+		}
 
 	default:
 		doc.Attributes.Entry[key] = val

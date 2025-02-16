@@ -43,9 +43,13 @@ func parseInclude(doc *Document, line []byte) (el *elementInclude) {
 
 	el.attrs.parseElementAttribute(line[start : start+end+1])
 
-	path = applySubstitutions(doc, path)
-	el.fpath = filepath.Join(filepath.Dir(doc.file), string(path))
-
+	var newPath = applySubstitutions(doc, path)
+	if bytes.Contains(path, []byte(docAttrDocdir)) {
+		el.fpath = string(newPath)
+	} else {
+		el.fpath = filepath.Join(doc.docdir, string(newPath))
+	}
+	log.Printf(`parseInclude: fpath: %s`, el.fpath)
 	el.content, err = os.ReadFile(el.fpath)
 	if err != nil {
 		log.Printf(`parseInclude %q: %s`, el.fpath, err)
