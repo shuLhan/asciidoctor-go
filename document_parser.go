@@ -398,7 +398,7 @@ func (docp *documentParser) parseBlock(parent *element, term int) {
 					}
 					el.Attrs[key] = value
 				} else {
-					_ = docp.doc.Attributes.apply(key, value)
+					_ = docp.doc.setAttribute(key, value)
 					parent.addChild(&element{
 						kind:  docp.kind,
 						key:   key,
@@ -750,7 +750,7 @@ func (docp *documentParser) parseHeader() {
 			var key, value string
 			key, value, ok = docp.parseAttribute(line, false)
 			if ok {
-				_ = docp.doc.Attributes.apply(key, value)
+				_ = docp.doc.setAttribute(key, value)
 			}
 			line = nil
 			continue

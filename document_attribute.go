@@ -3,12 +3,6 @@
 
 package asciidoctor
 
-import (
-	"fmt"
-	"strconv"
-	"strings"
-)
-
 // List of document attribute.
 const (
 	DocAttrAuthor      = `author`       // May contain the first author full name only.
@@ -80,35 +74,4 @@ func newDocumentAttribute() DocumentAttribute {
 			docAttrVersionLabel:    ``,
 		},
 	}
-}
-
-func (docAttr *DocumentAttribute) apply(key, val string) (err error) {
-	if key[0] == '!' {
-		key = strings.TrimSpace(key[1:])
-		delete(docAttr.Entry, key)
-		return nil
-	}
-	var n = len(key)
-	if key[n-1] == '!' {
-		key = strings.TrimSpace(key[:n-1])
-		delete(docAttr.Entry, key)
-		return nil
-	}
-
-	if key == docAttrLevelOffset {
-		var offset int64
-		offset, err = strconv.ParseInt(val, 10, 32)
-		if err != nil {
-			return fmt.Errorf(`DocumentAttribute: %s: invalid value %q`, key, val)
-		}
-		if val[0] == '+' || val[0] == '-' {
-			docAttr.LevelOffset += int(offset)
-			goto valid
-		}
-		docAttr.LevelOffset = int(offset)
-	}
-
-valid:
-	docAttr.Entry[key] = val
-	return nil
 }

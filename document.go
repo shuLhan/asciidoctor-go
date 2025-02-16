@@ -274,6 +274,43 @@ func (doc *Document) haveHeader() bool {
 	return false
 }
 
+// setAttribute store the document attribute val by its key.
+func (doc *Document) setAttribute(key, val string) (err error) {
+	if key[0] == '!' {
+		key = strings.TrimSpace(key[1:])
+		delete(doc.Attributes.Entry, key)
+		return nil
+	}
+	var n = len(key)
+	if key[n-1] == '!' {
+		key = strings.TrimSpace(key[:n-1])
+		delete(doc.Attributes.Entry, key)
+		return nil
+	}
+
+	val = strings.TrimSpace(val)
+
+	switch key {
+	case docAttrLevelOffset:
+		var offset int64
+		offset, err = strconv.ParseInt(val, 10, 32)
+		if err != nil {
+			return fmt.Errorf(`Document: setAttribute: %s invalid value %q`, key, val)
+		}
+		if val[0] == '+' || val[0] == '-' {
+			doc.Attributes.LevelOffset += int(offset)
+		} else {
+			doc.Attributes.LevelOffset = int(offset)
+		}
+		doc.Attributes.Entry[key] = val
+
+	default:
+		doc.Attributes.Entry[key] = val
+	}
+
+	return nil
+}
+
 func (doc *Document) toHTMLBody(buf *bytes.Buffer, withHeaderFooter bool) {
 	var (
 		ok bool

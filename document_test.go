@@ -101,3 +101,91 @@ func TestParse_document_title(t *testing.T) {
 		test.Assert(t, `String`, c.expString, got.Title.String())
 	}
 }
+
+func TestDocumentSetAttribute(t *testing.T) {
+	type testCase struct {
+		desc     string
+		key      string
+		val      string
+		expError string
+		exp      DocumentAttribute
+	}
+
+	var doc = newDocument()
+	clear(doc.Attributes.Entry)
+	doc.Attributes.Entry[`key1`] = ``
+	doc.Attributes.Entry[`key2`] = ``
+
+	var listCase = []testCase{{
+		key: `key3`,
+		exp: doc.Attributes,
+	}, {
+		desc: `prefix negation`,
+		key:  `!key1`,
+		exp: DocumentAttribute{
+			Entry: map[string]string{
+				`key2`: ``,
+				`key3`: ``,
+			},
+		},
+	}, {
+		desc: `suffix negation`,
+		key:  `key2!`,
+		exp: DocumentAttribute{
+			Entry: map[string]string{
+				`key3`: ``,
+			},
+		},
+	}, {
+		desc: `leveloffset +`,
+		key:  docAttrLevelOffset,
+		val:  `+2`,
+		exp: DocumentAttribute{
+			Entry: map[string]string{
+				`key3`:        ``,
+				`leveloffset`: `+2`,
+			},
+			LevelOffset: 2,
+		},
+	}, {
+		desc: `leveloffset -`,
+		key:  docAttrLevelOffset,
+		val:  `-2`,
+		exp: DocumentAttribute{
+			Entry: map[string]string{
+				`key3`:        ``,
+				`leveloffset`: `-2`,
+			},
+			LevelOffset: 0,
+		},
+	}, {
+		desc: `leveloffset`,
+		key:  docAttrLevelOffset,
+		val:  `1`,
+		exp: DocumentAttribute{
+			Entry: map[string]string{
+				`key3`:        ``,
+				`leveloffset`: `1`,
+			},
+			LevelOffset: 1,
+		},
+	}, {
+		desc:     `leveloffset: invalid`,
+		key:      docAttrLevelOffset,
+		val:      `*1`,
+		expError: `Document: setAttribute: leveloffset invalid value "*1"`,
+	}}
+
+	var (
+		tc  testCase
+		err error
+	)
+	for _, tc = range listCase {
+		err = doc.setAttribute(tc.key, tc.val)
+		if err != nil {
+			test.Assert(t, tc.desc+` error`, tc.expError, err.Error())
+			continue
+		}
+		test.Assert(t, tc.desc, tc.exp, doc.Attributes)
+	}
+}

@@ -708,7 +708,7 @@ func (el *element) setStyleAdmonition(admName string) {
 func (el *element) toHTML(doc *Document, w io.Writer) {
 	switch el.kind {
 	case lineKindAttribute:
-		_ = doc.Attributes.apply(el.key, el.value)
+		_ = doc.setAttribute(el.key, el.value)
 
 	case elKindCrossReference:
 		var (
