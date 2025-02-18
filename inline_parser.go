@@ -74,11 +74,6 @@ func (pi *inlineParser) do() {
 			continue
 		}
 
-		// We use if-condition with "continue" to break and continue
-		// the for-loop, so it is not possible to use switch-case
-		// here.
-		//
-		//nolint:gocritic
 		if pi.c == '+' {
 			if pi.isEscaped {
 				pi.escape()
@@ -257,11 +252,6 @@ func (pi *inlineParser) do() {
 				continue
 			}
 
-			// We use if-condition with "continue" to break and
-			// continue the for-loop, so it is not possible
-			// to use switch-case here.
-			//
-			//nolint:gocritic
 			if pi.nextc == '<' {
 				if pi.parseCrossRef() {
 					continue

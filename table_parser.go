@@ -79,11 +79,6 @@ func (pt *tableParser) toCells() {
 	tokenTrim = strings.TrimSpace(token)
 	l = len(tokenTrim)
 	for {
-		// We use if-condition with "continue" to break and continue
-		// the for-loop, so it is not possible to use switch-case
-		// here.
-		//
-		//nolint:gocritic
 		if c == '\n' {
 			if l > 0 {
 				cell.writeString(token)

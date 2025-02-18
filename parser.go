@@ -328,11 +328,6 @@ func applySubstitutions(doc *Document, content []byte) []byte {
 	for x < len(raw) {
 		c = raw[x]
 
-		// We use if-condition with "continue" to break and continue
-		// the for-loop, so it is not possible to use switch-case
-		// here.
-		//
-		//nolint:gocritic
 		if c == '{' {
 			newRaw, ok = parseAttrRef(doc, raw, x)
 			if ok {
