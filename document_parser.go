@@ -552,7 +552,7 @@ func (docp *documentParser) parseBlock(parent *element, term int) {
 			el.kind = docp.kind
 			el.addRole(classNameListingBlock)
 			line = docp.consumeLinesUntil(el, docp.kind, nil)
-			el.raw = applySubstitutions(docp.doc, el.raw)
+			el.raw = preprocessBlockCode(docp.doc, el.raw)
 			parent.addChild(el)
 			el = &element{}
 			continue
@@ -872,7 +872,7 @@ func (docp *documentParser) parseListBlock() (el *element, line []byte) {
 				kind: docp.kind,
 			}
 			docp.consumeLinesUntil(el, docp.kind, nil)
-			el.raw = applySubstitutions(docp.doc, el.raw)
+			el.raw = preprocessBlockCode(docp.doc, el.raw)
 			line = nil
 			break
 		}

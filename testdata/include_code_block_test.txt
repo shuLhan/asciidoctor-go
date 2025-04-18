@@ -1,0 +1,37 @@
+Test include directive inside source code block.
+
+>>> case-01
+
+----
+include::testdata/_includes/fragment1.adoc[]
+----
+
+<<< case-01
+
+<div class="listingblock">
+<div class="content">
+<pre>// SPDX-FileCopyrightText: 2020 M. Shulhan &lt;ms@kilabit.info&gt;
+// SPDX-License-Identifier: GPL-3.0-or-later
+This is inside the fragment1.adoc.</pre>
+</div>
+</div>
+
+>>> case-02
+
+----
+before
+include::testdata/_includes/fragment1.adoc[]
+after
+----
+
+<<< case-02
+
+<div class="listingblock">
+<div class="content">
+<pre>before
+// SPDX-FileCopyrightText: 2020 M. Shulhan &lt;ms@kilabit.info&gt;
+// SPDX-License-Identifier: GPL-3.0-or-later
+This is inside the fragment1.adoc.
+after</pre>
+</div>
+</div>

@@ -314,6 +314,30 @@ var _attrRef = map[string]string{
 	`zwsp`:           htmlSymbolZeroWidthSpace,
 }
 
+// preprocessBlockCode preprocess the content of block code, like "include::"
+// directive, and return the new content.
+func preprocessBlockCode(doc *Document, content []byte) (newContent []byte) {
+	var bbuf bytes.Buffer
+	var lines = bytes.Split(content, []byte{'\n'})
+	for _, line := range lines {
+		if bytes.HasPrefix(line, []byte(`include::`)) {
+			var elInclude = parseInclude(doc, line)
+			if elInclude != nil {
+				bbuf.Write(elInclude.content)
+				bbuf.WriteByte('\n')
+				continue
+			}
+		}
+		bbuf.Write(line)
+		bbuf.WriteByte('\n')
+	}
+
+	newContent = applySubstitutions(doc, bbuf.Bytes())
+	return newContent
+}
+
+// applySubstitutions scan the content and replace attribute reference "{}"
+// with its value, and character '<', '>', '&' with HTML symbol.
 func applySubstitutions(doc *Document, content []byte) []byte {
 	var (
 		raw    = bytes.TrimRight(content, " \n")
