@@ -11,6 +11,13 @@ const (
 	DocAttrGenerator   = `generator`
 	DocAttrKeywords    = `keywords`
 
+	// By default, the document contains ":stylesheet:" attribute, which
+	// means using the default embedded CSS.
+	// To disable it, unset the attribute using ":stylesheet!:".
+	// To overwrite it, set the attribute to path of CSS file
+	// ":stylesheet: my.css".
+	DocAttrStylesheet = `stylesheet`
+
 	docAttrAuthorInitials  = `authorinitials`
 	docAttrDocdir          = `docdir`
 	docAttrDocTitle        = `doctitle`
@@ -36,7 +43,6 @@ const (
 	docAttrSectNumLevel    = `sectnumlevels`
 	docAttrSectNums        = `sectnums`
 	docAttrShowTitle       = `showtitle`
-	docAttrStylesheet      = `stylesheet`
 	docAttrTOC             = `toc`
 	docAttrTOCLevels       = `toclevels`
 	docAttrTOCTitle        = `toc-title`
@@ -70,7 +76,7 @@ func newDocumentAttribute() DocumentAttribute {
 			docAttrLastUpdateValue: ``,
 			docAttrSectIDs:         ``,
 			docAttrShowTitle:       ``,
-			docAttrStylesheet:      ``,
+			DocAttrStylesheet:      ``, // Default to embedded CSS.
 			docAttrTableCaption:    ``,
 			docAttrVersionLabel:    ``,
 		},

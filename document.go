@@ -215,8 +215,8 @@ func (doc *Document) ToHTML(out io.Writer) (err error) {
 
 	var ok bool
 
-	_, ok = doc.Attributes.Entry[docAttrStylesheet]
-	if ok {
+	docAttrValue, ok = doc.Attributes.Entry[DocAttrStylesheet]
+	if ok && len(docAttrValue) == 0 {
 		buf.WriteByte('\n')
 		buf.WriteString(_defaultCSS)
 	}
