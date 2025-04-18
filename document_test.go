@@ -22,10 +22,6 @@ func TestOpen(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Since we cannot overwrite the asciidoctor output for
-	// generator, we override ourself.
-	doc.Attributes.Entry[DocAttrGenerator] = `Asciidoctor 2.0.18`
-
 	var buf bytes.Buffer
 
 	err = doc.ToHTML(&buf)

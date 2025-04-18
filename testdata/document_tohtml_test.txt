@@ -7,6 +7,7 @@ v1.0, 15 Dec 2022
 :description: Multiline \
 description \
 with backslash
+:generator!:
 :keywords: multiline, \
 key, \
 words
@@ -22,7 +23,6 @@ Document body.
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="asciidoctor-go 0.7.0">
 <meta name="description" content="Multiline description with backslash">
 <meta name="keywords" content="multiline, key, words">
 <meta name="author" content="John Doe">
@@ -55,6 +55,7 @@ Version 1.0<br>
 = Title
 John Doe <john@doe.tld>
 v1.0, 15 Dec 2022
+:generator!:
 :last-update-label!:
 :idprefix:
 :stylesheet!:
@@ -72,7 +73,6 @@ Section 2 content.
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="asciidoctor-go 0.7.0">
 <meta name="author" content="John Doe">
 <title>Title</title>
 </head>
