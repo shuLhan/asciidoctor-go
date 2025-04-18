@@ -5,7 +5,6 @@ package asciidoctor
 
 import (
 	"bytes"
-	"log"
 	"os"
 	"path/filepath"
 )
@@ -49,10 +48,8 @@ func parseInclude(doc *Document, line []byte) (el *elementInclude) {
 	} else {
 		el.fpath = filepath.Join(doc.docdir, string(newPath))
 	}
-	log.Printf(`parseInclude: fpath: %s`, el.fpath)
 	el.content, err = os.ReadFile(el.fpath)
 	if err != nil {
-		log.Printf(`parseInclude %q: %s`, el.fpath, err)
 		return nil
 	}
 
