@@ -4,7 +4,20 @@
 Shulhan <ms@kilabit.info>
 :toc:
 :sectlinks:
-:four-strips: ----
+
+[#v0_7_1]
+== asciidoctor-go v0.7.1 (2025-04-18)
+
+[BUG FIX] **Fix the logic when applying default embedded CSS.**
+
+By default, the document contains ":stylesheet:" attribute, which
+means using the default embedded CSS.
+To disable it, unset the attribute using ":stylesheet!:".
+To overwrite it, set the attribute to path of CSS file
+":stylesheet: my.css".
+
+[ENHANCEMENT] Export the constant for document attribute "stylesheet".
+
 
 [#v0_7_0]
 == asciidoctor-go v0.7.0 (2025-04-18)
